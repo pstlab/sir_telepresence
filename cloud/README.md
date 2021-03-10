@@ -8,7 +8,19 @@ This folder contains the code for the SI-Robotics cloud. In particular, this fol
 
 ### Compiling the SI-Robotics Cloud
 
-The SI-Robotics Cloud is a [Maven](https://maven.apache.org) project. It is therefore mandatory, in order to compile it, to have a [Java compiler](https://www.oracle.com/it/java/technologies/javase-downloads.html) (version 1.8 or higher) and Maven, properly configured.
+The SI-Robotics Cloud is a [Maven](https://maven.apache.org) project. It is therefore mandatory, in order to compile it, to have a [Java compiler](https://www.oracle.com/it/java/technologies/javase-downloads.html) (version 1.8 or higher) and Maven, properly configured. The compilation is done through the command line execution of the following command:
+
+```
+mvn compile
+```
+
+### Running the SI-Robotics Cloud
+
+The easiest way to run the SI-Robotics Cloud is, again, through Maven. In particular, it is sufficient to run the following command to start all the SI-Robotics Cloud services:
+
+```
+mvn exec:java
+```
 
 ## The REST API
 
