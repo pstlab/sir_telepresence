@@ -10,8 +10,7 @@ This folder contains the code for the SI-Robotics cloud. In particular, this fol
 
 A preliminary entity-relation diagram of the database is shown in the following figure.
 
-![Database structure](docs/figs/db.png)
-![Database structure](docs/figs/db.png?raw=true "Title")
+![ER Diagram](docs/figs/db.png?raw=true "ER Diagram")
 
 ## Compiling the SI-Robotics Cloud
 
