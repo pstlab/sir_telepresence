@@ -6,6 +6,7 @@
         <class>it.cnr.istc.pst.sirobotics.telepresence.db.DeviceEntity</class>
         <class>it.cnr.istc.pst.sirobotics.telepresence.db.DeviceTypeEntity</class>
         <class>it.cnr.istc.pst.sirobotics.telepresence.db.SensorEntity</class>
+        <class>it.cnr.istc.pst.sirobotics.telepresence.db.SensorDataEntity</class>
         <class>it.cnr.istc.pst.sirobotics.telepresence.db.RobotEntity</class>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />

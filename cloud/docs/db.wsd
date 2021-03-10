@@ -1,0 +1,47 @@
+@startuml db
+'skinparam Monochrome true
+'skinparam Handwritten true
+
+class User {
+    long id
+    String first_name
+    String second_name
+    String[] roles
+}
+
+class House {
+    long id
+}
+
+class Device {
+    long id
+    String name
+    String description
+}
+
+class Sensor {
+    String position
+}
+
+class Robot {
+}
+
+class SensorData {
+    Date time
+    String raw_data
+}
+
+class SensorType {
+    long id
+    String description
+}
+
+User <--> House
+Device <--> House
+Device <|-- Sensor
+Device <|-- Robot
+Robot <--> Sensor
+SensorType <--> Sensor
+Sensor --> SensorData
+
+@enduml
