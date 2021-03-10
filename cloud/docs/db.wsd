@@ -31,7 +31,7 @@ class SensorData {
     String raw_data
 }
 
-class SensorType {
+class DeviceType {
     long id
     String description
 }
@@ -40,8 +40,8 @@ User <--> House
 Device <--> House
 Device <|-- Sensor
 Device <|-- Robot
+Device <--> DeviceType
 Robot <--> Sensor
-SensorType <--> Sensor
 Sensor --> SensorData
 
 @enduml
