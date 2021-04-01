@@ -26,7 +26,7 @@ mvn exec:java
 
 The REST API is intended to provide information of the house as well as to allow admin users, through the web interface, to configure the house, associating it devices and users.
 
-The next things to do are:
+##### Next things to do
  - [ ] Create a REST API for managing the users, creating new accounts, editing and deleting them.
  - [ ] Create a REST API for assigning roles to the users.
  - [ ] Create a REST API for creating and editing device types.
@@ -46,7 +46,68 @@ The topics used for the publication of data by the sensors, to which, therefore,
 
 Specifically, `<house-id>` is the house's identifier. Similarly, `<device-id>` is the sensor's identifier.
 
-The next things to do are:
+#### Natural Language Interaction
+
+As for the natural language interaction that the robot can have with people inside the house, we need two channels for each house: an `in` channel, from the person to the system, contains the text uttered by the user, and an `out` channel, from the system to the person, contains the text to be spoken by the robot. Considering that the robot is, to all intents and purposes, a *device*, these channels translate into the following MQTT topics:
+
+```
+<house-id>/<device-id>/nlp/in/<utterance>
+```
+
+```
+<house-id>/<device-id>/nlp/out/<utterance>
+```
+
+#### Planning and Plan Execution
+
+Similar to natural language interaction, we also need two channels in the case of the commands for planning and plan executions: an `in` channel, from the robot to the cloud, and an `out` channel, from the cloud to the robot. Channel names, in particular, are viewed from the planner's perspective. In other words, the commands produced by the planner to be executed on the robotic platform are written on the `out` channel. On the contrary, commands produced by the robotic platform for the planner are written on the `in` channel.
+
+Over time, the plan executor produces the commands that the robotic platform must execute. These commands are characterized by an identifier, a predicate symbol, and a set of parameters (whose cardinality depends on the predicate) represented by name-value pairs. In general, multiple commands can arrive at the same time. In conclusion, a message for the robotic platform produced by the planner will have the following structure:
+
+```
+[<id> <predicate-name> <pair-value>*]+
+```
+
+An example of a message for the robotic platform could be, for example, the navigation command:
+
+```json
+[{"id":42, "predicate":"goto", "parameters":[{"room":"r0"}, {"start": 15}, {"end": 30}]}]
+```
+
+These commands will hence be published be the planner on the MQTT topic:
+
+```
+<house-id>/<device-id>/planner/out
+```
+
+Finally, as regards the commands produced by the robotic platform for the planner, we have four types of commands:
+
+The **plan** commands, aiming at generating a plan and executing it, contain the text of the planning problem, are written on the following topic:
+
+```
+<house-id>/<device-id>/planner/in/plan
+```
+
+The **cant-start-yet** commands, aiming at delaying the starting time of some commands, contain an array of the ids which can't start yet, are written on the following topic:
+
+```
+<house-id>/<device-id>/planner/in/cant-start-yet
+```
+
+The **cant-finish-yet** commands, aiming at delaying the ending time of some commands, contain an array of the ids which can't finish yet, are written on the following topic:
+
+```
+<house-id>/<device-id>/planner/in/cant-finish-yet
+```
+
+The **failure** commands, aiming at notifying the planner that the execution of some commands lead to some kind of failure (hence, the planner should produce an alternative plan), contain an array of the ids lead to the failure, are written on the following topic:
+
+```
+<house-id>/<device-id>/planner/in/failure
+```
+
+##### Next things to do
+ - [ ] Connect the planner to the proper MQTT topic.
  - [ ] Create a web interface for mimicking sensors, so as to allow to produce fake data.
 
 ## The Database Structure
