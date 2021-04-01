@@ -74,7 +74,7 @@ An example of a message for the robotic platform could be, for example, the navi
 [{"id":42, "predicate":"goto", "parameters":[{"room":"r0"}, {"start": 15}, {"end": 30}]}]
 ```
 
-These commands will hence be published be the planner on the MQTT topic:
+These commands will hence be published by the planner on the MQTT topic:
 
 ```
 <house-id>/<device-id>/planner/out
