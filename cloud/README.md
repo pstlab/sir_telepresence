@@ -58,6 +58,14 @@ As for the natural language interaction that the robot can have with people insi
 <house-id>/<device-id>/nlp/out/<utterance>
 ```
 
+Moreover, to allow the customization of the interaction, the language generation module needs some customization parameters. A channel is therefore necessary to update these parameters. The format of the expected commands is, simply, an array of name-value pairs (i.e., `<name-value>+`) that identify those parameters whose value has changed and indicate their new value.
+
+An example of such a message can be the update of the emotions perceived from the user's face, such as
+
+```json
+[{"fearful":0.3}, {"angry": 0.15}, {"happy": 0.55}]
+```
+
 #### Planning and Plan Execution
 
 Similar to natural language interaction, we also need two channels in the case of the commands for planning and plan executions: an `in` channel, from the robot to the cloud, and an `out` channel, from the cloud to the robot. Channel names, in particular, are viewed from the planner's perspective. In other words, the commands produced by the planner to be executed on the robotic platform are written on the `out` channel. On the contrary, commands produced by the robotic platform for the planner are written on the `in` channel.
@@ -65,7 +73,7 @@ Similar to natural language interaction, we also need two channels in the case o
 Over time, the plan executor produces the commands that the robotic platform must execute. These commands are characterized by an identifier, a predicate symbol, and a set of parameters (whose cardinality depends on the predicate) represented by name-value pairs. In general, multiple commands can arrive at the same time. In conclusion, a message for the robotic platform produced by the planner will have the following structure:
 
 ```
-[<id> <predicate-name> <pair-value>*]+
+[<id> <predicate-name> <name-value>*]+
 ```
 
 An example of a message for the robotic platform could be, for example, the navigation command:
