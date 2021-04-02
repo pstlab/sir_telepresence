@@ -1,0 +1,47 @@
+<div class="h-100" id="body-user">
+    <nav class="navbar navbar-expand-sm navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand"><img src="/si_robotics.png" height="30" class="d-inline-block align-top" alt=""
+                    loading="lazy"></a>
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="map-button" type="button" data-bs-toggle="tab" data-bs-target="#map"
+                        role="tab" aria-controls="map" aria-selected="true">Mappa</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="sensors-button" type="button" data-bs-toggle="tab"
+                        data-bs-target="#sensors" role="tab" aria-controls="sensors" aria-selected="true">Sensori</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="robot-button" type="button" data-bs-toggle="tab" data-bs-target="#robot"
+                        role="tab" aria-controls="robot" aria-selected="false">Robot</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown"
+                        id="account-menu">Profilo</button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#profile-modal">Profilo</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" onclick="logout()">Esci</a>
+                    </div>
+                </div>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="tab-content" style="position: absolute; top: 65px; bottom: 85px; left: 0; right: 0;">
+        <div class="tab-pane fade show active body-panel h-100 p-4" id="map" role="tabpanel">
+            Qui vanno le informazioni relative alla casa selezionata.
+        </div>
+
+        <div class="tab-pane fade show body-panel h-100 p-4" id="sensors" role="tabpanel">
+            Qui vanno le informazioni relative ai sensori (e.g., grafico con andamento nel tempo dei sensori).
+        </div>
+
+        <div class="tab-pane fade show body-panel h-100 p-4" id="robot" role="tabpanel">
+            Qui vanno le informazioni relative al robot (e.g., navigazione).
+        </div>
+    </div>
+</div>

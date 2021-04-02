@@ -1,0 +1,92 @@
+<div id="body-guest">
+    <nav class="navbar navbar-expand-sm navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand"><img src="/si_robotics.png" height="30" class="d-inline-block align-top" alt=""
+                    loading="lazy"></a>
+            <ul class="navbar-nav ms-auto navbar-right" id="navbar-connect">
+                <li class="nav-item">
+                    <button class="btn btn-sm btn-primary me-2" data-bs-toggle="modal" data-bs-target="#login-modal"
+                        type="button">Accedi</button>
+                </li>
+                <li class="nav-item">
+                    <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#signup-modal"
+                        type="button">Registrati</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="intro mx-4 my-3">
+        <h2>SocIal ROBOTics for active and healthy ageing (SI-ROBOTICS)</h2>
+
+        <p> Il progetto SI-ROBOTICS punta a sviluppare nuove soluzioni nell’ambito delle tecnologie
+            robotiche assistive ICT a supporto di persone anziane e di professionisti che svolgono servizi di
+            assistenza sanitaria. L’obiettivo scientifico, in particolare, consiste nell’ideare e implementare
+            nuove soluzioni tecnologiche, facilmente adattabili, che portino alla realizzazione di modelli
+            comportamentali e di interazione avanzati al fine di aiutare gli anziani nelle attività quotidiane
+            e di valutare il progresso del loro declino fisico e cognitivo (fragilità, demenza, lieve deterioramento
+            cognitivo).
+        </p>
+
+        <p>
+            &copy; 2021 <a href="https://www.istc.cnr.it/en/group/pst">Planning and Scheduling Technology
+                Laboratory</a>.
+        </p>
+    </div>
+
+    <div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="login-modal-label"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="login-modal-label">Accedi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="login-email" class="col-form-label">Email:</label>
+                            <input type="text" class="form-control" id="login-email">
+                            <label for="login-password" class="col-form-label">Password:</label>
+                            <input type="password" class="form-control" id="login-password"></input>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="login()">Accedi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="signup-modal" tabindex="-1" role="dialog" aria-labelledby="signup-modal-label"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="signup-modal-label">Registrati</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="signin-first-name" class="col-form-label">Nome:</label>
+                            <input type="text" class="form-control" id="signin-first-name">
+                            <label for="signin-last-name" class="col-form-label">Cognome:</label>
+                            <input type="text" class="form-control" id="signin-last-name">
+                            <label for="signin-email" class="col-form-label">Email:</label>
+                            <input type="text" class="form-control" id="signin-email">
+                            <label for="signin-password" class="col-form-label">Password:</label>
+                            <input type="password" class="form-control" id="signin-password"></input>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="signin()">Registrati</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
