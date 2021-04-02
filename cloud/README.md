@@ -85,7 +85,13 @@ An example of a message for the robotic platform could be, for example, the navi
 These commands will hence be published by the planner on the MQTT topic:
 
 ```
-<house-id>/<device-id>/planner/out
+<house-id>/<device-id>/planner/out/starting
+```
+
+Additionally, the robotic platform will be notified when some commands are supposed to finish. Such notifications are constituted by an array of ids, indicating the finishing atoms, which are published on the following MQTT topic:
+
+```
+<house-id>/<device-id>/planner/out/finishing
 ```
 
 Finally, as regards the commands produced by the robotic platform for the planner, we have four types of commands:
@@ -102,7 +108,7 @@ The **cant-start-yet** commands, aiming at delaying the starting time of some co
 <house-id>/<device-id>/planner/in/cant-start-yet
 ```
 
-The **cant-finish-yet** commands, aiming at delaying the ending time of some commands, contain an array of the ids which can't finish yet, are written on the following topic:
+The **cant-finish-yet** commands, aiming at delaying the finishing time of some commands, contain an array of the ids which can't finish yet, are written on the following topic:
 
 ```
 <house-id>/<device-id>/planner/in/cant-finish-yet

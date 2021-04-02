@@ -6,7 +6,9 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.crypto.SecretKeyFactory;
@@ -14,6 +16,8 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,17 +30,20 @@ import io.javalin.http.UnauthorizedResponse;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.ClasspathResourceLoader;
 import io.moquette.broker.config.ResourceLoaderConfig;
+import it.cnr.istc.pst.sirobotics.telepresence.db.HouseEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.UserEntity;
 
 public class App {
 
     private static final Logger LOG = LoggerFactory.getLogger(App.class);
+    static final ObjectMapper MAPPER = new ObjectMapper();
     static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("SI-Robotics_PU");
     private static final SecureRandom RAND = new SecureRandom();
     // private static final int ITERATIONS = 65536;
     private static final int ITERATIONS = 5;
     private static final int KEY_LENGTH = 512;
     private static final String ALGORITHM = "PBKDF2WithHmacSHA512";
+    private static final Map<Long, HouseManager> MANAGERS = new HashMap<>();
 
     public static void main(String[] args) {
         final Server broker = new Server();
@@ -70,10 +77,12 @@ public class App {
                 LOG.info("SI-Robotics web server is running..");
                 final EntityManager em = App.EMF.createEntityManager();
 
-                final List<UserEntity> users = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
+                final List<HouseEntity> houses = em.createQuery("SELECT he FROM HouseEntity he", HouseEntity.class)
                         .getResultList();
 
-                LOG.info("Loading {} users..", users.size());
+                LOG.info("Loading {} houses..", houses.size());
+                for (HouseEntity house : houses)
+                    MANAGERS.put(house.getId(), new HouseManager(house));
             });
         });
 
