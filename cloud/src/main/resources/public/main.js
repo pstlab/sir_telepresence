@@ -42,6 +42,12 @@ function setUser(user) {
             $('#profile-email').val(user.email);
             $('#profile-first-name').val(user.firstName);
             $('#profile-last-name').val(user.lastName);
+
+            // we set the users..
+            const users_list = $('#users-list');
+            const user_row_template = $('#user-row');
+            for (const [id, user] of Object.entries(user.users).sort((a, b) => (a[1].lastName + a[1].firstName).localeCompare(b[1].lastName + b[1].firstName)))
+                create_user_row(users_list, user_row_template, id, user);
         });
     }
     else if (user.roles.includes('User')) {
@@ -130,4 +136,16 @@ function update_user() {
         } else
             alert(response.statusText);
     });
+}
+
+function create_user_row(users_list, template, id, user) {
+    const user_row = template[0].content.cloneNode(true);
+    const row_content = user_row.querySelector('.list-group-item');
+    row_content.id += id;
+    const divs = row_content.querySelectorAll('div');
+    var online_span = divs[0].childNodes[0];
+    online_span.id += id;
+    online_span.classList.add(user.online ? online_icon : offline_icon);
+    divs[0].append(user.lastName + ', ' + user.firstName);
+    users_list.append(user_row);
 }
