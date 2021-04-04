@@ -91,10 +91,6 @@ function signin() {
     form.append('password', password);
     form.append('first_name', first_name);
     form.append('last_name', last_name);
-    form.append('email', email);
-    form.append('password', password);
-    form.append('first_name', first_name);
-    form.append('last_name', last_name);
     fetch('http://' + config.host + ':' + config.service_port + '/user', {
         method: 'post',
         body: form

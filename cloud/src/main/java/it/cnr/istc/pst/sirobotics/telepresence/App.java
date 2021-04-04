@@ -1,5 +1,11 @@
 package it.cnr.istc.pst.sirobotics.telepresence;
 
+import static io.javalin.apibuilder.ApiBuilder.delete;
+import static io.javalin.apibuilder.ApiBuilder.get;
+import static io.javalin.apibuilder.ApiBuilder.path;
+import static io.javalin.apibuilder.ApiBuilder.post;
+import static io.javalin.core.security.SecurityUtil.roles;
+
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -29,6 +35,7 @@ import io.javalin.core.security.Role;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.UnauthorizedResponse;
+import io.javalin.websocket.WsContext;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.ClasspathResourceLoader;
 import io.moquette.broker.config.ResourceLoaderConfig;
@@ -88,9 +95,50 @@ public class App {
             });
         });
 
+        // we create the routes..
+        app.routes(() -> {
+            post("login", UserController::login, roles(SIRRole.Guest, SIRRole.Admin));
+            path("user", () -> {
+                post(UserController::createUser, roles(SIRRole.Guest, SIRRole.Admin));
+                path(":id", () -> {
+                    get(UserController::getUser, roles(SIRRole.Admin, SIRRole.User));
+                    post(UserController::updateUser, roles(SIRRole.Admin, SIRRole.User));
+                    delete(UserController::deleteUser, roles(SIRRole.Admin, SIRRole.User));
+                });
+            });
+            path("users", () -> get(UserController::getAllUsers, roles(SIRRole.Admin)));
+        });
+
+        app.ws("/communication", ws -> {
+            ws.onConnect(ctx -> new_connection(ctx));
+            ws.onClose(ctx -> lost_connection(ctx));
+            ws.onMessage(ctx -> new_message(ctx));
+        }, roles(SIRRole.Admin, SIRRole.User));
+
         app.start();
 
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            app.stop();
+            EMF.close();
+        }));
+
         LOG.info("SI-Robotics server started! Press [CTRL+C] to stop..");
+    }
+
+    private static synchronized void new_connection(final WsContext ctx) {
+        final Long id = Long.valueOf(ctx.queryParam("id"));
+        LOG.info("User #{} connected..", id);
+        UserController.ONLINE.put(id, ctx);
+    }
+
+    private static synchronized void lost_connection(final WsContext ctx) {
+        final Long id = Long.valueOf(ctx.queryParam("id"));
+        LOG.info("User #{} disconnected..", id);
+        UserController.ONLINE.remove(id);
+    }
+
+    private static synchronized void new_message(final WsContext ctx) {
+        LOG.info("Received message {}..", ctx);
     }
 
     static Set<Role> getRoles(final Context ctx) {
@@ -106,11 +154,11 @@ public class App {
             final UserEntity user_entity = em.find(UserEntity.class, id);
             em.close();
             if (user_entity == null)
-                return Collections.singleton(ExplRole.Guest);
+                return Collections.singleton(SIRRole.Guest);
             else
-                return user_entity.getRoles().stream().map(r -> ExplRole.valueOf(r)).collect(Collectors.toSet());
+                return user_entity.getRoles().stream().map(r -> SIRRole.valueOf(r)).collect(Collectors.toSet());
         }
-        return Collections.singleton(ExplRole.Guest);
+        return Collections.singleton(SIRRole.Guest);
     }
 
     public static String generateSalt() {
@@ -138,7 +186,7 @@ public class App {
         }
     }
 
-    enum ExplRole implements Role {
+    enum SIRRole implements Role {
         Guest, User, Admin
     }
 }
