@@ -5,16 +5,17 @@
                     loading="lazy"></a>
             <ul class="nav nav-tabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link active" id="map-button" type="button" data-bs-toggle="tab" data-bs-target="#map"
-                        role="tab" aria-controls="map" aria-selected="true">Mappa</a>
+                    <a class="nav-link active" id="users-button" type="button" data-bs-toggle="tab"
+                        data-bs-target="#users" role="tab" aria-controls="users" aria-selected="true">Utenti</a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link active" id="sensors-button" type="button" data-bs-toggle="tab"
-                        data-bs-target="#sensors" role="tab" aria-controls="sensors" aria-selected="true">Sensori</a>
+                    <a class="nav-link active" id="houses-button" type="button" data-bs-toggle="tab"
+                        data-bs-target="#houses" role="tab" aria-controls="houses" aria-selected="true">Case</a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link" id="robot-button" type="button" data-bs-toggle="tab" data-bs-target="#robot"
-                        role="tab" aria-controls="robot" aria-selected="false">Robot</a>
+                    <a class="nav-link" id="interaction-button" type="button" data-bs-toggle="tab"
+                        data-bs-target="#interaction" role="tab" aria-controls="interaction"
+                        aria-selected="false">Interazione</a>
                 </li>
             </ul>
             <ul class="navbar-nav ms-auto">
@@ -32,16 +33,16 @@
     </nav>
 
     <div class="tab-content" style="position: absolute; top: 65px; bottom: 85px; left: 0; right: 0;">
-        <div class="tab-pane fade show active body-panel h-100 p-4" id="map" role="tabpanel">
-            Qui vanno le informazioni relative alla casa selezionata.
+        <div class="tab-pane fade show active body-panel h-100 p-4" id="users" role="tabpanel">
+            Qui vanno le informazioni sugli utenti.
         </div>
 
-        <div class="tab-pane fade show body-panel h-100 p-4" id="sensors" role="tabpanel">
-            Qui vanno le informazioni relative ai sensori (e.g., grafico con andamento nel tempo dei sensori).
+        <div class="tab-pane fade show body-panel h-100 p-4" id="houses" role="tabpanel">
+            Qui vanno le informazioni sulle case (e.g., configurazione sensori e robot).
         </div>
 
-        <div class="tab-pane fade show body-panel h-100 p-4" id="robot" role="tabpanel">
-            Qui vanno le informazioni relative al robot (e.g., navigazione).
+        <div class="tab-pane fade show body-panel h-100 p-4" id="interaction" role="tabpanel">
+            Qui vanno le informazioni sull'interazione.
         </div>
     </div>
 

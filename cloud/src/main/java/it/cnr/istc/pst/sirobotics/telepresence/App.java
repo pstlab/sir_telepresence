@@ -6,10 +6,12 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -63,7 +65,7 @@ public class App {
         final Javalin app = Javalin.create(config -> {
             config.addStaticFiles("/public");
             config.accessManager((final Handler handler, final Context ctx, final Set<Role> permittedRoles) -> {
-                if (permittedRoles.contains(getRole(ctx)))
+                if (getRoles(ctx).stream().anyMatch(role -> permittedRoles.contains(role)))
                     handler.handle(ctx);
                 else
                     throw new UnauthorizedResponse();
@@ -91,7 +93,7 @@ public class App {
         LOG.info("SI-Robotics server started! Press [CTRL+C] to stop..");
     }
 
-    static Role getRole(final Context ctx) {
+    static Set<Role> getRoles(final Context ctx) {
         final String auth_head = ctx.header("Authorization");
         Long id = null;
         if (auth_head != null)
@@ -100,17 +102,15 @@ public class App {
         if (ws_protocol_head != null)
             id = Long.valueOf(ctx.queryParam("id"));
         if (id != null) {
-            final EntityManager em = EMF.createEntityManager();
+            final EntityManager em = App.EMF.createEntityManager();
             final UserEntity user_entity = em.find(UserEntity.class, id);
             em.close();
             if (user_entity == null)
-                return ExplRole.Guest;
-            else if (user_entity.getRoles().contains(ExplRole.Admin.name()))
-                return ExplRole.Admin;
+                return Collections.singleton(ExplRole.Guest);
             else
-                return ExplRole.User;
+                return user_entity.getRoles().stream().map(r -> ExplRole.valueOf(r)).collect(Collectors.toSet());
         }
-        return ExplRole.Guest;
+        return Collections.singleton(ExplRole.Guest);
     }
 
     public static String generateSalt() {
