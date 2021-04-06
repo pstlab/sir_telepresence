@@ -7,6 +7,7 @@ import static io.javalin.apibuilder.ApiBuilder.post;
 import static io.javalin.core.security.SecurityUtil.roles;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -39,6 +40,14 @@ import io.javalin.websocket.WsContext;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.ClasspathResourceLoader;
 import io.moquette.broker.config.ResourceLoaderConfig;
+import io.moquette.interception.InterceptHandler;
+import io.moquette.interception.messages.InterceptAcknowledgedMessage;
+import io.moquette.interception.messages.InterceptConnectMessage;
+import io.moquette.interception.messages.InterceptConnectionLostMessage;
+import io.moquette.interception.messages.InterceptDisconnectMessage;
+import io.moquette.interception.messages.InterceptPublishMessage;
+import io.moquette.interception.messages.InterceptSubscribeMessage;
+import io.moquette.interception.messages.InterceptUnsubscribeMessage;
 import it.cnr.istc.pst.sirobotics.telepresence.db.HouseEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.UserEntity;
 
@@ -58,6 +67,54 @@ public class App {
         final Server broker = new Server();
         try {
             broker.startServer(new ResourceLoaderConfig(new ClasspathResourceLoader()));
+            broker.addInterceptHandler(new InterceptHandler() {
+
+                @Override
+                public String getID() {
+                    return "MQTT Broker";
+                }
+
+                @Override
+                public Class<?>[] getInterceptedMessageTypes() {
+                    return InterceptHandler.ALL_MESSAGE_TYPES;
+                }
+
+                @Override
+                public void onConnect(InterceptConnectMessage msg) {
+                    LOG.info("Client {} connected..", msg.getClientID());
+                }
+
+                @Override
+                public void onConnectionLost(InterceptConnectionLostMessage msg) {
+                    LOG.info("Connection lost for client {}..", msg.getClientID());
+                }
+
+                @Override
+                public void onDisconnect(InterceptDisconnectMessage msg) {
+                    LOG.info("Client {} disconnected..", msg.getClientID());
+                }
+
+                @Override
+                public void onMessageAcknowledged(InterceptAcknowledgedMessage msg) {
+                }
+
+                @Override
+                public void onPublish(InterceptPublishMessage msg) {
+                    LOG.info("Client {} published a message..", msg.getClientID());
+                    LOG.info("Topic: {}", msg.getTopicName());
+                    LOG.info("Message: {}", msg.getPayload().toString(Charset.forName("UTF-8")));
+                }
+
+                @Override
+                public void onSubscribe(InterceptSubscribeMessage msg) {
+                    LOG.info("Client {} subscribed to topic {}..", msg.getClientID(), msg.getTopicFilter());
+                }
+
+                @Override
+                public void onUnsubscribe(InterceptUnsubscribeMessage msg) {
+                    LOG.info("Client {} unsubscribed from topic {}..", msg.getClientID(), msg.getTopicFilter());
+                }
+            });
         } catch (IOException ex) {
             LOG.error("Cannot start SI-Robotics MQTT broker..", ex);
         }
