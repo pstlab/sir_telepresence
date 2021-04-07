@@ -16,12 +16,20 @@ public class DeviceTypeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String description;
+    private String name, description;
     @OneToMany
     private Collection<DeviceEntity> devices = new ArrayList<>();
 
     public Long getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {

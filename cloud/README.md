@@ -27,7 +27,7 @@ mvn exec:java
 The REST API is intended to provide information of the house as well as to allow admin users, through the web interface, to configure the house, associating it devices and users.
 
 ##### Next things to do
- - [ ] Create a REST API for managing the users, creating new accounts, editing and deleting them.
+ - [X] Create a REST API for managing the users, creating new accounts, editing and deleting them.
  - [ ] Create a REST API for assigning roles to the users.
  - [ ] Create a REST API for creating and editing device types.
  - [ ] Create a REST API for managing the houses, adding new devices, editing and deleting them.
@@ -88,10 +88,10 @@ These commands will hence be published by the planner on the MQTT topic:
 <house-id>/<device-id>/planner/out/starting
 ```
 
-Additionally, the robotic platform will be notified when some commands are supposed to finish. Such notifications are constituted by an array of ids, indicating the finishing atoms, which are published on the following MQTT topic:
+Additionally, the robotic platform will be notified when some commands are supposed to finish. Such notifications are constituted by an array of ids, indicating the ending atoms, which are published on the following MQTT topic:
 
 ```
-<house-id>/<device-id>/planner/out/finishing
+<house-id>/<device-id>/planner/out/ending
 ```
 
 Finally, as regards the commands produced by the robotic platform for the planner, we have four types of commands:
@@ -102,16 +102,16 @@ The **plan** commands, aiming at generating a plan and executing it, contain the
 <house-id>/<device-id>/planner/in/plan
 ```
 
-The **cant-start-yet** commands, aiming at delaying the starting time of some commands, contain an array of the ids which can't start yet, are written on the following topic:
+The **dont-start-yet** commands, aiming at delaying the starting time of some commands, contain an array of the ids which can't start yet, are written on the following topic:
 
 ```
-<house-id>/<device-id>/planner/in/cant-start-yet
+<house-id>/<device-id>/planner/in/dont-start-yet
 ```
 
-The **cant-finish-yet** commands, aiming at delaying the finishing time of some commands, contain an array of the ids which can't finish yet, are written on the following topic:
+The **dont-end-yet** commands, aiming at delaying the finishing time of some commands, contain an array of the ids which can't finish yet, are written on the following topic:
 
 ```
-<house-id>/<device-id>/planner/in/cant-finish-yet
+<house-id>/<device-id>/planner/in/dont-end-yet
 ```
 
 The **failure** commands, aiming at notifying the planner that the execution of some commands lead to some kind of failure (hence, the planner should produce an alternative plan), contain an array of the ids lead to the failure, are written on the following topic:

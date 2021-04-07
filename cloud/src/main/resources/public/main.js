@@ -32,27 +32,37 @@ $(window).on('load', function () {
     }
 });
 
-function setUser(user) {
+function setUser(usr) {
     user = usr;
     $('#body-guest').remove();
     if (user.roles.includes('Admin')) {
         $.get('body_admin.html', function (data) {
-            $('#exploraa-body').append(data);
+            $('#sirobotics-body').append(data);
             $('#account-menu').text(user.firstName);
             $('#profile-email').val(user.email);
             $('#profile-first-name').val(user.firstName);
             $('#profile-last-name').val(user.lastName);
 
             // we set the users..
-            const users_list = $('#users-list');
-            const user_row_template = $('#user-row');
-            for (const [id, user] of Object.entries(user.users).sort((a, b) => (a[1].lastName + a[1].firstName).localeCompare(b[1].lastName + b[1].firstName)))
-                create_user_row(users_list, user_row_template, id, user);
+            fetch('http://' + config.host + ':' + config.service_port + '/users', {
+                method: 'get',
+                headers: { 'Authorization': 'Basic ' + user.id }
+            }).then(response => {
+                if (response.ok) {
+                    response.json().then(data => {
+                        const users_list = $('#users-list');
+                        const user_row_template = $('#user-row');
+                        for (const c_user of data.sort((a, b) => (a[1].lastName + a[1].firstName).localeCompare(b[1].lastName + b[1].firstName)))
+                            create_user_row(users_list, user_row_template, c_user.id, c_user);
+                    });
+                } else
+                    alert(response.statusText);
+            });
         });
     }
     else if (user.roles.includes('User')) {
         $.get('body_user.html', function (data) {
-            $('#exploraa-body').append(data);
+            $('#sirobotics-body').append(data);
             $('#account-menu').text(user.firstName);
             $('#profile-email').val(user.email);
             $('#profile-first-name').val(user.firstName);

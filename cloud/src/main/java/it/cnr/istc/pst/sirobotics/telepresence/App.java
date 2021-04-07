@@ -26,6 +26,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
@@ -43,12 +45,14 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.UnauthorizedResponse;
 import io.javalin.websocket.WsContext;
+import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceTypeEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.HouseEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.UserEntity;
 
 public class App {
 
     private static final Logger LOG = LoggerFactory.getLogger(App.class);
+    static final int QoS = 2;
     static final ObjectMapper MAPPER = new ObjectMapper();
     static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("SI-Robotics_PU");
     private static final SecureRandom RAND = new SecureRandom();
@@ -60,6 +64,8 @@ public class App {
     private static MqttClient mqtt_client;
 
     public static void main(String[] args) {
+        MAPPER.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+
         Properties properties = new Properties();
         try {
             properties.load(App.class.getClassLoader().getResourceAsStream("config.properties"));
@@ -68,16 +74,17 @@ public class App {
         }
 
         try {
-            LOG.info("Creating MQTT client..");
+            LOG.info("Creating the SI-Robotics cloud MQTT client..");
             mqtt_client = new MqttClient(properties.getProperty("mqtt_host"), "SI-Robotics cloud",
                     new MemoryPersistence());
 
-            LOG.info("Connecting the MQTT client to the broker..");
-            MqttConnectOptions connOpts = new MqttConnectOptions();
-            connOpts.setCleanSession(true);
-            mqtt_client.connect(connOpts);
+            LOG.info("Connecting the SI-Robotics cloud MQTT client to the broker..");
+            MqttConnectOptions connect_options = new MqttConnectOptions();
+            connect_options.setCleanSession(true);
+            connect_options.setWill("online", "false".getBytes(), QoS, true);
+            mqtt_client.connect(connect_options);
 
-            LOG.info("Subscribing the MQTT client to all the topics..");
+            LOG.info("Subscribing the SI-Robotics cloud MQTT client to all the topics..");
             mqtt_client.subscribe("#", new IMqttMessageListener() {
 
                 @Override
@@ -107,12 +114,50 @@ public class App {
                 LOG.info("SI-Robotics web server is running..");
                 final EntityManager em = App.EMF.createEntityManager();
 
+                final List<UserEntity> users = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
+                        .getResultList();
+
+                LOG.info("Loading {} users..", users.size());
+                if (users.isEmpty()) {
+                    LOG.info("Creating new admin user..");
+                    UserEntity admin = new UserEntity();
+                    admin.setEmail("admin");
+                    final String salt = generateSalt();
+                    admin.setSalt(salt);
+                    admin.setPassword(hashPassword("admin", salt));
+                    admin.setFirstName("Admin");
+                    admin.setLastName("Admin");
+                    admin.addRole(SIRRole.Admin.name());
+
+                    em.getTransaction().begin();
+                    em.persist(admin);
+                    em.getTransaction().commit();
+                }
+
+                final List<DeviceTypeEntity> device_types = em
+                        .createQuery("SELECT dt FROM DeviceTypeEntity dt", DeviceTypeEntity.class).getResultList();
+
+                LOG.info("Loading {} device types..", device_types.size());
+                if (device_types.isEmpty()) {
+                    LOG.info("Creating new robot type..");
+                    DeviceTypeEntity ohmni_type = new DeviceTypeEntity();
+                    ohmni_type.setName("Ohmni Robot");
+                    ohmni_type.setDescription(
+                            "Un robot di telepresenza che trasforma il modo in cui le persone si connettono.");
+
+                    em.getTransaction().begin();
+                    em.persist(ohmni_type);
+                    em.getTransaction().commit();
+                }
+
                 final List<HouseEntity> houses = em.createQuery("SELECT he FROM HouseEntity he", HouseEntity.class)
                         .getResultList();
 
                 LOG.info("Loading {} houses..", houses.size());
                 for (HouseEntity house : houses)
-                    MANAGERS.put(house.getId(), new HouseManager(house));
+                    MANAGERS.put(house.getId(), new HouseManager(house, mqtt_client));
+
+                em.close();
             });
         });
 
