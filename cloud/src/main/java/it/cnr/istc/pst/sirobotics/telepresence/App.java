@@ -7,7 +7,6 @@ import static io.javalin.apibuilder.ApiBuilder.post;
 import static io.javalin.core.security.SecurityUtil.roles;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -17,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,6 +28,12 @@ import javax.persistence.Persistence;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,17 +43,6 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.UnauthorizedResponse;
 import io.javalin.websocket.WsContext;
-import io.moquette.broker.Server;
-import io.moquette.broker.config.ClasspathResourceLoader;
-import io.moquette.broker.config.ResourceLoaderConfig;
-import io.moquette.interception.InterceptHandler;
-import io.moquette.interception.messages.InterceptAcknowledgedMessage;
-import io.moquette.interception.messages.InterceptConnectMessage;
-import io.moquette.interception.messages.InterceptConnectionLostMessage;
-import io.moquette.interception.messages.InterceptDisconnectMessage;
-import io.moquette.interception.messages.InterceptPublishMessage;
-import io.moquette.interception.messages.InterceptSubscribeMessage;
-import io.moquette.interception.messages.InterceptUnsubscribeMessage;
 import it.cnr.istc.pst.sirobotics.telepresence.db.HouseEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.UserEntity;
 
@@ -62,69 +57,38 @@ public class App {
     private static final int KEY_LENGTH = 512;
     private static final String ALGORITHM = "PBKDF2WithHmacSHA512";
     private static final Map<Long, HouseManager> MANAGERS = new HashMap<>();
+    private static MqttClient mqtt_client;
 
     public static void main(String[] args) {
-        final Server broker = new Server();
+        Properties properties = new Properties();
         try {
-            broker.startServer(new ResourceLoaderConfig(new ClasspathResourceLoader()));
-            broker.addInterceptHandler(new InterceptHandler() {
-
-                @Override
-                public String getID() {
-                    return "MQTT Broker";
-                }
-
-                @Override
-                public Class<?>[] getInterceptedMessageTypes() {
-                    return InterceptHandler.ALL_MESSAGE_TYPES;
-                }
-
-                @Override
-                public void onConnect(InterceptConnectMessage msg) {
-                    LOG.info("Client {} connected..", msg.getClientID());
-                }
-
-                @Override
-                public void onConnectionLost(InterceptConnectionLostMessage msg) {
-                    LOG.info("Connection lost for client {}..", msg.getClientID());
-                }
-
-                @Override
-                public void onDisconnect(InterceptDisconnectMessage msg) {
-                    LOG.info("Client {} disconnected..", msg.getClientID());
-                }
-
-                @Override
-                public void onMessageAcknowledged(InterceptAcknowledgedMessage msg) {
-                }
-
-                @Override
-                public void onPublish(InterceptPublishMessage msg) {
-                    LOG.info("Client {} published a message..", msg.getClientID());
-                    LOG.info("Topic: {}", msg.getTopicName());
-                    LOG.info("Message: {}", msg.getPayload().toString(Charset.forName("UTF-8")));
-                }
-
-                @Override
-                public void onSubscribe(InterceptSubscribeMessage msg) {
-                    LOG.info("Client {} subscribed to topic {}..", msg.getClientID(), msg.getTopicFilter());
-                }
-
-                @Override
-                public void onUnsubscribe(InterceptUnsubscribeMessage msg) {
-                    LOG.info("Client {} unsubscribed from topic {}..", msg.getClientID(), msg.getTopicFilter());
-                }
-            });
+            properties.load(App.class.getClassLoader().getResourceAsStream("config.properties"));
         } catch (IOException ex) {
-            LOG.error("Cannot start SI-Robotics MQTT broker..", ex);
+            LOG.error("Cannot load config file..", ex);
         }
 
-        // Bind a shutdown hook
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            LOG.info("Stopping SI-Robotics MQTT broker..");
-            broker.stopServer();
-            LOG.info("SI-Robotics MQTT broker stopped..");
-        }));
+        try {
+            LOG.info("Creating MQTT client..");
+            mqtt_client = new MqttClient(properties.getProperty("mqtt_host"), "SI-Robotics cloud",
+                    new MemoryPersistence());
+
+            LOG.info("Connecting the MQTT client to the broker..");
+            MqttConnectOptions connOpts = new MqttConnectOptions();
+            connOpts.setCleanSession(true);
+            mqtt_client.connect(connOpts);
+
+            LOG.info("Subscribing the MQTT client to all the topics..");
+            mqtt_client.subscribe("#", new IMqttMessageListener() {
+
+                @Override
+                public void messageArrived(String topic, MqttMessage message) throws Exception {
+                    LOG.info("Topic: {}", topic);
+                    LOG.info("Payload: {}", new String(message.getPayload()));
+                }
+            });
+        } catch (MqttException ex) {
+            LOG.error("Cannot create MQTT client..", ex);
+        }
 
         final Javalin app = Javalin.create(config -> {
             config.addStaticFiles("/public");
