@@ -58,6 +58,38 @@ function setUser(usr) {
                 } else
                     alert(response.statusText);
             });
+
+            // we set the houses..
+            fetch('http://' + config.host + ':' + config.service_port + '/houses', {
+                method: 'get',
+                headers: { 'Authorization': 'Basic ' + user.id }
+            }).then(response => {
+                if (response.ok) {
+                    response.json().then(data => {
+                        const houses_list = $('#houses-list');
+                        const house_row_template = $('#house-row');
+                        for (const c_house of data.sort((a, b) => a[1].name.localeCompare(b[1].name)))
+                            create_house_row(houses_list, house_row_template, c_house.id, c_house);
+                    });
+                } else
+                    alert(response.statusText);
+            });
+
+            // we set the device types..
+            fetch('http://' + config.host + ':' + config.service_port + '/device_types', {
+                method: 'get',
+                headers: { 'Authorization': 'Basic ' + user.id }
+            }).then(response => {
+                if (response.ok) {
+                    response.json().then(data => {
+                        const device_types_list = $('#device-types-list');
+                        const device_type_row_template = $('#device-type-row');
+                        for (const c_device_type of data.sort((a, b) => a[1].name.localeCompare(b[1].name)))
+                            create_device_type_row(device_types_list, device_type_row_template, c_device_type.id, c_device_type);
+                    });
+                } else
+                    alert(response.statusText);
+            });
         });
     }
     else if (user.roles.includes('User')) {
@@ -148,6 +180,48 @@ function update_user() {
     });
 }
 
+function new_house() {
+    const form = new FormData();
+    form.append('name', $('#new-house-name').val());
+    form.append('description', $('#new-house-description').val());
+    fetch('http://' + config.host + ':' + config.service_port + '/house', {
+        method: 'post',
+        headers: { 'Authorization': 'Basic ' + user.id },
+        body: form
+    }).then(response => {
+        if (response.ok) {
+            $('#new-house-name').val('');
+            $('#new-house-description').val('');
+            response.json().then(house => {
+                create_house_row($('#houses-list'), $('#house-row'), house.id, house);
+            });
+        } else
+            alert(response.statusText);
+    });
+}
+
+function new_device_type() {
+    const form = new FormData();
+    form.append('name', $('#new-device-type-name').val());
+    form.append('description', $('#new-device-type-description').val());
+    form.append('category', $('#new-device-type-category').val());
+    fetch('http://' + config.host + ':' + config.service_port + '/device_type', {
+        method: 'post',
+        headers: { 'Authorization': 'Basic ' + user.id },
+        body: form
+    }).then(response => {
+        if (response.ok) {
+            $('#new-device-type-name').val('');
+            $('#new-device-type-description').val('');
+            $('#new-device-type-category').val('');
+            response.json().then(device_type => {
+                create_device_type_row($('#device-types-list'), $('#device-type-row'), device_type.id, device_type);
+            });
+        } else
+            alert(response.statusText);
+    });
+}
+
 function create_user_row(users_list, template, id, user) {
     const user_row = template[0].content.cloneNode(true);
     const row_content = user_row.querySelector('.list-group-item');
@@ -158,4 +232,22 @@ function create_user_row(users_list, template, id, user) {
     online_span.classList.add(user.online ? online_icon : offline_icon);
     divs[0].append(user.lastName + ', ' + user.firstName);
     users_list.append(user_row);
+}
+
+function create_house_row(houses_list, template, id, house) {
+    const house_row = template[0].content.cloneNode(true);
+    const row_content = house_row.querySelector('.list-group-item');
+    row_content.id += id;
+    const divs = row_content.querySelectorAll('div');
+    divs[0].append(house.name);
+    houses_list.append(house_row);
+}
+
+function create_device_type_row(device_types_list, template, id, device_type) {
+    const device_type_row = template[0].content.cloneNode(true);
+    const row_content = device_type_row.querySelector('.list-group-item');
+    row_content.id += id;
+    const divs = row_content.querySelectorAll('div');
+    divs[0].append(device_type.name);
+    device_types_list.append(device_type_row);
 }

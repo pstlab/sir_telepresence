@@ -19,7 +19,7 @@ public class DeviceTypeEntity {
     private Long id;
     private String name, description;
     @Enumerated
-    private Type type;
+    private DeviceTypeCategory category;
     @OneToMany
     private final Collection<DeviceEntity> devices = new ArrayList<>();
 
@@ -43,12 +43,12 @@ public class DeviceTypeEntity {
         this.description = description;
     }
 
-    public Type getType() {
-        return type;
+    public DeviceTypeCategory getCategory() {
+        return category;
     }
 
-    public void setType(final Type type) {
-        this.type = type;
+    public void setCategory(final DeviceTypeCategory category) {
+        this.category = category;
     }
 
     public Collection<DeviceEntity> getDevices() {
@@ -63,7 +63,7 @@ public class DeviceTypeEntity {
         devices.remove(device);
     }
 
-    public enum Type {
+    public enum DeviceTypeCategory {
         Robot, Sensor
     }
 }

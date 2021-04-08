@@ -32,7 +32,7 @@ public class HouseController {
      * 
      * @param ctx
      */
-    static void getAllHouses(final Context ctx) {
+    static synchronized void getAllHouses(final Context ctx) {
         LOG.info("retrieving all houses..");
         final EntityManager em = App.EMF.createEntityManager();
         final List<HouseEntity> house_entities = em.createQuery("SELECT he FROM HouseEntity he", HouseEntity.class)
@@ -47,11 +47,15 @@ public class HouseController {
      * 
      * @param ctx
      */
-    static void createHouse(final Context ctx) {
-        LOG.info("creating new house..");
+    static synchronized void createHouse(final Context ctx) {
+        final String name = ctx.formParam("name");
+        final String description = ctx.formParam("description");
+        LOG.info("creating new house {}..", name);
         final EntityManager em = App.EMF.createEntityManager();
 
         final HouseEntity house_entity = new HouseEntity();
+        house_entity.setName(name);
+        house_entity.setDescription(description);
 
         try {
             em.getTransaction().begin();
@@ -61,7 +65,9 @@ public class HouseController {
             throw new ConflictResponse();
         }
 
-        ctx.status(201);
+        App.MANAGERS.put(house_entity.getId(), new HouseManager(house_entity));
+
+        ctx.json(toHouse(house_entity, false));
         em.close();
     }
 
@@ -70,7 +76,7 @@ public class HouseController {
      * 
      * @param ctx
      */
-    static void getHouse(final Context ctx) {
+    static synchronized void getHouse(final Context ctx) {
         final long house_id = Long.valueOf(ctx.queryParam("id"));
         LOG.info("retrieving house #{}..", house_id);
         final EntityManager em = App.EMF.createEntityManager();
@@ -83,14 +89,31 @@ public class HouseController {
     }
 
     /**
+     * Returns all the stored sensor types.
+     * 
+     * @param ctx
+     */
+    static synchronized void getAllDeviceTypes(final Context ctx) {
+        LOG.info("retrieving all sensor types..");
+        final EntityManager em = App.EMF.createEntityManager();
+        final List<DeviceTypeEntity> device_type_entities = em
+                .createQuery("SELECT dt FROM DeviceTypeEntity dt", DeviceTypeEntity.class).getResultList();
+
+        ctx.json(device_type_entities.stream().map(device_type -> toDeviceType(device_type, false))
+                .collect(Collectors.toList()));
+        em.close();
+    }
+
+    /**
      * Creates a new device type and stores it into the database.
      * 
      * @param ctx
      */
-    static void createDeviceType(final Context ctx) {
+    static synchronized void createDeviceType(final Context ctx) {
         final String name = ctx.formParam("name");
         final String description = ctx.formParam("description");
-        final DeviceTypeEntity.Type type = DeviceTypeEntity.Type.valueOf(ctx.formParam("type"));
+        final DeviceTypeEntity.DeviceTypeCategory category = DeviceTypeEntity.DeviceTypeCategory.values()[Integer
+                .parseInt(ctx.formParam("category"))];
         LOG.info("creating new device type {}..", name);
 
         final EntityManager em = App.EMF.createEntityManager();
@@ -98,7 +121,7 @@ public class HouseController {
         final DeviceTypeEntity device_type_entity = new DeviceTypeEntity();
         device_type_entity.setName(name);
         device_type_entity.setDescription(description);
-        device_type_entity.setType(type);
+        device_type_entity.setCategory(category);
 
         try {
             em.getTransaction().begin();
@@ -108,7 +131,7 @@ public class HouseController {
             throw new ConflictResponse();
         }
 
-        ctx.status(201);
+        ctx.json(toDeviceType(device_type_entity, false));
         em.close();
     }
 
@@ -117,7 +140,7 @@ public class HouseController {
      * 
      * @param ctx
      */
-    static void createDevice(final Context ctx) {
+    static synchronized void createDevice(final Context ctx) {
         final String name = ctx.formParam("name");
         final String description = ctx.formParam("description");
         final long type_id = Long.valueOf(ctx.formParam("type_id"));
@@ -129,7 +152,7 @@ public class HouseController {
             throw new NotFoundResponse();
 
         DeviceEntity device_entity = null;
-        switch (device_type_entity.getType()) {
+        switch (device_type_entity.getCategory()) {
         case Robot:
             device_entity = new RobotEntity();
             break;
@@ -152,13 +175,13 @@ public class HouseController {
             throw new ConflictResponse();
         }
 
-        ctx.status(201);
+        ctx.json(toDevice(device_entity, false));
         em.close();
     }
 
     static House toHouse(final HouseEntity entity, final boolean include_data) {
-        return new House(entity.getId(),
-                entity.getDevices().stream().map(device -> toDevice(device, false)).collect(Collectors.toList()));
+        return new House(entity.getId(), entity.getName(), entity.getDescription(), entity.getDevices().stream()
+                .map(device -> toDevice(device, include_data)).collect(Collectors.toList()));
     }
 
     static DeviceType toDeviceType(final DeviceTypeEntity entity, final boolean include_devices) {

@@ -17,7 +17,6 @@ import javax.persistence.EntityManager;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,12 +44,10 @@ public class HouseManager {
     private static final ScheduledExecutorService EXECUTOR = Executors
             .newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
     private ScheduledFuture<?> scheduled_feature;
-    private HouseEntity house;
-    private MqttClient mqtt_client;
+    private final HouseEntity house;
 
-    public HouseManager(final HouseEntity house, final MqttClient mqtt_client) {
+    public HouseManager(final HouseEntity house) {
         this.house = house;
-        this.mqtt_client = mqtt_client;
         final Map<Long, Atom> atoms = new HashMap<>();
         final Solver solver = new Solver();
         solver.addStateListener(new StateListener() {
@@ -58,7 +55,7 @@ public class HouseManager {
             @Override
             public void inconsistentProblem() {
                 try {
-                    mqtt_client.publish(house.getId() + "/planner/out", "inconsistent".getBytes(), App.QoS, false);
+                    App.MQTT_CLIENT.publish(house.getId() + "/planner/out", "inconsistent".getBytes(), App.QoS, false);
                 } catch (final MqttException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
                 }
@@ -80,7 +77,7 @@ public class HouseManager {
             @Override
             public void solutionFound() {
                 try {
-                    mqtt_client.publish(house.getId() + "/planner/out", "solution".getBytes(), App.QoS, false);
+                    App.MQTT_CLIENT.publish(house.getId() + "/planner/out", "solution".getBytes(), App.QoS, false);
                 } catch (final MqttException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
                 }
@@ -97,7 +94,7 @@ public class HouseManager {
             @Override
             public void startedSolving() {
                 try {
-                    mqtt_client.publish(house.getId() + "/planner/out", "solving".getBytes(), App.QoS, false);
+                    App.MQTT_CLIENT.publish(house.getId() + "/planner/out", "solving".getBytes(), App.QoS, false);
                 } catch (final MqttException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
                 }
@@ -113,7 +110,7 @@ public class HouseManager {
             @Override
             public void endingAtoms(final long[] atms) {
                 try {
-                    mqtt_client.publish(house.getId() + "/planner/out/ending",
+                    App.MQTT_CLIENT.publish(house.getId() + "/planner/out/ending",
                             App.MAPPER.writeValueAsString(atms).getBytes(), App.QoS, false);
                 } catch (final JsonProcessingException | MqttException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
@@ -126,7 +123,7 @@ public class HouseManager {
                 for (int i = 0; i < commands.length; i++)
                     commands[i] = new Command(atoms.get(atms[i]));
                 try {
-                    mqtt_client.publish(house.getId() + "/planner/out/starting",
+                    App.MQTT_CLIENT.publish(house.getId() + "/planner/out/starting",
                             App.MAPPER.writeValueAsString(commands).getBytes(), App.QoS, false);
                 } catch (final JsonProcessingException | MqttException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
@@ -146,7 +143,7 @@ public class HouseManager {
             }
         });
         try {
-            mqtt_client.subscribe(house.getId() + "/planner/in/plan", (topic, message) -> {
+            App.MQTT_CLIENT.subscribe(house.getId() + "/planner/in/plan", (topic, message) -> {
                 // we read the problem..
                 LOG.info("Reading the problem..");
                 solver.read(new String(message.getPayload()));
@@ -160,10 +157,10 @@ public class HouseManager {
                 scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1000, TimeUnit.SECONDS);
             });
 
-            mqtt_client.subscribe(house.getId() + "/planner/in/dont-start-yet", (topic, message) -> tl_exec
+            App.MQTT_CLIENT.subscribe(house.getId() + "/planner/in/dont-start-yet", (topic, message) -> tl_exec
                     .dont_start_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
 
-            mqtt_client.subscribe(house.getId() + "/planner/in/dont-end-yet", (topic, message) -> tl_exec
+            App.MQTT_CLIENT.subscribe(house.getId() + "/planner/in/dont-end-yet", (topic, message) -> tl_exec
                     .dont_end_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
         } catch (final MqttException ex) {
             LOG.error("Cannot subscribe the house #" + house.getId() + " to the MQTT broker..", ex);
@@ -177,7 +174,7 @@ public class HouseManager {
         }
     }
 
-    public void addRobot(RobotEntity robot_entity) {
+    public void addRobot(final RobotEntity robot_entity) {
         final Map<Long, Atom> atoms = new HashMap<>();
         final Solver solver = new Solver();
         solver.addStateListener(new StateListener() {
@@ -185,7 +182,7 @@ public class HouseManager {
             @Override
             public void inconsistentProblem() {
                 try {
-                    mqtt_client.publish(house.getId() + "/" + robot_entity.getId() + "/planner/out",
+                    App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/planner/out",
                             "inconsistent".getBytes(), App.QoS, false);
                 } catch (final MqttException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
@@ -208,7 +205,7 @@ public class HouseManager {
             @Override
             public void solutionFound() {
                 try {
-                    mqtt_client.publish(house.getId() + "/" + robot_entity.getId() + "/planner/out",
+                    App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/planner/out",
                             "solution".getBytes(), App.QoS, false);
                 } catch (final MqttException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
@@ -226,7 +223,7 @@ public class HouseManager {
             @Override
             public void startedSolving() {
                 try {
-                    mqtt_client.publish(house.getId() + "/" + robot_entity.getId() + "/planner/out",
+                    App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/planner/out",
                             "solving".getBytes(), App.QoS, false);
                 } catch (final MqttException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
@@ -243,7 +240,7 @@ public class HouseManager {
             @Override
             public void endingAtoms(final long[] atms) {
                 try {
-                    mqtt_client.publish(house.getId() + "/" + robot_entity.getId() + "/planner/out/ending",
+                    App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/planner/out/ending",
                             App.MAPPER.writeValueAsString(atms).getBytes(), App.QoS, false);
                 } catch (final JsonProcessingException | MqttException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
@@ -256,7 +253,7 @@ public class HouseManager {
                 for (int i = 0; i < commands.length; i++)
                     commands[i] = new Command(atoms.get(atms[i]));
                 try {
-                    mqtt_client.publish(house.getId() + "/" + robot_entity.getId() + "/planner/out/starting",
+                    App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/planner/out/starting",
                             App.MAPPER.writeValueAsString(commands).getBytes(), App.QoS, false);
                 } catch (final JsonProcessingException | MqttException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
@@ -276,25 +273,27 @@ public class HouseManager {
             }
         });
         try {
-            mqtt_client.subscribe(house.getId() + "/" + robot_entity.getId() + "/planner/in/plan", (topic, message) -> {
-                // we read the problem..
-                LOG.info("Reading the problem..");
-                solver.read(new String(message.getPayload()));
+            App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/planner/in/plan",
+                    (topic, message) -> {
+                        // we read the problem..
+                        LOG.info("Reading the problem..");
+                        solver.read(new String(message.getPayload()));
 
-                // we solve the problem..
-                LOG.info("Solving the problem..");
-                solver.solve();
+                        // we solve the problem..
+                        LOG.info("Solving the problem..");
+                        solver.solve();
 
-                // we execute the solution..
-                LOG.info("Starting plan execution..");
-                scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1000, TimeUnit.SECONDS);
-            });
+                        // we execute the solution..
+                        LOG.info("Starting plan execution..");
+                        scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1000,
+                                TimeUnit.SECONDS);
+                    });
 
-            mqtt_client.subscribe(house.getId() + "/" + robot_entity.getId() + "/planner/in/dont-start-yet",
+            App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/planner/in/dont-start-yet",
                     (topic, message) -> tl_exec
                             .dont_start_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
 
-            mqtt_client.subscribe(house.getId() + "/" + robot_entity.getId() + "/planner/in/dont-end-yet",
+            App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/planner/in/dont-end-yet",
                     (topic, message) -> tl_exec
                             .dont_end_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
         } catch (final MqttException ex) {
@@ -302,9 +301,9 @@ public class HouseManager {
         }
     }
 
-    public void addSensor(SensorEntity sensor_entity) {
+    public void addSensor(final SensorEntity sensor_entity) {
         try {
-            mqtt_client.subscribe(house.getId() + "/" + sensor_entity.getId(), (topic, message) -> {
+            App.MQTT_CLIENT.subscribe(house.getId() + "/" + sensor_entity.getId(), (topic, message) -> {
                 final EntityManager em = App.EMF.createEntityManager();
                 final SensorDataEntity data = new SensorDataEntity();
                 data.setSensingTime(new Date());

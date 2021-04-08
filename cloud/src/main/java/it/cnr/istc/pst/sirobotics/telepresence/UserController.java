@@ -35,7 +35,7 @@ public class UserController {
      * 
      * @param ctx
      */
-    static void login(final Context ctx) {
+    static synchronized void login(final Context ctx) {
         final String email = ctx.formParam("email");
         final String password = ctx.formParam("password");
         LOG.info("user {} is logging in..", email);
@@ -61,7 +61,7 @@ public class UserController {
      * 
      * @param ctx
      */
-    static void getAllUsers(final Context ctx) {
+    static synchronized void getAllUsers(final Context ctx) {
         LOG.info("retrieving all users..");
         final EntityManager em = App.EMF.createEntityManager();
         final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
@@ -76,7 +76,7 @@ public class UserController {
      * 
      * @param ctx
      */
-    static void createUser(final Context ctx) {
+    static synchronized void createUser(final Context ctx) {
         final String email = ctx.formParam("email");
         final String salt = App.generateSalt();
         final String password = App.hashPassword(ctx.formParam("password"), salt);
@@ -110,7 +110,7 @@ public class UserController {
      * 
      * @param ctx
      */
-    static void getUser(final Context ctx) {
+    static synchronized void getUser(final Context ctx) {
         final long user_id = Long.valueOf(ctx.queryParam("id"));
         LOG.info("retrieving user #{}..", user_id);
         final EntityManager em = App.EMF.createEntityManager();
@@ -122,7 +122,7 @@ public class UserController {
         em.close();
     }
 
-    static void updateUser(final Context ctx) {
+    static synchronized void updateUser(final Context ctx) {
         final long user_id = Long.valueOf(ctx.pathParam("id"));
         LOG.info("updating user #{}..", user_id);
         final User user = ctx.bodyAsClass(User.class);
@@ -141,7 +141,7 @@ public class UserController {
         em.close();
     }
 
-    static void deleteUser(final Context ctx) {
+    static synchronized void deleteUser(final Context ctx) {
         final long user_id = Long.valueOf(ctx.pathParam("id"));
         LOG.info("deleting user #{}..", user_id);
         final EntityManager em = App.EMF.createEntityManager();

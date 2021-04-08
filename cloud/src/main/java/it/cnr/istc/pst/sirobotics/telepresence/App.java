@@ -60,40 +60,40 @@ public class App {
     private static final int ITERATIONS = 5;
     private static final int KEY_LENGTH = 512;
     private static final String ALGORITHM = "PBKDF2WithHmacSHA512";
-    private static final Map<Long, HouseManager> MANAGERS = new HashMap<>();
-    private static MqttClient mqtt_client;
+    static final Map<Long, HouseManager> MANAGERS = new HashMap<>();
+    static MqttClient MQTT_CLIENT;
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         MAPPER.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 
-        Properties properties = new Properties();
+        final Properties properties = new Properties();
         try {
             properties.load(App.class.getClassLoader().getResourceAsStream("config.properties"));
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             LOG.error("Cannot load config file..", ex);
         }
 
         try {
             LOG.info("Creating the SI-Robotics cloud MQTT client..");
-            mqtt_client = new MqttClient(properties.getProperty("mqtt_host"), "SI-Robotics cloud",
+            MQTT_CLIENT = new MqttClient(properties.getProperty("mqtt_host"), "SI-Robotics cloud",
                     new MemoryPersistence());
 
             LOG.info("Connecting the SI-Robotics cloud MQTT client to the broker..");
-            MqttConnectOptions connect_options = new MqttConnectOptions();
+            final MqttConnectOptions connect_options = new MqttConnectOptions();
             connect_options.setCleanSession(true);
             connect_options.setWill("online", "false".getBytes(), QoS, true);
-            mqtt_client.connect(connect_options);
+            MQTT_CLIENT.connect(connect_options);
 
             LOG.info("Subscribing the SI-Robotics cloud MQTT client to all the topics..");
-            mqtt_client.subscribe("#", new IMqttMessageListener() {
+            MQTT_CLIENT.subscribe("#", new IMqttMessageListener() {
 
                 @Override
-                public void messageArrived(String topic, MqttMessage message) throws Exception {
+                public void messageArrived(final String topic, final MqttMessage message) throws Exception {
                     LOG.info("Topic: {}", topic);
                     LOG.info("Payload: {}", new String(message.getPayload()));
                 }
             });
-        } catch (MqttException ex) {
+        } catch (final MqttException ex) {
             LOG.error("Cannot create MQTT client..", ex);
         }
 
@@ -120,7 +120,7 @@ public class App {
                 LOG.info("Loading {} users..", users.size());
                 if (users.isEmpty()) {
                     LOG.info("Creating new admin user..");
-                    UserEntity admin = new UserEntity();
+                    final UserEntity admin = new UserEntity();
                     admin.setEmail("admin");
                     final String salt = generateSalt();
                     admin.setSalt(salt);
@@ -139,8 +139,8 @@ public class App {
 
                 LOG.info("Loading {} device types..", device_types.size());
                 if (device_types.isEmpty()) {
-                    LOG.info("Creating new robot type..");
-                    DeviceTypeEntity ohmni_type = new DeviceTypeEntity();
+                    LOG.info("Creating sample robot type..");
+                    final DeviceTypeEntity ohmni_type = new DeviceTypeEntity();
                     ohmni_type.setName("Ohmni Robot");
                     ohmni_type.setDescription(
                             "Un robot di telepresenza che trasforma il modo in cui le persone si connettono.");
@@ -154,8 +154,8 @@ public class App {
                         .getResultList();
 
                 LOG.info("Loading {} houses..", houses.size());
-                for (HouseEntity house : houses)
-                    MANAGERS.put(house.getId(), new HouseManager(house, mqtt_client));
+                for (final HouseEntity house : houses)
+                    MANAGERS.put(house.getId(), new HouseManager(house));
 
                 em.close();
             });
@@ -173,6 +173,14 @@ public class App {
                 });
             });
             path("users", () -> get(UserController::getAllUsers, roles(SIRRole.Admin)));
+            path("house", () -> {
+                post(HouseController::createHouse, roles(SIRRole.Admin));
+            });
+            path("houses", () -> get(HouseController::getAllHouses, roles(SIRRole.Admin)));
+            path("device_type", () -> {
+                post(HouseController::createDeviceType, roles(SIRRole.Admin));
+            });
+            path("device_types", () -> get(HouseController::getAllDeviceTypes, roles(SIRRole.Admin)));
         });
 
         app.ws("/communication", ws -> {
@@ -228,22 +236,22 @@ public class App {
     }
 
     public static String generateSalt() {
-        byte[] salt = new byte[KEY_LENGTH];
+        final byte[] salt = new byte[KEY_LENGTH];
         RAND.nextBytes(salt);
         return Base64.getEncoder().encodeToString(salt);
     }
 
-    public static String hashPassword(String password, String salt) {
-        char[] chars = password.toCharArray();
-        byte[] bytes = salt.getBytes();
+    public static String hashPassword(final String password, final String salt) {
+        final char[] chars = password.toCharArray();
+        final byte[] bytes = salt.getBytes();
 
-        PBEKeySpec spec = new PBEKeySpec(chars, bytes, ITERATIONS, KEY_LENGTH);
+        final PBEKeySpec spec = new PBEKeySpec(chars, bytes, ITERATIONS, KEY_LENGTH);
 
         Arrays.fill(chars, Character.MIN_VALUE);
 
         try {
-            SecretKeyFactory fac = SecretKeyFactory.getInstance(ALGORITHM);
-            byte[] securePassword = fac.generateSecret(spec).getEncoded();
+            final SecretKeyFactory fac = SecretKeyFactory.getInstance(ALGORITHM);
+            final byte[] securePassword = fac.generateSecret(spec).getEncoded();
             return Base64.getEncoder().encodeToString(securePassword);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
             return null;
