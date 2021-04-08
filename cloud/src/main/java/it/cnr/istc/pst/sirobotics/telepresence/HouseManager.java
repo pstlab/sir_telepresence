@@ -45,130 +45,278 @@ public class HouseManager {
     private static final ScheduledExecutorService EXECUTOR = Executors
             .newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
     private ScheduledFuture<?> scheduled_feature;
+    private HouseEntity house;
+    private MqttClient mqtt_client;
 
     public HouseManager(final HouseEntity house, final MqttClient mqtt_client) {
-        final EntityManager em = App.EMF.createEntityManager();
-        for (final DeviceEntity device_entity : house.getDevices()) {
-            if (device_entity instanceof RobotEntity) {
-                final Map<Long, Atom> atoms = new HashMap<>();
-                final Solver solver = new Solver();
-                solver.addStateListener(new StateListener() {
+        this.house = house;
+        this.mqtt_client = mqtt_client;
+        final Map<Long, Atom> atoms = new HashMap<>();
+        final Solver solver = new Solver();
+        solver.addStateListener(new StateListener() {
 
-                    @Override
-                    public void inconsistentProblem() {
-                    }
-
-                    @Override
-                    public void log(String arg0) {
-                    }
-
-                    @Override
-                    public void read(String arg0) {
-                    }
-
-                    @Override
-                    public void read(String[] arg0) {
-                    }
-
-                    @Override
-                    public void solutionFound() {
-                        atoms.clear();
-
-                        for (final Type t : solver.getTypes().values())
-                            for (final Predicate p : t.getPredicates().values())
-                                p.getInstances().stream().map(atm -> (Atom) atm)
-                                        .filter(atm -> (atm.getState() == Atom.AtomState.Active))
-                                        .forEach(atm -> atoms.put(atm.getSigma(), atm));
-                    }
-
-                    @Override
-                    public void startedSolving() {
-                    }
-
-                    @Override
-                    public void stateChanged() {
-                    }
-                });
-                final TimelinesExecutor tl_exec = new TimelinesExecutor(solver, new Rational(1));
-                tl_exec.addExecutorListener(new ExecutorListener() {
-
-                    @Override
-                    public void endingAtoms(final long[] atms) {
-                        try {
-                            mqtt_client.publish(house.getId() + "/" + device_entity.getId() + "/planner/out/ending",
-                                    App.MAPPER.writeValueAsString(atms).getBytes(), App.QoS, false);
-                        } catch (final JsonProcessingException | MqttException ex) {
-                            LOG.error("Cannot create MQTT message..", ex);
-                        }
-                    }
-
-                    @Override
-                    public void startingAtoms(final long[] atms) {
-                        Command[] commands = new Command[atms.length];
-                        for (int i = 0; i < commands.length; i++)
-                            commands[i] = new Command(atoms.get(atms[i]));
-                        try {
-                            mqtt_client.publish(house.getId() + "/" + device_entity.getId() + "/planner/out/starting",
-                                    App.MAPPER.writeValueAsString(commands).getBytes(), App.QoS, false);
-                        } catch (final JsonProcessingException | MqttException ex) {
-                            LOG.error("Cannot create MQTT message..", ex);
-                        }
-                    }
-
-                    @Override
-                    public void tick(final Rational current_time) {
-                        try {
-                            if (((ArithItem) solver.get("horizon")).getValue().leq(current_time)) {
-                                LOG.info("Nothing more to execute..");
-                                scheduled_feature.cancel(false);
-                            }
-                        } catch (final NoSuchFieldException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+            @Override
+            public void inconsistentProblem() {
                 try {
-                    mqtt_client.subscribe(house.getId() + "/" + device_entity.getId() + "/planner/in/plan",
-                            (topic, message) -> {
-                                // we read the problem..
-                                LOG.info("Reading the problem..");
-                                solver.read(new String(message.getPayload()));
-
-                                // we solve the problem..
-                                LOG.info("Solving the problem..");
-                                solver.solve();
-
-                                // we execute the solution..
-                                LOG.info("Starting plan execution..");
-                                scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1000,
-                                        TimeUnit.SECONDS);
-                            });
-
-                    mqtt_client.subscribe(house.getId() + "/" + device_entity.getId() + "/planner/in/dont-start-yet",
-                            (topic, message) -> tl_exec.dont_start_yet(
-                                    App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
-
-                    mqtt_client.subscribe(house.getId() + "/" + device_entity.getId() + "/planner/in/dont-end-yet",
-                            (topic, message) -> tl_exec.dont_end_yet(
-                                    App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
+                    mqtt_client.publish(house.getId() + "/planner/out", "inconsistent".getBytes(), App.QoS, false);
                 } catch (final MqttException ex) {
-                    LOG.error("Cannot subscribe the robot #" + device_entity.getId() + " to the MQTT broker..", ex);
-                }
-            } else if (device_entity instanceof SensorEntity) {
-                try {
-                    mqtt_client.subscribe(house.getId() + "/" + device_entity.getId(), (topic, message) -> {
-                        final SensorDataEntity data = new SensorDataEntity();
-                        data.setSensingTime(new Date());
-                        data.setRawData(new String(message.getPayload()));
-                        em.getTransaction().begin();
-                        ((SensorEntity) device_entity).addData(data);
-                        em.persist(data);
-                        em.getTransaction().commit();
-                    });
-                } catch (final MqttException ex) {
-                    LOG.error("Cannot subscribe the device #" + device_entity.getId() + " to the MQTT broker..", ex);
+                    LOG.error("Cannot create MQTT message..", ex);
                 }
             }
+
+            @Override
+            public void log(final String log) {
+                LOG.info("[House #" + house.getId() + "] " + log);
+            }
+
+            @Override
+            public void read(final String script) {
+            }
+
+            @Override
+            public void read(final String[] files) {
+            }
+
+            @Override
+            public void solutionFound() {
+                try {
+                    mqtt_client.publish(house.getId() + "/planner/out", "solution".getBytes(), App.QoS, false);
+                } catch (final MqttException ex) {
+                    LOG.error("Cannot create MQTT message..", ex);
+                }
+
+                atoms.clear();
+
+                for (final Type t : solver.getTypes().values())
+                    for (final Predicate p : t.getPredicates().values())
+                        p.getInstances().stream().map(atm -> (Atom) atm)
+                                .filter(atm -> (atm.getState() == Atom.AtomState.Active))
+                                .forEach(atm -> atoms.put(atm.getSigma(), atm));
+            }
+
+            @Override
+            public void startedSolving() {
+                try {
+                    mqtt_client.publish(house.getId() + "/planner/out", "solving".getBytes(), App.QoS, false);
+                } catch (final MqttException ex) {
+                    LOG.error("Cannot create MQTT message..", ex);
+                }
+            }
+
+            @Override
+            public void stateChanged() {
+            }
+        });
+        final TimelinesExecutor tl_exec = new TimelinesExecutor(solver, new Rational(1));
+        tl_exec.addExecutorListener(new ExecutorListener() {
+
+            @Override
+            public void endingAtoms(final long[] atms) {
+                try {
+                    mqtt_client.publish(house.getId() + "/planner/out/ending",
+                            App.MAPPER.writeValueAsString(atms).getBytes(), App.QoS, false);
+                } catch (final JsonProcessingException | MqttException ex) {
+                    LOG.error("Cannot create MQTT message..", ex);
+                }
+            }
+
+            @Override
+            public void startingAtoms(final long[] atms) {
+                final Command[] commands = new Command[atms.length];
+                for (int i = 0; i < commands.length; i++)
+                    commands[i] = new Command(atoms.get(atms[i]));
+                try {
+                    mqtt_client.publish(house.getId() + "/planner/out/starting",
+                            App.MAPPER.writeValueAsString(commands).getBytes(), App.QoS, false);
+                } catch (final JsonProcessingException | MqttException ex) {
+                    LOG.error("Cannot create MQTT message..", ex);
+                }
+            }
+
+            @Override
+            public void tick(final Rational current_time) {
+                try {
+                    if (((ArithItem) solver.get("horizon")).getValue().leq(current_time)) {
+                        LOG.info("Nothing more to execute..");
+                        scheduled_feature.cancel(false);
+                    }
+                } catch (final NoSuchFieldException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        try {
+            mqtt_client.subscribe(house.getId() + "/planner/in/plan", (topic, message) -> {
+                // we read the problem..
+                LOG.info("Reading the problem..");
+                solver.read(new String(message.getPayload()));
+
+                // we solve the problem..
+                LOG.info("Solving the problem..");
+                solver.solve();
+
+                // we execute the solution..
+                LOG.info("Starting plan execution..");
+                scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1000, TimeUnit.SECONDS);
+            });
+
+            mqtt_client.subscribe(house.getId() + "/planner/in/dont-start-yet", (topic, message) -> tl_exec
+                    .dont_start_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
+
+            mqtt_client.subscribe(house.getId() + "/planner/in/dont-end-yet", (topic, message) -> tl_exec
+                    .dont_end_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
+        } catch (final MqttException ex) {
+            LOG.error("Cannot subscribe the house #" + house.getId() + " to the MQTT broker..", ex);
+        }
+        for (final DeviceEntity device_entity : house.getDevices()) {
+            if (device_entity instanceof RobotEntity) {
+                addRobot((RobotEntity) device_entity);
+            } else if (device_entity instanceof SensorEntity) {
+                addSensor((SensorEntity) device_entity);
+            }
+        }
+    }
+
+    public void addRobot(RobotEntity robot_entity) {
+        final Map<Long, Atom> atoms = new HashMap<>();
+        final Solver solver = new Solver();
+        solver.addStateListener(new StateListener() {
+
+            @Override
+            public void inconsistentProblem() {
+                try {
+                    mqtt_client.publish(house.getId() + "/" + robot_entity.getId() + "/planner/out",
+                            "inconsistent".getBytes(), App.QoS, false);
+                } catch (final MqttException ex) {
+                    LOG.error("Cannot create MQTT message..", ex);
+                }
+            }
+
+            @Override
+            public void log(final String log) {
+                LOG.info("[House #" + house.getId() + ", Robot #" + robot_entity.getId() + "] " + log);
+            }
+
+            @Override
+            public void read(final String script) {
+            }
+
+            @Override
+            public void read(final String[] files) {
+            }
+
+            @Override
+            public void solutionFound() {
+                try {
+                    mqtt_client.publish(house.getId() + "/" + robot_entity.getId() + "/planner/out",
+                            "solution".getBytes(), App.QoS, false);
+                } catch (final MqttException ex) {
+                    LOG.error("Cannot create MQTT message..", ex);
+                }
+
+                atoms.clear();
+
+                for (final Type t : solver.getTypes().values())
+                    for (final Predicate p : t.getPredicates().values())
+                        p.getInstances().stream().map(atm -> (Atom) atm)
+                                .filter(atm -> (atm.getState() == Atom.AtomState.Active))
+                                .forEach(atm -> atoms.put(atm.getSigma(), atm));
+            }
+
+            @Override
+            public void startedSolving() {
+                try {
+                    mqtt_client.publish(house.getId() + "/" + robot_entity.getId() + "/planner/out",
+                            "solving".getBytes(), App.QoS, false);
+                } catch (final MqttException ex) {
+                    LOG.error("Cannot create MQTT message..", ex);
+                }
+            }
+
+            @Override
+            public void stateChanged() {
+            }
+        });
+        final TimelinesExecutor tl_exec = new TimelinesExecutor(solver, new Rational(1));
+        tl_exec.addExecutorListener(new ExecutorListener() {
+
+            @Override
+            public void endingAtoms(final long[] atms) {
+                try {
+                    mqtt_client.publish(house.getId() + "/" + robot_entity.getId() + "/planner/out/ending",
+                            App.MAPPER.writeValueAsString(atms).getBytes(), App.QoS, false);
+                } catch (final JsonProcessingException | MqttException ex) {
+                    LOG.error("Cannot create MQTT message..", ex);
+                }
+            }
+
+            @Override
+            public void startingAtoms(final long[] atms) {
+                final Command[] commands = new Command[atms.length];
+                for (int i = 0; i < commands.length; i++)
+                    commands[i] = new Command(atoms.get(atms[i]));
+                try {
+                    mqtt_client.publish(house.getId() + "/" + robot_entity.getId() + "/planner/out/starting",
+                            App.MAPPER.writeValueAsString(commands).getBytes(), App.QoS, false);
+                } catch (final JsonProcessingException | MqttException ex) {
+                    LOG.error("Cannot create MQTT message..", ex);
+                }
+            }
+
+            @Override
+            public void tick(final Rational current_time) {
+                try {
+                    if (((ArithItem) solver.get("horizon")).getValue().leq(current_time)) {
+                        LOG.info("Nothing more to execute..");
+                        scheduled_feature.cancel(false);
+                    }
+                } catch (final NoSuchFieldException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        try {
+            mqtt_client.subscribe(house.getId() + "/" + robot_entity.getId() + "/planner/in/plan", (topic, message) -> {
+                // we read the problem..
+                LOG.info("Reading the problem..");
+                solver.read(new String(message.getPayload()));
+
+                // we solve the problem..
+                LOG.info("Solving the problem..");
+                solver.solve();
+
+                // we execute the solution..
+                LOG.info("Starting plan execution..");
+                scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1000, TimeUnit.SECONDS);
+            });
+
+            mqtt_client.subscribe(house.getId() + "/" + robot_entity.getId() + "/planner/in/dont-start-yet",
+                    (topic, message) -> tl_exec
+                            .dont_start_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
+
+            mqtt_client.subscribe(house.getId() + "/" + robot_entity.getId() + "/planner/in/dont-end-yet",
+                    (topic, message) -> tl_exec
+                            .dont_end_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
+        } catch (final MqttException ex) {
+            LOG.error("Cannot subscribe the robot #" + robot_entity.getId() + " to the MQTT broker..", ex);
+        }
+    }
+
+    public void addSensor(SensorEntity sensor_entity) {
+        try {
+            mqtt_client.subscribe(house.getId() + "/" + sensor_entity.getId(), (topic, message) -> {
+                final EntityManager em = App.EMF.createEntityManager();
+                final SensorDataEntity data = new SensorDataEntity();
+                data.setSensingTime(new Date());
+                data.setRawData(new String(message.getPayload()));
+                em.getTransaction().begin();
+                ((SensorEntity) sensor_entity).addData(data);
+                em.persist(data);
+                em.getTransaction().commit();
+                em.close();
+            });
+        } catch (final MqttException ex) {
+            LOG.error("Cannot subscribe the device #" + sensor_entity.getId() + " to the MQTT broker..", ex);
         }
     }
 
