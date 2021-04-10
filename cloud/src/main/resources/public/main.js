@@ -52,8 +52,9 @@ function setUser(usr) {
                     response.json().then(data => {
                         const users_list = $('#users-list');
                         const user_row_template = $('#user-row');
-                        for (const c_user of data.sort((a, b) => (a[1].lastName + a[1].firstName).localeCompare(b[1].lastName + b[1].firstName)))
-                            create_user_row(users_list, user_row_template, c_user.id, c_user);
+                        for (const c_user of data.sort((a, b) => (a.lastName + a.firstName).localeCompare(b.lastName + b.firstName)))
+                            if (c_user.id != user.id)
+                                create_user_row(users_list, user_row_template, c_user.id, c_user);
                     });
                 } else
                     alert(response.statusText);
@@ -68,7 +69,7 @@ function setUser(usr) {
                     response.json().then(data => {
                         const houses_list = $('#houses-list');
                         const house_row_template = $('#house-row');
-                        for (const c_house of data.sort((a, b) => a[1].name.localeCompare(b[1].name)))
+                        for (const c_house of data.sort((a, b) => a.name.localeCompare(b.name)))
                             create_house_row(houses_list, house_row_template, c_house.id, c_house);
                     });
                 } else
@@ -84,7 +85,7 @@ function setUser(usr) {
                     response.json().then(data => {
                         const device_types_list = $('#device-types-list');
                         const device_type_row_template = $('#device-type-row');
-                        for (const c_device_type of data.sort((a, b) => a[1].name.localeCompare(b[1].name)))
+                        for (const c_device_type of data.sort((a, b) => a.name.localeCompare(b.name)))
                             create_device_type_row(device_types_list, device_type_row_template, c_device_type.id, c_device_type);
                     });
                 } else
