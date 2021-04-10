@@ -43,6 +43,7 @@ public class HouseManager {
     private static final Logger LOG = LoggerFactory.getLogger(HouseManager.class);
     private static final ScheduledExecutorService EXECUTOR = Executors
             .newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
+    private static final RasaClient NLU_CLIENT = new RasaClient();
     private ScheduledFuture<?> scheduled_feature;
     private final HouseEntity house;
 

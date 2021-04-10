@@ -52,6 +52,7 @@ import it.cnr.istc.pst.sirobotics.telepresence.db.UserEntity;
 public class App {
 
     private static final Logger LOG = LoggerFactory.getLogger(App.class);
+    static final Properties PROPERTIES = new Properties();
     static final int QoS = 2;
     static final ObjectMapper MAPPER = new ObjectMapper();
     static final EntityManagerFactory EMF = Persistence.createEntityManagerFactory("SI-Robotics_PU");
@@ -66,16 +67,15 @@ public class App {
     public static void main(final String[] args) {
         MAPPER.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 
-        final Properties properties = new Properties();
         try {
-            properties.load(App.class.getClassLoader().getResourceAsStream("config.properties"));
+            PROPERTIES.load(App.class.getClassLoader().getResourceAsStream("config.properties"));
         } catch (final IOException ex) {
             LOG.error("Cannot load config file..", ex);
         }
 
         try {
             LOG.info("Creating the SI-Robotics cloud MQTT client..");
-            MQTT_CLIENT = new MqttClient(properties.getProperty("mqtt_host"), "SI-Robotics cloud",
+            MQTT_CLIENT = new MqttClient(PROPERTIES.getProperty("mqtt_host"), "SI-Robotics cloud",
                     new MemoryPersistence());
 
             LOG.info("Connecting the SI-Robotics cloud MQTT client to the broker..");
