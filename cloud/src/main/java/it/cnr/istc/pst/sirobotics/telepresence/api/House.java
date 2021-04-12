@@ -1,8 +1,5 @@
 package it.cnr.istc.pst.sirobotics.telepresence.api;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -10,12 +7,11 @@ public class House {
 
     private final long id;
     private final String name, description;
-    private final Collection<Device> devices;
+    private final Device[] devices;
 
     @JsonCreator
     public House(@JsonProperty("id") final long id, @JsonProperty("name") final String name,
-            @JsonProperty("description") final String description,
-            @JsonProperty("devices") final Collection<Device> devices) {
+            @JsonProperty("description") final String description, @JsonProperty("devices") final Device[] devices) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -34,7 +30,7 @@ public class House {
         return description;
     }
 
-    public Collection<Device> getDevices() {
-        return Collections.unmodifiableCollection(devices);
+    public Device[] getDevices() {
+        return devices;
     }
 }

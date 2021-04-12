@@ -12,16 +12,18 @@ import io.javalin.http.ConflictResponse;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device;
-import it.cnr.istc.pst.sirobotics.telepresence.api.DeviceType;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Robot;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Sensor;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Sensor.Data;
+import it.cnr.istc.pst.sirobotics.telepresence.api.DeviceType;
 import it.cnr.istc.pst.sirobotics.telepresence.api.House;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceTypeEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.HouseEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.RobotEntity;
+import it.cnr.istc.pst.sirobotics.telepresence.db.RobotTypeEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.SensorEntity;
+import it.cnr.istc.pst.sirobotics.telepresence.db.SensorTypeEntity;
 
 public class HouseController {
 
@@ -99,39 +101,64 @@ public class HouseController {
         final List<DeviceTypeEntity> device_type_entities = em
                 .createQuery("SELECT dt FROM DeviceTypeEntity dt", DeviceTypeEntity.class).getResultList();
 
-        ctx.json(device_type_entities.stream().map(device_type -> toDeviceType(device_type, false))
-                .collect(Collectors.toList()));
+        ctx.json(
+                device_type_entities.stream().map(device_type -> toDeviceType(device_type)).toArray(DeviceType[]::new));
         em.close();
     }
 
     /**
-     * Creates a new device type and stores it into the database.
+     * Creates a new sensor type and stores it into the database.
      * 
      * @param ctx
      */
-    static synchronized void createDeviceType(final Context ctx) {
+    static synchronized void createSensorType(final Context ctx) {
         final String name = ctx.formParam("name");
         final String description = ctx.formParam("description");
-        final DeviceTypeEntity.DeviceTypeCategory category = DeviceTypeEntity.DeviceTypeCategory.values()[Integer
-                .parseInt(ctx.formParam("category"))];
-        LOG.info("creating new device type {}..", name);
+        LOG.info("creating new sensor type {}..", name);
 
         final EntityManager em = App.EMF.createEntityManager();
 
-        final DeviceTypeEntity device_type_entity = new DeviceTypeEntity();
-        device_type_entity.setName(name);
-        device_type_entity.setDescription(description);
-        device_type_entity.setCategory(category);
+        final SensorTypeEntity sensor_type_entity = new SensorTypeEntity();
+        sensor_type_entity.setName(name);
+        sensor_type_entity.setDescription(description);
 
         try {
             em.getTransaction().begin();
-            em.persist(device_type_entity);
+            em.persist(sensor_type_entity);
             em.getTransaction().commit();
         } catch (final Exception ex) {
             throw new ConflictResponse();
         }
 
-        ctx.json(toDeviceType(device_type_entity, false));
+        ctx.json(toDeviceType(sensor_type_entity));
+        em.close();
+    }
+
+    /**
+     * Creates a new robot type and stores it into the database.
+     * 
+     * @param ctx
+     */
+    static synchronized void createRobotType(final Context ctx) {
+        final String name = ctx.formParam("name");
+        final String description = ctx.formParam("description");
+        LOG.info("creating new device type {}..", name);
+
+        final EntityManager em = App.EMF.createEntityManager();
+
+        final RobotTypeEntity robot_type_entity = new RobotTypeEntity();
+        robot_type_entity.setName(name);
+        robot_type_entity.setDescription(description);
+
+        try {
+            em.getTransaction().begin();
+            em.persist(robot_type_entity);
+            em.getTransaction().commit();
+        } catch (final Exception ex) {
+            throw new ConflictResponse();
+        }
+
+        ctx.json(toDeviceType(robot_type_entity));
         em.close();
     }
 
@@ -152,23 +179,19 @@ public class HouseController {
             throw new NotFoundResponse();
 
         DeviceEntity device_entity = null;
-        switch (device_type_entity.getCategory()) {
-        case Robot:
-            device_entity = new RobotEntity();
-            break;
-        case Sensor:
+        if (device_type_entity instanceof SensorTypeEntity)
             device_entity = new SensorEntity();
-            break;
-        default:
-            break;
-        }
+        else if (device_type_entity instanceof RobotTypeEntity)
+            device_entity = new RobotEntity();
+        else
+            throw new UnsupportedOperationException();
+
         device_entity.setName(name);
         device_entity.setDescription(description);
         device_entity.setType(device_type_entity);
 
         try {
             em.getTransaction().begin();
-            device_type_entity.addDevice(device_entity);
             em.persist(device_entity);
             em.getTransaction().commit();
         } catch (final Exception ex) {
@@ -180,14 +203,17 @@ public class HouseController {
     }
 
     static House toHouse(final HouseEntity entity, final boolean include_data) {
-        return new House(entity.getId(), entity.getName(), entity.getDescription(), entity.getDevices().stream()
-                .map(device -> toDevice(device, include_data)).collect(Collectors.toList()));
+        return new House(entity.getId(), entity.getName(), entity.getDescription(),
+                entity.getDevices().stream().map(device -> toDevice(device, include_data)).toArray(Device[]::new));
     }
 
-    static DeviceType toDeviceType(final DeviceTypeEntity entity, final boolean include_devices) {
-        return new DeviceType(entity.getId(), entity.getName(), entity.getDescription(), include_devices
-                ? entity.getDevices().stream().map(device -> toDevice(device, false)).collect(Collectors.toList())
-                : null);
+    static DeviceType toDeviceType(final DeviceTypeEntity entity) {
+        if (entity instanceof SensorTypeEntity)
+            return new DeviceType.SensorType(entity.getId(), entity.getName(), entity.getDescription());
+        else if (entity instanceof RobotTypeEntity)
+            return new DeviceType.RobotType(entity.getId(), entity.getName(), entity.getDescription());
+        else
+            throw new UnsupportedOperationException();
     }
 
     static Device toDevice(final DeviceEntity entity, final boolean include_data) {
@@ -199,16 +225,14 @@ public class HouseController {
     }
 
     static Robot toRobot(final RobotEntity entity, final boolean include_data) {
-        return new Robot(entity.getId(), entity.getName(), entity.getDescription(),
-                toDeviceType(entity.getType(), false), entity.getDevices().stream()
-                        .map(device -> toDevice(device, include_data)).collect(Collectors.toList()));
+        return new Robot(entity.getId(), entity.getName(), entity.getDescription(), toDeviceType(entity.getType()),
+                entity.getDevices().stream().map(device -> toDevice(device, include_data)).toArray(Device[]::new));
     }
 
     static Sensor toSensor(final SensorEntity entity, final boolean include_data) {
-        return new Sensor(entity.getId(), entity.getName(), entity.getDescription(),
-                toDeviceType(entity.getType(), false),
+        return new Sensor(entity.getId(), entity.getName(), entity.getDescription(), toDeviceType(entity.getType()),
                 include_data ? entity.getData().stream()
-                        .map(data -> new Data(data.getSensingTime().getTime(), data.getRawData()))
-                        .collect(Collectors.toList()) : null);
+                        .map(data -> new Data(data.getSensingTime().getTime(), data.getRawData())).toArray(Data[]::new)
+                        : null);
     }
 }

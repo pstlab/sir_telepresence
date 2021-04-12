@@ -83,10 +83,22 @@ function setUser(usr) {
             }).then(response => {
                 if (response.ok) {
                     response.json().then(data => {
-                        const device_types_list = $('#device-types-list');
-                        const device_type_row_template = $('#device-type-row');
+                        const sensor_types_list = $('#sensor-types-list');
+                        const sensor_type_row_template = $('#sensor-type-row');
+                        const robot_types_list = $('#robot-types-list');
+                        const robot_type_row_template = $('#robot-type-row');
                         for (const c_device_type of data.sort((a, b) => a.name.localeCompare(b.name)))
-                            create_device_type_row(device_types_list, device_type_row_template, c_device_type.id, c_device_type);
+                            switch (c_device_type.type) {
+                                case 'sensor':
+                                    create_sensor_type_row(sensor_types_list, sensor_type_row_template, c_device_type.id, c_device_type);
+                                    break;
+                                case 'robot':
+                                    create_robot_type_row(robot_types_list, robot_type_row_template, c_device_type.id, c_device_type);
+                                    break;
+                                default:
+                                    console.error('invalid device type ' + c_device_type.type);
+                                    break;
+                            }
                     });
                 } else
                     alert(response.statusText);
@@ -103,7 +115,6 @@ function setUser(usr) {
         });
     }
 }
-
 
 function login() {
     const email = $('#login-email').val();
@@ -201,22 +212,44 @@ function new_house() {
     });
 }
 
-function new_device_type() {
+function new_sensor_type() {
     const form = new FormData();
-    form.append('name', $('#new-device-type-name').val());
-    form.append('description', $('#new-device-type-description').val());
-    form.append('category', $('#new-device-type-category').val());
-    fetch('http://' + config.host + ':' + config.service_port + '/device_type', {
+    form.append('name', $('#new-sensor-type-name').val());
+    form.append('description', $('#new-sensor-type-description').val());
+    form.append('category', 0);
+    fetch('http://' + config.host + ':' + config.service_port + '/sensor_type', {
         method: 'post',
         headers: { 'Authorization': 'Basic ' + user.id },
         body: form
     }).then(response => {
         if (response.ok) {
-            $('#new-device-type-name').val('');
-            $('#new-device-type-description').val('');
-            $('#new-device-type-category').val('');
-            response.json().then(device_type => {
-                create_device_type_row($('#device-types-list'), $('#device-type-row'), device_type.id, device_type);
+            $('#new-sensor-type-name').val('');
+            $('#new-sensor-type-description').val('');
+            $('#new-sensor-type-category').val('');
+            response.json().then(sensor_type => {
+                create_sensor_type_row($('#sensor-types-list'), $('#sensor-type-row'), sensor_type.id, sensor_type);
+            });
+        } else
+            alert(response.statusText);
+    });
+}
+
+function new_robot_type() {
+    const form = new FormData();
+    form.append('name', $('#new-robot-type-name').val());
+    form.append('description', $('#new-robot-type-description').val());
+    form.append('category', $('#new-robot-type-category').val());
+    fetch('http://' + config.host + ':' + config.service_port + '/robot_type', {
+        method: 'post',
+        headers: { 'Authorization': 'Basic ' + user.id },
+        body: form
+    }).then(response => {
+        if (response.ok) {
+            $('#new-robot-type-name').val('');
+            $('#new-robot-type-description').val('');
+            $('#new-robot-type-category').val('');
+            response.json().then(robot_type => {
+                create_robot_type_row($('#robot-types-list'), $('#robot-type-row'), robot_type.id, robot_type);
             });
         } else
             alert(response.statusText);
@@ -243,13 +276,28 @@ function create_house_row(houses_list, template, id, house) {
     divs[0].append(house.id);
     divs[1].append(house.name);
     houses_list.append(house_row);
+
+    $('#house-' + id).on('show.bs.tab', function (event) {
+        $('#house-id').val(house.id);
+        $('#house-name').val(house.name);
+        $('#house-description').val(house.description);
+    });
 }
 
-function create_device_type_row(device_types_list, template, id, device_type) {
-    const device_type_row = template[0].content.cloneNode(true);
-    const row_content = device_type_row.querySelector('.list-group-item');
+function create_sensor_type_row(sensor_types_list, template, id, sensor_type) {
+    const sensor_type_row = template[0].content.cloneNode(true);
+    const row_content = sensor_type_row.querySelector('.list-group-item');
     row_content.id += id;
     const divs = row_content.querySelectorAll('div');
-    divs[0].append(device_type.name);
-    device_types_list.append(device_type_row);
+    divs[0].append(sensor_type.name);
+    sensor_types_list.append(sensor_type_row);
+}
+
+function create_robot_type_row(robot_types_list, template, id, robot_type) {
+    const robot_type_row = template[0].content.cloneNode(true);
+    const row_content = robot_type_row.querySelector('.list-group-item');
+    row_content.id += id;
+    const divs = row_content.querySelectorAll('div');
+    divs[0].append(robot_type.name);
+    robot_types_list.append(robot_type_row);
 }

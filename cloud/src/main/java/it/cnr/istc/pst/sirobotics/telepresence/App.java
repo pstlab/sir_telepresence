@@ -45,9 +45,11 @@ import io.javalin.core.security.Role;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.UnauthorizedResponse;
+import io.javalin.plugin.json.JavalinJackson;
 import io.javalin.websocket.WsContext;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceTypeEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.HouseEntity;
+import it.cnr.istc.pst.sirobotics.telepresence.db.RobotTypeEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.UserEntity;
 
 public class App {
@@ -68,6 +70,7 @@ public class App {
 
     public static void main(final String[] args) {
         MAPPER.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+        JavalinJackson.configure(MAPPER);
 
         try {
             PROPERTIES.load(App.class.getClassLoader().getResourceAsStream("config.properties"));
@@ -152,7 +155,7 @@ public class App {
                 LOG.info("Loading {} device types..", device_types.size());
                 if (device_types.isEmpty()) {
                     LOG.info("Creating sample robot type..");
-                    final DeviceTypeEntity ohmni_type = new DeviceTypeEntity();
+                    final DeviceTypeEntity ohmni_type = new RobotTypeEntity();
                     ohmni_type.setName("Ohmni Robot");
                     ohmni_type.setDescription(
                             "Un robot di telepresenza che trasforma il modo in cui le persone si connettono.");
@@ -189,9 +192,8 @@ public class App {
                 post(HouseController::createHouse, roles(SIRRole.Admin));
             });
             path("houses", () -> get(HouseController::getAllHouses, roles(SIRRole.Admin)));
-            path("device_type", () -> {
-                post(HouseController::createDeviceType, roles(SIRRole.Admin));
-            });
+            path("sensor_type", () -> post(HouseController::createSensorType, roles(SIRRole.Admin)));
+            path("robot_type", () -> post(HouseController::createRobotType, roles(SIRRole.Admin)));
             path("device_types", () -> get(HouseController::getAllDeviceTypes, roles(SIRRole.Admin)));
         });
 

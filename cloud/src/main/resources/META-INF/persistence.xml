@@ -5,6 +5,8 @@
         <class>it.cnr.istc.pst.sirobotics.telepresence.db.HouseEntity</class>
         <class>it.cnr.istc.pst.sirobotics.telepresence.db.DeviceEntity</class>
         <class>it.cnr.istc.pst.sirobotics.telepresence.db.DeviceTypeEntity</class>
+        <class>it.cnr.istc.pst.sirobotics.telepresence.db.SensorTypeEntity</class>
+        <class>it.cnr.istc.pst.sirobotics.telepresence.db.RobotTypeEntity</class>
         <class>it.cnr.istc.pst.sirobotics.telepresence.db.SensorEntity</class>
         <class>it.cnr.istc.pst.sirobotics.telepresence.db.SensorDataEntity</class>
         <class>it.cnr.istc.pst.sirobotics.telepresence.db.RobotEntity</class>

@@ -1,8 +1,5 @@
 package it.cnr.istc.pst.sirobotics.telepresence.api;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -12,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({ @Type(value = Device.Robot.class, name = "robot"),
         @Type(value = Device.Sensor.class, name = "sensor") })
-public class Device {
+public abstract class Device {
 
     private final long id;
     private final String name, description;
@@ -43,41 +40,20 @@ public class Device {
         return type;
     }
 
-    public static class Robot extends Device {
-
-        private final Collection<Device> devices;
-
-        @JsonCreator
-        public Robot(@JsonProperty("id") final long id, @JsonProperty("name") final String name,
-                @JsonProperty("description") final String description, @JsonProperty("type") final DeviceType type,
-                @JsonProperty("devices") final Collection<Device> devices) {
-            super(id, name, description, type);
-            this.devices = devices;
-        }
-
-        public Collection<Device> getDevices() {
-            if (devices == null)
-                return devices;
-            return Collections.unmodifiableCollection(devices);
-        }
-    }
-
     public static class Sensor extends Device {
 
-        private final Collection<Data> data;
+        private final Data[] data;
 
         @JsonCreator
         public Sensor(@JsonProperty("id") final long id, @JsonProperty("name") final String name,
                 @JsonProperty("description") final String description, @JsonProperty("type") final DeviceType type,
-                @JsonProperty("data") final Collection<Data> data) {
+                @JsonProperty("data") final Data[] data) {
             super(id, name, description, type);
             this.data = data;
         }
 
-        public Collection<Data> getData() {
-            if (data == null)
-                return data;
-            return Collections.unmodifiableCollection(data);
+        public Data[] getData() {
+            return data;
         }
 
         public static class Data {
@@ -98,6 +74,23 @@ public class Device {
             public String getData() {
                 return data;
             }
+        }
+    }
+
+    public static class Robot extends Device {
+
+        private final Device[] devices;
+
+        @JsonCreator
+        public Robot(@JsonProperty("id") final long id, @JsonProperty("name") final String name,
+                @JsonProperty("description") final String description, @JsonProperty("type") final DeviceType type,
+                @JsonProperty("devices") final Device[] devices) {
+            super(id, name, description, type);
+            this.devices = devices;
+        }
+
+        public Device[] getDevices() {
+            return devices;
         }
     }
 }

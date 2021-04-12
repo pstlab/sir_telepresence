@@ -1,25 +1,25 @@
 package it.cnr.istc.pst.sirobotics.telepresence.api;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-public class DeviceType {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({ @Type(value = DeviceType.RobotType.class, name = "robot"),
+        @Type(value = DeviceType.SensorType.class, name = "sensor") })
+public abstract class DeviceType {
 
     private final long id;
     private final String name, description;
-    private final Collection<Device> devices;
 
     @JsonCreator
     public DeviceType(@JsonProperty("id") final long id, @JsonProperty("name") final String name,
-            @JsonProperty("description") final String description,
-            @JsonProperty("devices") final Collection<Device> devices) {
+            @JsonProperty("description") final String description) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.devices = devices;
     }
 
     public long getId() {
@@ -34,9 +34,19 @@ public class DeviceType {
         return description;
     }
 
-    public Collection<Device> getDevices() {
-        if (devices == null)
-            return devices;
-        return Collections.unmodifiableCollection(devices);
+    public static class SensorType extends DeviceType {
+
+        public SensorType(@JsonProperty("id") final long id, @JsonProperty("name") final String name,
+                @JsonProperty("description") final String description) {
+            super(id, name, description);
+        }
+    }
+
+    public static class RobotType extends DeviceType {
+
+        public RobotType(@JsonProperty("id") final long id, @JsonProperty("name") final String name,
+                @JsonProperty("description") final String description) {
+            super(id, name, description);
+        }
     }
 }
