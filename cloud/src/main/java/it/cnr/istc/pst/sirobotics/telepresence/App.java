@@ -28,6 +28,7 @@ import javax.persistence.Persistence;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
@@ -63,6 +64,7 @@ public class App {
     private static final String ALGORITHM = "PBKDF2WithHmacSHA512";
     static final Map<Long, HouseManager> MANAGERS = new HashMap<>();
     static MqttClient MQTT_CLIENT;
+    static RasaClient NLU_CLIENT;
 
     public static void main(final String[] args) {
         MAPPER.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
@@ -81,8 +83,9 @@ public class App {
             LOG.info("Connecting the SI-Robotics cloud MQTT client to the broker..");
             final MqttConnectOptions connect_options = new MqttConnectOptions();
             connect_options.setCleanSession(true);
-            connect_options.setWill("online", "false".getBytes(), QoS, true);
+            connect_options.setWill("cloud/online", "false".getBytes(), QoS, true);
             MQTT_CLIENT.connect(connect_options);
+            MQTT_CLIENT.publish("cloud/online", "true".getBytes(), QoS, true);
 
             LOG.info("Subscribing the SI-Robotics cloud MQTT client to all the topics..");
             MQTT_CLIENT.subscribe("#", new IMqttMessageListener() {
@@ -95,6 +98,15 @@ public class App {
             });
         } catch (final MqttException ex) {
             LOG.error("Cannot create MQTT client..", ex);
+        }
+
+        LOG.info("Connecting to the NLU provider..");
+        NLU_CLIENT = new RasaClient();
+        try {
+            JsonNode version = NLU_CLIENT.version();
+            LOG.info("NLU Provider: {}", version);
+        } catch (Exception ex) {
+            LOG.error("Cannot connect to the NLU provider..", ex);
         }
 
         final Javalin app = Javalin.create(config -> {

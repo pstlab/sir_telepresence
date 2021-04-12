@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
@@ -43,7 +44,6 @@ public class HouseManager {
     private static final Logger LOG = LoggerFactory.getLogger(HouseManager.class);
     private static final ScheduledExecutorService EXECUTOR = Executors
             .newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
-    private static final RasaClient NLU_CLIENT = new RasaClient();
     private ScheduledFuture<?> scheduled_feature;
     private final HouseEntity house;
 
@@ -163,6 +163,12 @@ public class HouseManager {
 
             App.MQTT_CLIENT.subscribe(house.getId() + "/planner/in/dont-end-yet", (topic, message) -> tl_exec
                     .dont_end_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
+
+            App.MQTT_CLIENT.subscribe(house.getId() + "/npl/in", (topic, message) -> {
+                JsonNode parse = App.NLU_CLIENT.parse(new String(message.getPayload()));
+                App.MQTT_CLIENT.publish(house.getId() + "/npl/intent", parse.get("intent").toString().getBytes(),
+                        App.QoS, true);
+            });
         } catch (final MqttException ex) {
             LOG.error("Cannot subscribe the house #" + house.getId() + " to the MQTT broker..", ex);
         }
@@ -297,6 +303,12 @@ public class HouseManager {
             App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/planner/in/dont-end-yet",
                     (topic, message) -> tl_exec
                             .dont_end_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
+
+            App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/npl/in", (topic, message) -> {
+                JsonNode parse = App.NLU_CLIENT.parse(new String(message.getPayload()));
+                App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/npl/intent",
+                        parse.get("intent").toString().getBytes(), App.QoS, true);
+            });
         } catch (final MqttException ex) {
             LOG.error("Cannot subscribe the robot #" + robot_entity.getId() + " to the MQTT broker..", ex);
         }
