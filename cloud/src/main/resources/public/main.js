@@ -1,5 +1,5 @@
 const config = {
-    'host': '192.168.1.101',
+    'host': 'localhost',
     'service_port': 7000,
     'websocket_port': 8884
 };
