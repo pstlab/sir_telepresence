@@ -1,6 +1,6 @@
 <div class="h-100" id="body-user">
     <nav class="navbar navbar-expand-sm navbar-light bg-light">
-        <div class="container">
+        <div class="container-fluid">
             <a class="navbar-brand"><img src="/si_robotics.png" height="30" class="d-inline-block align-top" alt=""
                     loading="lazy"></a>
             <ul class="nav nav-tabs" role="tablist">
@@ -135,7 +135,8 @@
                         <label for="new-device-type-name" class="col-form-label">Nome tipologia</label>
                     </div>
                     <div class="form-floating my-1">
-                        <input type="text" class="form-control" id="new-device-type-description" placeholder="Descrizione">
+                        <input type="text" class="form-control" id="new-device-type-description"
+                            placeholder="Descrizione">
                         <label for="new-device-type-description" class="col-form-label">Descrizione</label>
                     </div>
                     <div class="form-floating my-1">
@@ -157,22 +158,22 @@
     <template id="user-row">
         <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" id="user-"
             type="button" data-bs-toggle="tab" data-bs-target="#user">
-            <div class="col d-flex justify-content-start align-items-center"><span class="bi me-2"
-                    id="online-user-"></span></div>
+            <div class="col justify-content-start"><span class="bi me-2" id="online-user-"></span></div>
         </div>
     </template>
 
     <template id="house-row">
-        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+        <div class="list-group-item list-group-item-action d-flex flex-row justify-content-between align-items-center"
             id="house-" type="button" data-bs-toggle="tab" data-bs-target="#house">
-            <div class="col d-flex justify-content-start align-items-center"></div>
+            <div class="col-sm-1 justify-content-start"></div>
+            <div class="col justify-content-start"></div>
         </div>
     </template>
 
     <template id="device-type-row">
         <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
             id="device-type-" type="button" data-bs-toggle="tab" data-bs-target="#device-type">
-            <div class="col d-flex justify-content-start align-items-center"></div>
+            <div class="col justify-content-start"></div>
         </div>
     </template>
 </div>

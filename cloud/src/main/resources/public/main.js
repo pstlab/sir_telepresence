@@ -240,7 +240,8 @@ function create_house_row(houses_list, template, id, house) {
     const row_content = house_row.querySelector('.list-group-item');
     row_content.id += id;
     const divs = row_content.querySelectorAll('div');
-    divs[0].append(house.name);
+    divs[0].append(house.id);
+    divs[1].append(house.name);
     houses_list.append(house_row);
 }
 
