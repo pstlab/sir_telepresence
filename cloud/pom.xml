@@ -92,6 +92,9 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.0.0</version>
         <configuration>
+          <arguments>
+            <argument>-Djava.library.path=/usr/local/lib</argument>
+          </arguments>
           <mainClass>it.cnr.istc.pst.sirobotics.telepresence.App</mainClass>
         </configuration>
       </plugin>
