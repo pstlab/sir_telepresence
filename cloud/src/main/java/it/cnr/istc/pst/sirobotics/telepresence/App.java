@@ -69,6 +69,8 @@ public class App {
     static RasaClient NLU_CLIENT;
 
     public static void main(final String[] args) {
+        LOG.info("Current library path: {}", System.getProperty("java.library.path"));
+
         MAPPER.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
         JavalinJackson.configure(MAPPER);
 
