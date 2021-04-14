@@ -8,6 +8,7 @@ const offline_icon = 'bi-circle';
 
 let user;
 let ws;
+const users = new Map();
 
 let current_house;
 
@@ -58,6 +59,7 @@ function setUser(usr) {
                         const new_house_users_list = $('#new-house-users-list');
                         const new_house_user_row_template = $('#new-house-user-row');
                         for (const c_user of data.sort((a, b) => (a.lastName + a.firstName).localeCompare(b.lastName + b.firstName))) {
+                            users.set(c_user.id, c_user);
                             if (c_user.id != user.id)
                                 create_user_row(users_list, user_row_template, c_user.id, c_user);
                             create_new_house_user_row(new_house_users_list, new_house_user_row_template, c_user.id, c_user);
@@ -238,7 +240,7 @@ function new_house_sensor() {
             $('#new-house-sensor-type').val('');
             response.json().then(sensor => {
                 $('#new-house-sensor-type').append($('<option>', { value: sensor.id, text: sensor.name }));
-                create_sensor_type_row($('#sensor-types-list'), $('#sensor-type-row'), sensor.id, sensor);
+                create_house_sensor_row($('#house-sensors-list'), $('#house-sensor-row'), sensor.id, sensor);
             });
         } else
             alert(response.statusText);
@@ -246,14 +248,14 @@ function new_house_sensor() {
 }
 
 function new_house_user() {
-    $('#teachers-list').find('input:checked').each(function () {
+    $('#new-house-users-list').find('input:checked').each(function () {
         const user_id = this.getAttribute('user_id');
-        fetch('http://' + config.host + ':' + config.service_port + '/user/assign/?house_id=' + current_house + '&user_id=' + user_id, {
+        fetch('http://' + config.host + ':' + config.service_port + '/assign/?house_id=' + current_house + '&user_id=' + user_id, {
             method: 'post',
             headers: { 'Authorization': 'Basic ' + user.id }
         }).then(response => {
             if (response.ok) {
-
+                create_house_user_row($('#house-users-list'), $('#house-user-row'), user_id, users.get(user_id));
             } else
                 alert(response.statusText);
         });
@@ -275,7 +277,7 @@ function new_house_robot() {
             $('#new-house-robot-type').val('');
             response.json().then(robot => {
                 $('#new-house-robot-type').append($('<option>', { value: robot.id, text: robot.name }));
-                create_robot_type_row($('#robot-types-list'), $('#robot-type-row'), robot.id, robot);
+                create_house_robot_row($('#house-robots-list'), $('#house-robot-row'), robot.id, robot);
             });
         } else
             alert(response.statusText);
@@ -370,7 +372,7 @@ function create_house_row(houses_list, template, id, house) {
         const robots_list = $('#house-robots-list');
         const robot_row_template = $('#house-robot-row');
         for (const c_device of house.devices.sort((a, b) => a.name.localeCompare(b.name)))
-            switch (c_device.type) {
+            switch (c_device.type.type) {
                 case 'sensor':
                     create_house_sensor_row(sensors_list, sensor_row_template, c_device.id, c_device);
                     break;

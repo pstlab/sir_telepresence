@@ -174,7 +174,7 @@ public class HouseController {
         final String name = ctx.formParam("name");
         final String description = ctx.formParam("description");
         final long type_id = Long.valueOf(ctx.formParam("type_id"));
-        LOG.info("creating new device type {}..", name);
+        LOG.info("creating new type {}..", name);
 
         final EntityManager em = App.EMF.createEntityManager();
         final HouseEntity house_entity = em.find(HouseEntity.class, house_id);
@@ -210,8 +210,8 @@ public class HouseController {
     }
 
     static void assignUser(final Context ctx) {
-        final long user_id = Long.valueOf(ctx.pathParam("user_id"));
-        final long house_id = Long.valueOf(ctx.pathParam("house_id"));
+        final long user_id = Long.valueOf(ctx.queryParam("user_id"));
+        final long house_id = Long.valueOf(ctx.queryParam("house_id"));
         LOG.info("assigning user #{} to house #{}..", user_id, house_id);
         final EntityManager em = App.EMF.createEntityManager();
         final UserEntity user_entity = em.find(UserEntity.class, user_id);
@@ -231,8 +231,8 @@ public class HouseController {
     }
 
     static void unassignUser(final Context ctx) {
-        final long user_id = Long.valueOf(ctx.pathParam("user_id"));
-        final long house_id = Long.valueOf(ctx.pathParam("house_id"));
+        final long user_id = Long.valueOf(ctx.queryParam("user_id"));
+        final long house_id = Long.valueOf(ctx.queryParam("house_id"));
         LOG.info("unassigning user #{} from house #{}..", user_id, house_id);
         final EntityManager em = App.EMF.createEntityManager();
         final UserEntity user_entity = em.find(UserEntity.class, user_id);
