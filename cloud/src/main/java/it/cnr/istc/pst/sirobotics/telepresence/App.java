@@ -188,11 +188,14 @@ public class App {
                     post(UserController::updateUser, roles(SIRRole.Admin, SIRRole.User));
                     delete(UserController::deleteUser, roles(SIRRole.Admin, SIRRole.User));
                 });
+                path("assign", () -> post(HouseController::assignUser, roles(SIRRole.Admin)));
+                path("unassign", () -> post(HouseController::unassignUser, roles(SIRRole.Admin)));
             });
             path("users", () -> get(UserController::getAllUsers, roles(SIRRole.Admin)));
             path("house", () -> {
                 post(HouseController::createHouse, roles(SIRRole.Admin));
             });
+            path("device", () -> post(HouseController::createDevice, roles(SIRRole.Admin)));
             path("houses", () -> get(HouseController::getAllHouses, roles(SIRRole.Admin)));
             path("sensor_type", () -> post(HouseController::createSensorType, roles(SIRRole.Admin)));
             path("robot_type", () -> post(HouseController::createRobotType, roles(SIRRole.Admin)));

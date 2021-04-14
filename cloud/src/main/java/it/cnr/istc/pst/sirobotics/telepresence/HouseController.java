@@ -17,6 +17,7 @@ import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Sensor;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Sensor.Data;
 import it.cnr.istc.pst.sirobotics.telepresence.api.DeviceType;
 import it.cnr.istc.pst.sirobotics.telepresence.api.House;
+import it.cnr.istc.pst.sirobotics.telepresence.api.User;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceTypeEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.HouseEntity;
@@ -24,6 +25,7 @@ import it.cnr.istc.pst.sirobotics.telepresence.db.RobotEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.RobotTypeEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.SensorEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.SensorTypeEntity;
+import it.cnr.istc.pst.sirobotics.telepresence.db.UserEntity;
 
 public class HouseController {
 
@@ -168,12 +170,16 @@ public class HouseController {
      * @param ctx
      */
     static synchronized void createDevice(final Context ctx) {
+        final long house_id = Long.valueOf(ctx.formParam("house_id"));
         final String name = ctx.formParam("name");
         final String description = ctx.formParam("description");
         final long type_id = Long.valueOf(ctx.formParam("type_id"));
         LOG.info("creating new device type {}..", name);
 
         final EntityManager em = App.EMF.createEntityManager();
+        final HouseEntity house_entity = em.find(HouseEntity.class, house_id);
+        if (house_entity == null)
+            throw new NotFoundResponse();
         final DeviceTypeEntity device_type_entity = em.find(DeviceTypeEntity.class, type_id);
         if (device_type_entity == null)
             throw new NotFoundResponse();
@@ -192,6 +198,7 @@ public class HouseController {
 
         try {
             em.getTransaction().begin();
+            house_entity.addDevice(device_entity);
             em.persist(device_entity);
             em.getTransaction().commit();
         } catch (final Exception ex) {
@@ -202,9 +209,52 @@ public class HouseController {
         em.close();
     }
 
+    static void assignUser(final Context ctx) {
+        final long user_id = Long.valueOf(ctx.pathParam("user_id"));
+        final long house_id = Long.valueOf(ctx.pathParam("house_id"));
+        LOG.info("assigning user #{} to house #{}..", user_id, house_id);
+        final EntityManager em = App.EMF.createEntityManager();
+        final UserEntity user_entity = em.find(UserEntity.class, user_id);
+        if (user_entity == null)
+            throw new NotFoundResponse();
+        final HouseEntity house_entity = em.find(HouseEntity.class, house_id);
+        if (house_entity == null)
+            throw new NotFoundResponse();
+
+        em.getTransaction().begin();
+        house_entity.addUser(user_entity);
+        user_entity.addHouse(house_entity);
+        em.getTransaction().commit();
+
+        ctx.status(204);
+        em.close();
+    }
+
+    static void unassignUser(final Context ctx) {
+        final long user_id = Long.valueOf(ctx.pathParam("user_id"));
+        final long house_id = Long.valueOf(ctx.pathParam("house_id"));
+        LOG.info("unassigning user #{} from house #{}..", user_id, house_id);
+        final EntityManager em = App.EMF.createEntityManager();
+        final UserEntity user_entity = em.find(UserEntity.class, user_id);
+        if (user_entity == null)
+            throw new NotFoundResponse();
+        final HouseEntity house_entity = em.find(HouseEntity.class, house_id);
+        if (house_entity == null)
+            throw new NotFoundResponse();
+
+        em.getTransaction().begin();
+        house_entity.removeUser(user_entity);
+        user_entity.removeHouse(house_entity);
+        em.getTransaction().commit();
+
+        ctx.status(204);
+        em.close();
+    }
+
     static House toHouse(final HouseEntity entity, final boolean include_data) {
         return new House(entity.getId(), entity.getName(), entity.getDescription(),
-                entity.getDevices().stream().map(device -> toDevice(device, include_data)).toArray(Device[]::new));
+                entity.getDevices().stream().map(device -> toDevice(device, include_data)).toArray(Device[]::new),
+                entity.getUsers().stream().map(user -> UserController.toUser(user)).toArray(User[]::new));
     }
 
     static DeviceType toDeviceType(final DeviceTypeEntity entity) {

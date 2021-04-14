@@ -16,21 +16,11 @@ public abstract class DeviceEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @ManyToOne
-    private HouseEntity house;
-    @ManyToOne
     private DeviceTypeEntity type;
     private String name, description;
 
     public Long getId() {
         return id;
-    }
-
-    public HouseEntity getHouse() {
-        return house;
-    }
-
-    public void setHouse(HouseEntity house) {
-        this.house = house;
     }
 
     public DeviceTypeEntity getType() {

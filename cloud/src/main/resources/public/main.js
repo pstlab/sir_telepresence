@@ -5,8 +5,11 @@ const config = {
 };
 const online_icon = 'bi-check-circle';
 const offline_icon = 'bi-circle';
+
 let user;
 let ws;
+
+let current_house;
 
 $(window).on('load', function () {
     const email = localStorage.getItem('email');
@@ -52,9 +55,13 @@ function setUser(usr) {
                     response.json().then(data => {
                         const users_list = $('#users-list');
                         const user_row_template = $('#user-row');
-                        for (const c_user of data.sort((a, b) => (a.lastName + a.firstName).localeCompare(b.lastName + b.firstName)))
+                        const new_house_users_list = $('#new-house-users-list');
+                        const new_house_user_row_template = $('#new-house-user-row');
+                        for (const c_user of data.sort((a, b) => (a.lastName + a.firstName).localeCompare(b.lastName + b.firstName))) {
                             if (c_user.id != user.id)
                                 create_user_row(users_list, user_row_template, c_user.id, c_user);
+                            create_new_house_user_row(new_house_users_list, new_house_user_row_template, c_user.id, c_user);
+                        }
                     });
                 } else
                     alert(response.statusText);
@@ -83,6 +90,8 @@ function setUser(usr) {
             }).then(response => {
                 if (response.ok) {
                     response.json().then(data => {
+                        const new_house_sensor_types_list = $('#new-house-sensor-type');
+                        const new_house_robot_types_list = $('#new-house-robot-type');
                         const sensor_types_list = $('#sensor-types-list');
                         const sensor_type_row_template = $('#sensor-type-row');
                         const robot_types_list = $('#robot-types-list');
@@ -90,9 +99,11 @@ function setUser(usr) {
                         for (const c_device_type of data.sort((a, b) => a.name.localeCompare(b.name)))
                             switch (c_device_type.type) {
                                 case 'sensor':
+                                    new_house_sensor_types_list.append($('<option>', { value: c_device_type.id, text: c_device_type.name }));
                                     create_sensor_type_row(sensor_types_list, sensor_type_row_template, c_device_type.id, c_device_type);
                                     break;
                                 case 'robot':
+                                    new_house_robot_types_list.append($('<option>', { value: c_device_type.id, text: c_device_type.name }));
                                     create_robot_type_row(robot_types_list, robot_type_row_template, c_device_type.id, c_device_type);
                                     break;
                                 default:
@@ -212,6 +223,65 @@ function new_house() {
     });
 }
 
+function new_house_sensor() {
+    const form = new FormData();
+    form.append('house_id', current_house);
+    form.append('name', $('#new-house-sensor-name').val());
+    form.append('type_id', $('#new-house-sensor-type').val());
+    fetch('http://' + config.host + ':' + config.service_port + '/device', {
+        method: 'post',
+        headers: { 'Authorization': 'Basic ' + user.id },
+        body: form
+    }).then(response => {
+        if (response.ok) {
+            $('#new-house-sensor-name').val('');
+            $('#new-house-sensor-type').val('');
+            response.json().then(sensor => {
+                $('#new-house-sensor-type').append($('<option>', { value: sensor.id, text: sensor.name }));
+                create_sensor_type_row($('#sensor-types-list'), $('#sensor-type-row'), sensor.id, sensor);
+            });
+        } else
+            alert(response.statusText);
+    });
+}
+
+function new_house_user() {
+    $('#teachers-list').find('input:checked').each(function () {
+        const user_id = this.getAttribute('user_id');
+        fetch('http://' + config.host + ':' + config.service_port + '/user/assign/?house_id=' + current_house + '&user_id=' + user_id, {
+            method: 'post',
+            headers: { 'Authorization': 'Basic ' + user.id }
+        }).then(response => {
+            if (response.ok) {
+
+            } else
+                alert(response.statusText);
+        });
+    });
+}
+
+function new_house_robot() {
+    const form = new FormData();
+    form.append('house_id', current_house);
+    form.append('name', $('#new-house-robot-name').val());
+    form.append('type_id', $('#new-house-robot-type').val());
+    fetch('http://' + config.host + ':' + config.service_port + '/device', {
+        method: 'post',
+        headers: { 'Authorization': 'Basic ' + user.id },
+        body: form
+    }).then(response => {
+        if (response.ok) {
+            $('#new-house-robot-name').val('');
+            $('#new-house-robot-type').val('');
+            response.json().then(robot => {
+                $('#new-house-robot-type').append($('<option>', { value: robot.id, text: robot.name }));
+                create_robot_type_row($('#robot-types-list'), $('#robot-type-row'), robot.id, robot);
+            });
+        } else
+            alert(response.statusText);
+    });
+}
+
 function new_sensor_type() {
     const form = new FormData();
     form.append('name', $('#new-sensor-type-name').val());
@@ -227,6 +297,7 @@ function new_sensor_type() {
             $('#new-sensor-type-description').val('');
             $('#new-sensor-type-category').val('');
             response.json().then(sensor_type => {
+                sensor_types.set(sensor_type.id, sensor_type);
                 create_sensor_type_row($('#sensor-types-list'), $('#sensor-type-row'), sensor_type.id, sensor_type);
             });
         } else
@@ -249,6 +320,7 @@ function new_robot_type() {
             $('#new-robot-type-description').val('');
             $('#new-robot-type-category').val('');
             response.json().then(robot_type => {
+                robot_types.set(robot_type.id, robot_type);
                 create_robot_type_row($('#robot-types-list'), $('#robot-type-row'), robot_type.id, robot_type);
             });
         } else
@@ -268,6 +340,16 @@ function create_user_row(users_list, template, id, user) {
     users_list.append(user_row);
 }
 
+function create_new_house_user_row(users_list, template, id, user) {
+    const user_row = template[0].content.cloneNode(true);
+    const row_content = user_row.querySelector('.list-group-item');
+    row_content.childNodes[0].id += id;
+    row_content.childNodes[0].setAttribute('user_id', id);
+    row_content.childNodes[1].htmlFor += id;
+    row_content.childNodes[1].append(user.lastName + ', ' + user.firstName);
+    users_list.append(user_row);
+}
+
 function create_house_row(houses_list, template, id, house) {
     const house_row = template[0].content.cloneNode(true);
     const row_content = house_row.querySelector('.list-group-item');
@@ -278,9 +360,32 @@ function create_house_row(houses_list, template, id, house) {
     houses_list.append(house_row);
 
     $('#house-' + id).on('show.bs.tab', function (event) {
+        current_house = house.id;
         $('#house-id').val(house.id);
         $('#house-name').val(house.name);
         $('#house-description').val(house.description);
+
+        const sensors_list = $('#house-sensors-list');
+        const sensor_row_template = $('#house-sensor-row');
+        const robots_list = $('#house-robots-list');
+        const robot_row_template = $('#house-robot-row');
+        for (const c_device of house.devices.sort((a, b) => a.name.localeCompare(b.name)))
+            switch (c_device.type) {
+                case 'sensor':
+                    create_house_sensor_row(sensors_list, sensor_row_template, c_device.id, c_device);
+                    break;
+                case 'robot':
+                    create_house_robot_row(robots_list, robot_row_template, c_device.id, c_device);
+                    break;
+                default:
+                    console.error('invalid device type ' + c_device.type);
+                    break;
+            }
+
+        const users_list = $('#house-users-list');
+        const user_row_template = $('#house-user-row');
+        for (const c_user of house.users.sort((a, b) => (a.lastName + a.firstName).localeCompare(b.lastName + b.firstName)))
+            create_house_user_row(users_list, user_row_template, c_user.id, c_user);
     });
 }
 
@@ -300,4 +405,34 @@ function create_robot_type_row(robot_types_list, template, id, robot_type) {
     const divs = row_content.querySelectorAll('div');
     divs[0].append(robot_type.name);
     robot_types_list.append(robot_type_row);
+}
+
+function create_house_sensor_row(sensors_list, template, id, sensor) {
+    const sensor_row = template[0].content.cloneNode(true);
+    const row_content = sensor_row.querySelector('.list-group-item');
+    row_content.id += id;
+    const divs = row_content.querySelectorAll('div');
+    divs[0].append(sensor.name);
+    sensors_list.append(sensor_row);
+}
+
+function create_house_user_row(users_list, template, id, user) {
+    const user_row = template[0].content.cloneNode(true);
+    const row_content = user_row.querySelector('.list-group-item');
+    row_content.id += id;
+    const divs = row_content.querySelectorAll('div');
+    var online_span = divs[0].childNodes[0];
+    online_span.id += id;
+    online_span.classList.add(user.online ? online_icon : offline_icon);
+    divs[0].append(user.lastName + ', ' + user.firstName);
+    users_list.append(user_row);
+}
+
+function create_house_robot_row(robots_list, template, id, robot) {
+    const robot_row = template[0].content.cloneNode(true);
+    const row_content = robot_row.querySelector('.list-group-item');
+    row_content.id += id;
+    const divs = row_content.querySelectorAll('div');
+    divs[0].append(robot.name);
+    robots_list.append(robot_row);
 }

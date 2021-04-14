@@ -8,14 +8,17 @@ public class House {
     private final long id;
     private final String name, description;
     private final Device[] devices;
+    private final User[] users;
 
     @JsonCreator
     public House(@JsonProperty("id") final long id, @JsonProperty("name") final String name,
-            @JsonProperty("description") final String description, @JsonProperty("devices") final Device[] devices) {
+            @JsonProperty("description") final String description, @JsonProperty("devices") final Device[] devices,
+            @JsonProperty("users") final User[] users) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.devices = devices;
+        this.users = users;
     }
 
     public long getId() {
@@ -32,5 +35,9 @@ public class House {
 
     public Device[] getDevices() {
         return devices;
+    }
+
+    public User[] getUsers() {
+        return users;
     }
 }
