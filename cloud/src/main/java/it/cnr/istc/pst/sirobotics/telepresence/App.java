@@ -82,8 +82,9 @@ public class App {
 
         try {
             LOG.info("Creating the SI-Robotics cloud MQTT client..");
-            MQTT_CLIENT = new MqttClient(PROPERTIES.getProperty("mqtt_host"), "SI-Robotics cloud",
-                    new MemoryPersistence());
+            final String server_uri = "tcp://" + PROPERTIES.getProperty("mqtt_host", "localhost") + ':'
+                    + PROPERTIES.getProperty("mqtt_port", "1883");
+            MQTT_CLIENT = new MqttClient(server_uri, "SI-Robotics cloud", new MemoryPersistence());
 
             LOG.info("Connecting the SI-Robotics cloud MQTT client to the broker..");
             final MqttConnectOptions connect_options = new MqttConnectOptions();
@@ -190,7 +191,13 @@ public class App {
                 });
             });
             path("users", () -> get(UserController::getAllUsers, roles(SIRRole.Admin)));
-            path("house", () -> post(HouseController::createHouse, roles(SIRRole.Admin)));
+            path("house", () -> {
+                post(HouseController::createHouse, roles(SIRRole.Admin));
+                path(":id", () -> {
+                    get(HouseController::getHouse, roles(SIRRole.Admin, SIRRole.User));
+                });
+            });
+            path("house_params", () -> get(HouseController::houseParams, roles(SIRRole.Admin)));
             path("assign", () -> post(HouseController::assignUser, roles(SIRRole.Admin)));
             path("unassign", () -> post(HouseController::unassignUser, roles(SIRRole.Admin)));
             path("device", () -> post(HouseController::createDevice, roles(SIRRole.Admin)));

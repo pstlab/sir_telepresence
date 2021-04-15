@@ -54,7 +54,7 @@
                 <div class="col tab-content">
                     <div class="tab-pane fade show body-panel h-100 p-2" id="house" role="tabpanel">
                         <div class="row">
-                            <div class="col-1 form-floating my-1">
+                            <div class="col-2 form-floating my-1">
                                 <input type="text" class="form-control" id="house-id" placeholder="Id casa" readonly>
                                 <label for="house-id" class="col-form-label">Id</label>
                             </div>
@@ -67,6 +67,8 @@
                                     placeholder="Descrizione">
                                 <label for="house-description" class="col-form-label">Descrizione</label>
                             </div>
+                            <button type="button" class="col-md-auto btn btn-secondary my-1" id="house-save"><i
+                                    class="bi bi-save"></i></button>
                         </div>
                         <hr>
                         <div class="row h-100 my-1">
@@ -364,6 +366,8 @@
             id="house-" type="button" data-bs-toggle="tab" data-bs-target="#house">
             <div class="col-sm-2 justify-content-start"></div>
             <div class="col justify-content-start"></div>
+            <button type="button" class="col-md-auto btn btn-secondary justify-content-end" id="delete-house-"><i
+                    class="bi bi-folder-minus"></i></button>
         </div>
     </template>
 

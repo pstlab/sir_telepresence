@@ -227,7 +227,7 @@ function new_house() {
 
 function new_house_sensor() {
     const form = new FormData();
-    form.append('house_id', current_house);
+    form.append('house_id', current_house.id);
     form.append('name', $('#new-house-sensor-name').val());
     form.append('type_id', $('#new-house-sensor-type').val());
     fetch('http://' + config.host + ':' + config.service_port + '/device', {
@@ -250,7 +250,7 @@ function new_house_sensor() {
 function new_house_user() {
     $('#new-house-users-list').find('input:checked').each(function () {
         const user_id = this.getAttribute('user_id');
-        fetch('http://' + config.host + ':' + config.service_port + '/assign/?house_id=' + current_house + '&user_id=' + user_id, {
+        fetch('http://' + config.host + ':' + config.service_port + '/assign/?house_id=' + current_house.id + '&user_id=' + user_id, {
             method: 'post',
             headers: { 'Authorization': 'Basic ' + user.id }
         }).then(response => {
@@ -264,7 +264,7 @@ function new_house_user() {
 
 function new_house_robot() {
     const form = new FormData();
-    form.append('house_id', current_house);
+    form.append('house_id', current_house.id);
     form.append('name', $('#new-house-robot-name').val());
     form.append('type_id', $('#new-house-robot-type').val());
     fetch('http://' + config.host + ':' + config.service_port + '/device', {
@@ -362,7 +362,7 @@ function create_house_row(houses_list, template, id, house) {
     houses_list.append(house_row);
 
     $('#house-' + id).on('show.bs.tab', function (event) {
-        current_house = house.id;
+        current_house = house;
         $('#house-id').val(house.id);
         $('#house-name').val(house.name);
         $('#house-description').val(house.description);
@@ -388,6 +388,21 @@ function create_house_row(houses_list, template, id, house) {
         const user_row_template = $('#house-user-row');
         for (const c_user of house.users.sort((a, b) => (a.lastName + a.firstName).localeCompare(b.lastName + b.firstName)))
             create_house_user_row(users_list, user_row_template, c_user.id, c_user);
+
+        $('#house-save').click(function () {
+            // we set the device types..
+            fetch('http://' + config.host + ':' + config.service_port + '/house_params/?house_id=' + id, {
+                method: 'get',
+                headers: { 'Authorization': 'Basic ' + user.id }
+            }).then(response => {
+                if (response.ok) {
+                    response.text().then(data => {
+                        download('params.yaml', data);
+                    });
+                } else
+                    alert(response.statusText);
+            });
+        });
     });
 }
 
@@ -437,4 +452,17 @@ function create_house_robot_row(robots_list, template, id, robot) {
     const divs = row_content.querySelectorAll('div');
     divs[0].append(robot.name);
     robots_list.append(robot_row);
+}
+
+function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
 }

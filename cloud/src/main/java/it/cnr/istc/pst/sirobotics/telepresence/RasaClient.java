@@ -20,7 +20,9 @@ public class RasaClient {
     private final WebTarget target;
 
     public RasaClient() {
-        target = client.target(App.PROPERTIES.getProperty("rasa_host"));
+        final String server_uri = "http://" + App.PROPERTIES.getProperty("rasa_host", "localhost") + ':'
+                + App.PROPERTIES.getProperty("rasa_port", "5005");
+        target = client.target(server_uri);
     }
 
     public JsonNode version() throws JsonProcessingException {
