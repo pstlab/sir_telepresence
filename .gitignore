@@ -2,6 +2,7 @@
 .classpath
 .project
 .settings
+.antlr
 build
 target
 dependency-reduced-pom.xml

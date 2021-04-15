@@ -5,12 +5,18 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.javalin.http.ConflictResponse;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
+import it.cnr.istc.pst.sirobotics.configuration.robot_confLexer;
+import it.cnr.istc.pst.sirobotics.configuration.robot_confParser;
+import it.cnr.istc.pst.sirobotics.configuration.robot_confParser.ConfigurationContext;
+import it.cnr.istc.pst.sirobotics.configuration.robot_confParser.PredicateContext;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Robot;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Sensor;
@@ -327,8 +333,22 @@ public class HouseController {
                 sb.append("  topic_to: ").append(house_id).append('/').append(device.getId()).append("/failure\n");
                 sb.append('\n');
 
+                sb.append("# commands to robot #").append(device.getId()).append("..\n");
                 RobotTypeEntity type = (RobotTypeEntity) device.getType();
-                String[] pars = type.getPredicates().split(";");
+                robot_confParser parser = new robot_confParser(
+                        new CommonTokenStream(new robot_confLexer(CharStreams.fromString(type.getConfiguration()))));
+                ConfigurationContext configuration = parser.configuration();
+                for (PredicateContext pred : configuration.predicate()) {
+                    String pred_name = pred.ID().getText();
+                    sb.append("# command '").append(pred_name).append("' to robot #").append(device.getId())
+                            .append("..\n");
+                    sb.append("  - factory: mqtt_bridge.bridge:MqttToRosBridge\n");
+                    sb.append("  msg_type: string\n");
+                    sb.append("  topic_from: ").append(house_id).append('/').append(device.getId()).append("/")
+                            .append(pred_name).append('\n');
+                    sb.append("  topic_to: /").append(pred_name).append('\n');
+                    sb.append('\n');
+                }
             } else
                 throw new UnsupportedOperationException();
 

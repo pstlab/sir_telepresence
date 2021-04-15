@@ -5,13 +5,13 @@ import javax.persistence.Entity;
 @Entity
 public class RobotTypeEntity extends DeviceTypeEntity {
 
-    private String predicates;
+    private String configuration;
 
-    public String getPredicates() {
-        return predicates;
+    public String getConfiguration() {
+        return configuration;
     }
 
-    public void setPredicates(String predicates) {
-        this.predicates = predicates;
+    public void setConfiguration(String configuration) {
+        this.configuration = configuration;
     }
 }

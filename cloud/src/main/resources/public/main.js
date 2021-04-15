@@ -249,7 +249,7 @@ function new_house_sensor() {
 
 function new_house_user() {
     $('#new-house-users-list').find('input:checked').each(function () {
-        const user_id = this.getAttribute('user_id');
+        const user_id = parseInt(this.getAttribute('user_id'), 10);
         fetch('http://' + config.host + ':' + config.service_port + '/assign/?house_id=' + current_house.id + '&user_id=' + user_id, {
             method: 'post',
             headers: { 'Authorization': 'Basic ' + user.id }
@@ -299,7 +299,7 @@ function new_sensor_type() {
             $('#new-sensor-type-description').val('');
             $('#new-sensor-type-category').val('');
             response.json().then(sensor_type => {
-                sensor_types.set(sensor_type.id, sensor_type);
+                $('#new-house-sensor-type').append($('<option>', { value: sensor_type.id, text: sensor_type.name }));
                 create_sensor_type_row($('#sensor-types-list'), $('#sensor-type-row'), sensor_type.id, sensor_type);
             });
         } else
@@ -312,6 +312,7 @@ function new_robot_type() {
     form.append('name', $('#new-robot-type-name').val());
     form.append('description', $('#new-robot-type-description').val());
     form.append('category', $('#new-robot-type-category').val());
+    form.append('configuration', $('#new-robot-type-configuration').val());
     fetch('http://' + config.host + ':' + config.service_port + '/robot_type', {
         method: 'post',
         headers: { 'Authorization': 'Basic ' + user.id },
@@ -321,8 +322,9 @@ function new_robot_type() {
             $('#new-robot-type-name').val('');
             $('#new-robot-type-description').val('');
             $('#new-robot-type-category').val('');
+            $('#new-robot-type-configuration').val('');
             response.json().then(robot_type => {
-                robot_types.set(robot_type.id, robot_type);
+                $('#new-house-robot-type').append($('<option>', { value: robot_type.id, text: robot_type.name }));
                 create_robot_type_row($('#robot-types-list'), $('#robot-type-row'), robot_type.id, robot_type);
             });
         } else

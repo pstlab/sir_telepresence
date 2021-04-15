@@ -162,7 +162,7 @@ public class App {
                     ohmni_type.setName("Ohmni Robot");
                     ohmni_type.setDescription(
                             "Un robot di telepresenza che trasforma il modo in cui le persone si connettono.");
-                    ohmni_type.setPredicates("At;GoingTo");
+                    ohmni_type.setConfiguration("At;GoingTo;");
 
                     em.getTransaction().begin();
                     em.persist(ohmni_type);
