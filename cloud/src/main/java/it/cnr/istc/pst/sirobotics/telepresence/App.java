@@ -158,10 +158,11 @@ public class App {
                 LOG.info("Loading {} device types..", device_types.size());
                 if (device_types.isEmpty()) {
                     LOG.info("Creating sample robot type..");
-                    final DeviceTypeEntity ohmni_type = new RobotTypeEntity();
+                    final RobotTypeEntity ohmni_type = new RobotTypeEntity();
                     ohmni_type.setName("Ohmni Robot");
                     ohmni_type.setDescription(
                             "Un robot di telepresenza che trasforma il modo in cui le persone si connettono.");
+                    ohmni_type.setPredicates("At;GoingTo");
 
                     em.getTransaction().begin();
                     em.persist(ohmni_type);

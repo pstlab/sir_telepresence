@@ -326,6 +326,9 @@ public class HouseController {
                 sb.append("  topic_from: /failure\n");
                 sb.append("  topic_to: ").append(house_id).append('/').append(device.getId()).append("/failure\n");
                 sb.append('\n');
+
+                RobotTypeEntity type = (RobotTypeEntity) device.getType();
+                String[] pars = type.getPredicates().split(";");
             } else
                 throw new UnsupportedOperationException();
 
