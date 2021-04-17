@@ -116,8 +116,8 @@ public class HouseManager {
             @Override
             public void endingAtoms(final long[] atms) {
                 try {
-                    App.MQTT_CLIENT.publish(house.getId() + "/ending", App.MAPPER.writeValueAsString(atms).getBytes(),
-                            App.QoS, false);
+                    App.MQTT_CLIENT.publish(house.getId() + "/ending",
+                            App.MAPPER.writeValueAsString(new ROSBridgeLongArray(atms)).getBytes(), App.QoS, false);
                 } catch (final JsonProcessingException | MqttException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
                 }
@@ -165,14 +165,23 @@ public class HouseManager {
                 scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1000, TimeUnit.SECONDS);
             });
 
-            App.MQTT_CLIENT.subscribe(house.getId() + "/dont_start_yet", (topic, message) -> tl_exec
-                    .dont_start_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
+            App.MQTT_CLIENT.subscribe(house.getId() + "/dont_start_yet", (topic, message) -> {
+                ROSBridgeLongArray long_array_message = App.MAPPER.readValue(message.getPayload(),
+                        ROSBridgeLongArray.class);
+                tl_exec.dont_start_yet(long_array_message.data);
+            });
 
-            App.MQTT_CLIENT.subscribe(house.getId() + "/dont_end_yet", (topic, message) -> tl_exec
-                    .dont_end_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
+            App.MQTT_CLIENT.subscribe(house.getId() + "/dont_end_yet", (topic, message) -> {
+                ROSBridgeLongArray long_array_message = App.MAPPER.readValue(message.getPayload(),
+                        ROSBridgeLongArray.class);
+                tl_exec.dont_end_yet(long_array_message.data);
+            });
 
-            App.MQTT_CLIENT.subscribe(house.getId() + "/failure", (topic, message) -> tl_exec
-                    .failure(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
+            App.MQTT_CLIENT.subscribe(house.getId() + "/failure", (topic, message) -> {
+                ROSBridgeLongArray long_array_message = App.MAPPER.readValue(message.getPayload(),
+                        ROSBridgeLongArray.class);
+                tl_exec.failure(long_array_message.data);
+            });
 
             App.MQTT_CLIENT.subscribe(house.getId() + "/nlp/in", (topic, message) -> {
                 ROSBridgeString string_message = App.MAPPER.readValue(new String(message.getPayload()),
@@ -262,7 +271,7 @@ public class HouseManager {
             public void endingAtoms(final long[] atms) {
                 try {
                     App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/ending",
-                            App.MAPPER.writeValueAsString(atms).getBytes(), App.QoS, false);
+                            App.MAPPER.writeValueAsString(new ROSBridgeLongArray(atms)).getBytes(), App.QoS, false);
                 } catch (final JsonProcessingException | MqttException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
                 }
@@ -316,15 +325,24 @@ public class HouseManager {
             });
 
             App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/dont_start_yet",
-                    (topic, message) -> tl_exec
-                            .dont_start_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
+                    (topic, message) -> {
+                        ROSBridgeLongArray long_array_message = App.MAPPER.readValue(message.getPayload(),
+                                ROSBridgeLongArray.class);
+                        tl_exec.dont_start_yet(long_array_message.data);
+                    });
 
             App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/dont_end_yet",
-                    (topic, message) -> tl_exec
-                            .dont_end_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
+                    (topic, message) -> {
+                        ROSBridgeLongArray long_array_message = App.MAPPER.readValue(message.getPayload(),
+                                ROSBridgeLongArray.class);
+                        tl_exec.dont_end_yet(long_array_message.data);
+                    });
 
-            App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/failure", (topic,
-                    message) -> tl_exec.failure(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
+            App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/failure", (topic, message) -> {
+                ROSBridgeLongArray long_array_message = App.MAPPER.readValue(message.getPayload(),
+                        ROSBridgeLongArray.class);
+                tl_exec.failure(long_array_message.data);
+            });
 
             App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/nlp/in", (topic, message) -> {
                 ROSBridgeString string_message = App.MAPPER.readValue(new String(message.getPayload()),
@@ -409,7 +427,17 @@ public class HouseManager {
         private final String data;
 
         @JsonCreator
-        private ROSBridgeString(@JsonProperty("id") final String data) {
+        private ROSBridgeString(@JsonProperty("data") final String data) {
+            this.data = data;
+        }
+    }
+
+    private static class ROSBridgeLongArray {
+
+        private final long[] data;
+
+        @JsonCreator
+        private ROSBridgeLongArray(@JsonProperty("data") final long[] data) {
             this.data = data;
         }
     }
