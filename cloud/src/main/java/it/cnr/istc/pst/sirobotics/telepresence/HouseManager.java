@@ -2,16 +2,14 @@ package it.cnr.istc.pst.sirobotics.telepresence;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.persistence.EntityManager;
 
@@ -24,9 +22,10 @@ import org.slf4j.LoggerFactory;
 
 import it.cnr.istc.pst.oratio.Atom;
 import it.cnr.istc.pst.oratio.ExecutorListener;
-import it.cnr.istc.pst.oratio.Item;
 import it.cnr.istc.pst.oratio.Item.ArithItem;
+import it.cnr.istc.pst.oratio.Item.BoolItem;
 import it.cnr.istc.pst.oratio.Item.EnumItem;
+import it.cnr.istc.pst.oratio.Item.StringItem;
 import it.cnr.istc.pst.oratio.Predicate;
 import it.cnr.istc.pst.oratio.Rational;
 import it.cnr.istc.pst.oratio.Solver;
@@ -158,10 +157,10 @@ public class HouseManager {
                 scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1000, TimeUnit.SECONDS);
             });
 
-            App.MQTT_CLIENT.subscribe(house.getId() + "/dont-start-yet", (topic, message) -> tl_exec
+            App.MQTT_CLIENT.subscribe(house.getId() + "/dont_start_yet", (topic, message) -> tl_exec
                     .dont_start_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
 
-            App.MQTT_CLIENT.subscribe(house.getId() + "/dont-end-yet", (topic, message) -> tl_exec
+            App.MQTT_CLIENT.subscribe(house.getId() + "/dont_end_yet", (topic, message) -> tl_exec
                     .dont_end_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
 
             App.MQTT_CLIENT.subscribe(house.getId() + "/failure", (topic, message) -> tl_exec
@@ -259,14 +258,19 @@ public class HouseManager {
 
             @Override
             public void startingAtoms(final long[] atms) {
-                final Command[] commands = new Command[atms.length];
-                for (int i = 0; i < commands.length; i++)
-                    commands[i] = new Command(atoms.get(atms[i]));
-                try {
-                    App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/starting",
-                            App.MAPPER.writeValueAsString(commands).getBytes(), App.QoS, false);
-                } catch (final JsonProcessingException | MqttException ex) {
-                    LOG.error("Cannot create MQTT message..", ex);
+                final Map<String, Collection<Command>> commands = new HashMap<>();
+                for (int i = 0; i < atms.length; i++) {
+                    Atom atm = atoms.get(atms[i]);
+                    Collection<Command> c_cmnds = commands.putIfAbsent(atm.getType().getName(), new ArrayList<>());
+                    c_cmnds.add(new Command(atm));
+                }
+                for (Map.Entry<String, Collection<Command>> cmnd : commands.entrySet()) {
+                    try {
+                        App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + '/' + cmnd.getKey(),
+                                App.MAPPER.writeValueAsString(cmnd.getValue()).getBytes(), App.QoS, false);
+                    } catch (final JsonProcessingException | MqttException ex) {
+                        LOG.error("Cannot create MQTT message..", ex);
+                    }
                 }
             }
 
@@ -297,11 +301,11 @@ public class HouseManager {
                 scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1000, TimeUnit.SECONDS);
             });
 
-            App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/dont-start-yet",
+            App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/dont_start_yet",
                     (topic, message) -> tl_exec
                             .dont_start_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
 
-            App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/dont-end-yet",
+            App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/dont_end_yet",
                     (topic, message) -> tl_exec
                             .dont_end_yet(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
 
@@ -340,43 +344,44 @@ public class HouseManager {
     private static final class Command {
 
         private final long id;
-        private final String predicate;
-        private final Collection<String> bool_pars = new ArrayList<>();
-        private final Collection<String> bool_vals = new ArrayList<>();
-        private final Collection<String> arith_pars = new ArrayList<>();
-        private final Collection<Double> arith_vals = new ArrayList<>();
-        private final Collection<String> string_pars = new ArrayList<>();
-        private final Collection<String> string_vals = new ArrayList<>();
-        private final Collection<String> enum_pars = new ArrayList<>();
-        private final Collection<Collection<String>> enum_vals = new ArrayList<>();
+        private final List<String> pars = new ArrayList<>();
+        private final List<Object> vals = new ArrayList<>();
 
         private Command(final Atom atom) {
             this.id = atom.getSigma();
-            this.predicate = atom.getType().getName();
 
             atom.getExprs().entrySet().forEach(expr -> {
                 switch (expr.getValue().getType().getName()) {
                 case Solver.BOOL:
-                    bool_pars.add(expr.getKey());
-                    bool_vals.add(((Item.BoolItem) expr.getValue()).getValue().name());
+                    pars.add(expr.getKey());
+                    if (expr.getValue() instanceof EnumItem)
+                        vals.add(((BoolItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue().booleanValue());
+                    else
+                        vals.add(((BoolItem) expr.getValue()).getValue().booleanValue());
+                    break;
                 case Solver.INT:
                 case Solver.REAL:
                 case Solver.TP:
-                    arith_pars.add(expr.getKey());
-                    arith_vals.add(((Item.ArithItem) expr.getValue()).getValue().doubleValue());
+                    pars.add(expr.getKey());
+                    if (expr.getValue() instanceof EnumItem)
+                        vals.add(((ArithItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue().doubleValue());
+                    else
+                        vals.add(((ArithItem) expr.getValue()).getValue().doubleValue());
+                    break;
                 case Solver.STRING:
-                    string_pars.add(expr.getKey());
-                    string_vals.add(((Item.StringItem) expr.getValue()).getValue());
+                    pars.add(expr.getKey());
+                    if (expr.getValue() instanceof EnumItem)
+                        vals.add(((StringItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue());
+                    else
+                        vals.add(((StringItem) expr.getValue()).getValue());
+                    break;
                 default:
-                    enum_pars.add(expr.getKey());
-                    if (expr.getValue() instanceof EnumItem) {
-                        if (((EnumItem) expr.getValue()).getVals().length == 1)
-                            enum_vals.add(Collections.singleton(((EnumItem) expr.getValue()).getVals()[0].getName()));
-                        else
-                            enum_vals.add(Stream.of(((EnumItem) expr.getValue()).getVals()).map(itm -> itm.getName())
-                                    .collect(Collectors.toList()));
-                    } else
-                        enum_vals.add(Collections.singleton(expr.getValue().getName()));
+                    pars.add(expr.getKey());
+                    if (expr.getValue() instanceof EnumItem)
+                        vals.add(((EnumItem) expr.getValue()).getVals()[0].getName());
+                    else
+                        vals.add(expr.getValue().getName());
+                    break;
                 }
             });
         }
