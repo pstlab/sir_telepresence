@@ -1,7 +1,6 @@
 package it.cnr.istc.pst.sirobotics.telepresence;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -45,155 +44,12 @@ public class HouseManager {
     private static final Logger LOG = LoggerFactory.getLogger(HouseManager.class);
     private static final ScheduledExecutorService EXECUTOR = Executors
             .newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
-    private ScheduledFuture<?> scheduled_feature;
     private final HouseEntity house;
 
     public HouseManager(final HouseEntity house) {
         this.house = house;
-        final Map<Long, Atom> atoms = new HashMap<>();
-        final Solver solver = new Solver();
-        solver.addStateListener(new StateListener() {
+        new SolverManager(Long.toString(house.getId()));
 
-            @Override
-            public void inconsistentProblem() {
-                try {
-                    App.MQTT_CLIENT.publish(house.getId() + "/planner",
-                            App.MAPPER.writeValueAsString(new ROSBridgeString("inconsistent")).getBytes(), App.QoS,
-                            false);
-                } catch (final MqttException | JsonProcessingException ex) {
-                    LOG.error("Cannot create MQTT message..", ex);
-                }
-            }
-
-            @Override
-            public void log(final String log) {
-                LOG.info("[House #" + house.getId() + "] " + log);
-            }
-
-            @Override
-            public void read(final String script) {
-            }
-
-            @Override
-            public void read(final String[] files) {
-            }
-
-            @Override
-            public void solutionFound() {
-                try {
-                    App.MQTT_CLIENT.publish(house.getId() + "/planner",
-                            App.MAPPER.writeValueAsString(new ROSBridgeString("solution")).getBytes(), App.QoS, false);
-                } catch (final MqttException | JsonProcessingException ex) {
-                    LOG.error("Cannot create MQTT message..", ex);
-                }
-
-                atoms.clear();
-
-                for (final Type t : solver.getTypes().values())
-                    for (final Predicate p : t.getPredicates().values())
-                        p.getInstances().stream().map(atm -> (Atom) atm)
-                                .filter(atm -> (atm.getState() == Atom.AtomState.Active))
-                                .forEach(atm -> atoms.put(atm.getSigma(), atm));
-            }
-
-            @Override
-            public void startedSolving() {
-                try {
-                    App.MQTT_CLIENT.publish(house.getId() + "/planner",
-                            App.MAPPER.writeValueAsString(new ROSBridgeString("solving")).getBytes(), App.QoS, false);
-                } catch (final MqttException | JsonProcessingException ex) {
-                    LOG.error("Cannot create MQTT message..", ex);
-                }
-            }
-
-            @Override
-            public void stateChanged() {
-            }
-        });
-        final TimelinesExecutor tl_exec = new TimelinesExecutor(solver, new Rational(1));
-        tl_exec.addExecutorListener(new ExecutorListener() {
-
-            @Override
-            public void endingAtoms(final long[] atms) {
-                try {
-                    App.MQTT_CLIENT.publish(house.getId() + "/ending",
-                            App.MAPPER.writeValueAsString(new ROSBridgeLongArray(atms)).getBytes(), App.QoS, false);
-                } catch (final JsonProcessingException | MqttException ex) {
-                    LOG.error("Cannot create MQTT message..", ex);
-                }
-            }
-
-            @Override
-            public void startingAtoms(final long[] atms) {
-                final Command[] commands = new Command[atms.length];
-                for (int i = 0; i < commands.length; i++)
-                    commands[i] = new Command(atoms.get(atms[i]));
-                try {
-                    App.MQTT_CLIENT.publish(house.getId() + "/starting",
-                            App.MAPPER.writeValueAsString(commands).getBytes(), App.QoS, false);
-                } catch (final JsonProcessingException | MqttException ex) {
-                    LOG.error("Cannot create MQTT message..", ex);
-                }
-            }
-
-            @Override
-            public void tick(final Rational current_time) {
-                try {
-                    if (((ArithItem) solver.get("horizon")).getValue().leq(current_time)) {
-                        LOG.info("Nothing more to execute..");
-                        scheduled_feature.cancel(false);
-                    }
-                } catch (final NoSuchFieldException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        try {
-            App.MQTT_CLIENT.subscribe(house.getId() + "/plan", (topic, message) -> {
-                // we read the problem..
-                LOG.info("Reading the problem..");
-                ROSBridgeString string_message = App.MAPPER.readValue(new String(message.getPayload()),
-                        ROSBridgeString.class);
-                solver.read(string_message.data);
-
-                // we solve the problem..
-                LOG.info("Solving the problem..");
-                solver.solve();
-
-                // we execute the solution..
-                LOG.info("Starting plan execution..");
-                scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1000, TimeUnit.SECONDS);
-            });
-
-            App.MQTT_CLIENT.subscribe(house.getId() + "/dont_start_yet", (topic, message) -> {
-                ROSBridgeLongArray long_array_message = App.MAPPER.readValue(message.getPayload(),
-                        ROSBridgeLongArray.class);
-                tl_exec.dont_start_yet(long_array_message.data);
-            });
-
-            App.MQTT_CLIENT.subscribe(house.getId() + "/dont_end_yet", (topic, message) -> {
-                ROSBridgeLongArray long_array_message = App.MAPPER.readValue(message.getPayload(),
-                        ROSBridgeLongArray.class);
-                tl_exec.dont_end_yet(long_array_message.data);
-            });
-
-            App.MQTT_CLIENT.subscribe(house.getId() + "/failure", (topic, message) -> {
-                ROSBridgeLongArray long_array_message = App.MAPPER.readValue(message.getPayload(),
-                        ROSBridgeLongArray.class);
-                tl_exec.failure(long_array_message.data);
-            });
-
-            App.MQTT_CLIENT.subscribe(house.getId() + "/nlp/in", (topic, message) -> {
-                ROSBridgeString string_message = App.MAPPER.readValue(new String(message.getPayload()),
-                        ROSBridgeString.class);
-                JsonNode parse = App.NLU_CLIENT.parse(string_message.data);
-                App.MQTT_CLIENT.publish(house.getId() + "/nlp/intent",
-                        App.MAPPER.writeValueAsString(new ROSBridgeString(parse.get("intent").toString())).getBytes(),
-                        App.QoS, true);
-            });
-        } catch (final MqttException ex) {
-            LOG.error("Cannot subscribe the house #" + house.getId() + " to the MQTT broker..", ex);
-        }
         for (final DeviceEntity device_entity : house.getDevices()) {
             if (device_entity instanceof RobotEntity) {
                 addRobot((RobotEntity) device_entity);
@@ -204,157 +60,7 @@ public class HouseManager {
     }
 
     public void addRobot(final RobotEntity robot_entity) {
-        final Map<Long, Atom> atoms = new HashMap<>();
-        final Solver solver = new Solver();
-        solver.addStateListener(new StateListener() {
-
-            @Override
-            public void inconsistentProblem() {
-                try {
-                    App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/planner",
-                            App.MAPPER.writeValueAsString(new ROSBridgeString("inconsistent")).getBytes(), App.QoS,
-                            false);
-                } catch (final MqttException | JsonProcessingException ex) {
-                    LOG.error("Cannot create MQTT message..", ex);
-                }
-            }
-
-            @Override
-            public void log(final String log) {
-                LOG.info("[House #" + house.getId() + ", Robot #" + robot_entity.getId() + "] " + log);
-            }
-
-            @Override
-            public void read(final String script) {
-            }
-
-            @Override
-            public void read(final String[] files) {
-            }
-
-            @Override
-            public void solutionFound() {
-                try {
-                    App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/planner",
-                            App.MAPPER.writeValueAsString(new ROSBridgeString("soution")).getBytes(), App.QoS, false);
-                } catch (final MqttException | JsonProcessingException ex) {
-                    LOG.error("Cannot create MQTT message..", ex);
-                }
-
-                atoms.clear();
-
-                for (final Type t : solver.getTypes().values())
-                    for (final Predicate p : t.getPredicates().values())
-                        p.getInstances().stream().map(atm -> (Atom) atm)
-                                .filter(atm -> (atm.getState() == Atom.AtomState.Active))
-                                .forEach(atm -> atoms.put(atm.getSigma(), atm));
-            }
-
-            @Override
-            public void startedSolving() {
-                try {
-                    App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/planner",
-                            App.MAPPER.writeValueAsString(new ROSBridgeString("solving")).getBytes(), App.QoS, false);
-                } catch (final MqttException | JsonProcessingException ex) {
-                    LOG.error("Cannot create MQTT message..", ex);
-                }
-            }
-
-            @Override
-            public void stateChanged() {
-            }
-        });
-        final TimelinesExecutor tl_exec = new TimelinesExecutor(solver, new Rational(1));
-        tl_exec.addExecutorListener(new ExecutorListener() {
-
-            @Override
-            public void endingAtoms(final long[] atms) {
-                try {
-                    App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/ending",
-                            App.MAPPER.writeValueAsString(new ROSBridgeLongArray(atms)).getBytes(), App.QoS, false);
-                } catch (final JsonProcessingException | MqttException ex) {
-                    LOG.error("Cannot create MQTT message..", ex);
-                }
-            }
-
-            @Override
-            public void startingAtoms(final long[] atms) {
-                final Map<String, Collection<Command>> commands = new HashMap<>();
-                for (int i = 0; i < atms.length; i++) {
-                    Atom atm = atoms.get(atms[i]);
-                    Collection<Command> c_cmnds = commands.putIfAbsent(atm.getType().getName(), new ArrayList<>());
-                    c_cmnds.add(new Command(atm));
-                }
-                for (Map.Entry<String, Collection<Command>> cmnd : commands.entrySet()) {
-                    try {
-                        App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + '/' + cmnd.getKey(),
-                                App.MAPPER.writeValueAsString(cmnd.getValue()).getBytes(), App.QoS, false);
-                    } catch (final JsonProcessingException | MqttException ex) {
-                        LOG.error("Cannot create MQTT message..", ex);
-                    }
-                }
-            }
-
-            @Override
-            public void tick(final Rational current_time) {
-                try {
-                    if (((ArithItem) solver.get("horizon")).getValue().leq(current_time)) {
-                        LOG.info("Nothing more to execute..");
-                        scheduled_feature.cancel(false);
-                    }
-                } catch (final NoSuchFieldException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        try {
-            App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/plan", (topic, message) -> {
-                // we read the problem..
-                LOG.info("Reading the problem..");
-                ROSBridgeString string_message = App.MAPPER.readValue(new String(message.getPayload()),
-                        ROSBridgeString.class);
-                solver.read(string_message.data);
-
-                // we solve the problem..
-                LOG.info("Solving the problem..");
-                solver.solve();
-
-                // we execute the solution..
-                LOG.info("Starting plan execution..");
-                scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1000, TimeUnit.SECONDS);
-            });
-
-            App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/dont_start_yet",
-                    (topic, message) -> {
-                        ROSBridgeLongArray long_array_message = App.MAPPER.readValue(message.getPayload(),
-                                ROSBridgeLongArray.class);
-                        tl_exec.dont_start_yet(long_array_message.data);
-                    });
-
-            App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/dont_end_yet",
-                    (topic, message) -> {
-                        ROSBridgeLongArray long_array_message = App.MAPPER.readValue(message.getPayload(),
-                                ROSBridgeLongArray.class);
-                        tl_exec.dont_end_yet(long_array_message.data);
-                    });
-
-            App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/failure", (topic, message) -> {
-                ROSBridgeLongArray long_array_message = App.MAPPER.readValue(message.getPayload(),
-                        ROSBridgeLongArray.class);
-                tl_exec.failure(long_array_message.data);
-            });
-
-            App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/nlp/in", (topic, message) -> {
-                ROSBridgeString string_message = App.MAPPER.readValue(new String(message.getPayload()),
-                        ROSBridgeString.class);
-                JsonNode parse = App.NLU_CLIENT.parse(string_message.data);
-                App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/nlp/intent",
-                        App.MAPPER.writeValueAsString(new ROSBridgeString(parse.get("intent").toString())).getBytes(),
-                        App.QoS, true);
-            });
-        } catch (final MqttException ex) {
-            LOG.error("Cannot subscribe the robot #" + robot_entity.getId() + " to the MQTT broker..", ex);
-        }
+        new SolverManager(house.getId() + "/" + robot_entity.getId());
     }
 
     public void addSensor(final SensorEntity sensor_entity) {
@@ -375,70 +81,251 @@ public class HouseManager {
         }
     }
 
-    @SuppressWarnings("unused")
-    private static final class Command {
+    static class StringWrapper {
 
-        private final long id;
-        private final List<String> pars = new ArrayList<>();
-        private final List<Object> vals = new ArrayList<>();
+        final String data;
 
-        private Command(final Atom atom) {
-            this.id = atom.getSigma();
+        @JsonCreator
+        StringWrapper(@JsonProperty("data") final String data) {
+            this.data = data;
+        }
+    }
 
-            atom.getExprs().entrySet().forEach(expr -> {
-                switch (expr.getValue().getType().getName()) {
-                case Solver.BOOL:
-                    pars.add(expr.getKey());
-                    if (expr.getValue() instanceof EnumItem)
-                        vals.add(((BoolItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue().booleanValue());
-                    else
-                        vals.add(((BoolItem) expr.getValue()).getValue().booleanValue());
-                    break;
-                case Solver.INT:
-                case Solver.REAL:
-                case Solver.TP:
-                    pars.add(expr.getKey());
-                    if (expr.getValue() instanceof EnumItem)
-                        vals.add(((ArithItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue().doubleValue());
-                    else
-                        vals.add(((ArithItem) expr.getValue()).getValue().doubleValue());
-                    break;
-                case Solver.STRING:
-                    pars.add(expr.getKey());
-                    if (expr.getValue() instanceof EnumItem)
-                        vals.add(((StringItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue());
-                    else
-                        vals.add(((StringItem) expr.getValue()).getValue());
-                    break;
-                default:
-                    pars.add(expr.getKey());
-                    if (expr.getValue() instanceof EnumItem)
-                        vals.add(((EnumItem) expr.getValue()).getVals()[0].getName());
-                    else
-                        vals.add(expr.getValue().getName());
-                    break;
+    static class SolverManager implements StateListener, ExecutorListener {
+
+        private final String prefix;
+        private Solver solver = null;
+        private final Map<Long, Atom> c_atoms = new HashMap<>();
+        private TimelinesExecutor tl_exec = null;
+        private ScheduledFuture<?> scheduled_feature;
+        private SolverState state = null;
+
+        public SolverManager(final String prefix) {
+            this.prefix = prefix;
+
+            try {
+                App.MQTT_CLIENT.subscribe(prefix + "/plan", (topic, message) -> {
+                    if (state != SolverState.Waiting) {
+                        LOG.info("Solver state is " + state.name() + " and cannot read a new problem..");
+                        return;
+                    }
+
+                    setState(SolverState.Solving);
+
+                    // we read the problem..
+                    LOG.info("Reading the problem..");
+                    StringWrapper string_message = App.MAPPER.readValue(new String(message.getPayload()),
+                            StringWrapper.class);
+                    solver.read(string_message.data);
+
+                    // we solve the problem..
+                    LOG.info("Solving the problem..");
+                    solver.solve();
+                });
+
+                App.MQTT_CLIENT.subscribe(prefix + "/dont_start_yet", (topic, message) -> {
+                    scheduled_feature.cancel(false);
+                    LongArray long_array_message = App.MAPPER.readValue(message.getPayload(), LongArray.class);
+                    tl_exec.dont_start_yet(long_array_message.data);
+                });
+
+                App.MQTT_CLIENT.subscribe(prefix + "/dont_end_yet", (topic, message) -> {
+                    scheduled_feature.cancel(false);
+                    LongArray long_array_message = App.MAPPER.readValue(message.getPayload(), LongArray.class);
+                    tl_exec.dont_end_yet(long_array_message.data);
+                });
+
+                App.MQTT_CLIENT.subscribe(prefix + "/failure", (topic, message) -> {
+                    scheduled_feature.cancel(false);
+                    LongArray long_array_message = App.MAPPER.readValue(message.getPayload(), LongArray.class);
+                    tl_exec.failure(long_array_message.data);
+                });
+
+                App.MQTT_CLIENT.subscribe(prefix + "/nlp/in", (topic, message) -> {
+                    StringWrapper string_message = App.MAPPER.readValue(new String(message.getPayload()),
+                            StringWrapper.class);
+                    JsonNode parse = App.NLU_CLIENT.parse(string_message.data);
+                    App.MQTT_CLIENT.publish(prefix + "/nlp/intent",
+                            App.MAPPER.writeValueAsString(new StringWrapper(parse.get("intent").toString())).getBytes(),
+                            App.QoS, true);
+                });
+            } catch (final MqttException ex) {
+                LOG.error("Cannot subscribe the house #" + prefix + " to the MQTT broker..", ex);
+            }
+
+            reset();
+        }
+
+        public SolverState getState() {
+            return state;
+        }
+
+        public void setState(SolverState state) {
+            this.state = state;
+            fireStateChanged();
+        }
+
+        public void reset() {
+            solver = new Solver();
+            solver.addStateListener(this);
+            tl_exec = new TimelinesExecutor(solver, new Rational(1));
+            tl_exec.addExecutorListener(this);
+            setState(SolverState.Waiting);
+        }
+
+        @Override
+        public void log(String log) {
+            LOG.info("[" + prefix + "] " + log);
+        }
+
+        @Override
+        public void read(String script) {
+        }
+
+        @Override
+        public void read(String[] files) {
+        }
+
+        @Override
+        public void stateChanged() {
+        }
+
+        @Override
+        public void startedSolving() {
+            LOG.info("Solving the problem..");
+            setState(SolverState.Solving);
+        }
+
+        @Override
+        public void solutionFound() {
+            LOG.info("Solution found..");
+            setState(SolverState.Solution);
+
+            c_atoms.clear();
+
+            for (final Type t : solver.getTypes().values())
+                for (final Predicate p : t.getPredicates().values())
+                    p.getInstances().stream().map(atm -> (Atom) atm)
+                            .filter(atm -> (atm.getState() == Atom.AtomState.Active))
+                            .forEach(atm -> c_atoms.put(atm.getSigma(), atm));
+
+            // we execute the solution..
+            LOG.info("Starting plan execution..");
+            setState(SolverState.Executing);
+            scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1000, TimeUnit.SECONDS);
+        }
+
+        @Override
+        public void inconsistentProblem() {
+            LOG.info("Inconsistent problem..");
+            setState(SolverState.Inconsistent);
+            LOG.info("Resetting the solver..");
+            reset();
+        }
+
+        @Override
+        public void tick(Rational current_time) {
+            try {
+                if (((ArithItem) solver.get("horizon")).getValue().leq(current_time)) {
+                    LOG.info("Nothing more to execute..");
+                    scheduled_feature.cancel(false);
                 }
-            });
+            } catch (final NoSuchFieldException e) {
+                e.printStackTrace();
+            }
         }
-    }
 
-    private static class ROSBridgeString {
-
-        private final String data;
-
-        @JsonCreator
-        private ROSBridgeString(@JsonProperty("data") final String data) {
-            this.data = data;
+        @Override
+        public void startingAtoms(long[] atoms) {
+            final Command[] commands = new Command[atoms.length];
+            for (int i = 0; i < commands.length; i++)
+                commands[i] = new Command(c_atoms.get(atoms[i]));
+            try {
+                App.MQTT_CLIENT.publish(prefix + "/starting", App.MAPPER.writeValueAsString(commands).getBytes(),
+                        App.QoS, false);
+            } catch (final JsonProcessingException | MqttException ex) {
+                LOG.error("Cannot create MQTT message..", ex);
+            }
         }
-    }
 
-    private static class ROSBridgeLongArray {
+        @Override
+        public void endingAtoms(long[] atoms) {
+            try {
+                App.MQTT_CLIENT.publish(prefix + "/ending",
+                        App.MAPPER.writeValueAsString(new LongArray(atoms)).getBytes(), App.QoS, false);
+            } catch (final JsonProcessingException | MqttException ex) {
+                LOG.error("Cannot create MQTT message..", ex);
+            }
+        }
 
-        private final long[] data;
+        private void fireStateChanged() {
+            try {
+                App.MQTT_CLIENT.publish(prefix + "/planner",
+                        App.MAPPER.writeValueAsString(new StringWrapper(state.name())).getBytes(), App.QoS, true);
+            } catch (final MqttException | JsonProcessingException ex) {
+                LOG.error("Cannot create MQTT message..", ex);
+            }
+        }
 
-        @JsonCreator
-        private ROSBridgeLongArray(@JsonProperty("data") final long[] data) {
-            this.data = data;
+        public enum SolverState {
+            Waiting, Solving, Solution, Inconsistent, Executing;
+        }
+
+        static class LongArray {
+
+            final long[] data;
+
+            @JsonCreator
+            LongArray(@JsonProperty("data") final long[] data) {
+                this.data = data;
+            }
+        }
+
+        @SuppressWarnings("unused")
+        private static final class Command {
+
+            private final long id;
+            private final List<String> pars = new ArrayList<>();
+            private final List<Object> vals = new ArrayList<>();
+
+            private Command(final Atom atom) {
+                this.id = atom.getSigma();
+
+                atom.getExprs().entrySet().forEach(expr -> {
+                    switch (expr.getValue().getType().getName()) {
+                    case Solver.BOOL:
+                        pars.add(expr.getKey());
+                        if (expr.getValue() instanceof EnumItem)
+                            vals.add(((BoolItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue().booleanValue());
+                        else
+                            vals.add(((BoolItem) expr.getValue()).getValue().booleanValue());
+                        break;
+                    case Solver.INT:
+                    case Solver.REAL:
+                    case Solver.TP:
+                        pars.add(expr.getKey());
+                        if (expr.getValue() instanceof EnumItem)
+                            vals.add(((ArithItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue().doubleValue());
+                        else
+                            vals.add(((ArithItem) expr.getValue()).getValue().doubleValue());
+                        break;
+                    case Solver.STRING:
+                        pars.add(expr.getKey());
+                        if (expr.getValue() instanceof EnumItem)
+                            vals.add(((StringItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue());
+                        else
+                            vals.add(((StringItem) expr.getValue()).getValue());
+                        break;
+                    default:
+                        pars.add(expr.getKey());
+                        if (expr.getValue() instanceof EnumItem)
+                            vals.add(((EnumItem) expr.getValue()).getVals()[0].getName());
+                        else
+                            vals.add(expr.getValue().getName());
+                        break;
+                    }
+                });
+            }
         }
     }
 }
