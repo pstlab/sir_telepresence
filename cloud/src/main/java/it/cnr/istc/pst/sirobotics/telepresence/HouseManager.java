@@ -13,6 +13,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -55,8 +57,10 @@ public class HouseManager {
             @Override
             public void inconsistentProblem() {
                 try {
-                    App.MQTT_CLIENT.publish(house.getId() + "/planner", "inconsistent".getBytes(), App.QoS, false);
-                } catch (final MqttException ex) {
+                    App.MQTT_CLIENT.publish(house.getId() + "/planner",
+                            App.MAPPER.writeValueAsString(new ROSBridgeString("inconsistent")).getBytes(), App.QoS,
+                            false);
+                } catch (final MqttException | JsonProcessingException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
                 }
             }
@@ -77,8 +81,9 @@ public class HouseManager {
             @Override
             public void solutionFound() {
                 try {
-                    App.MQTT_CLIENT.publish(house.getId() + "/planner", "solution".getBytes(), App.QoS, false);
-                } catch (final MqttException ex) {
+                    App.MQTT_CLIENT.publish(house.getId() + "/planner",
+                            App.MAPPER.writeValueAsString(new ROSBridgeString("solution")).getBytes(), App.QoS, false);
+                } catch (final MqttException | JsonProcessingException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
                 }
 
@@ -94,8 +99,9 @@ public class HouseManager {
             @Override
             public void startedSolving() {
                 try {
-                    App.MQTT_CLIENT.publish(house.getId() + "/planner", "solving".getBytes(), App.QoS, false);
-                } catch (final MqttException ex) {
+                    App.MQTT_CLIENT.publish(house.getId() + "/planner",
+                            App.MAPPER.writeValueAsString(new ROSBridgeString("solving")).getBytes(), App.QoS, false);
+                } catch (final MqttException | JsonProcessingException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
                 }
             }
@@ -146,7 +152,9 @@ public class HouseManager {
             App.MQTT_CLIENT.subscribe(house.getId() + "/plan", (topic, message) -> {
                 // we read the problem..
                 LOG.info("Reading the problem..");
-                solver.read(new String(message.getPayload()));
+                ROSBridgeString string_message = App.MAPPER.readValue(new String(message.getPayload()),
+                        ROSBridgeString.class);
+                solver.read(string_message.data);
 
                 // we solve the problem..
                 LOG.info("Solving the problem..");
@@ -167,8 +175,11 @@ public class HouseManager {
                     .failure(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
 
             App.MQTT_CLIENT.subscribe(house.getId() + "/nlp/in", (topic, message) -> {
-                JsonNode parse = App.NLU_CLIENT.parse(new String(message.getPayload()));
-                App.MQTT_CLIENT.publish(house.getId() + "/nlp/intent", parse.get("intent").toString().getBytes(),
+                ROSBridgeString string_message = App.MAPPER.readValue(new String(message.getPayload()),
+                        ROSBridgeString.class);
+                JsonNode parse = App.NLU_CLIENT.parse(string_message.data);
+                App.MQTT_CLIENT.publish(house.getId() + "/nlp/intent",
+                        App.MAPPER.writeValueAsString(new ROSBridgeString(parse.get("intent").toString())).getBytes(),
                         App.QoS, true);
             });
         } catch (final MqttException ex) {
@@ -192,8 +203,9 @@ public class HouseManager {
             public void inconsistentProblem() {
                 try {
                     App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/planner",
-                            "inconsistent".getBytes(), App.QoS, false);
-                } catch (final MqttException ex) {
+                            App.MAPPER.writeValueAsString(new ROSBridgeString("inconsistent")).getBytes(), App.QoS,
+                            false);
+                } catch (final MqttException | JsonProcessingException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
                 }
             }
@@ -215,8 +227,8 @@ public class HouseManager {
             public void solutionFound() {
                 try {
                     App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/planner",
-                            "solution".getBytes(), App.QoS, false);
-                } catch (final MqttException ex) {
+                            App.MAPPER.writeValueAsString(new ROSBridgeString("soution")).getBytes(), App.QoS, false);
+                } catch (final MqttException | JsonProcessingException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
                 }
 
@@ -233,8 +245,8 @@ public class HouseManager {
             public void startedSolving() {
                 try {
                     App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/planner",
-                            "solving".getBytes(), App.QoS, false);
-                } catch (final MqttException ex) {
+                            App.MAPPER.writeValueAsString(new ROSBridgeString("solving")).getBytes(), App.QoS, false);
+                } catch (final MqttException | JsonProcessingException ex) {
                     LOG.error("Cannot create MQTT message..", ex);
                 }
             }
@@ -290,7 +302,9 @@ public class HouseManager {
             App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/plan", (topic, message) -> {
                 // we read the problem..
                 LOG.info("Reading the problem..");
-                solver.read(new String(message.getPayload()));
+                ROSBridgeString string_message = App.MAPPER.readValue(new String(message.getPayload()),
+                        ROSBridgeString.class);
+                solver.read(string_message.data);
 
                 // we solve the problem..
                 LOG.info("Solving the problem..");
@@ -313,9 +327,12 @@ public class HouseManager {
                     message) -> tl_exec.failure(App.MAPPER.readValue(new String(message.getPayload()), long[].class)));
 
             App.MQTT_CLIENT.subscribe(house.getId() + "/" + robot_entity.getId() + "/nlp/in", (topic, message) -> {
-                JsonNode parse = App.NLU_CLIENT.parse(new String(message.getPayload()));
+                ROSBridgeString string_message = App.MAPPER.readValue(new String(message.getPayload()),
+                        ROSBridgeString.class);
+                JsonNode parse = App.NLU_CLIENT.parse(string_message.data);
                 App.MQTT_CLIENT.publish(house.getId() + "/" + robot_entity.getId() + "/nlp/intent",
-                        parse.get("intent").toString().getBytes(), App.QoS, true);
+                        App.MAPPER.writeValueAsString(new ROSBridgeString(parse.get("intent").toString())).getBytes(),
+                        App.QoS, true);
             });
         } catch (final MqttException ex) {
             LOG.error("Cannot subscribe the robot #" + robot_entity.getId() + " to the MQTT broker..", ex);
@@ -384,6 +401,16 @@ public class HouseManager {
                     break;
                 }
             });
+        }
+    }
+
+    private static class ROSBridgeString {
+
+        private final String data;
+
+        @JsonCreator
+        private ROSBridgeString(@JsonProperty("id") final String data) {
+            this.data = data;
         }
     }
 }

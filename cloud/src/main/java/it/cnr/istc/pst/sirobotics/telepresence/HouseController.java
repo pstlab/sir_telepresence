@@ -280,6 +280,9 @@ public class HouseController {
         sb.append("    keepalive: 60\n");
         sb.append("  private_path: device/001\n");
         sb.append('\n');
+        sb.append("serializer: json:dumps\n");
+        sb.append("deserializer: json:loads\n");
+        sb.append('\n');
         sb.append("bridge:\n");
 
         for (DeviceEntity device : house_entity.getDevices())
