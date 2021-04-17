@@ -288,49 +288,49 @@ public class HouseController {
                 // the nlu bridge..
                 sb.append("# user's utterances to robot #").append(device.getId()).append("..\n");
                 sb.append("  - factory: mqtt_bridge.bridge:RosToMqttBridge\n");
-                sb.append("  msg_type: std_msgs.msg:String\n");
-                sb.append("  topic_from: /nlp/in\n");
-                sb.append("  topic_to: ").append(house_id).append('/').append(device.getId()).append("/nlp/in\n");
+                sb.append("    msg_type: std_msgs.msg:String\n");
+                sb.append("    topic_from: /nlp/in\n");
+                sb.append("    topic_to: ").append(house_id).append('/').append(device.getId()).append("/nlp/in\n");
                 sb.append('\n');
                 sb.append("# robot #").append(device.getId()).append("'s utterances..\n");
                 sb.append("  - factory: mqtt_bridge.bridge:MqttToRosBridge\n");
-                sb.append("  msg_type: std_msgs.msg:String\n");
-                sb.append("  topic_from: ").append(house_id).append('/').append(device.getId()).append("/nlp/out\n");
-                sb.append("  topic_to: /nlp/out\n");
+                sb.append("    msg_type: std_msgs.msg:String\n");
+                sb.append("    topic_from: ").append(house_id).append('/').append(device.getId()).append("/nlp/out\n");
+                sb.append("    topic_to: /nlp/out\n");
                 sb.append('\n');
 
                 // the planner bridge..
                 sb.append("# robot #").append(device.getId())
                         .append("'s planner state (waiting, solving, solution, inconsistent, executing)..\n");
                 sb.append("  - factory: mqtt_bridge.bridge:MqttToRosBridge\n");
-                sb.append("  msg_type: std_msgs.msg:String\n");
-                sb.append("  topic_from: ").append(house_id).append('/').append(device.getId()).append("/planner\n");
-                sb.append("  topic_to: /planner\n");
+                sb.append("    msg_type: std_msgs.msg:String\n");
+                sb.append("    topic_from: ").append(house_id).append('/').append(device.getId()).append("/planner\n");
+                sb.append("    topic_to: /planner\n");
                 sb.append('\n');
 
                 sb.append("# plan commands from robot #").append(device.getId()).append("..\n");
                 sb.append("  - factory: mqtt_bridge.bridge:RosToMqttBridge\n");
-                sb.append("  msg_type: std_msgs.msg:String\n");
-                sb.append("  topic_from: /plan\n");
-                sb.append("  topic_to: ").append(house_id).append('/').append(device.getId()).append("/plan\n");
+                sb.append("    msg_type: std_msgs.msg:String\n");
+                sb.append("    topic_from: /plan\n");
+                sb.append("    topic_to: ").append(house_id).append('/').append(device.getId()).append("/plan\n");
                 sb.append("# dont-start-yet commands from robot #").append(device.getId()).append("..\n");
                 sb.append("  - factory: mqtt_bridge.bridge:RosToMqttBridge\n");
-                sb.append("  msg_type: uint64[]\n");
-                sb.append("  topic_from: /dont-start-yet\n");
-                sb.append("  topic_to: ").append(house_id).append('/').append(device.getId())
+                sb.append("    msg_type: uint64[]\n");
+                sb.append("    topic_from: /dont-start-yet\n");
+                sb.append("    topic_to: ").append(house_id).append('/').append(device.getId())
                         .append("/dont-start-yet\n");
                 sb.append('\n');
                 sb.append("# dont-end-yet commands from robot #").append(device.getId()).append("..\n");
                 sb.append("  - factory: mqtt_bridge.bridge:RosToMqttBridge\n");
-                sb.append("  msg_type: uint64[]\n");
-                sb.append("  topic_from: /dont-end-yet\n");
-                sb.append("  topic_to: ").append(house_id).append('/').append(device.getId()).append("/dont-end-yet\n");
+                sb.append("    msg_type: uint64[]\n");
+                sb.append("    topic_from: /dont-end-yet\n");
+                sb.append("    topic_to: ").append(house_id).append('/').append(device.getId()).append("/dont-end-yet\n");
                 sb.append('\n');
                 sb.append("# failure commands from robot #").append(device.getId()).append("..\n");
                 sb.append("  - factory: mqtt_bridge.bridge:RosToMqttBridge\n");
-                sb.append("  msg_type: uint64[]\n");
-                sb.append("  topic_from: /failure\n");
-                sb.append("  topic_to: ").append(house_id).append('/').append(device.getId()).append("/failure\n");
+                sb.append("    msg_type: uint64[]\n");
+                sb.append("    topic_from: /failure\n");
+                sb.append("    topic_to: ").append(house_id).append('/').append(device.getId()).append("/failure\n");
                 sb.append('\n');
 
                 sb.append("# commands to robot #").append(device.getId()).append("..\n");
@@ -343,10 +343,10 @@ public class HouseController {
                     sb.append("# command '").append(pred_name).append("' to robot #").append(device.getId())
                             .append("..\n");
                     sb.append("  - factory: mqtt_bridge.bridge:MqttToRosBridge\n");
-                    sb.append("  msg_type: planner_msgs:").append(pred_name).append('\n');
-                    sb.append("  topic_from: ").append(house_id).append('/').append(device.getId()).append("/")
+                    sb.append("    msg_type: planner_msgs:").append(pred_name).append('\n');
+                    sb.append("    topic_from: ").append(house_id).append('/').append(device.getId()).append("/")
                             .append(pred_name).append('\n');
-                    sb.append("  topic_to: /").append(pred_name).append('\n');
+                    sb.append("    topic_to: /").append(pred_name).append('\n');
                     sb.append('\n');
                 }
             } else
