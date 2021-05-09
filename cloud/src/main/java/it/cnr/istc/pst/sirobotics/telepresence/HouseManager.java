@@ -212,7 +212,7 @@ public class HouseManager {
             // we execute the solution..
             LOG.info("Starting plan execution..");
             setState(SolverState.Executing);
-            scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1000, TimeUnit.SECONDS);
+            scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1, TimeUnit.SECONDS);
         }
 
         @Override
@@ -293,36 +293,38 @@ public class HouseManager {
 
                 atom.getExprs().entrySet().forEach(expr -> {
                     switch (expr.getValue().getType().getName()) {
-                    case Solver.BOOL:
-                        pars.add(expr.getKey());
-                        if (expr.getValue() instanceof EnumItem)
-                            vals.add(((BoolItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue().booleanValue());
-                        else
-                            vals.add(((BoolItem) expr.getValue()).getValue().booleanValue());
-                        break;
-                    case Solver.INT:
-                    case Solver.REAL:
-                    case Solver.TP:
-                        pars.add(expr.getKey());
-                        if (expr.getValue() instanceof EnumItem)
-                            vals.add(((ArithItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue().doubleValue());
-                        else
-                            vals.add(((ArithItem) expr.getValue()).getValue().doubleValue());
-                        break;
-                    case Solver.STRING:
-                        pars.add(expr.getKey());
-                        if (expr.getValue() instanceof EnumItem)
-                            vals.add(((StringItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue());
-                        else
-                            vals.add(((StringItem) expr.getValue()).getValue());
-                        break;
-                    default:
-                        pars.add(expr.getKey());
-                        if (expr.getValue() instanceof EnumItem)
-                            vals.add(((EnumItem) expr.getValue()).getVals()[0].getName());
-                        else
-                            vals.add(expr.getValue().getName());
-                        break;
+                        case Solver.BOOL:
+                            pars.add(expr.getKey());
+                            if (expr.getValue() instanceof EnumItem)
+                                vals.add(((BoolItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue()
+                                        .booleanValue());
+                            else
+                                vals.add(((BoolItem) expr.getValue()).getValue().booleanValue());
+                            break;
+                        case Solver.INT:
+                        case Solver.REAL:
+                        case Solver.TP:
+                            pars.add(expr.getKey());
+                            if (expr.getValue() instanceof EnumItem)
+                                vals.add(((ArithItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue()
+                                        .doubleValue());
+                            else
+                                vals.add(((ArithItem) expr.getValue()).getValue().doubleValue());
+                            break;
+                        case Solver.STRING:
+                            pars.add(expr.getKey());
+                            if (expr.getValue() instanceof EnumItem)
+                                vals.add(((StringItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue());
+                            else
+                                vals.add(((StringItem) expr.getValue()).getValue());
+                            break;
+                        default:
+                            pars.add(expr.getKey());
+                            if (expr.getValue() instanceof EnumItem)
+                                vals.add(((EnumItem) expr.getValue()).getVals()[0].getName());
+                            else
+                                vals.add(expr.getValue().getName());
+                            break;
                     }
                 });
             }
