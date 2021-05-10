@@ -1,6 +1,7 @@
 package it.cnr.istc.pst.sirobotics.telepresence;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -106,20 +107,21 @@ public class HouseManager {
             try {
                 App.MQTT_CLIENT.subscribe(prefix + "/plan", (topic, message) -> {
                     if (state != SolverState.Waiting) {
-                        LOG.info("Solver state is " + state.name() + " and cannot read a new problem..");
+                        LOG.info("[" + prefix + "] Solver state is " + state.name()
+                                + " and cannot read a new problem..");
                         return;
                     }
 
                     setState(SolverState.Solving);
 
                     // we read the problem..
-                    LOG.info("Reading the problem..");
+                    LOG.info("[" + prefix + "] Reading the problem..");
                     StringWrapper string_message = App.MAPPER.readValue(new String(message.getPayload()),
                             StringWrapper.class);
                     solver.read(string_message.data);
 
                     // we solve the problem..
-                    LOG.info("Solving the problem..");
+                    LOG.info("[" + prefix + "] Solving the problem..");
                     solver.solve();
                 });
 
@@ -166,6 +168,7 @@ public class HouseManager {
         }
 
         public void reset() {
+            LOG.info("[" + prefix + "] Resetting the solver..");
             solver = new Solver();
             solver.addStateListener(this);
             tl_exec = new TimelinesExecutor(solver, new Rational(1));
@@ -192,13 +195,13 @@ public class HouseManager {
 
         @Override
         public void startedSolving() {
-            LOG.info("Solving the problem..");
+            LOG.info("[" + prefix + "] Solving the problem..");
             setState(SolverState.Solving);
         }
 
         @Override
         public void solutionFound() {
-            LOG.info("Solution found..");
+            LOG.info("[" + prefix + "] Solution found..");
             setState(SolverState.Solution);
 
             c_atoms.clear();
@@ -210,25 +213,26 @@ public class HouseManager {
                             .forEach(atm -> c_atoms.put(atm.getSigma(), atm));
 
             // we execute the solution..
-            LOG.info("Starting plan execution..");
+            LOG.info("[" + prefix + "] Starting plan execution..");
             setState(SolverState.Executing);
             scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1, TimeUnit.SECONDS);
         }
 
         @Override
         public void inconsistentProblem() {
-            LOG.info("Inconsistent problem..");
+            LOG.info("[" + prefix + "] Inconsistent problem..");
             setState(SolverState.Inconsistent);
-            LOG.info("Resetting the solver..");
             reset();
         }
 
         @Override
         public void tick(Rational current_time) {
+            LOG.info("[" + prefix + "] Current time: " + current_time.toString());
             try {
                 if (((ArithItem) solver.get("horizon")).getValue().leq(current_time)) {
                     LOG.info("Nothing more to execute..");
                     scheduled_feature.cancel(false);
+                    reset();
                 }
             } catch (final NoSuchFieldException e) {
                 e.printStackTrace();
@@ -237,6 +241,7 @@ public class HouseManager {
 
         @Override
         public void startingAtoms(long[] atoms) {
+            LOG.info("[" + prefix + "] Starting atoms: " + Arrays.toString(atoms));
             final Command[] commands = new Command[atoms.length];
             for (int i = 0; i < commands.length; i++)
                 commands[i] = new Command(c_atoms.get(atoms[i]));
@@ -250,6 +255,7 @@ public class HouseManager {
 
         @Override
         public void endingAtoms(long[] atoms) {
+            LOG.info("[" + prefix + "] Ending atoms: {}" + Arrays.toString(atoms));
             try {
                 App.MQTT_CLIENT.publish(prefix + "/ending",
                         App.MAPPER.writeValueAsString(new LongArray(atoms)).getBytes(), App.QoS, false);
