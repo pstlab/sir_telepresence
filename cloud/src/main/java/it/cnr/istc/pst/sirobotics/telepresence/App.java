@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,8 +29,12 @@ import javax.persistence.Persistence;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -47,6 +52,15 @@ import io.javalin.http.Handler;
 import io.javalin.http.UnauthorizedResponse;
 import io.javalin.plugin.json.JavalinJackson;
 import io.javalin.websocket.WsContext;
+import it.cnr.istc.pst.oratio.Atom;
+import it.cnr.istc.pst.oratio.Bound;
+import it.cnr.istc.pst.oratio.Item;
+import it.cnr.istc.pst.oratio.Item.ArithItem;
+import it.cnr.istc.pst.oratio.Item.BoolItem;
+import it.cnr.istc.pst.oratio.Item.EnumItem;
+import it.cnr.istc.pst.oratio.Item.StringItem;
+import it.cnr.istc.pst.oratio.Rational;
+import it.cnr.istc.pst.oratio.Solver;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceTypeEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.HouseEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.RobotTypeEntity;
@@ -72,6 +86,87 @@ public class App {
         LOG.info("Current library path: {}", System.getProperty("java.library.path"));
 
         MAPPER.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+        final SimpleModule module = new SimpleModule();
+        module.addSerializer(Rational.class, new StdSerializer<Rational>(Rational.class) {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void serialize(final Rational value, final JsonGenerator gen, final SerializerProvider serializers)
+                    throws IOException {
+                gen.writeStartObject();
+                gen.writeNumberField("num", value.getNumerator());
+                gen.writeNumberField("den", value.getDenominator());
+                gen.writeEndObject();
+            }
+        });
+        module.addSerializer(Bound.class, new StdSerializer<Bound>(Bound.class) {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void serialize(final Bound value, final JsonGenerator gen, final SerializerProvider provider)
+                    throws IOException {
+                gen.writeStartObject();
+                if (value.min != -Bound.INF)
+                    gen.writeNumberField("min", value.min);
+                if (value.max != Bound.INF)
+                    gen.writeNumberField("max", value.max);
+                gen.writeEndObject();
+            }
+        });
+        module.addSerializer(Atom.class, new StdSerializer<Atom>(Atom.class) {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void serialize(final Atom value, final JsonGenerator gen, final SerializerProvider provider)
+                    throws IOException {
+                gen.writeStartObject();
+                gen.writeNumberField("id", value.getSigma());
+                for (Entry<String, Item> expr : value.getExprs().entrySet()) {
+                    switch (expr.getValue().getType().getName()) {
+                        case Solver.BOOL:
+                            if (expr.getValue() instanceof EnumItem)
+                                gen.writeBooleanField(expr.getKey(),
+                                        ((BoolItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue()
+                                                .booleanValue());
+
+                            else
+                                gen.writeBooleanField(expr.getKey(),
+                                        ((BoolItem) expr.getValue()).getValue().booleanValue());
+                            break;
+                        case Solver.INT:
+                        case Solver.REAL:
+                        case Solver.TP:
+                            if (expr.getValue() instanceof EnumItem)
+                                gen.writeNumberField(expr.getKey(),
+                                        ((ArithItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue()
+                                                .doubleValue());
+                            else
+                                gen.writeNumberField(expr.getKey(),
+                                        ((ArithItem) expr.getValue()).getValue().doubleValue());
+                            break;
+                        case Solver.STRING:
+                            if (expr.getValue() instanceof EnumItem)
+                                gen.writeStringField(expr.getKey(),
+                                        ((StringItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue());
+                            else
+                                gen.writeStringField(expr.getKey(), ((StringItem) expr.getValue()).getValue());
+                            break;
+                        default:
+                            if (expr.getValue() instanceof EnumItem)
+                                gen.writeStringField(expr.getKey(),
+                                        ((EnumItem) expr.getValue()).getVals()[0].getName());
+                            else
+                                gen.writeStringField(expr.getKey(), expr.getValue().getName());
+                            break;
+                    }
+                }
+                gen.writeEndObject();
+            }
+        });
+        MAPPER.registerModule(module);
         JavalinJackson.configure(MAPPER);
 
         try {
@@ -162,7 +257,7 @@ public class App {
                     ohmni_type.setName("Ohmni Robot");
                     ohmni_type.setDescription(
                             "Un robot di telepresenza che trasforma il modo in cui le persone si connettono.");
-                    ohmni_type.setConfiguration("At;GoingTo;CheckUserAround;CognitiveExercize;PhysicalExercize;");
+                    ohmni_type.setConfiguration("GoingTo;CheckUserAround;CognitiveExercize;PhysicalExercize;");
 
                     em.getTransaction().begin();
                     em.persist(ohmni_type);

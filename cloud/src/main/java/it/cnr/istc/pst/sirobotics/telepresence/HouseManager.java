@@ -1,10 +1,8 @@
 package it.cnr.istc.pst.sirobotics.telepresence;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -25,9 +23,6 @@ import org.slf4j.LoggerFactory;
 import it.cnr.istc.pst.oratio.Atom;
 import it.cnr.istc.pst.oratio.ExecutorListener;
 import it.cnr.istc.pst.oratio.Item.ArithItem;
-import it.cnr.istc.pst.oratio.Item.BoolItem;
-import it.cnr.istc.pst.oratio.Item.EnumItem;
-import it.cnr.istc.pst.oratio.Item.StringItem;
 import it.cnr.istc.pst.oratio.Predicate;
 import it.cnr.istc.pst.oratio.Rational;
 import it.cnr.istc.pst.oratio.Solver;
@@ -242,12 +237,12 @@ public class HouseManager {
         @Override
         public void startingAtoms(long[] atoms) {
             LOG.info("[" + prefix + "] Starting atoms: " + Arrays.toString(atoms));
-            final Command[] commands = new Command[atoms.length];
-            for (int i = 0; i < commands.length; i++)
-                commands[i] = new Command(c_atoms.get(atoms[i]));
+            final Atom[] atms = new Atom[atoms.length];
+            for (int i = 0; i < atms.length; i++)
+                atms[i] = c_atoms.get(atoms[i]);
             try {
-                App.MQTT_CLIENT.publish(prefix + "/starting", App.MAPPER.writeValueAsString(commands).getBytes(),
-                        App.QoS, false);
+                App.MQTT_CLIENT.publish(prefix + "/starting",
+                        App.MAPPER.writeValueAsString(new Command(atms)).getBytes(), App.QoS, false);
             } catch (final JsonProcessingException | MqttException ex) {
                 LOG.error("Cannot create MQTT message..", ex);
             }
@@ -290,49 +285,10 @@ public class HouseManager {
         @SuppressWarnings("unused")
         private static final class Command {
 
-            private final long id;
-            private final List<String> pars = new ArrayList<>();
-            private final List<Object> vals = new ArrayList<>();
+            private final Atom[] atoms;
 
-            private Command(final Atom atom) {
-                this.id = atom.getSigma();
-
-                atom.getExprs().entrySet().forEach(expr -> {
-                    switch (expr.getValue().getType().getName()) {
-                        case Solver.BOOL:
-                            pars.add(expr.getKey());
-                            if (expr.getValue() instanceof EnumItem)
-                                vals.add(((BoolItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue()
-                                        .booleanValue());
-                            else
-                                vals.add(((BoolItem) expr.getValue()).getValue().booleanValue());
-                            break;
-                        case Solver.INT:
-                        case Solver.REAL:
-                        case Solver.TP:
-                            pars.add(expr.getKey());
-                            if (expr.getValue() instanceof EnumItem)
-                                vals.add(((ArithItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue()
-                                        .doubleValue());
-                            else
-                                vals.add(((ArithItem) expr.getValue()).getValue().doubleValue());
-                            break;
-                        case Solver.STRING:
-                            pars.add(expr.getKey());
-                            if (expr.getValue() instanceof EnumItem)
-                                vals.add(((StringItem) ((EnumItem) expr.getValue()).getVals()[0]).getValue());
-                            else
-                                vals.add(((StringItem) expr.getValue()).getValue());
-                            break;
-                        default:
-                            pars.add(expr.getKey());
-                            if (expr.getValue() instanceof EnumItem)
-                                vals.add(((EnumItem) expr.getValue()).getVals()[0].getName());
-                            else
-                                vals.add(expr.getValue().getName());
-                            break;
-                    }
-                });
+            private Command(final Atom[] atoms) {
+                this.atoms = atoms;
             }
         }
     }
