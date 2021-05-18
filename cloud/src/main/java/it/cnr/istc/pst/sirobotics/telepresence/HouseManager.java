@@ -6,12 +6,15 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -20,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +38,13 @@ import it.cnr.istc.pst.oratio.Solver;
 import it.cnr.istc.pst.oratio.StateListener;
 import it.cnr.istc.pst.oratio.Type;
 import it.cnr.istc.pst.oratio.timelines.TimelinesExecutor;
+import it.cnr.istc.pst.sirobotics.configuration.robot_confLexer;
+import it.cnr.istc.pst.sirobotics.configuration.robot_confParser;
+import it.cnr.istc.pst.sirobotics.configuration.robot_confParser.ConfigurationContext;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.HouseEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.RobotEntity;
+import it.cnr.istc.pst.sirobotics.telepresence.db.RobotTypeEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.SensorDataEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.SensorEntity;
 
@@ -48,7 +57,7 @@ public class HouseManager {
 
     public HouseManager(final HouseEntity house) {
         this.house = house;
-        new SolverManager(Long.toString(house.getId()));
+        new SolverManager(Long.toString(house.getId()), "");
 
         for (final DeviceEntity device_entity : house.getDevices()) {
             if (device_entity instanceof RobotEntity) {
@@ -60,7 +69,8 @@ public class HouseManager {
     }
 
     public void addRobot(final RobotEntity robot_entity) {
-        new SolverManager(house.getId() + "/" + robot_entity.getId());
+        new SolverManager(house.getId() + "/" + robot_entity.getId(),
+                ((RobotTypeEntity) robot_entity.getType()).getConfiguration());
     }
 
     public void addSensor(final SensorEntity sensor_entity) {
@@ -98,10 +108,17 @@ public class HouseManager {
         private final Map<Long, Atom> c_atoms = new HashMap<>();
         private TimelinesExecutor tl_exec = null;
         private ScheduledFuture<?> scheduled_feature;
+        private final Set<String> dispatchable_predicates;
         private SolverState state = null;
 
-        public SolverManager(final String prefix) {
+        public SolverManager(final String prefix, final String configuration) {
             this.prefix = prefix;
+
+            robot_confParser parser = new robot_confParser(
+                    new CommonTokenStream(new robot_confLexer(CharStreams.fromString(configuration))));
+            ConfigurationContext conf = parser.configuration();
+            this.dispatchable_predicates = conf.predicate().stream().map(p -> p.ID().getText())
+                    .collect(Collectors.toSet());
 
             try {
                 App.MQTT_CLIENT.subscribe(prefix + "/plan", (topic, message) -> {
@@ -238,12 +255,14 @@ public class HouseManager {
             final Map<Type, Collection<Atom>> starting_atoms = new IdentityHashMap<>();
             for (int i = 0; i < atoms.length; i++) {
                 Atom starting_atom = c_atoms.get(atoms[i]);
-                Collection<Atom> c_atms = starting_atoms.get(starting_atom.getType());
-                if (c_atms == null) {
-                    c_atms = new ArrayList<>();
-                    starting_atoms.put(starting_atom.getType(), c_atms);
+                if (dispatchable_predicates.contains(starting_atom.getType().getName())) {
+                    Collection<Atom> c_atms = starting_atoms.get(starting_atom.getType());
+                    if (c_atms == null) {
+                        c_atms = new ArrayList<>();
+                        starting_atoms.put(starting_atom.getType(), c_atms);
+                    }
+                    c_atms.add(starting_atom);
                 }
-                c_atms.add(starting_atom);
             }
             try {
                 for (Entry<Type, Collection<Atom>> entry : starting_atoms.entrySet())
@@ -257,9 +276,27 @@ public class HouseManager {
         @Override
         public void endingAtoms(long[] atoms) {
             LOG.info("[" + prefix + "] Ending atoms: {}" + Arrays.toString(atoms));
+            List<Long> c_ending = new ArrayList<>(atoms.length);
+            List<Long> c_done = new ArrayList<>(atoms.length);
+
+            for (int i = 0; i < atoms.length; i++) {
+                if (dispatchable_predicates.contains(c_atoms.get(atoms[i]).getType().getName()))
+                    c_ending.add(atoms[i]);
+                else
+                    c_done.add(atoms[i]);
+            }
+            long[] done = new long[c_done.size()];
+            for (int i = 0; i < done.length; i++)
+                done[i] = c_done.get(i);
+            tl_exec.done(done);
+
+            long[] ending = new long[c_ending.size()];
+            for (int i = 0; i < ending.length; i++)
+                ending[i] = c_ending.get(i);
+
             try {
                 App.MQTT_CLIENT.publish(prefix + "/ending",
-                        App.MAPPER.writeValueAsString(new LongArray(atoms)).getBytes(), App.QoS, false);
+                        App.MAPPER.writeValueAsString(new LongArray(ending)).getBytes(), App.QoS, false);
             } catch (final JsonProcessingException | MqttException ex) {
                 LOG.error("Cannot create MQTT message..", ex);
             }
