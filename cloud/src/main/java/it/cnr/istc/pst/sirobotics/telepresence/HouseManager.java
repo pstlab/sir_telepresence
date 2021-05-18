@@ -30,13 +30,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import it.cnr.istc.pst.oratio.Atom;
-import it.cnr.istc.pst.oratio.ExecutorListener;
 import it.cnr.istc.pst.oratio.Item.ArithItem;
 import it.cnr.istc.pst.oratio.Predicate;
 import it.cnr.istc.pst.oratio.Rational;
 import it.cnr.istc.pst.oratio.Solver;
+import it.cnr.istc.pst.oratio.SolverException;
 import it.cnr.istc.pst.oratio.StateListener;
 import it.cnr.istc.pst.oratio.Type;
+import it.cnr.istc.pst.oratio.timelines.ExecutorException;
+import it.cnr.istc.pst.oratio.timelines.ExecutorListener;
 import it.cnr.istc.pst.oratio.timelines.TimelinesExecutor;
 import it.cnr.istc.pst.sirobotics.configuration.robot_confLexer;
 import it.cnr.istc.pst.sirobotics.configuration.robot_confParser;
@@ -134,11 +136,19 @@ public class HouseManager {
                     LOG.info("[" + prefix + "] Reading the problem..");
                     StringWrapper string_message = App.MAPPER.readValue(new String(message.getPayload()),
                             StringWrapper.class);
-                    solver.read(string_message.data);
+                    try {
+                        solver.read(string_message.data);
+                    } catch (SolverException e) {
+                        LOG.error("Cannot read the given problem", e);
+                    }
 
                     // we solve the problem..
                     LOG.info("[" + prefix + "] Solving the problem..");
-                    solver.solve();
+                    try {
+                        solver.solve();
+                    } catch (SolverException e) {
+                        LOG.error("Cannot solve the given problem", e);
+                    }
                 });
 
                 App.MQTT_CLIENT.subscribe(prefix + "/done", (topic, message) -> {
@@ -225,7 +235,15 @@ public class HouseManager {
             // we execute the solution..
             LOG.info("[" + prefix + "] Starting plan execution..");
             setState(SolverState.Executing);
-            scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> tl_exec.tick(), 0, 1, TimeUnit.SECONDS);
+            scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> {
+                try {
+                    tl_exec.tick();
+                } catch (ExecutorException e) {
+                    LOG.error("Cannot execute the solution..", e);
+                    scheduled_feature.cancel(false);
+                    reset();
+                }
+            }, 0, 1, TimeUnit.SECONDS);
         }
 
         @Override
@@ -288,7 +306,11 @@ public class HouseManager {
             long[] done = new long[c_done.size()];
             for (int i = 0; i < done.length; i++)
                 done[i] = c_done.get(i);
-            tl_exec.done(done);
+            try {
+                tl_exec.done(done);
+            } catch (ExecutorException e) {
+                LOG.error("Cannot notify the conclusion of some actions..", e);
+            }
 
             long[] ending = new long[c_ending.size()];
             for (int i = 0; i < ending.length; i++)
