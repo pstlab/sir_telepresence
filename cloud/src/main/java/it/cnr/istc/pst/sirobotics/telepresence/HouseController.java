@@ -316,28 +316,20 @@ public class HouseController {
                 sb.append("    msg_type: std_msgs.msg:String\n");
                 sb.append("    topic_from: /plan\n");
                 sb.append("    topic_to: ").append(house_id).append('/').append(device.getId()).append("/plan\n");
-                sb.append("# dont-start-yet commands from robot #").append(device.getId()).append("..\n");
+                sb.append("# done commands from the robot #").append(device.getId()).append("..\n");
                 sb.append("  - factory: mqtt_bridge.bridge:RosToMqttBridge\n");
-                sb.append("    msg_type: std_msgs.msg:UInt64MultiArray\n");
-                sb.append("    topic_from: /dont_start_yet\n");
-                sb.append("    topic_to: ").append(house_id).append('/').append(device.getId())
-                        .append("/dont-start-yet\n");
+                sb.append("    msg_type: planner_msgs.msg:UInt64Array\n");
+                sb.append("    topic_from: /done\n");
+                sb.append("    topic_to: ").append(house_id).append('/').append(device.getId()).append("/done\n");
                 sb.append('\n');
-                sb.append("# dont-end-yet commands from robot #").append(device.getId()).append("..\n");
+                sb.append("# failure commands from the robot #").append(device.getId()).append("..\n");
                 sb.append("  - factory: mqtt_bridge.bridge:RosToMqttBridge\n");
-                sb.append("    msg_type: std_msgs.msg:UInt64MultiArray\n");
-                sb.append("    topic_from: /dont_end_yet\n");
-                sb.append("    topic_to: ").append(house_id).append('/').append(device.getId())
-                        .append("/dont-end-yet\n");
-                sb.append('\n');
-                sb.append("# failure commands from robot #").append(device.getId()).append("..\n");
-                sb.append("  - factory: mqtt_bridge.bridge:RosToMqttBridge\n");
-                sb.append("    msg_type: std_msgs.msg:UInt64MultiArray\n");
+                sb.append("    msg_type: planner_msgs.msg:UInt64Array\n");
                 sb.append("    topic_from: /failure\n");
                 sb.append("    topic_to: ").append(house_id).append('/').append(device.getId()).append("/failure\n");
                 sb.append('\n');
 
-                sb.append("# commands to robot #").append(device.getId()).append("..\n");
+                sb.append("# commands to the robot #").append(device.getId()).append("..\n");
                 RobotTypeEntity type = (RobotTypeEntity) device.getType();
                 robot_confParser parser = new robot_confParser(
                         new CommonTokenStream(new robot_confLexer(CharStreams.fromString(type.getConfiguration()))));
