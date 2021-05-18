@@ -1,9 +1,13 @@
 package it.cnr.istc.pst.sirobotics.telepresence;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -120,16 +124,10 @@ public class HouseManager {
                     solver.solve();
                 });
 
-                App.MQTT_CLIENT.subscribe(prefix + "/dont_start_yet", (topic, message) -> {
+                App.MQTT_CLIENT.subscribe(prefix + "/done", (topic, message) -> {
                     scheduled_feature.cancel(false);
                     LongArray long_array_message = App.MAPPER.readValue(message.getPayload(), LongArray.class);
-                    tl_exec.dont_start_yet(long_array_message.data);
-                });
-
-                App.MQTT_CLIENT.subscribe(prefix + "/dont_end_yet", (topic, message) -> {
-                    scheduled_feature.cancel(false);
-                    LongArray long_array_message = App.MAPPER.readValue(message.getPayload(), LongArray.class);
-                    tl_exec.dont_end_yet(long_array_message.data);
+                    tl_exec.done(long_array_message.data);
                 });
 
                 App.MQTT_CLIENT.subscribe(prefix + "/failure", (topic, message) -> {
@@ -237,12 +235,20 @@ public class HouseManager {
         @Override
         public void startingAtoms(long[] atoms) {
             LOG.info("[" + prefix + "] Starting atoms: " + Arrays.toString(atoms));
-            final Atom[] atms = new Atom[atoms.length];
-            for (int i = 0; i < atms.length; i++)
-                atms[i] = c_atoms.get(atoms[i]);
+            final Map<Type, Collection<Atom>> starting_atoms = new IdentityHashMap<>();
+            for (int i = 0; i < atoms.length; i++) {
+                Atom starting_atom = c_atoms.get(atoms[i]);
+                Collection<Atom> c_atms = starting_atoms.get(starting_atom.getType());
+                if (c_atms == null) {
+                    c_atms = new ArrayList<>();
+                    starting_atoms.put(starting_atom.getType(), c_atms);
+                }
+                c_atms.add(starting_atom);
+            }
             try {
-                App.MQTT_CLIENT.publish(prefix + "/starting",
-                        App.MAPPER.writeValueAsString(new Command(atms)).getBytes(), App.QoS, false);
+                for (Entry<Type, Collection<Atom>> entry : starting_atoms.entrySet())
+                    App.MQTT_CLIENT.publish(prefix + "/" + entry.getKey().getName(),
+                            App.MAPPER.writeValueAsString(new Command(entry.getValue())).getBytes(), App.QoS, false);
             } catch (final JsonProcessingException | MqttException ex) {
                 LOG.error("Cannot create MQTT message..", ex);
             }
@@ -285,9 +291,9 @@ public class HouseManager {
         @SuppressWarnings("unused")
         private static final class Command {
 
-            private final Atom[] atoms;
+            private final Collection<Atom> atoms;
 
-            private Command(final Atom[] atoms) {
+            private Command(final Collection<Atom> atoms) {
                 this.atoms = atoms;
             }
         }
