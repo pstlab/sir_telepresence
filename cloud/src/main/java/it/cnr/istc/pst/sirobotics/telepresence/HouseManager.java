@@ -303,24 +303,29 @@ public class HouseManager {
                 else
                     c_done.add(atoms[i]);
             }
-            long[] done = new long[c_done.size()];
-            for (int i = 0; i < done.length; i++)
-                done[i] = c_done.get(i);
-            try {
-                tl_exec.done(done);
-            } catch (ExecutorException e) {
-                LOG.error("Cannot notify the conclusion of some actions..", e);
+
+            if (!c_done.isEmpty()) {
+                long[] done = new long[c_done.size()];
+                for (int i = 0; i < done.length; i++)
+                    done[i] = c_done.get(i);
+                try {
+                    tl_exec.done(done);
+                } catch (ExecutorException e) {
+                    LOG.error("Cannot notify the conclusion of some actions..", e);
+                }
             }
 
-            long[] ending = new long[c_ending.size()];
-            for (int i = 0; i < ending.length; i++)
-                ending[i] = c_ending.get(i);
+            if (!c_ending.isEmpty()) {
+                long[] ending = new long[c_ending.size()];
+                for (int i = 0; i < ending.length; i++)
+                    ending[i] = c_ending.get(i);
 
-            try {
-                App.MQTT_CLIENT.publish(prefix + "/ending",
-                        App.MAPPER.writeValueAsString(new LongArray(ending)).getBytes(), App.QoS, false);
-            } catch (final JsonProcessingException | MqttException ex) {
-                LOG.error("Cannot create MQTT message..", ex);
+                try {
+                    App.MQTT_CLIENT.publish(prefix + "/ending",
+                            App.MAPPER.writeValueAsString(new LongArray(ending)).getBytes(), App.QoS, false);
+                } catch (final JsonProcessingException | MqttException ex) {
+                    LOG.error("Cannot create MQTT message..", ex);
+                }
             }
         }
 
