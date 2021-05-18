@@ -221,29 +221,32 @@ public class HouseManager {
 
         @Override
         public void solutionFound() {
-            LOG.info("[" + prefix + "] Solution found..");
-            setState(SolverState.Solution);
+            if (state == SolverState.Solving) {
+                LOG.info("[" + prefix + "] Solution found..");
+                setState(SolverState.Solution);
 
-            c_atoms.clear();
+                c_atoms.clear();
 
-            for (final Type t : solver.getTypes().values())
-                for (final Predicate p : t.getPredicates().values())
-                    p.getInstances().stream().map(atm -> (Atom) atm)
-                            .filter(atm -> (atm.getState() == Atom.AtomState.Active))
-                            .forEach(atm -> c_atoms.put(atm.getSigma(), atm));
+                for (final Type t : solver.getTypes().values())
+                    for (final Predicate p : t.getPredicates().values())
+                        p.getInstances().stream().map(atm -> (Atom) atm)
+                                .filter(atm -> (atm.getState() == Atom.AtomState.Active))
+                                .forEach(atm -> c_atoms.put(atm.getSigma(), atm));
 
-            // we execute the solution..
-            LOG.info("[" + prefix + "] Starting plan execution..");
-            setState(SolverState.Executing);
-            scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> {
-                try {
-                    tl_exec.tick();
-                } catch (ExecutorException e) {
-                    LOG.error("Cannot execute the solution..", e);
-                    scheduled_feature.cancel(false);
-                    reset();
-                }
-            }, 0, 1, TimeUnit.SECONDS);
+                // we execute the solution..
+                LOG.info("[" + prefix + "] Starting plan execution..");
+                setState(SolverState.Executing);
+                scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> {
+                    try {
+                        tl_exec.tick();
+                    } catch (ExecutorException e) {
+                        LOG.error("Cannot execute the solution..", e);
+                        scheduled_feature.cancel(false);
+                        reset();
+                    }
+                }, 0, 1, TimeUnit.SECONDS);
+            } else
+                LOG.info("[" + prefix + "] Solution updated..");
         }
 
         @Override
