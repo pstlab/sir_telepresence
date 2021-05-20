@@ -52,7 +52,6 @@ import io.javalin.http.Handler;
 import io.javalin.http.UnauthorizedResponse;
 import io.javalin.plugin.json.JavalinJackson;
 import io.javalin.websocket.WsContext;
-import it.cnr.istc.pst.oratio.Atom;
 import it.cnr.istc.pst.oratio.Bound;
 import it.cnr.istc.pst.oratio.Item;
 import it.cnr.istc.pst.oratio.Item.ArithItem;
@@ -61,6 +60,7 @@ import it.cnr.istc.pst.oratio.Item.EnumItem;
 import it.cnr.istc.pst.oratio.Item.StringItem;
 import it.cnr.istc.pst.oratio.Rational;
 import it.cnr.istc.pst.oratio.Solver;
+import it.cnr.istc.pst.sirobotics.telepresence.HouseManager.SolverManager.CommandAtom;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceTypeEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.HouseEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.RobotTypeEntity;
@@ -115,16 +115,18 @@ public class App {
                 gen.writeEndObject();
             }
         });
-        module.addSerializer(Atom.class, new StdSerializer<Atom>(Atom.class) {
+        module.addSerializer(CommandAtom.class, new StdSerializer<CommandAtom>(CommandAtom.class) {
 
             private static final long serialVersionUID = 1L;
 
             @Override
-            public void serialize(final Atom value, final JsonGenerator gen, final SerializerProvider provider)
+            public void serialize(final CommandAtom value, final JsonGenerator gen, final SerializerProvider provider)
                     throws IOException {
                 gen.writeStartObject();
-                gen.writeNumberField("id", value.getSigma());
-                for (Entry<String, Item> expr : value.getExprs().entrySet()) {
+                gen.writeNumberField("sigma", value.getAtom().getSigma());
+                gen.writeBooleanField("starting", value.isStarting());
+                gen.writeBooleanField("ending", value.isEnding());
+                for (Entry<String, Item> expr : value.getAtom().getExprs().entrySet()) {
                     switch (expr.getValue().getType().getName()) {
                         case Solver.BOOL:
                             if (expr.getValue() instanceof EnumItem)
@@ -257,7 +259,8 @@ public class App {
                     ohmni_type.setName("Ohmni Robot");
                     ohmni_type.setDescription(
                             "Un robot di telepresenza che trasforma il modo in cui le persone si connettono.");
-                    ohmni_type.setConfiguration("GoingTo;CheckUserAround;CognitiveExercize;PhysicalExercize;");
+                    ohmni_type.setConfiguration(
+                            "starting: GoingTo,CheckUserAround,CognitiveExercize,PhysicalExercize;\nending: CognitiveExercize;");
 
                     em.getTransaction().begin();
                     em.persist(ohmni_type);

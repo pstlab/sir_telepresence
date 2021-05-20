@@ -1,6 +1,8 @@
 package it.cnr.istc.pst.sirobotics.telepresence;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -16,7 +18,6 @@ import io.javalin.http.NotFoundResponse;
 import it.cnr.istc.pst.sirobotics.configuration.robot_confLexer;
 import it.cnr.istc.pst.sirobotics.configuration.robot_confParser;
 import it.cnr.istc.pst.sirobotics.configuration.robot_confParser.ConfigurationContext;
-import it.cnr.istc.pst.sirobotics.configuration.robot_confParser.PredicateContext;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Robot;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Sensor;
@@ -334,8 +335,12 @@ public class HouseController {
                 robot_confParser parser = new robot_confParser(
                         new CommonTokenStream(new robot_confLexer(CharStreams.fromString(type.getConfiguration()))));
                 ConfigurationContext configuration = parser.configuration();
-                for (PredicateContext pred : configuration.predicate()) {
-                    String pred_name = pred.ID().getText();
+                Set<String> pred_names = new HashSet<>();
+                if (configuration.starting() != null)
+                    configuration.starting().predicate().stream().forEach(pred -> pred_names.add(pred.ID().getText()));
+                if (configuration.ending() != null)
+                    configuration.ending().predicate().stream().forEach(pred -> pred_names.add(pred.ID().getText()));
+                for (String pred_name : pred_names) {
                     sb.append("# command '").append(pred_name).append("' to robot #").append(device.getId())
                             .append("..\n");
                     sb.append("  - factory: mqtt_bridge.bridge:MqttToRosBridge\n");

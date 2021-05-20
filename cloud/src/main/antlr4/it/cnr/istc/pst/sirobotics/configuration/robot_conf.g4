@@ -1,6 +1,10 @@
 grammar robot_conf;
 
-configuration: predicate*;
+configuration: starting? ending?;
+
+starting: 'starting' ':' predicate (',' predicate)* ';';
+
+ending: 'ending' ':' predicate (',' predicate)* ';';
 
 predicate: ID ';';
 

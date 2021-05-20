@@ -5,11 +5,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -110,7 +110,8 @@ public class HouseManager {
         private final Map<Long, Atom> c_atoms = new HashMap<>();
         private TimelinesExecutor tl_exec = null;
         private ScheduledFuture<?> scheduled_feature;
-        private final Set<String> dispatchable_predicates;
+        private final Set<String> disp_s_preds = new HashSet<>();
+        private final Set<String> disp_e_preds = new HashSet<>();
         private SolverState state = null;
 
         public SolverManager(final String prefix, final String configuration) {
@@ -119,8 +120,10 @@ public class HouseManager {
             robot_confParser parser = new robot_confParser(
                     new CommonTokenStream(new robot_confLexer(CharStreams.fromString(configuration))));
             ConfigurationContext conf = parser.configuration();
-            this.dispatchable_predicates = conf.predicate().stream().map(p -> p.ID().getText())
-                    .collect(Collectors.toSet());
+            if (conf.starting() != null)
+                conf.starting().predicate().stream().forEach(pred -> disp_s_preds.add(pred.ID().getText()));
+            if (conf.ending() != null)
+                conf.ending().predicate().stream().forEach(pred -> disp_e_preds.add(pred.ID().getText()));
 
             try {
                 App.MQTT_CLIENT.subscribe(prefix + "/plan", (topic, message) -> {
@@ -276,7 +279,7 @@ public class HouseManager {
             final Map<Type, Collection<Atom>> starting_atoms = new IdentityHashMap<>();
             for (int i = 0; i < atoms.length; i++) {
                 Atom starting_atom = c_atoms.get(atoms[i]);
-                if (dispatchable_predicates.contains(starting_atom.getType().getName())) {
+                if (disp_s_preds.contains(starting_atom.getType().getName())) {
                     Collection<Atom> c_atms = starting_atoms.get(starting_atom.getType());
                     if (c_atms == null) {
                         c_atms = new ArrayList<>();
@@ -288,7 +291,10 @@ public class HouseManager {
             try {
                 for (Entry<Type, Collection<Atom>> entry : starting_atoms.entrySet())
                     App.MQTT_CLIENT.publish(prefix + "/" + entry.getKey().getName(),
-                            App.MAPPER.writeValueAsString(new Command(entry.getValue())).getBytes(), App.QoS, false);
+                            App.MAPPER.writeValueAsString(new Command(entry.getValue().stream()
+                                    .map(atm -> new CommandAtom(atm, true, false)).collect(Collectors.toList())))
+                                    .getBytes(),
+                            App.QoS, false);
             } catch (final JsonProcessingException | MqttException ex) {
                 LOG.error("Cannot create MQTT message..", ex);
             }
@@ -297,38 +303,27 @@ public class HouseManager {
         @Override
         public void endingAtoms(long[] atoms) {
             LOG.info("[" + prefix + "] Ending atoms: {}" + Arrays.toString(atoms));
-            List<Long> c_ending = new ArrayList<>(atoms.length);
-            List<Long> c_done = new ArrayList<>(atoms.length);
-
+            final Map<Type, Collection<Atom>> ending_atoms = new IdentityHashMap<>();
             for (int i = 0; i < atoms.length; i++) {
-                if (dispatchable_predicates.contains(c_atoms.get(atoms[i]).getType().getName()))
-                    c_ending.add(atoms[i]);
-                else
-                    c_done.add(atoms[i]);
-            }
-
-            if (!c_done.isEmpty()) {
-                long[] done = new long[c_done.size()];
-                for (int i = 0; i < done.length; i++)
-                    done[i] = c_done.get(i);
-                try {
-                    tl_exec.done(done);
-                } catch (ExecutorException e) {
-                    LOG.error("Cannot notify the conclusion of some actions..", e);
+                Atom ending_atom = c_atoms.get(atoms[i]);
+                if (disp_e_preds.contains(ending_atom.getType().getName())) {
+                    Collection<Atom> c_atms = ending_atoms.get(ending_atom.getType());
+                    if (c_atms == null) {
+                        c_atms = new ArrayList<>();
+                        ending_atoms.put(ending_atom.getType(), c_atms);
+                    }
+                    c_atms.add(ending_atom);
                 }
             }
-
-            if (!c_ending.isEmpty()) {
-                long[] ending = new long[c_ending.size()];
-                for (int i = 0; i < ending.length; i++)
-                    ending[i] = c_ending.get(i);
-
-                try {
-                    App.MQTT_CLIENT.publish(prefix + "/ending",
-                            App.MAPPER.writeValueAsString(new LongArray(ending)).getBytes(), App.QoS, false);
-                } catch (final JsonProcessingException | MqttException ex) {
-                    LOG.error("Cannot create MQTT message..", ex);
-                }
+            try {
+                for (Entry<Type, Collection<Atom>> entry : ending_atoms.entrySet())
+                    App.MQTT_CLIENT.publish(prefix + "/" + entry.getKey().getName(),
+                            App.MAPPER.writeValueAsString(new Command(entry.getValue().stream()
+                                    .map(atm -> new CommandAtom(atm, false, true)).collect(Collectors.toList())))
+                                    .getBytes(),
+                            App.QoS, false);
+            } catch (final JsonProcessingException | MqttException ex) {
+                LOG.error("Cannot create MQTT message..", ex);
             }
         }
 
@@ -358,10 +353,35 @@ public class HouseManager {
         @SuppressWarnings("unused")
         private static final class Command {
 
-            private final Collection<Atom> atoms;
+            private final Collection<CommandAtom> atoms;
 
-            private Command(final Collection<Atom> atoms) {
+            private Command(final Collection<CommandAtom> atoms) {
                 this.atoms = atoms;
+            }
+        }
+
+        @SuppressWarnings("unused")
+        static final class CommandAtom {
+
+            private final Atom atom;
+            private final boolean starting, ending;
+
+            private CommandAtom(final Atom atom, final boolean starting, final boolean ending) {
+                this.atom = atom;
+                this.starting = starting;
+                this.ending = ending;
+            }
+
+            public Atom getAtom() {
+                return atom;
+            }
+
+            public boolean isStarting() {
+                return starting;
+            }
+
+            public boolean isEnding() {
+                return ending;
             }
         }
     }
