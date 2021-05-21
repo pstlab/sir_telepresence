@@ -1,7 +1,11 @@
 import * as config from './config.js'
 import * as context from './context.js'
+import { Graph, GraphData } from './modules/graph.js';
+import { Timelines, TimelinesData } from './modules/timelines.js';
 
 let current_house;
+export let timelines = undefined;
+export let graph = undefined;
 
 export function init() {
     // we set the houses..
@@ -22,6 +26,9 @@ export function init() {
         } else
             alert(response.statusText);
     });
+
+    timelines = new Timelines('timelines', window.innerWidth, window.innerHeight / 3);
+    graph = new Graph('graph', window.innerWidth, window.innerHeight / 3);
 }
 
 export function new_user(user) {
@@ -124,6 +131,10 @@ function create_house_row(template, house) {
     row_content.id += house.id;
     row_content.querySelector('.house_id').append(house.id);
     row_content.querySelector('.house_name').append(house.name);
+
+    house.timelines = new TimelinesData();
+    house.graph = new GraphData();
+
     return house_row;
 }
 
@@ -133,6 +144,15 @@ function refine_house_row(house_row, house) {
         $('#house-id').val(house.id);
         $('#house-name').val(house.name);
         $('#house-description').val(house.description);
+
+        const plan_tabs = $('#plan-tabs');
+        plan_tabs.empty();
+
+        const plan_tab_template = $('#plan-tab');
+        const plan_tab = plan_tab_template[0].content.cloneNode(true);
+        const plan_tab_content = plan_tab.querySelector('a');
+        plan_tab_content.classList.add('active', 'bi', 'bi-house');
+        plan_tabs.append(plan_tab);
 
         const sensors_list = $('#house-sensors-list');
         sensors_list.empty();
@@ -147,6 +167,7 @@ function refine_house_row(house_row, house) {
                     break;
                 case 'robot':
                     robots_list.append(create_house_robot_row(robot_row_template, c_device));
+                    plan_tabs.append(create_plan_tab(plan_tab_template, c_device));
                     break;
                 default:
                     console.error('invalid device type ' + c_device.type);
@@ -203,6 +224,14 @@ function create_house_user_row(template, user) {
     return row_content;
 }
 
+function create_plan_tab(template, robot) {
+    const plan_tab = template[0].content.cloneNode(true);
+    const plan_tab_content = plan_tab.querySelector('a');
+    plan_tab_content.id += robot.id;
+    plan_tab_content.append(robot.name);
+    return plan_tab;
+}
+
 function create_house_sensor_row(template, sensor) {
     const sensor_row = template[0].content.cloneNode(true);
     const row_content = sensor_row.querySelector('.list-group-item');
@@ -216,6 +245,10 @@ function create_house_robot_row(template, robot) {
     const row_content = robot_row.querySelector('.list-group-item');
     row_content.id += robot.id;
     row_content.append(robot.name);
+
+    robot.timelines = new TimelinesData();
+    robot.graph = new GraphData();
+
     return row_content;
 }
 
