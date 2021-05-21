@@ -1,417 +1,87 @@
-<div class="h-100" id="body-user">
-    <nav class="navbar navbar-expand-sm navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand"><img src="/si_robotics.png" height="30" class="d-inline-block align-top" alt=""
-                    loading="lazy"></a>
-            <ul class="nav nav-tabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link active" id="users-button" type="button" data-bs-toggle="tab"
-                        data-bs-target="#users" role="tab" aria-controls="users" aria-selected="true">Utenti</a>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link" id="houses-button" type="button" data-bs-toggle="tab" data-bs-target="#houses"
-                        role="tab" aria-controls="houses" aria-selected="true">Case</a>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link" id="device-types-button" type="button" data-bs-toggle="tab"
-                        data-bs-target="#device-types" role="tab" aria-controls="device-types"
-                        aria-selected="true">Tipologie di dispositivi</a>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link" id="interaction-button" type="button" data-bs-toggle="tab"
-                        data-bs-target="#interaction" role="tab" aria-controls="interaction"
-                        aria-selected="false">Interazione</a>
-                </li>
-            </ul>
-            <ul class="navbar-nav ms-auto">
-                <div class="nav-item dropdown">
-                    <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown"
-                        id="account-menu">Profilo</button>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#profile-modal">Profilo</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" onclick="logout()">Esci</a>
-                    </div>
+<div class="h-100 d-flex flex-column" id="body-user">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light p-2">
+        <a class="navbar-brand p-2"><img src="/si_robotics.png" height="30" class="d-inline-block align-top" alt=""
+                loading="lazy"></a>
+        <ul class="nav nav-tabs me-auto" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" type="button" data-bs-toggle="tab" data-bs-target="#users" role="tab"
+                    aria-controls="users" aria-selected="true"><i class="bi bi-people me-2"></i>
+                    Utenti</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#houses" role="tab"
+                    aria-controls="houses" aria-selected="true"><i class="bi bi-house me-2"></i>Case</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#device-types" role="tab"
+                    aria-controls="device-types" aria-selected="true"><i class="bi bi-broadcast-pin me-2"></i>Tipologie
+                    di dispositivi</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#interaction" role="tab"
+                    aria-controls="interaction" aria-selected="false"><i
+                        class="bi bi-chat-dots me-2"></i>Interazione</a>
+            </li>
+        </ul>
+        <ul class="navbar-nav">
+            <div class="nav-item dropdown">
+                <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown"
+                    id="account-menu">Profilo</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#profile-modal">Profilo</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" onclick="logout()">Esci</a>
                 </div>
-            </ul>
-        </div>
+            </div>
+        </ul>
     </nav>
 
-    <div class="tab-content" style="position: absolute; top: 65px; bottom: 85px; left: 0; right: 0;">
-        <div class="tab-pane fade show active body-panel h-100 p-4" id="users" role="tabpanel">
+    <div class="tab-content h-100">
+        <div class="tab-pane fade show active h-100 p-4" id="users" role="tabpanel">
             <div class="list-group list-group-flush overflow-auto" id="users-list" role="tablist"></div>
         </div>
 
-        <div class="tab-pane fade show body-panel h-100 p-4" id="houses" role="tabpanel">
-            <div class="btn-group my-1" role="group" aria-label="Gestione case">
-                <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
-                    data-bs-target="#new-house-modal"><i class="bi bi-folder-plus"></i></button>
-            </div>
-            <div class="row container-fluid h-100">
-                <div class="col-3">
-                    <div class="list-group list-group-flush overflow-auto my-1" id="houses-list" role="tablist"></div>
-                </div>
-                <div class="col tab-content">
-                    <div class="tab-pane fade show body-panel h-100 p-2" id="house" role="tabpanel">
-                        <div class="row">
-                            <div class="col-2 form-floating my-1">
-                                <input type="text" class="form-control" id="house-id" placeholder="Id casa" readonly>
-                                <label for="house-id" class="col-form-label">Id</label>
-                            </div>
-                            <div class="col form-floating my-1">
-                                <input type="text" class="form-control" id="house-name" placeholder="Nome casa">
-                                <label for="house-name" class="col-form-label">Nome casa</label>
-                            </div>
-                            <div class="col form-floating my-1">
-                                <input type="text" class="form-control" id="house-description"
-                                    placeholder="Descrizione">
-                                <label for="house-description" class="col-form-label">Descrizione</label>
-                            </div>
-                            <button type="button" class="col-md-auto btn btn-secondary my-1" id="house-save"><i
-                                    class="bi bi-save"></i></button>
-                        </div>
-                        <hr>
-                        <div class="row h-100 my-1">
-                            <div class="col">
-                                <div class="row align-items-center">
-                                    <div class="col d-flex justify-content-start">
-                                        <h6>Sensori</h6>
-                                    </div>
-                                    <div class="col d-flex justify-content-end">
-                                        <a role="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal"
-                                            data-bs-target="#new-house-sensor-modal"><i class="bi bi-node-plus"></i></a>
-                                    </div>
-                                </div>
-                                <div class="row h-100">
-                                    <div class="list-group list-group-flush overflow-auto" id="house-sensors-list"
-                                        role="tablist"></div>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="row h-50">
-                                    <div class="row align-items-center">
-                                        <div class="col d-flex justify-content-start">
-                                            <h6>Utenti</h6>
-                                        </div>
-                                        <div class="col d-flex justify-content-end">
-                                            <a role="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal"
-                                                data-bs-target="#new-house-user-modal"><i
-                                                    class="bi bi-person-plus"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="row h-100">
-                                        <div class="list-group list-group-flush overflow-auto" id="house-users-list"
-                                            role="tablist"></div>
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="row h-50">
-                                    <div class="row align-items-center">
-                                        <div class="col d-flex justify-content-start">
-                                            <h6>Robot</h6>
-                                        </div>
-                                        <div class="col d-flex justify-content-end">
-                                            <a role="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal"
-                                                data-bs-target="#new-house-robot-modal"><i
-                                                    class="bi bi-plus-square"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="row h-100">
-                                        <div class="list-group list-group-flush overflow-auto" id="house-robots-list"
-                                            role="tablist"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="tab-pane fade h-100 p-4" id="houses" role="tabpanel"></div>
+
+        <div class="tab-pane fade h-100 p-4" id="device-types" role="tabpanel">
+            <div class="list-group list-group-flush overflow-auto" id="device-types-list" role="tablist"></div>
         </div>
 
-        <div class="tab-pane fade show body-panel h-100 p-4" id="device-types" role="tabpanel">
-            <div class="row h-100">
-                <div class="col">
-                    <div class="row align-items-center">
-                        <div class="col d-flex justify-content-start">
-                            <h6>Sensori</h6>
-                        </div>
-                        <div class="col d-flex justify-content-end">
-                            <a role="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal"
-                                data-bs-target="#new-sensor-type-modal"><i class="bi bi-journal-plus"></i></a>
-                        </div>
-                    </div>
-                    <div class="row h-100">
-                        <div class="list-group list-group-flush overflow-auto my-1" id="sensor-types-list"
-                            role="tablist">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col">
-                    <div class="row align-items-center">
-                        <div class="col d-flex justify-content-start">
-                            <h6>Robot</h6>
-                        </div>
-                        <div class="col d-flex justify-content-end">
-                            <a role="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal"
-                                data-bs-target="#new-robot-type-modal"><i class="bi bi-plus-square"></i></a>
-                        </div>
-                    </div>
-                    <div class="row h-100">
-                        <div class="list-group list-group-flush overflow-auto my-1" id="robot-types-list"
-                            role="tablist">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="tab-pane fade show body-panel h-100 p-4" id="interaction" role="tabpanel">
+        <div class="tab-pane fade h-100 p-4" id="interaction" role="tabpanel">
             Qui vanno le informazioni sull'interazione.
         </div>
     </div>
+</div>
 
-    <div class="modal fade" id="profile-modal" tabindex="-1" aria-labelledby="profile-modal-label" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="profile-modal-label">Profilo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="form-floating my-1">
-                            <input type="text" class="form-control" id="profile-email" placeholder="Email">
-                            <label for="profile-email" class="col-form-label">Email</label>
-                        </div>
-                        <div class="form-floating my-1">
-                            <input type="text" class="form-control" id="profile-first-name" placeholder="Nome">
-                            <label for="profile-first-name" class="col-form-label">Nome</label>
-                        </div>
-                        <div class="form-floating my-1">
-                            <input type="text" class="form-control" id="profile-last-name" placeholder="Cognome">
-                            <label for="profile-last-name" class="col-form-label">Cognome</label>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Chiudi</button>
-                    <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal"
-                        onclick="delete_user()">Cancella</button>
-                    <button type="button" class="btn btn-sm btn-primary" onclick="update_user()">Aggiorna</button>
-                </div>
+<div class="modal fade" id="profile-modal" tabindex="-1" aria-labelledby="profile-modal-label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profile-modal-label">Profilo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-floating my-1">
+                        <input type="text" class="form-control" id="profile-email" placeholder="Email">
+                        <label for="profile-email" class="col-form-label">Email</label>
+                    </div>
+                    <div class="form-floating my-1">
+                        <input type="text" class="form-control" id="profile-first-name" placeholder="Nome">
+                        <label for="profile-first-name" class="col-form-label">Nome</label>
+                    </div>
+                    <div class="form-floating my-1">
+                        <input type="text" class="form-control" id="profile-last-name" placeholder="Cognome">
+                        <label for="profile-last-name" class="col-form-label">Cognome</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal"
+                    onclick="delete_user()">Cancella</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="update_user()">Aggiorna</button>
             </div>
         </div>
     </div>
-
-    <div class="modal fade" id="new-house-modal" tabindex="-1" aria-labelledby="new-house-label" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="new-house-label">Nuova casa</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-floating my-1">
-                        <input type="text" class="form-control" id="new-house-name" placeholder="Nome casa">
-                        <label for="new-house-name" class="col-form-label">Nome casa</label>
-                    </div>
-                    <div class="form-floating my-1">
-                        <input type="text" class="form-control" id="new-house-description" placeholder="Descrizione">
-                        <label for="new-house-description" class="col-form-label">Descrizione</label>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-primary" data-bs-dismiss="modal"
-                        onclick="new_house()">Crea</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="new-house-sensor-modal" tabindex="-1" aria-labelledby="new-house-sensor-label"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="new-house-sensor-label">Nuovo sensore</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-floating my-1">
-                        <input type="text" class="form-control" id="new-house-sensor-name" placeholder="Nome sensore">
-                        <label for="new-house-sensor-name" class="col-form-label">Nome sensore</label>
-                    </div>
-                    <div class="form-floating">
-                        <select class="form-select" id="new-house-sensor-type" aria-label="Tipo di sensore"></select>
-                        <label for="new-house-sensor-type">Tipo di sensore</label>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-primary" data-bs-dismiss="modal"
-                        onclick="new_house_sensor()">Crea</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="new-house-user-modal" tabindex="-1" aria-labelledby="new-house-user-label"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="new-house-user-label">Nuovo utente</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="list-group list-group-flush overflow-auto" id="new-house-users-list"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-primary" data-bs-dismiss="modal"
-                        onclick="new_house_user()">Crea</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="new-house-robot-modal" tabindex="-1" aria-labelledby="new-house-robot-label"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="new-house-robot-label">Nuovo robot</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-floating my-1">
-                        <input type="text" class="form-control" id="new-house-robot-name" placeholder="Nome robot">
-                        <label for="new-house-robot-name" class="col-form-label">Nome robot</label>
-                    </div>
-                    <div class="form-floating">
-                        <select class="form-select" id="new-house-robot-type" aria-label="Tipo di robot"></select>
-                        <label for="new-house-robot-type">Tipo di robot</label>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-primary" data-bs-dismiss="modal"
-                        onclick="new_house_robot()">Crea</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="new-sensor-type-modal" tabindex="-1" aria-labelledby="new-sensor-type-label"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="new-sensor-type-label">Nuova tipologia di dispositivo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-floating my-1">
-                        <input type="text" class="form-control" id="new-sensor-type-name" placeholder="Nome casa">
-                        <label for="new-sensor-type-name" class="col-form-label">Nome tipologia</label>
-                    </div>
-                    <div class="form-floating my-1">
-                        <input type="text" class="form-control" id="new-sensor-type-description"
-                            placeholder="Descrizione">
-                        <label for="new-sensor-type-description" class="col-form-label">Descrizione</label>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-primary" data-bs-dismiss="modal"
-                        onclick="new_sensor_type()">Crea</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="new-robot-type-modal" tabindex="-1" aria-labelledby="new-robot-type-label"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="new-robot-type-label">Nuova tipologia di robot</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-floating my-1">
-                        <input type="text" class="form-control" id="new-robot-type-name" placeholder="Nome casa">
-                        <label for="new-robot-type-name" class="col-form-label">Nome tipologia</label>
-                    </div>
-                    <div class="form-floating my-1">
-                        <input type="text" class="form-control" id="new-robot-type-description"
-                            placeholder="Descrizione">
-                        <label for="new-robot-type-description" class="col-form-label">Descrizione</label>
-                    </div>
-                    <div class="form-group">
-                        <label for="new-robot-type-configuration">Configurazione</label>
-                        <textarea class="form-control" id="new-robot-type-configuration" rows="3"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-primary" data-bs-dismiss="modal"
-                        onclick="new_robot_type()">Crea</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <template id="user-row">
-        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" id="user-"
-            type="button" data-bs-toggle="tab" data-bs-target="#user">
-            <div class="col justify-content-start"><span class="bi me-2" id="online-user-"></span></div>
-        </div>
-    </template>
-
-    <template id="house-row">
-        <div class="list-group-item list-group-item-action d-flex flex-row justify-content-between align-items-center"
-            id="house-" type="button" data-bs-toggle="tab" data-bs-target="#house">
-            <div class="col-sm-2 justify-content-start"></div>
-            <div class="col justify-content-start"></div>
-            <button type="button" class="col-md-auto btn btn-secondary justify-content-end" id="delete-house-"><i
-                    class="bi bi-folder-minus"></i></button>
-        </div>
-    </template>
-
-    <template id="house-sensor-row">
-        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-            id="house-sensor-" type="button" data-bs-toggle="tab" data-bs-target="#device">
-            <div class="col justify-content-start"></div>
-        </div>
-    </template>
-
-    <template id="house-user-row">
-        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-            id="house-user-" type="button" data-bs-toggle="tab" data-bs-target="#user">
-            <div class="col justify-content-start"><span class="bi me-2" id="online-user-"></span></div>
-        </div>
-    </template>
-
-    <template id="house-robot-row">
-        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-            id="house-robot-" type="button" data-bs-toggle="tab" data-bs-target="#device">
-            <div class="col justify-content-start"></div>
-        </div>
-    </template>
-
-    <template id="sensor-type-row">
-        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-            id="sensor-type-" type="button" data-bs-toggle="tab" data-bs-target="#device-type">
-            <div class="col justify-content-start"></div>
-        </div>
-    </template>
-
-    <template id="robot-type-row">
-        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-            id="robot-type-" type="button" data-bs-toggle="tab" data-bs-target="#device-type">
-            <div class="col justify-content-start"></div>
-        </div>
-    </template>
-
-    <template id="new-house-user-row">
-        <div class="list-group-item list-group-item-action custom-control custom-checkbox align-items-center"><input
-                class="me-2" id="user-" type="checkbox" user_id=""><label for="user-"></label></div>
-    </template>
 </div>
