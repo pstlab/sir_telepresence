@@ -1,5 +1,6 @@
 package it.cnr.istc.pst.sirobotics.telepresence;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -7,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -18,10 +20,18 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -30,6 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import it.cnr.istc.pst.oratio.Atom;
+import it.cnr.istc.pst.oratio.Bound;
+import it.cnr.istc.pst.oratio.GraphListener;
 import it.cnr.istc.pst.oratio.Item.ArithItem;
 import it.cnr.istc.pst.oratio.Predicate;
 import it.cnr.istc.pst.oratio.Rational;
@@ -103,7 +115,7 @@ public class HouseManager {
         }
     }
 
-    static class SolverManager implements StateListener, ExecutorListener {
+    static class SolverManager implements StateListener, GraphListener, ExecutorListener {
 
         private final String prefix;
         private Solver solver = null;
@@ -260,6 +272,42 @@ public class HouseManager {
         }
 
         @Override
+        public void flawCreated(long id, long[] causes, String label, State state, Bound position) {
+        }
+
+        @Override
+        public void flawStateChanged(long id, State state) {
+        }
+
+        @Override
+        public void flawCostChanged(long id, Rational cost) {
+        }
+
+        @Override
+        public void flawPositionChanged(long id, Bound position) {
+        }
+
+        @Override
+        public void currentFlaw(long id) {
+        }
+
+        @Override
+        public void resolverCreated(long id, long effect, Rational cost, String label, State state) {
+        }
+
+        @Override
+        public void resolverStateChanged(long id, State state) {
+        }
+
+        @Override
+        public void currentResolver(long id) {
+        }
+
+        @Override
+        public void causalLinkAdded(long flaw, long resolver) {
+        }
+
+        @Override
         public void tick(Rational current_time) {
             LOG.info("[" + prefix + "] Current time: " + current_time.toString());
             try {
@@ -382,6 +430,429 @@ public class HouseManager {
 
             public boolean isEnding() {
                 return ending;
+            }
+        }
+
+        @SuppressWarnings("unused")
+        @JsonAutoDetect(fieldVisibility = Visibility.ANY)
+        private static class SVTimeline {
+
+            private final String type = "state-variable";
+            private final String name;
+            private final double origin, horizon;
+            private final List<Value> values;
+
+            private SVTimeline(final String name, final double origin, final double horizon, final List<Value> values) {
+                this.name = name;
+                this.origin = origin;
+                this.horizon = horizon;
+                this.values = values;
+            }
+
+            @JsonAutoDetect(fieldVisibility = Visibility.ANY)
+            private static class Value {
+
+                private final String name;
+                private final double from, to;
+                private final Collection<Long> atoms;
+
+                private Value(final String name, final double from, final double to, final Collection<Long> atoms) {
+                    this.name = name;
+                    this.from = from;
+                    this.to = to;
+                    this.atoms = atoms;
+                }
+            }
+        }
+
+        @SuppressWarnings("unused")
+        @JsonAutoDetect(fieldVisibility = Visibility.ANY)
+        private static class RRTimeline {
+
+            private final String type = "reusable-resource";
+            private final String name;
+            private final double capacity;
+            private final double origin, horizon;
+            private final List<Value> values;
+
+            private RRTimeline(final String name, final double capacity, final double origin, final double horizon,
+                    final List<Value> values) {
+                this.name = name;
+                this.capacity = capacity;
+                this.origin = origin;
+                this.horizon = horizon;
+                this.values = values;
+            }
+
+            @JsonAutoDetect(fieldVisibility = Visibility.ANY)
+            private static class Value {
+
+                private final double usage;
+                private final double from, to;
+                private final Collection<Long> atoms;
+
+                private Value(final double usage, final double from, final double to, final Collection<Long> atoms) {
+                    this.usage = usage;
+                    this.from = from;
+                    this.to = to;
+                    this.atoms = atoms;
+                }
+            }
+        }
+
+        @SuppressWarnings("unused")
+        @JsonAutoDetect(fieldVisibility = Visibility.ANY)
+        private static class Agent {
+
+            private final String type = "agent";
+            private final String name;
+            private final double origin, horizon;
+            private final List<Value> values;
+
+            private Agent(final String name, final double origin, final double horizon, final List<Value> values) {
+                this.name = name;
+                this.origin = origin;
+                this.horizon = horizon;
+                this.values = values;
+            }
+
+            @JsonAutoDetect(fieldVisibility = Visibility.ANY)
+            private static class Value {
+
+                private final String name;
+                private final double from, to;
+                private final Long atom;
+
+                private Value(final String name, final double from, final double to, final Long atom) {
+                    this.name = name;
+                    this.from = from;
+                    this.to = to;
+                    this.atom = atom;
+                }
+            }
+        }
+
+        @JsonSerialize(using = FlawSerializer.class)
+        class Flaw {
+
+            private final long id;
+            private final Resolver[] causes;
+            private final String label;
+            private State state;
+            private Bound position;
+            private Rational cost = Rational.POSITIVE_INFINITY;
+            private boolean current = false;
+
+            private Flaw(final long id, final Resolver[] causes, final String label, final State state,
+                    final Bound position) {
+                this.id = id;
+                this.causes = causes;
+                this.label = label;
+                this.state = state;
+                this.position = position;
+            }
+        }
+
+        private static class FlawSerializer extends StdSerializer<Flaw> {
+
+            private static final long serialVersionUID = 1L;
+
+            private FlawSerializer() {
+                super(Flaw.class);
+            }
+
+            @Override
+            public void serialize(final Flaw flaw, final JsonGenerator gen, final SerializerProvider provider)
+                    throws IOException {
+                gen.writeStartObject();
+                gen.writeNumberField("id", flaw.id);
+                gen.writeArrayFieldStart("causes");
+                Arrays.stream(flaw.causes).forEach(c -> {
+                    try {
+                        gen.writeNumber(c.id);
+                    } catch (final IOException e) {
+                        LOG.error("Cannot serialize", e);
+                    }
+                });
+                gen.writeEndArray();
+                gen.writeStringField("label", flaw.label);
+                gen.writeNumberField("state", flaw.state.ordinal());
+
+                if (flaw.position.min != -Bound.INF || flaw.position.max != Bound.INF)
+                    gen.writeObjectField("position", flaw.position);
+
+                gen.writeObjectField("cost", flaw.cost);
+
+                gen.writeBooleanField("current", flaw.current);
+
+                gen.writeEndObject();
+            }
+        }
+
+        @JsonSerialize(using = ResolverSerializer.class)
+        class Resolver {
+
+            private final long id;
+            private final Flaw effect;
+            private final String label;
+            private State state;
+            private final Rational cost;
+            private final Set<Flaw> preconditions = new HashSet<>();
+            private boolean current = false;
+
+            private Resolver(final long id, final Flaw effect, final String label, final State state,
+                    final Rational cost) {
+                this.id = id;
+                this.effect = effect;
+                this.label = label;
+                this.state = state;
+                this.cost = cost;
+            }
+        }
+
+        private static class ResolverSerializer extends StdSerializer<Resolver> {
+
+            private ResolverSerializer() {
+                super(Resolver.class);
+            }
+
+            /**
+             *
+             */
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void serialize(final Resolver resolver, final JsonGenerator gen, final SerializerProvider provider)
+                    throws IOException {
+                gen.writeStartObject();
+                gen.writeNumberField("id", resolver.id);
+                gen.writeNumberField("effect", resolver.effect.id);
+                gen.writeStringField("label", resolver.label);
+                gen.writeNumberField("state", resolver.state.ordinal());
+
+                gen.writeObjectField("cost", resolver.cost);
+
+                gen.writeArrayFieldStart("preconditions");
+                resolver.preconditions.stream().forEach(pre -> {
+                    try {
+                        gen.writeNumber(pre.id);
+                    } catch (final IOException e) {
+                        LOG.error("Cannot serialize", e);
+                    }
+                });
+                gen.writeEndArray();
+
+                gen.writeBooleanField("current", resolver.current);
+
+                gen.writeEndObject();
+            }
+        }
+
+        @SuppressWarnings({ "unused" })
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "message_type")
+        @JsonSubTypes({ @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.Log.class, name = "log"),
+                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.StartedSolving.class, name = "started_solving"),
+                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.SolutionFound.class, name = "solution_found"),
+                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.InconsistentProblem.class, name = "inconsistent_problem"),
+                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.Graph.class, name = "graph"),
+                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.FlawCreated.class, name = "flaw_created"),
+                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.FlawStateChanged.class, name = "flaw_state_changed"),
+                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.FlawCostChanged.class, name = "flaw_cost_changed"),
+                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.FlawPositionChanged.class, name = "flaw_position_changed"),
+                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.CurrentFlaw.class, name = "current_flaw"),
+                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.ResolverCreated.class, name = "resolver_created"),
+                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.ResolverStateChanged.class, name = "resolver_state_changed"),
+                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.CurrentResolver.class, name = "current_resolver"),
+                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.CausalLinkAdded.class, name = "causal_link_added"),
+                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.Timelines.class, name = "timelines"),
+                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.Tick.class, name = "tick") })
+        static abstract class Message {
+
+            public final String plan_id;
+
+            Message(final String plan_id) {
+                this.plan_id = plan_id;
+            }
+
+            static class Log extends Message {
+
+                public final String log;
+
+                Log(final String plan_id, final String log) {
+                    super(plan_id);
+                    this.log = log;
+                }
+            }
+
+            static class StartedSolving extends Message {
+
+                StartedSolving(final String plan_id) {
+                    super(plan_id);
+                }
+            }
+
+            static class SolutionFound extends Message {
+
+                SolutionFound(final String plan_id) {
+                    super(plan_id);
+                }
+            }
+
+            static class InconsistentProblem extends Message {
+
+                InconsistentProblem(final String plan_id) {
+                    super(plan_id);
+                }
+            }
+
+            static class Graph extends Message {
+
+                public final Collection<Flaw> flaws;
+                public final Collection<Resolver> resolvers;
+
+                Graph(final String plan_id, final Collection<Flaw> flaws, final Collection<Resolver> resolvers) {
+                    super(plan_id);
+                    this.flaws = flaws;
+                    this.resolvers = resolvers;
+                }
+            }
+
+            static class FlawCreated extends Message {
+
+                public final long id;
+                public final long[] causes;
+                public final String label;
+                public final byte state;
+                public final Bound position;
+
+                FlawCreated(final String plan_id, final long id, final long[] causes, final String label,
+                        final byte state, final Bound position) {
+                    super(plan_id);
+                    this.id = id;
+                    this.causes = causes;
+                    this.label = label;
+                    this.state = state;
+                    this.position = position;
+                }
+            }
+
+            static class FlawStateChanged extends Message {
+
+                public final long id;
+                public final byte state;
+
+                FlawStateChanged(final String plan_id, final long id, final byte state) {
+                    super(plan_id);
+                    this.id = id;
+                    this.state = state;
+                }
+            }
+
+            static class FlawCostChanged extends Message {
+
+                public final long id;
+                public final Rational cost;
+
+                FlawCostChanged(final String plan_id, final long id, final Rational cost) {
+                    super(plan_id);
+                    this.id = id;
+                    this.cost = cost;
+                }
+            }
+
+            static class FlawPositionChanged extends Message {
+
+                public final long id;
+                public final Bound position;
+
+                FlawPositionChanged(final String plan_id, final long id, final Bound position) {
+                    super(plan_id);
+                    this.id = id;
+                    this.position = position;
+                }
+            }
+
+            static class CurrentFlaw extends Message {
+
+                public final long id;
+
+                CurrentFlaw(final String plan_id, final long id) {
+                    super(plan_id);
+                    this.id = id;
+                }
+            }
+
+            static class ResolverCreated extends Message {
+
+                public final long id;
+                public final long effect;
+                public final Rational cost;
+                public final String label;
+                public final byte state;
+
+                ResolverCreated(final String plan_id, final long id, final long effect, final Rational cost,
+                        final String label, final byte state) {
+                    super(plan_id);
+                    this.id = id;
+                    this.effect = effect;
+                    this.cost = cost;
+                    this.label = label;
+                    this.state = state;
+                }
+            }
+
+            static class ResolverStateChanged extends Message {
+
+                public final long id;
+                public final byte state;
+
+                ResolverStateChanged(final String plan_id, final long id, final byte state) {
+                    super(plan_id);
+                    this.id = id;
+                    this.state = state;
+                }
+            }
+
+            static class CurrentResolver extends Message {
+
+                public final long id;
+
+                CurrentResolver(final String plan_id, final long id) {
+                    super(plan_id);
+                    this.id = id;
+                }
+            }
+
+            static class CausalLinkAdded extends Message {
+
+                public final long flaw;
+                public final long resolver;
+
+                CausalLinkAdded(final String plan_id, final long flaw, final long resolver) {
+                    super(plan_id);
+                    this.flaw = flaw;
+                    this.resolver = resolver;
+                }
+            }
+
+            static class Timelines extends Message {
+
+                public final Collection<Object> timelines;
+
+                Timelines(final String plan_id, final Collection<Object> timelines) {
+                    super(plan_id);
+                    this.timelines = timelines;
+                }
+            }
+
+            static class Tick extends Message {
+
+                public final Rational current_time;
+
+                Tick(final String plan_id, final Rational current_time) {
+                    super(plan_id);
+                    this.current_time = current_time;
+                }
             }
         }
     }

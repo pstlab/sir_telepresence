@@ -2,6 +2,9 @@ export let user;
 
 export const users = new Map();
 
+export const timelines = new Map();
+export const graphs = new Map();
+
 export function set_user(new_user) {
     user = new_user;
 }
