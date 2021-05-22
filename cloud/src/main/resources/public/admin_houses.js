@@ -122,6 +122,8 @@ export function new_house_robot() {
                 c_house.devices.push(robot);
                 $('#new-house-robot-type').append($('<option>', { value: robot.id, text: robot.name }));
                 $('#house-robots-list').append(create_house_robot_row($('#house-robot-row'), c_house.id, robot));
+                refine_house_robot_row(c_house.id, robot);
+                $('#plan-tabs').append(create_plan_tab($('#plan-tab'), robot));
             });
         } else
             alert(response.statusText);
@@ -180,17 +182,9 @@ function refine_house_row(house_row, house) {
                     break;
                 case 'robot':
                     robots_list.append(create_house_robot_row(robot_row_template, house.id, c_device));
+                    refine_house_robot_row(house.id, c_device);
                     const plan_tab = create_plan_tab(plan_tab_template, c_device);
                     plan_tabs.append(plan_tab);
-                    $('#plan-tab-' + house.id + '-' + c_device.id).on('show.bs.tab', function (event) {
-                        current_plan = house.id.toString();
-
-                        const c_tl_data = context.timelines.get(house.id + '/' + c_device.id);
-                        const c_gr_data = context.graphs.get(house.id + '/' + c_device.id);
-                        timelines.update(c_tl_data);
-                        timelines.updateTime(c_tl_data);
-                        graph.update(c_gr_data);
-                    });
                     break;
                 default:
                     console.error('invalid device type ' + c_device.type);
@@ -275,6 +269,18 @@ function create_house_robot_row(template, house_id, robot) {
     context.graphs.set(house_id + '/' + robot.id, gr_data);
 
     return row_content;
+}
+
+function refine_house_robot_row(house_id, robot) {
+    $('#plan-tab-' + house_id + '-' + robot.id).on('show.bs.tab', function (event) {
+        current_plan = house_id.toString();
+
+        const c_tl_data = context.timelines.get(house_id + '/' + robot.id);
+        const c_gr_data = context.graphs.get(house_id + '/' + robot.id);
+        timelines.update(c_tl_data);
+        timelines.updateTime(c_tl_data);
+        graph.update(c_gr_data);
+    });
 }
 
 function download(filename, text) {
