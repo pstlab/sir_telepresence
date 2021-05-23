@@ -54,7 +54,12 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="login()">Accedi</button>
+                    <button type="button" class="btn btn-primary" id="login-button">Accedi</button>
+                    <script type="module">
+                        import * as context from './context.js'
+
+                        document.querySelector('#login-button').addEventListener('click', context.login);
+                    </script>
                 </div>
             </div>
         </div>
@@ -84,7 +89,12 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Chiudi</button>
-                    <button type="button" class="btn btn-sm btn-primary" onclick="signin()">Registrati</button>
+                    <button type="button" class="btn btn-sm btn-primary" id="signin-button">Registrati</button>
+                    <script type="module">
+                        import * as context from './context.js'
+
+                        document.querySelector('#signin-button').addEventListener('click', context.signin);
+                    </script>
                 </div>
             </div>
         </div>

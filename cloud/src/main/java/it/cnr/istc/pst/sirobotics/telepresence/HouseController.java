@@ -1,5 +1,6 @@
 package it.cnr.istc.pst.sirobotics.telepresence;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -7,23 +8,21 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.javalin.http.ConflictResponse;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
-import it.cnr.istc.pst.sirobotics.configuration.robot_confLexer;
-import it.cnr.istc.pst.sirobotics.configuration.robot_confParser;
-import it.cnr.istc.pst.sirobotics.configuration.robot_confParser.ConfigurationContext;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Robot;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Sensor;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Sensor.Data;
 import it.cnr.istc.pst.sirobotics.telepresence.api.DeviceType;
 import it.cnr.istc.pst.sirobotics.telepresence.api.House;
+import it.cnr.istc.pst.sirobotics.telepresence.api.RobotConf;
 import it.cnr.istc.pst.sirobotics.telepresence.api.User;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceTypeEntity;
@@ -181,7 +180,7 @@ public class HouseController {
         final String name = ctx.formParam("name");
         final String description = ctx.formParam("description");
         final long type_id = Long.valueOf(ctx.formParam("type_id"));
-        LOG.info("creating new type {}..", name);
+        LOG.info("creating new device \"{}\"..", name);
 
         final EntityManager em = App.EMF.createEntityManager();
         final HouseEntity house_entity = em.find(HouseEntity.class, house_id);
@@ -211,6 +210,9 @@ public class HouseController {
         } catch (final Exception ex) {
             throw new ConflictResponse();
         }
+
+        if (device_type_entity instanceof RobotTypeEntity)
+            App.MANAGERS.get(house_id).addRobot((RobotEntity) device_entity);
 
         ctx.json(toDevice(device_entity, false));
         em.close();
@@ -332,14 +334,16 @@ public class HouseController {
 
                 sb.append("# commands to the robot #").append(device.getId()).append("..\n");
                 RobotTypeEntity type = (RobotTypeEntity) device.getType();
-                robot_confParser parser = new robot_confParser(
-                        new CommonTokenStream(new robot_confLexer(CharStreams.fromString(type.getConfiguration()))));
-                ConfigurationContext configuration = parser.configuration();
                 Set<String> pred_names = new HashSet<>();
-                if (configuration.starting() != null)
-                    configuration.starting().predicate().stream().forEach(pred -> pred_names.add(pred.ID().getText()));
-                if (configuration.ending() != null)
-                    configuration.ending().predicate().stream().forEach(pred -> pred_names.add(pred.ID().getText()));
+                try {
+                    RobotConf conf = App.MAPPER.readValue(type.getConfiguration(), RobotConf.class);
+                    if (conf.getStarting() != null)
+                        Arrays.stream(conf.getStarting()).forEach(pred -> pred_names.add(pred));
+                    if (conf.getEnding() != null)
+                        Arrays.stream(conf.getEnding()).forEach(pred -> pred_names.add(pred));
+                } catch (JsonProcessingException ex) {
+                    LOG.error("Cannot read config file..", ex);
+                }
                 for (String pred_name : pred_names) {
                     sb.append("# command '").append(pred_name).append("' to robot #").append(device.getId())
                             .append("..\n");

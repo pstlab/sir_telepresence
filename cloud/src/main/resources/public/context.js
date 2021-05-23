@@ -1,3 +1,5 @@
+import * as config from './config.js'
+
 export let user;
 
 export const users = new Map();

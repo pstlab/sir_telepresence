@@ -199,7 +199,7 @@ function refine_house_row(house_row, house) {
 
         $('#house-save').click(function () {
             // we set the device types..
-            fetch('http://' + config.host + ':' + config.service_port + '/house_params/?house_id=' + id, {
+            fetch('http://' + config.host + ':' + config.service_port + '/house_params/?house_id=' + house.id, {
                 method: 'get',
                 headers: { 'Authorization': 'Basic ' + context.user.id }
             }).then(response => {

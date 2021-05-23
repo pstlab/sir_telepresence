@@ -17,15 +17,16 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityManager;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,8 +34,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,16 +50,20 @@ import it.cnr.istc.pst.oratio.StateListener;
 import it.cnr.istc.pst.oratio.Type;
 import it.cnr.istc.pst.oratio.timelines.ExecutorException;
 import it.cnr.istc.pst.oratio.timelines.ExecutorListener;
+import it.cnr.istc.pst.oratio.timelines.PropositionalAgent;
+import it.cnr.istc.pst.oratio.timelines.ReusableResource;
+import it.cnr.istc.pst.oratio.timelines.StateVariable;
+import it.cnr.istc.pst.oratio.timelines.Timeline;
 import it.cnr.istc.pst.oratio.timelines.TimelinesExecutor;
-import it.cnr.istc.pst.sirobotics.configuration.robot_confLexer;
-import it.cnr.istc.pst.sirobotics.configuration.robot_confParser;
-import it.cnr.istc.pst.sirobotics.configuration.robot_confParser.ConfigurationContext;
+import it.cnr.istc.pst.oratio.timelines.TimelinesList;
+import it.cnr.istc.pst.sirobotics.telepresence.api.RobotConf;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.HouseEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.RobotEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.RobotTypeEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.SensorDataEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.SensorEntity;
+import it.cnr.istc.pst.sirobotics.telepresence.db.UserEntity;
 
 public class HouseManager {
 
@@ -68,10 +71,12 @@ public class HouseManager {
     private static final ScheduledExecutorService EXECUTOR = Executors
             .newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
     private final HouseEntity house;
+    private final Map<String, SolverManager> solver_managers = new HashMap<>();
 
     public HouseManager(final HouseEntity house) {
         this.house = house;
-        new SolverManager(Long.toString(house.getId()), "");
+        final String prefix = Long.toString(house.getId());
+        solver_managers.put(prefix, new SolverManager(prefix, "{}"));
 
         for (final DeviceEntity device_entity : house.getDevices()) {
             if (device_entity instanceof RobotEntity) {
@@ -83,8 +88,9 @@ public class HouseManager {
     }
 
     public void addRobot(final RobotEntity robot_entity) {
-        new SolverManager(house.getId() + "/" + robot_entity.getId(),
-                ((RobotTypeEntity) robot_entity.getType()).getConfiguration());
+        final String prefix = house.getId() + "/" + robot_entity.getId();
+        solver_managers.put(prefix,
+                new SolverManager(prefix, ((RobotTypeEntity) robot_entity.getType()).getConfiguration()));
     }
 
     public void addSensor(final SensorEntity sensor_entity) {
@@ -119,9 +125,15 @@ public class HouseManager {
 
         private final String prefix;
         private Solver solver = null;
+        private TimelinesList timelines = null;
         private final Map<Long, Atom> c_atoms = new HashMap<>();
         private TimelinesExecutor tl_exec = null;
         private ScheduledFuture<?> scheduled_feature;
+        private final Map<Long, Flaw> flaws = new HashMap<>();
+        private Flaw current_flaw = null;
+        private final Map<Long, Resolver> resolvers = new HashMap<>();
+        private Resolver current_resolver = null;
+        private Rational current_time = new Rational();
         private final Set<String> disp_s_preds = new HashSet<>();
         private final Set<String> disp_e_preds = new HashSet<>();
         private SolverState state = null;
@@ -129,13 +141,15 @@ public class HouseManager {
         public SolverManager(final String prefix, final String configuration) {
             this.prefix = prefix;
 
-            robot_confParser parser = new robot_confParser(
-                    new CommonTokenStream(new robot_confLexer(CharStreams.fromString(configuration))));
-            ConfigurationContext conf = parser.configuration();
-            if (conf.starting() != null)
-                conf.starting().predicate().stream().forEach(pred -> disp_s_preds.add(pred.ID().getText()));
-            if (conf.ending() != null)
-                conf.ending().predicate().stream().forEach(pred -> disp_e_preds.add(pred.ID().getText()));
+            try {
+                RobotConf conf = App.MAPPER.readValue(configuration, RobotConf.class);
+                if (conf.getStarting() != null)
+                    Arrays.stream(conf.getStarting()).forEach(pred -> disp_s_preds.add(pred));
+                if (conf.getEnding() != null)
+                    Arrays.stream(conf.getEnding()).forEach(pred -> disp_e_preds.add(pred));
+            } catch (JsonProcessingException ex) {
+                LOG.error("Cannot read config file..", ex);
+            }
 
             try {
                 App.MQTT_CLIENT.subscribe(prefix + "/plan", (topic, message) -> {
@@ -149,11 +163,11 @@ public class HouseManager {
 
                     // we read the problem..
                     LOG.info("[" + prefix + "] Reading the problem..");
-                    StringWrapper string_message = App.MAPPER.readValue(new String(message.getPayload()),
+                    final StringWrapper string_message = App.MAPPER.readValue(new String(message.getPayload()),
                             StringWrapper.class);
                     try {
                         solver.read(string_message.data);
-                    } catch (SolverException e) {
+                    } catch (final SolverException e) {
                         LOG.error("Cannot read the given problem", e);
                     }
 
@@ -161,27 +175,27 @@ public class HouseManager {
                     LOG.info("[" + prefix + "] Solving the problem..");
                     try {
                         solver.solve();
-                    } catch (SolverException e) {
+                    } catch (final SolverException e) {
                         LOG.error("Cannot solve the given problem", e);
                     }
                 });
 
                 App.MQTT_CLIENT.subscribe(prefix + "/done", (topic, message) -> {
                     scheduled_feature.cancel(false);
-                    LongArray long_array_message = App.MAPPER.readValue(message.getPayload(), LongArray.class);
+                    final LongArray long_array_message = App.MAPPER.readValue(message.getPayload(), LongArray.class);
                     tl_exec.done(long_array_message.data);
                 });
 
                 App.MQTT_CLIENT.subscribe(prefix + "/failure", (topic, message) -> {
                     scheduled_feature.cancel(false);
-                    LongArray long_array_message = App.MAPPER.readValue(message.getPayload(), LongArray.class);
+                    final LongArray long_array_message = App.MAPPER.readValue(message.getPayload(), LongArray.class);
                     tl_exec.failure(long_array_message.data);
                 });
 
                 App.MQTT_CLIENT.subscribe(prefix + "/nlp/in", (topic, message) -> {
-                    StringWrapper string_message = App.MAPPER.readValue(new String(message.getPayload()),
+                    final StringWrapper string_message = App.MAPPER.readValue(new String(message.getPayload()),
                             StringWrapper.class);
-                    JsonNode parse = App.NLU_CLIENT.parse(string_message.data);
+                    final JsonNode parse = App.NLU_CLIENT.parse(string_message.data);
                     App.MQTT_CLIENT.publish(prefix + "/nlp/intent",
                             App.MAPPER.writeValueAsString(new StringWrapper(parse.get("intent").toString())).getBytes(),
                             App.QoS, true);
@@ -197,7 +211,7 @@ public class HouseManager {
             return state;
         }
 
-        public void setState(SolverState state) {
+        public void setState(final SolverState state) {
             this.state = state;
             fireStateChanged();
         }
@@ -206,22 +220,64 @@ public class HouseManager {
             LOG.info("[" + prefix + "] Resetting the solver..");
             solver = new Solver();
             solver.addStateListener(this);
+            timelines = new TimelinesList(solver);
             tl_exec = new TimelinesExecutor(solver, new Rational(1));
             tl_exec.addExecutorListener(this);
             setState(SolverState.Waiting);
         }
 
+        Collection<Object> getTimelines() {
+            final Collection<Object> c_tls = new ArrayList<>();
+            for (final Timeline<?> tl : timelines) {
+                if (tl instanceof StateVariable) {
+                    c_tls.add(toTimeline((StateVariable) tl));
+                } else if (tl instanceof ReusableResource) {
+                    c_tls.add(toTimeline((ReusableResource) tl));
+                } else if (tl instanceof PropositionalAgent) {
+                    c_tls.add(toTimeline((PropositionalAgent) tl));
+                }
+            }
+            return c_tls;
+        }
+
+        private static SVTimeline toTimeline(final StateVariable sv) {
+            return new SVTimeline(sv.getName(), sv.getOrigin().doubleValue(), sv.getHorizon().doubleValue(), sv
+                    .getValues().stream()
+                    .map(val -> new SVTimeline.Value(
+                            val.getAtoms().stream().map(atm -> atm.toString()).collect(Collectors.joining(", ")),
+                            val.getFrom().doubleValue(), val.getTo().doubleValue(),
+                            val.getAtoms().stream().map(atm -> atm.getSigma()).collect(Collectors.toList())))
+                    .collect(Collectors.toList()));
+        }
+
+        private static RRTimeline toTimeline(final ReusableResource rr) {
+            return new RRTimeline(rr.getName(), rr.getCapacity().doubleValue(), rr.getOrigin().doubleValue(),
+                    rr.getHorizon().doubleValue(),
+                    rr.getValues().stream()
+                            .map(val -> new RRTimeline.Value(val.getUsage().doubleValue(), val.getFrom().doubleValue(),
+                                    val.getTo().doubleValue(),
+                                    val.getAtoms().stream().map(atm -> atm.getSigma()).collect(Collectors.toList())))
+                            .collect(Collectors.toList()));
+        }
+
+        private static Agent toTimeline(final PropositionalAgent pa) {
+            return new Agent(pa.getName(), pa.getOrigin().doubleValue(), pa.getHorizon().doubleValue(),
+                    pa.getValues().stream().map(val -> new Agent.Value(val.getAtom().toString(),
+                            val.getFrom().doubleValue(), val.getTo().doubleValue(), val.getAtom().getSigma()))
+                            .collect(Collectors.toList()));
+        }
+
         @Override
-        public void log(String log) {
+        public void log(final String log) {
             LOG.info("[" + prefix + "] " + log);
         }
 
         @Override
-        public void read(String script) {
+        public void read(final String script) {
         }
 
         @Override
-        public void read(String[] files) {
+        public void read(final String[] files) {
         }
 
         @Override
@@ -254,7 +310,7 @@ public class HouseManager {
                 scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> {
                     try {
                         tl_exec.tick();
-                    } catch (ExecutorException e) {
+                    } catch (final ExecutorException e) {
                         LOG.error("Cannot execute the solution..", e);
                         scheduled_feature.cancel(false);
                         reset();
@@ -262,6 +318,30 @@ public class HouseManager {
                 }, 0, 1, TimeUnit.SECONDS);
             } else
                 LOG.info("[" + prefix + "] Solution updated..");
+
+            if (current_flaw != null)
+                current_flaw.current = false;
+            current_flaw = null;
+            if (current_resolver != null)
+                current_resolver.current = false;
+            current_resolver = null;
+            try {
+                final EntityManager em = App.EMF.createEntityManager();
+                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
+                        .getResultList();
+                for (UserEntity ue : user_entities)
+                    if (ue.getRoles().contains("Admin")) {
+                        UserController.ONLINE.get(ue.getId())
+                                .send(App.MAPPER.writeValueAsString(new Message.Timelines(prefix, getTimelines())));
+                        UserController.ONLINE.get(ue.getId())
+                                .send(App.MAPPER.writeValueAsString(new Message.SolutionFound(prefix)));
+                        UserController.ONLINE.get(ue.getId())
+                                .send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
+                    }
+                em.close();
+            } catch (final JsonProcessingException e) {
+                LOG.error("Cannot serialize", e);
+            }
         }
 
         @Override
@@ -272,44 +352,64 @@ public class HouseManager {
         }
 
         @Override
-        public void flawCreated(long id, long[] causes, String label, State state, Bound position) {
+        public void flawCreated(final long id, final long[] causes, final String label, final State state,
+                final Bound position) {
+            final Flaw c_flaw = new Flaw(id,
+                    Arrays.stream(causes).mapToObj(r_id -> resolvers.get(r_id)).toArray(Resolver[]::new), label, state,
+                    position);
+            Stream.of(c_flaw.causes).forEach(c -> c.preconditions.add(c_flaw));
+            flaws.put(id, c_flaw);
+            try {
+                final EntityManager em = App.EMF.createEntityManager();
+                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
+                        .getResultList();
+                for (UserEntity ue : user_entities)
+                    if (ue.getRoles().contains("Admin"))
+                        UserController.ONLINE.get(ue.getId()).send(App.MAPPER.writeValueAsString(
+                                new Message.FlawCreated(prefix, id, causes, label, (byte) state.ordinal(), position)));
+                em.close();
+            } catch (final JsonProcessingException e) {
+                LOG.error("Cannot serialize", e);
+            }
         }
 
         @Override
-        public void flawStateChanged(long id, State state) {
+        public void flawStateChanged(final long id, final State state) {
         }
 
         @Override
-        public void flawCostChanged(long id, Rational cost) {
+        public void flawCostChanged(final long id, final Rational cost) {
         }
 
         @Override
-        public void flawPositionChanged(long id, Bound position) {
+        public void flawPositionChanged(final long id, final Bound position) {
         }
 
         @Override
-        public void currentFlaw(long id) {
+        public void currentFlaw(final long id) {
         }
 
         @Override
-        public void resolverCreated(long id, long effect, Rational cost, String label, State state) {
+        public void resolverCreated(final long id, final long effect, final Rational cost, final String label,
+                final State state) {
         }
 
         @Override
-        public void resolverStateChanged(long id, State state) {
+        public void resolverStateChanged(final long id, final State state) {
         }
 
         @Override
-        public void currentResolver(long id) {
+        public void currentResolver(final long id) {
         }
 
         @Override
-        public void causalLinkAdded(long flaw, long resolver) {
+        public void causalLinkAdded(final long flaw, final long resolver) {
         }
 
         @Override
-        public void tick(Rational current_time) {
+        public void tick(final Rational current_time) {
             LOG.info("[" + prefix + "] Current time: " + current_time.toString());
+            this.current_time = current_time;
             try {
                 if (((ArithItem) solver.get("horizon")).getValue().leq(current_time)) {
                     LOG.info("Nothing more to execute..");
@@ -322,11 +422,11 @@ public class HouseManager {
         }
 
         @Override
-        public void startingAtoms(long[] atoms) {
+        public void startingAtoms(final long[] atoms) {
             LOG.info("[" + prefix + "] Starting atoms: " + Arrays.toString(atoms));
             final Map<Type, Collection<Atom>> starting_atoms = new IdentityHashMap<>();
             for (int i = 0; i < atoms.length; i++) {
-                Atom starting_atom = c_atoms.get(atoms[i]);
+                final Atom starting_atom = c_atoms.get(atoms[i]);
                 if (disp_s_preds.contains(starting_atom.getType().getName())) {
                     Collection<Atom> c_atms = starting_atoms.get(starting_atom.getType());
                     if (c_atms == null) {
@@ -337,7 +437,7 @@ public class HouseManager {
                 }
             }
             try {
-                for (Entry<Type, Collection<Atom>> entry : starting_atoms.entrySet())
+                for (final Entry<Type, Collection<Atom>> entry : starting_atoms.entrySet())
                     App.MQTT_CLIENT.publish(prefix + "/" + entry.getKey().getName(),
                             App.MAPPER.writeValueAsString(new Command(entry.getValue().stream()
                                     .map(atm -> new CommandAtom(atm, true, false)).collect(Collectors.toList())))
@@ -349,11 +449,11 @@ public class HouseManager {
         }
 
         @Override
-        public void endingAtoms(long[] atoms) {
+        public void endingAtoms(final long[] atoms) {
             LOG.info("[" + prefix + "] Ending atoms: {}" + Arrays.toString(atoms));
             final Map<Type, Collection<Atom>> ending_atoms = new IdentityHashMap<>();
             for (int i = 0; i < atoms.length; i++) {
-                Atom ending_atom = c_atoms.get(atoms[i]);
+                final Atom ending_atom = c_atoms.get(atoms[i]);
                 if (disp_e_preds.contains(ending_atom.getType().getName())) {
                     Collection<Atom> c_atms = ending_atoms.get(ending_atom.getType());
                     if (c_atms == null) {
@@ -364,7 +464,7 @@ public class HouseManager {
                 }
             }
             try {
-                for (Entry<Type, Collection<Atom>> entry : ending_atoms.entrySet())
+                for (final Entry<Type, Collection<Atom>> entry : ending_atoms.entrySet())
                     App.MQTT_CLIENT.publish(prefix + "/" + entry.getKey().getName(),
                             App.MAPPER.writeValueAsString(new Command(entry.getValue().stream()
                                     .map(atm -> new CommandAtom(atm, false, true)).collect(Collectors.toList())))
@@ -538,9 +638,9 @@ public class HouseManager {
             private final long id;
             private final Resolver[] causes;
             private final String label;
-            private State state;
-            private Bound position;
-            private Rational cost = Rational.POSITIVE_INFINITY;
+            private final State state;
+            private final Bound position;
+            private final Rational cost = Rational.POSITIVE_INFINITY;
             private boolean current = false;
 
             private Flaw(final long id, final Resolver[] causes, final String label, final State state,
@@ -595,7 +695,7 @@ public class HouseManager {
             private final long id;
             private final Flaw effect;
             private final String label;
-            private State state;
+            private final State state;
             private final Rational cost;
             private final Set<Flaw> preconditions = new HashSet<>();
             private boolean current = false;

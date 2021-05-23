@@ -24,7 +24,12 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#profile-modal">Profilo</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" onclick="logout()">Esci</a>
+                        <a class="dropdown-item" id="logout-button">Esci</a>
+                        <script type="module">
+                            import * as context from './context.js'
+
+                            document.querySelector('#logout-button').addEventListener('click', context.logout);
+                        </script>
                     </div>
                 </div>
             </ul>
@@ -72,7 +77,12 @@
                     <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Chiudi</button>
                     <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal"
                         onclick="delete_user()">Cancella</button>
-                    <button type="button" class="btn btn-sm btn-primary" onclick="update_user()">Aggiorna</button>
+                    <button type="button" class="btn btn-sm btn-primary" id="update-user-button">Aggiorna</button>
+                    <script type="module">
+                        import * as context from './context.js'
+
+                        document.querySelector('#update-user-button').addEventListener('click', context.update_user);
+                    </script>
                 </div>
             </div>
         </div>
