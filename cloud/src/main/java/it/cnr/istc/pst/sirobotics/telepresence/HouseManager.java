@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -71,6 +72,7 @@ public class HouseManager {
     private static final Logger LOG = LoggerFactory.getLogger(HouseManager.class);
     private static final ScheduledExecutorService EXECUTOR = Executors
             .newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
+    private static final Executor COMMAND_EXECUTOR = Executors.newSingleThreadExecutor();
     private final HouseEntity house;
     static final Map<String, SolverManager> SOLVER_MANAGERS = new HashMap<>();
 
@@ -149,52 +151,76 @@ public class HouseManager {
 
             try {
                 App.MQTT_CLIENT.subscribe(prefix + "/plan", (topic, message) -> {
-                    if (state != SolverState.Waiting) {
-                        LOG.info("[" + prefix + "] Solver state is " + state.name()
-                                + " and cannot read a new problem..");
-                        return;
-                    }
+                    COMMAND_EXECUTOR.execute(() -> {
+                        if (state != SolverState.Waiting) {
+                            LOG.info("[" + prefix + "] Solver state is " + state.name()
+                                    + " and cannot read a new problem..");
+                            return;
+                        }
 
-                    setState(SolverState.Solving);
+                        setState(SolverState.Solving);
 
-                    // we read the problem..
-                    LOG.info("[" + prefix + "] Reading the problem..");
-                    final StringWrapper string_message = App.MAPPER.readValue(new String(message.getPayload()),
-                            StringWrapper.class);
-                    try {
-                        solver.read(string_message.data);
-                    } catch (final SolverException e) {
-                        LOG.error("Cannot read the given problem", e);
-                    }
+                        // we read the problem..
+                        LOG.info("[" + prefix + "] Reading the problem..");
+                        try {
+                            StringWrapper string_message = App.MAPPER.readValue(new String(message.getPayload()),
+                                    StringWrapper.class);
+                            solver.read(string_message.data);
+                        } catch (IOException | SolverException e) {
+                            LOG.error("Cannot solve the given problem", e);
+                        }
 
-                    // we solve the problem..
-                    LOG.info("[" + prefix + "] Solving the problem..");
-                    try {
-                        solver.solve();
-                    } catch (final SolverException e) {
-                        LOG.error("Cannot solve the given problem", e);
-                    }
+                        // we solve the problem..
+                        LOG.info("[" + prefix + "] Solving the problem..");
+                        try {
+                            solver.solve();
+                        } catch (final SolverException e) {
+                            LOG.error("Cannot solve the given problem", e);
+                        }
+                    });
                 });
 
                 App.MQTT_CLIENT.subscribe(prefix + "/done", (topic, message) -> {
-                    scheduled_feature.cancel(false);
-                    final LongArray long_array_message = App.MAPPER.readValue(message.getPayload(), LongArray.class);
-                    tl_exec.done(long_array_message.data);
+                    COMMAND_EXECUTOR.execute(() -> {
+                        LOG.info("[" + prefix + "] Closing " + message.toString() + "..");
+                        try {
+                            final LongArray long_array_message = App.MAPPER.readValue(message.getPayload(),
+                                    LongArray.class);
+                            tl_exec.done(long_array_message.data);
+                            LOG.info("[" + prefix + "] Done " + long_array_message.data + "..");
+                        } catch (IOException | ExecutorException e) {
+                            LOG.error("Cannot close the given commands", e);
+                        }
+                    });
                 });
 
                 App.MQTT_CLIENT.subscribe(prefix + "/failure", (topic, message) -> {
-                    scheduled_feature.cancel(false);
-                    final LongArray long_array_message = App.MAPPER.readValue(message.getPayload(), LongArray.class);
-                    tl_exec.failure(long_array_message.data);
+                    COMMAND_EXECUTOR.execute(() -> {
+                        LOG.info("[" + prefix + "] Failing " + message.toString() + "..");
+                        try {
+                            final LongArray long_array_message = App.MAPPER.readValue(message.getPayload(),
+                                    LongArray.class);
+                            LOG.info("[" + prefix + "] Failed " + long_array_message.data + "..");
+                            tl_exec.failure(long_array_message.data);
+                        } catch (IOException | ExecutorException e) {
+                            LOG.error("Cannot fail the given commands", e);
+                        }
+                    });
                 });
 
                 App.MQTT_CLIENT.subscribe(prefix + "/nlp/in", (topic, message) -> {
-                    final StringWrapper string_message = App.MAPPER.readValue(new String(message.getPayload()),
-                            StringWrapper.class);
-                    final JsonNode parse = App.NLU_CLIENT.parse(string_message.data);
-                    App.MQTT_CLIENT.publish(prefix + "/nlp/intent",
-                            App.MAPPER.writeValueAsString(new StringWrapper(parse.get("intent").toString())).getBytes(),
-                            App.QoS, true);
+                    COMMAND_EXECUTOR.execute(() -> {
+                        try {
+                            final StringWrapper string_message = App.MAPPER.readValue(new String(message.getPayload()),
+                                    StringWrapper.class);
+                            final JsonNode parse = App.NLU_CLIENT.parse(string_message.data);
+                            App.MQTT_CLIENT.publish(prefix + "/nlp/intent", App.MAPPER
+                                    .writeValueAsString(new StringWrapper(parse.get("intent").toString())).getBytes(),
+                                    App.QoS, true);
+                        } catch (IOException | MqttException e) {
+                            LOG.error("Cannot process the input text", e);
+                        }
+                    });
                 });
             } catch (final MqttException ex) {
                 LOG.error("Cannot subscribe the house #" + prefix + " to the MQTT broker..", ex);
@@ -233,33 +259,35 @@ public class HouseManager {
         }
 
         public void reset() {
-            LOG.info("[" + prefix + "] Resetting the solver..");
-            flaws.clear();
-            resolvers.clear();
-            current_time = new Rational();
-            solver = new Solver();
-            solver.addStateListener(this);
-            solver.addGraphListener(this);
-            timelines = new TimelinesList(solver);
-            tl_exec = new TimelinesExecutor(solver, new Rational(1));
-            tl_exec.addExecutorListener(this);
-            try {
-                final EntityManager em = App.EMF.createEntityManager();
-                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
-                        .getResultList();
-                for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId())) {
-                        WsContext ctx = UserController.getWsContext(ue.getId());
-                        ctx.send(App.MAPPER
-                                .writeValueAsString(new Message.Graph(prefix, flaws.values(), resolvers.values())));
-                        ctx.send(App.MAPPER.writeValueAsString(new Message.Timelines(prefix, getTimelines())));
-                        ctx.send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
-                    }
-                em.close();
-            } catch (final JsonProcessingException e) {
-                LOG.error("Cannot serialize", e);
-            }
-            setState(SolverState.Waiting);
+            COMMAND_EXECUTOR.execute(() -> {
+                LOG.info("[" + prefix + "] Resetting the solver..");
+                flaws.clear();
+                resolvers.clear();
+                current_time = new Rational();
+                solver = new Solver();
+                solver.addStateListener(this);
+                solver.addGraphListener(this);
+                timelines = new TimelinesList(solver);
+                tl_exec = new TimelinesExecutor(solver, new Rational(1));
+                tl_exec.addExecutorListener(this);
+                try {
+                    final EntityManager em = App.EMF.createEntityManager();
+                    final List<UserEntity> user_entities = em
+                            .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
+                    for (UserEntity ue : user_entities)
+                        if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId())) {
+                            WsContext ctx = UserController.getWsContext(ue.getId());
+                            ctx.send(App.MAPPER
+                                    .writeValueAsString(new Message.Graph(prefix, flaws.values(), resolvers.values())));
+                            ctx.send(App.MAPPER.writeValueAsString(new Message.Timelines(prefix, getTimelines())));
+                            ctx.send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
+                        }
+                    em.close();
+                } catch (final JsonProcessingException e) {
+                    LOG.error("Cannot serialize", e);
+                }
+                setState(SolverState.Waiting);
+            });
         }
 
         Collection<Object> getTimelines() {
@@ -323,60 +351,64 @@ public class HouseManager {
 
         @Override
         public void startedSolving() {
-            LOG.info("[" + prefix + "] Solving the problem..");
-            setState(SolverState.Solving);
+            COMMAND_EXECUTOR.execute(() -> {
+                LOG.info("[" + prefix + "] Solving the problem..");
+                setState(SolverState.Solving);
+            });
         }
 
         @Override
-        public synchronized void solutionFound() {
-            if (state == SolverState.Solving) {
-                LOG.info("[" + prefix + "] Solution found..");
-                setState(SolverState.Solution);
+        public void solutionFound() {
+            COMMAND_EXECUTOR.execute(() -> {
+                if (state == SolverState.Solving) {
+                    LOG.info("[" + prefix + "] Solution found..");
+                    setState(SolverState.Solution);
 
-                c_atoms.clear();
+                    c_atoms.clear();
 
-                for (final Type t : solver.getTypes().values())
-                    for (final Predicate p : t.getPredicates().values())
-                        p.getInstances().stream().map(atm -> (Atom) atm)
-                                .filter(atm -> (atm.getState() == Atom.AtomState.Active))
-                                .forEach(atm -> c_atoms.put(atm.getSigma(), atm));
+                    for (final Type t : solver.getTypes().values())
+                        for (final Predicate p : t.getPredicates().values())
+                            p.getInstances().stream().map(atm -> (Atom) atm)
+                                    .filter(atm -> (atm.getState() == Atom.AtomState.Active))
+                                    .forEach(atm -> c_atoms.put(atm.getSigma(), atm));
 
-                // we execute the solution..
-                LOG.info("[" + prefix + "] Starting plan execution..");
-                setState(SolverState.Executing);
-                scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> {
-                    try {
-                        tl_exec.tick();
-                    } catch (final ExecutorException e) {
-                        LOG.error("Cannot execute the solution..", e);
-                        scheduled_feature.cancel(false);
-                        reset();
-                    }
-                }, 1, 1, TimeUnit.SECONDS);
-            } else
-                LOG.info("[" + prefix + "] Solution updated..");
+                    // we execute the solution..
+                    LOG.info("[" + prefix + "] Starting plan execution..");
+                    setState(SolverState.Executing);
+                    scheduled_feature = EXECUTOR.scheduleAtFixedRate(() -> {
+                        try {
+                            tl_exec.tick();
+                        } catch (final ExecutorException e) {
+                            LOG.error("Cannot execute the solution..", e);
+                            scheduled_feature.cancel(false);
+                            reset();
+                        }
+                    }, 1, 1, TimeUnit.SECONDS);
+                } else
+                    LOG.info("[" + prefix + "] Solution updated..");
 
-            if (current_flaw != null)
-                current_flaw.current = false;
-            current_flaw = null;
-            if (current_resolver != null)
-                current_resolver.current = false;
-            current_resolver = null;
-            try {
-                final EntityManager em = App.EMF.createEntityManager();
-                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
-                        .getResultList();
-                for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId())) {
-                        WsContext ctx = UserController.getWsContext(ue.getId());
-                        ctx.send(App.MAPPER.writeValueAsString(new Message.Timelines(prefix, getTimelines())));
-                        ctx.send(App.MAPPER.writeValueAsString(new Message.SolutionFound(prefix)));
-                        ctx.send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
-                    }
-                em.close();
-            } catch (final JsonProcessingException e) {
-                LOG.error("Cannot serialize", e);
-            }
+                if (current_flaw != null)
+                    current_flaw.current = false;
+                current_flaw = null;
+                if (current_resolver != null)
+                    current_resolver.current = false;
+                current_resolver = null;
+                try {
+                    final EntityManager em = App.EMF.createEntityManager();
+                    final List<UserEntity> user_entities = em
+                            .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
+                    for (UserEntity ue : user_entities)
+                        if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId())) {
+                            WsContext ctx = UserController.getWsContext(ue.getId());
+                            ctx.send(App.MAPPER.writeValueAsString(new Message.Timelines(prefix, getTimelines())));
+                            ctx.send(App.MAPPER.writeValueAsString(new Message.SolutionFound(prefix)));
+                            ctx.send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
+                        }
+                    em.close();
+                } catch (final JsonProcessingException e) {
+                    LOG.error("Cannot serialize", e);
+                }
+            });
         }
 
         @Override
@@ -389,277 +421,305 @@ public class HouseManager {
         @Override
         public void flawCreated(final long id, final long[] causes, final String label, final State state,
                 final Bound position) {
-            final Flaw c_flaw = new Flaw(id,
-                    Arrays.stream(causes).mapToObj(r_id -> resolvers.get(r_id)).toArray(Resolver[]::new), label, state,
-                    position);
-            Stream.of(c_flaw.causes).forEach(c -> c.preconditions.add(c_flaw));
-            flaws.put(id, c_flaw);
-            try {
-                final EntityManager em = App.EMF.createEntityManager();
-                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
-                        .getResultList();
-                for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                        UserController.getWsContext(ue.getId()).send(App.MAPPER.writeValueAsString(
-                                new Message.FlawCreated(prefix, id, causes, label, (byte) state.ordinal(), position)));
-                em.close();
-            } catch (final JsonProcessingException e) {
-                LOG.error("Cannot serialize", e);
-            }
+            COMMAND_EXECUTOR.execute(() -> {
+                final Flaw c_flaw = new Flaw(id,
+                        Arrays.stream(causes).mapToObj(r_id -> resolvers.get(r_id)).toArray(Resolver[]::new), label,
+                        state, position);
+                Stream.of(c_flaw.causes).forEach(c -> c.preconditions.add(c_flaw));
+                flaws.put(id, c_flaw);
+                try {
+                    final EntityManager em = App.EMF.createEntityManager();
+                    final List<UserEntity> user_entities = em
+                            .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
+                    for (UserEntity ue : user_entities)
+                        if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                            UserController.getWsContext(ue.getId())
+                                    .send(App.MAPPER.writeValueAsString(new Message.FlawCreated(prefix, id, causes,
+                                            label, (byte) state.ordinal(), position)));
+                    em.close();
+                } catch (final JsonProcessingException e) {
+                    LOG.error("Cannot serialize", e);
+                }
+            });
         }
 
         @Override
         public void flawStateChanged(final long id, final State state) {
-            final Flaw flaw = flaws.get(id);
-            flaw.state = state;
-            try {
-                final EntityManager em = App.EMF.createEntityManager();
-                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
-                        .getResultList();
-                for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                        UserController.getWsContext(ue.getId()).send(App.MAPPER
-                                .writeValueAsString(new Message.FlawStateChanged(prefix, id, (byte) state.ordinal())));
-                em.close();
-            } catch (final JsonProcessingException e) {
-                LOG.error("Cannot serialize", e);
-            }
+            COMMAND_EXECUTOR.execute(() -> {
+                final Flaw flaw = flaws.get(id);
+                flaw.state = state;
+                try {
+                    final EntityManager em = App.EMF.createEntityManager();
+                    final List<UserEntity> user_entities = em
+                            .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
+                    for (UserEntity ue : user_entities)
+                        if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                            UserController.getWsContext(ue.getId()).send(App.MAPPER.writeValueAsString(
+                                    new Message.FlawStateChanged(prefix, id, (byte) state.ordinal())));
+                    em.close();
+                } catch (final JsonProcessingException e) {
+                    LOG.error("Cannot serialize", e);
+                }
+            });
         }
 
         @Override
         public void flawCostChanged(final long id, final Rational cost) {
-            final Flaw flaw = flaws.get(id);
-            flaw.cost = cost;
-            try {
-                final EntityManager em = App.EMF.createEntityManager();
-                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
-                        .getResultList();
-                for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                        UserController.getWsContext(ue.getId())
-                                .send(App.MAPPER.writeValueAsString(new Message.FlawCostChanged(prefix, id, cost)));
-                em.close();
-            } catch (final JsonProcessingException e) {
-                LOG.error("Cannot serialize", e);
-            }
+            COMMAND_EXECUTOR.execute(() -> {
+                final Flaw flaw = flaws.get(id);
+                flaw.cost = cost;
+                try {
+                    final EntityManager em = App.EMF.createEntityManager();
+                    final List<UserEntity> user_entities = em
+                            .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
+                    for (UserEntity ue : user_entities)
+                        if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                            UserController.getWsContext(ue.getId())
+                                    .send(App.MAPPER.writeValueAsString(new Message.FlawCostChanged(prefix, id, cost)));
+                    em.close();
+                } catch (final JsonProcessingException e) {
+                    LOG.error("Cannot serialize", e);
+                }
+            });
         }
 
         @Override
         public void flawPositionChanged(final long id, final Bound position) {
-            final Flaw flaw = flaws.get(id);
-            flaw.position = position;
-            try {
-                final EntityManager em = App.EMF.createEntityManager();
-                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
-                        .getResultList();
-                for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                        UserController.getWsContext(ue.getId()).send(
-                                App.MAPPER.writeValueAsString(new Message.FlawPositionChanged(prefix, id, position)));
-                em.close();
-            } catch (final JsonProcessingException e) {
-                LOG.error("Cannot serialize", e);
-            }
+            COMMAND_EXECUTOR.execute(() -> {
+                final Flaw flaw = flaws.get(id);
+                flaw.position = position;
+                try {
+                    final EntityManager em = App.EMF.createEntityManager();
+                    final List<UserEntity> user_entities = em
+                            .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
+                    for (UserEntity ue : user_entities)
+                        if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                            UserController.getWsContext(ue.getId()).send(App.MAPPER
+                                    .writeValueAsString(new Message.FlawPositionChanged(prefix, id, position)));
+                    em.close();
+                } catch (final JsonProcessingException e) {
+                    LOG.error("Cannot serialize", e);
+                }
+            });
         }
 
         @Override
         public void currentFlaw(final long id) {
-            if (current_flaw != null)
-                current_flaw.current = false;
-            final Flaw flaw = flaws.get(id);
-            current_flaw = flaw;
-            current_flaw.current = true;
-            try {
-                final EntityManager em = App.EMF.createEntityManager();
-                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
-                        .getResultList();
-                for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                        UserController.getWsContext(ue.getId())
-                                .send(App.MAPPER.writeValueAsString(new Message.CurrentFlaw(prefix, id)));
-                em.close();
-            } catch (final JsonProcessingException e) {
-                LOG.error("Cannot serialize", e);
-            }
+            COMMAND_EXECUTOR.execute(() -> {
+                if (current_flaw != null)
+                    current_flaw.current = false;
+                final Flaw flaw = flaws.get(id);
+                current_flaw = flaw;
+                current_flaw.current = true;
+                try {
+                    final EntityManager em = App.EMF.createEntityManager();
+                    final List<UserEntity> user_entities = em
+                            .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
+                    for (UserEntity ue : user_entities)
+                        if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                            UserController.getWsContext(ue.getId())
+                                    .send(App.MAPPER.writeValueAsString(new Message.CurrentFlaw(prefix, id)));
+                    em.close();
+                } catch (final JsonProcessingException e) {
+                    LOG.error("Cannot serialize", e);
+                }
+            });
         }
 
         @Override
         public void resolverCreated(final long id, final long effect, final Rational cost, final String label,
                 final State state) {
-            final Resolver resolver = new Resolver(id, flaws.get(effect), label, state, cost);
-            resolvers.put(id, resolver);
-            try {
-                final EntityManager em = App.EMF.createEntityManager();
-                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
-                        .getResultList();
-                for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                        UserController.getWsContext(ue.getId()).send(App.MAPPER.writeValueAsString(
-                                new Message.ResolverCreated(prefix, id, effect, cost, label, (byte) state.ordinal())));
-                em.close();
-            } catch (final JsonProcessingException e) {
-                LOG.error("Cannot serialize", e);
-            }
+            COMMAND_EXECUTOR.execute(() -> {
+                final Resolver resolver = new Resolver(id, flaws.get(effect), label, state, cost);
+                resolvers.put(id, resolver);
+                try {
+                    final EntityManager em = App.EMF.createEntityManager();
+                    final List<UserEntity> user_entities = em
+                            .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
+                    for (UserEntity ue : user_entities)
+                        if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                            UserController.getWsContext(ue.getId())
+                                    .send(App.MAPPER.writeValueAsString(new Message.ResolverCreated(prefix, id, effect,
+                                            cost, label, (byte) state.ordinal())));
+                    em.close();
+                } catch (final JsonProcessingException e) {
+                    LOG.error("Cannot serialize", e);
+                }
+            });
         }
 
         @Override
         public void resolverStateChanged(final long id, final State state) {
-            final Resolver resolver = resolvers.get(id);
-            resolver.state = state;
-            try {
-                final EntityManager em = App.EMF.createEntityManager();
-                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
-                        .getResultList();
-                for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                        UserController.getWsContext(ue.getId()).send(App.MAPPER.writeValueAsString(
-                                new Message.ResolverStateChanged(prefix, id, (byte) state.ordinal())));
-                em.close();
-            } catch (final JsonProcessingException e) {
-                LOG.error("Cannot serialize", e);
-            }
+            COMMAND_EXECUTOR.execute(() -> {
+                final Resolver resolver = resolvers.get(id);
+                resolver.state = state;
+                try {
+                    final EntityManager em = App.EMF.createEntityManager();
+                    final List<UserEntity> user_entities = em
+                            .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
+                    for (UserEntity ue : user_entities)
+                        if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                            UserController.getWsContext(ue.getId()).send(App.MAPPER.writeValueAsString(
+                                    new Message.ResolverStateChanged(prefix, id, (byte) state.ordinal())));
+                    em.close();
+                } catch (final JsonProcessingException e) {
+                    LOG.error("Cannot serialize", e);
+                }
+            });
         }
 
         @Override
         public void currentResolver(final long id) {
-            if (current_resolver != null)
-                current_resolver.current = false;
-            final Resolver resolver = resolvers.get(id);
-            current_resolver = resolver;
-            current_resolver.current = true;
-            try {
-                final EntityManager em = App.EMF.createEntityManager();
-                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
-                        .getResultList();
-                for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                        UserController.getWsContext(ue.getId())
-                                .send(App.MAPPER.writeValueAsString(new Message.CurrentResolver(prefix, id)));
-                em.close();
-            } catch (final JsonProcessingException e) {
-                LOG.error("Cannot serialize", e);
-            }
+            COMMAND_EXECUTOR.execute(() -> {
+                if (current_resolver != null)
+                    current_resolver.current = false;
+                final Resolver resolver = resolvers.get(id);
+                current_resolver = resolver;
+                current_resolver.current = true;
+                try {
+                    final EntityManager em = App.EMF.createEntityManager();
+                    final List<UserEntity> user_entities = em
+                            .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
+                    for (UserEntity ue : user_entities)
+                        if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                            UserController.getWsContext(ue.getId())
+                                    .send(App.MAPPER.writeValueAsString(new Message.CurrentResolver(prefix, id)));
+                    em.close();
+                } catch (final JsonProcessingException e) {
+                    LOG.error("Cannot serialize", e);
+                }
+            });
         }
 
         @Override
         public void causalLinkAdded(final long flaw, final long resolver) {
-            resolvers.get(resolver).preconditions.add(flaws.get(flaw));
-            try {
-                final EntityManager em = App.EMF.createEntityManager();
-                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
-                        .getResultList();
-                for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                        UserController.getWsContext(ue.getId()).send(
-                                App.MAPPER.writeValueAsString(new Message.CausalLinkAdded(prefix, flaw, resolver)));
-                em.close();
-            } catch (final JsonProcessingException e) {
-                LOG.error("Cannot serialize", e);
-            }
+            COMMAND_EXECUTOR.execute(() -> {
+                resolvers.get(resolver).preconditions.add(flaws.get(flaw));
+                try {
+                    final EntityManager em = App.EMF.createEntityManager();
+                    final List<UserEntity> user_entities = em
+                            .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
+                    for (UserEntity ue : user_entities)
+                        if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                            UserController.getWsContext(ue.getId()).send(
+                                    App.MAPPER.writeValueAsString(new Message.CausalLinkAdded(prefix, flaw, resolver)));
+                    em.close();
+                } catch (final JsonProcessingException e) {
+                    LOG.error("Cannot serialize", e);
+                }
+            });
         }
 
         @Override
         public void tick(final Rational current_time) {
-            LOG.info("[" + prefix + "] Current time: " + current_time.toString());
-            this.current_time = current_time;
-            try {
-                final EntityManager em = App.EMF.createEntityManager();
-                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
-                        .getResultList();
-                for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                        UserController.getWsContext(ue.getId())
-                                .send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
-                em.close();
-            } catch (final JsonProcessingException e) {
-                LOG.error("Cannot serialize", e);
-            }
-            try {
-                if (((ArithItem) solver.get("horizon")).getValue().leq(current_time)) {
-                    LOG.info("Nothing more to execute..");
-                    scheduled_feature.cancel(false);
-                    reset();
+            COMMAND_EXECUTOR.execute(() -> {
+                LOG.info("[" + prefix + "] Current time: " + current_time.toString());
+                this.current_time = current_time;
+                try {
+                    final EntityManager em = App.EMF.createEntityManager();
+                    final List<UserEntity> user_entities = em
+                            .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
+                    for (UserEntity ue : user_entities)
+                        if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                            UserController.getWsContext(ue.getId())
+                                    .send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
+                    em.close();
+                } catch (final JsonProcessingException e) {
+                    LOG.error("Cannot serialize", e);
                 }
-            } catch (final NoSuchFieldException e) {
-                e.printStackTrace();
-            }
+                try {
+                    if (((ArithItem) solver.get("horizon")).getValue().leq(current_time)) {
+                        LOG.info("Nothing more to execute..");
+                        scheduled_feature.cancel(false);
+                        reset();
+                    }
+                } catch (final NoSuchFieldException e) {
+                    e.printStackTrace();
+                }
+            });
         }
 
         @Override
         public void startingAtoms(final long[] atoms) {
-            LOG.info("[" + prefix + "] Starting atoms: " + Arrays.toString(atoms));
-            final Map<Type, Collection<Atom>> starting_atoms = new IdentityHashMap<>();
-            for (int i = 0; i < atoms.length; i++) {
-                final Atom starting_atom = c_atoms.get(atoms[i]);
-                if (conf.getStarting().contains(starting_atom.getType().getName())) {
-                    Collection<Atom> c_atms = starting_atoms.get(starting_atom.getType());
-                    if (c_atms == null) {
-                        c_atms = new ArrayList<>();
-                        starting_atoms.put(starting_atom.getType(), c_atms);
+            COMMAND_EXECUTOR.execute(() -> {
+                LOG.info("[" + prefix + "] Starting atoms: " + Arrays.toString(atoms));
+                final Map<Type, Collection<Atom>> starting_atoms = new IdentityHashMap<>();
+                for (int i = 0; i < atoms.length; i++) {
+                    final Atom starting_atom = c_atoms.get(atoms[i]);
+                    if (conf.getStarting().contains(starting_atom.getType().getName())) {
+                        Collection<Atom> c_atms = starting_atoms.get(starting_atom.getType());
+                        if (c_atms == null) {
+                            c_atms = new ArrayList<>();
+                            starting_atoms.put(starting_atom.getType(), c_atms);
+                        }
+                        c_atms.add(starting_atom);
                     }
-                    c_atms.add(starting_atom);
                 }
-            }
-            try {
-                for (final Entry<Type, Collection<Atom>> entry : starting_atoms.entrySet())
-                    App.MQTT_CLIENT.publish(prefix + "/" + entry.getKey().getName(),
-                            App.MAPPER.writeValueAsString(new Command(entry.getValue().stream()
-                                    .map(atm -> new CommandAtom(atm, true, false)).collect(Collectors.toList())))
-                                    .getBytes(),
-                            App.QoS, false);
-            } catch (final JsonProcessingException | MqttException ex) {
-                LOG.error("Cannot create MQTT message..", ex);
-            }
+                try {
+                    for (final Entry<Type, Collection<Atom>> entry : starting_atoms.entrySet())
+                        App.MQTT_CLIENT.publish(prefix + "/" + entry.getKey().getName(),
+                                App.MAPPER.writeValueAsString(new Command(entry.getValue().stream()
+                                        .map(atm -> new CommandAtom(atm, true, false)).collect(Collectors.toList())))
+                                        .getBytes(),
+                                App.QoS, false);
+                } catch (final JsonProcessingException | MqttException ex) {
+                    LOG.error("Cannot create MQTT message..", ex);
+                }
+            });
         }
 
         @Override
         public void endingAtoms(final long[] atoms) {
-            LOG.info("[" + prefix + "] Ending atoms: {}" + Arrays.toString(atoms));
-            final Map<Type, Collection<Atom>> ending_atoms = new IdentityHashMap<>();
-            final List<Atom> done_atoms = new ArrayList<>();
-            for (int i = 0; i < atoms.length; i++) {
-                final Atom ending_atom = c_atoms.get(atoms[i]);
-                if (conf.getEnding().contains(ending_atom.getType().getName())) {
-                    Collection<Atom> c_atms = ending_atoms.get(ending_atom.getType());
-                    if (c_atms == null) {
-                        c_atms = new ArrayList<>();
-                        ending_atoms.put(ending_atom.getType(), c_atms);
+            COMMAND_EXECUTOR.execute(() -> {
+                LOG.info("[" + prefix + "] Ending atoms: {}" + Arrays.toString(atoms));
+                final Map<Type, Collection<Atom>> ending_atoms = new IdentityHashMap<>();
+                final List<Atom> done_atoms = new ArrayList<>();
+                for (int i = 0; i < atoms.length; i++) {
+                    final Atom ending_atom = c_atoms.get(atoms[i]);
+                    if (conf.getEnding().contains(ending_atom.getType().getName())) {
+                        Collection<Atom> c_atms = ending_atoms.get(ending_atom.getType());
+                        if (c_atms == null) {
+                            c_atms = new ArrayList<>();
+                            ending_atoms.put(ending_atom.getType(), c_atms);
+                        }
+                        c_atms.add(ending_atom);
+                        done_atoms.add(ending_atom);
                     }
-                    c_atms.add(ending_atom);
-                    done_atoms.add(ending_atom);
+                    if (conf.getDone().contains(ending_atom.getType().getName()) && !done_atoms.contains(ending_atom))
+                        done_atoms.add(ending_atom);
                 }
-                if (conf.getDone().contains(ending_atom.getType().getName()) && !done_atoms.contains(ending_atom))
-                    done_atoms.add(ending_atom);
-            }
-            if (!done_atoms.isEmpty()) {
-                long[] c_done = new long[done_atoms.size()];
-                for (int i = 0; i < c_done.length; i++)
-                    c_done[i] = done_atoms.get(i).getSigma();
+                if (!done_atoms.isEmpty()) {
+                    long[] c_done = new long[done_atoms.size()];
+                    for (int i = 0; i < c_done.length; i++)
+                        c_done[i] = done_atoms.get(i).getSigma();
+                    try {
+                        tl_exec.done(c_done);
+                    } catch (ExecutorException e) {
+                        LOG.error("Cannot close some commands..", e);
+                    }
+                }
                 try {
-                    tl_exec.done(c_done);
-                } catch (ExecutorException e) {
-                    LOG.error("Cannot close some commands..", e);
+                    for (final Entry<Type, Collection<Atom>> entry : ending_atoms.entrySet())
+                        App.MQTT_CLIENT.publish(prefix + "/" + entry.getKey().getName(),
+                                App.MAPPER.writeValueAsString(new Command(entry.getValue().stream()
+                                        .map(atm -> new CommandAtom(atm, false, true)).collect(Collectors.toList())))
+                                        .getBytes(),
+                                App.QoS, false);
+                } catch (final JsonProcessingException | MqttException ex) {
+                    LOG.error("Cannot create MQTT message..", ex);
                 }
-            }
-            try {
-                for (final Entry<Type, Collection<Atom>> entry : ending_atoms.entrySet())
-                    App.MQTT_CLIENT.publish(prefix + "/" + entry.getKey().getName(),
-                            App.MAPPER.writeValueAsString(new Command(entry.getValue().stream()
-                                    .map(atm -> new CommandAtom(atm, false, true)).collect(Collectors.toList())))
-                                    .getBytes(),
-                            App.QoS, false);
-            } catch (final JsonProcessingException | MqttException ex) {
-                LOG.error("Cannot create MQTT message..", ex);
-            }
+            });
         }
 
         private void fireStateChanged() {
-            try {
-                App.MQTT_CLIENT.publish(prefix + "/planner",
-                        App.MAPPER.writeValueAsString(new StringWrapper(state.name())).getBytes(), App.QoS, true);
-            } catch (final MqttException | JsonProcessingException ex) {
-                LOG.error("Cannot create MQTT message..", ex);
-            }
+            COMMAND_EXECUTOR.execute(() -> {
+                try {
+                    App.MQTT_CLIENT.publish(prefix + "/planner",
+                            App.MAPPER.writeValueAsString(new StringWrapper(state.name())).getBytes(), App.QoS, true);
+                } catch (final MqttException | JsonProcessingException ex) {
+                    LOG.error("Cannot create MQTT message..", ex);
+                }
+            });
         }
 
         public enum SolverState {
