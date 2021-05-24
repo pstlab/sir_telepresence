@@ -274,9 +274,9 @@ public class HouseController {
         if (house_entity == null)
             throw new NotFoundResponse();
 
-        if (UserController.ONLINE.containsKey(user_id)) {
+        if (UserController.isOnline(user_id)) {
             try {
-                WsContext ws_ctx = UserController.ONLINE.get(user_id);
+                WsContext ws_ctx = UserController.getWsContext(user_id);
                 String prefix = Long.toString(house_id);
                 SolverManager sm = HouseManager.SOLVER_MANAGERS.get(prefix);
                 ws_ctx.send(App.MAPPER

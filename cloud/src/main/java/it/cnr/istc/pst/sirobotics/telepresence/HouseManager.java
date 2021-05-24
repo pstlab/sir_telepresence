@@ -253,8 +253,8 @@ public class HouseManager {
                 final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
                         .getResultList();
                 for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId())) {
-                        WsContext ctx = UserController.ONLINE.get(ue.getId());
+                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId())) {
+                        WsContext ctx = UserController.getWsContext(ue.getId());
                         ctx.send(App.MAPPER
                                 .writeValueAsString(new Message.Graph(prefix, flaws.values(), resolvers.values())));
                         ctx.send(App.MAPPER.writeValueAsString(new Message.Timelines(prefix, getTimelines())));
@@ -372,8 +372,8 @@ public class HouseManager {
                 final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
                         .getResultList();
                 for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId())) {
-                        WsContext ctx = UserController.ONLINE.get(ue.getId());
+                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId())) {
+                        WsContext ctx = UserController.getWsContext(ue.getId());
                         ctx.send(App.MAPPER.writeValueAsString(new Message.Timelines(prefix, getTimelines())));
                         ctx.send(App.MAPPER.writeValueAsString(new Message.SolutionFound(prefix)));
                         ctx.send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
@@ -404,8 +404,8 @@ public class HouseManager {
                 final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
                         .getResultList();
                 for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
-                        UserController.ONLINE.get(ue.getId()).send(App.MAPPER.writeValueAsString(
+                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                        UserController.getWsContext(ue.getId()).send(App.MAPPER.writeValueAsString(
                                 new Message.FlawCreated(prefix, id, causes, label, (byte) state.ordinal(), position)));
                 em.close();
             } catch (final JsonProcessingException e) {
@@ -422,8 +422,8 @@ public class HouseManager {
                 final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
                         .getResultList();
                 for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
-                        UserController.ONLINE.get(ue.getId()).send(App.MAPPER
+                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                        UserController.getWsContext(ue.getId()).send(App.MAPPER
                                 .writeValueAsString(new Message.FlawStateChanged(prefix, id, (byte) state.ordinal())));
                 em.close();
             } catch (final JsonProcessingException e) {
@@ -440,8 +440,8 @@ public class HouseManager {
                 final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
                         .getResultList();
                 for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
-                        UserController.ONLINE.get(ue.getId())
+                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                        UserController.getWsContext(ue.getId())
                                 .send(App.MAPPER.writeValueAsString(new Message.FlawCostChanged(prefix, id, cost)));
                 em.close();
             } catch (final JsonProcessingException e) {
@@ -458,8 +458,8 @@ public class HouseManager {
                 final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
                         .getResultList();
                 for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
-                        UserController.ONLINE.get(ue.getId()).send(
+                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                        UserController.getWsContext(ue.getId()).send(
                                 App.MAPPER.writeValueAsString(new Message.FlawPositionChanged(prefix, id, position)));
                 em.close();
             } catch (final JsonProcessingException e) {
@@ -479,8 +479,8 @@ public class HouseManager {
                 final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
                         .getResultList();
                 for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
-                        UserController.ONLINE.get(ue.getId())
+                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                        UserController.getWsContext(ue.getId())
                                 .send(App.MAPPER.writeValueAsString(new Message.CurrentFlaw(prefix, id)));
                 em.close();
             } catch (final JsonProcessingException e) {
@@ -498,8 +498,8 @@ public class HouseManager {
                 final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
                         .getResultList();
                 for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
-                        UserController.ONLINE.get(ue.getId()).send(App.MAPPER.writeValueAsString(
+                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                        UserController.getWsContext(ue.getId()).send(App.MAPPER.writeValueAsString(
                                 new Message.ResolverCreated(prefix, id, effect, cost, label, (byte) state.ordinal())));
                 em.close();
             } catch (final JsonProcessingException e) {
@@ -516,8 +516,8 @@ public class HouseManager {
                 final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
                         .getResultList();
                 for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
-                        UserController.ONLINE.get(ue.getId()).send(App.MAPPER.writeValueAsString(
+                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                        UserController.getWsContext(ue.getId()).send(App.MAPPER.writeValueAsString(
                                 new Message.ResolverStateChanged(prefix, id, (byte) state.ordinal())));
                 em.close();
             } catch (final JsonProcessingException e) {
@@ -537,8 +537,8 @@ public class HouseManager {
                 final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
                         .getResultList();
                 for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
-                        UserController.ONLINE.get(ue.getId())
+                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                        UserController.getWsContext(ue.getId())
                                 .send(App.MAPPER.writeValueAsString(new Message.CurrentResolver(prefix, id)));
                 em.close();
             } catch (final JsonProcessingException e) {
@@ -554,8 +554,8 @@ public class HouseManager {
                 final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
                         .getResultList();
                 for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
-                        UserController.ONLINE.get(ue.getId()).send(
+                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                        UserController.getWsContext(ue.getId()).send(
                                 App.MAPPER.writeValueAsString(new Message.CausalLinkAdded(prefix, flaw, resolver)));
                 em.close();
             } catch (final JsonProcessingException e) {
@@ -572,8 +572,8 @@ public class HouseManager {
                 final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
                         .getResultList();
                 for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
-                        UserController.ONLINE.get(ue.getId())
+                    if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
+                        UserController.getWsContext(ue.getId())
                                 .send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
                 em.close();
             } catch (final JsonProcessingException e) {

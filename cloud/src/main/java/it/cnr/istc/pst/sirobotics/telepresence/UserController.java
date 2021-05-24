@@ -27,7 +27,31 @@ public class UserController {
     /**
      * For each user id, a boolean indicating whether the user is online.
      */
-    static final Map<Long, WsContext> ONLINE = new HashMap<>();
+    private static final Map<Long, WsContext> ONLINE = new HashMap<>();
+
+    static boolean isOnline(final long id) {
+        synchronized (ONLINE) {
+            return ONLINE.containsKey(id);
+        }
+    }
+
+    static WsContext getWsContext(final long id) {
+        synchronized (ONLINE) {
+            return ONLINE.get(id);
+        }
+    }
+
+    static void newConnection(final long id, final WsContext ctx) {
+        synchronized (ONLINE) {
+            ONLINE.put(id, ctx);
+        }
+    }
+
+    static void lostConnection(final long id) {
+        synchronized (ONLINE) {
+            ONLINE.remove(id);
+        }
+    }
 
     /**
      * Given an email and a password, returns the user corresponding to the email if
@@ -157,7 +181,7 @@ public class UserController {
         em.close();
     }
 
-    static User toUser(final UserEntity entity) {
+    static synchronized User toUser(final UserEntity entity) {
         final boolean online = ONLINE.containsKey(entity.getId());
 
         return new User(entity.getId(), entity.getEmail(), entity.getFirstName(), entity.getLastName(),

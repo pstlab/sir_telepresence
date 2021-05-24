@@ -326,13 +326,13 @@ public class App {
     private static synchronized void new_connection(final WsContext ctx) {
         final Long id = Long.valueOf(ctx.queryParam("id"));
         LOG.info("User #{} connected..", id);
-        UserController.ONLINE.put(id, ctx);
+        UserController.newConnection(id, ctx);
     }
 
     private static synchronized void lost_connection(final WsContext ctx) {
         final Long id = Long.valueOf(ctx.queryParam("id"));
         LOG.info("User #{} disconnected..", id);
-        UserController.ONLINE.remove(id);
+        UserController.lostConnection(id);
     }
 
     private static synchronized void new_message(final WsContext ctx) {
