@@ -260,7 +260,7 @@ public class App {
                     ohmni_type.setDescription(
                             "Un robot di telepresenza che trasforma il modo in cui le persone si connettono.");
                     ohmni_type.setConfiguration(
-                            "{\"starting\": [\"GoingTo\",\"CheckUserAround\",\"CognitiveExercize\",\"PhysicalExercize\"],\"ending\": [\"CognitiveExercize\"]}");
+                            "{\"starting\": [\"GoingTo\",\"CheckUserAround\",\"CognitiveExercize\",\"PhysicalExercize\"],\"done\": [\"At\"],\"ending\": [\"CognitiveExercize\"]}");
 
                     em.getTransaction().begin();
                     em.persist(ohmni_type);

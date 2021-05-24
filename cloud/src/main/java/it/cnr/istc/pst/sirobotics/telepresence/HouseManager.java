@@ -57,7 +57,7 @@ import it.cnr.istc.pst.oratio.timelines.StateVariable;
 import it.cnr.istc.pst.oratio.timelines.Timeline;
 import it.cnr.istc.pst.oratio.timelines.TimelinesExecutor;
 import it.cnr.istc.pst.oratio.timelines.TimelinesList;
-import it.cnr.istc.pst.sirobotics.telepresence.api.RobotConf;
+import it.cnr.istc.pst.sirobotics.telepresence.api.ExecConf;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.HouseEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.RobotEntity;
@@ -135,19 +135,14 @@ public class HouseManager {
         private final Map<Long, Resolver> resolvers = new HashMap<>();
         private Resolver current_resolver = null;
         private Rational current_time = new Rational();
-        private final Set<String> disp_s_preds = new HashSet<>();
-        private final Set<String> disp_e_preds = new HashSet<>();
+        private ExecConf conf;
         private SolverState state = null;
 
         public SolverManager(final String prefix, final String configuration) {
             this.prefix = prefix;
 
             try {
-                RobotConf conf = App.MAPPER.readValue(configuration, RobotConf.class);
-                if (conf.getStarting() != null)
-                    Arrays.stream(conf.getStarting()).forEach(pred -> disp_s_preds.add(pred));
-                if (conf.getEnding() != null)
-                    Arrays.stream(conf.getEnding()).forEach(pred -> disp_e_preds.add(pred));
+                conf = App.MAPPER.readValue(configuration, ExecConf.class);
             } catch (JsonProcessingException ex) {
                 LOG.error("Cannot read config file..", ex);
             }
@@ -596,7 +591,7 @@ public class HouseManager {
             final Map<Type, Collection<Atom>> starting_atoms = new IdentityHashMap<>();
             for (int i = 0; i < atoms.length; i++) {
                 final Atom starting_atom = c_atoms.get(atoms[i]);
-                if (disp_s_preds.contains(starting_atom.getType().getName())) {
+                if (conf.getStarting().contains(starting_atom.getType().getName())) {
                     Collection<Atom> c_atms = starting_atoms.get(starting_atom.getType());
                     if (c_atms == null) {
                         c_atms = new ArrayList<>();
@@ -621,15 +616,29 @@ public class HouseManager {
         public void endingAtoms(final long[] atoms) {
             LOG.info("[" + prefix + "] Ending atoms: {}" + Arrays.toString(atoms));
             final Map<Type, Collection<Atom>> ending_atoms = new IdentityHashMap<>();
+            final List<Atom> done_atoms = new ArrayList<>();
             for (int i = 0; i < atoms.length; i++) {
                 final Atom ending_atom = c_atoms.get(atoms[i]);
-                if (disp_e_preds.contains(ending_atom.getType().getName())) {
+                if (conf.getEnding().contains(ending_atom.getType().getName())) {
                     Collection<Atom> c_atms = ending_atoms.get(ending_atom.getType());
                     if (c_atms == null) {
                         c_atms = new ArrayList<>();
                         ending_atoms.put(ending_atom.getType(), c_atms);
                     }
                     c_atms.add(ending_atom);
+                    done_atoms.add(ending_atom);
+                }
+                if (conf.getDone().contains(ending_atom.getType().getName()) && !done_atoms.contains(ending_atom))
+                    done_atoms.add(ending_atom);
+            }
+            if (!done_atoms.isEmpty()) {
+                long[] c_done = new long[done_atoms.size()];
+                for (int i = 0; i < c_done.length; i++)
+                    c_done[i] = done_atoms.get(i).getSigma();
+                try {
+                    tl_exec.done(c_done);
+                } catch (ExecutorException e) {
+                    LOG.error("Cannot close some commands..", e);
                 }
             }
             try {

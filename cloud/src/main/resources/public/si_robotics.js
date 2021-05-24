@@ -3,6 +3,8 @@ import * as context from './context.js'
 import * as admin_users from "./admin_users.js";
 import * as admin_houses from "./admin_houses.js";
 import * as admin_device_types from "./admin_device_types.js";
+import { TimelinesData } from './modules/timelines.js';
+import { GraphData } from './modules/graph.js';
 
 let ws;
 
@@ -70,6 +72,8 @@ function set_user(usr) {
                             r.intrinsic_cost = r.cost.num / r.cost.den;
                             r.cost = r.intrinsic_cost;
                         });
+                        if (!context.graphs.has(c_msg.plan_id))
+                            context.graphs.set(c_msg.plan_id, new GraphData());
                         context.graphs.get(c_msg.plan_id).reset(c_msg.flaws, c_msg.resolvers);
                         if (admin_houses.current_plan == c_msg.plan_id)
                             admin_houses.graph.update(context.graphs.get(c_msg.plan_id));
@@ -129,6 +133,8 @@ function set_user(usr) {
                             admin_houses.graph.update(context.graphs.get(c_msg.plan_id));
                         break;
                     case 'timelines':
+                        if (!context.timelines.has(c_msg.plan_id))
+                            context.timelines.set(c_msg.plan_id, new TimelinesData());
                         context.timelines.get(c_msg.plan_id).reset(c_msg.timelines);
                         if (admin_houses.current_plan == c_msg.plan_id)
                             admin_houses.timelines.update(context.timelines.get(c_msg.plan_id));

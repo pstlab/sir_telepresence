@@ -1,6 +1,5 @@
 package it.cnr.istc.pst.sirobotics.telepresence;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,8 +22,8 @@ import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Robot;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Sensor;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Sensor.Data;
 import it.cnr.istc.pst.sirobotics.telepresence.api.DeviceType;
+import it.cnr.istc.pst.sirobotics.telepresence.api.ExecConf;
 import it.cnr.istc.pst.sirobotics.telepresence.api.House;
-import it.cnr.istc.pst.sirobotics.telepresence.api.RobotConf;
 import it.cnr.istc.pst.sirobotics.telepresence.api.User;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceTypeEntity;
@@ -380,11 +379,11 @@ public class HouseController {
                 RobotTypeEntity type = (RobotTypeEntity) device.getType();
                 Set<String> pred_names = new HashSet<>();
                 try {
-                    RobotConf conf = App.MAPPER.readValue(type.getConfiguration(), RobotConf.class);
+                    ExecConf conf = App.MAPPER.readValue(type.getConfiguration(), ExecConf.class);
                     if (conf.getStarting() != null)
-                        Arrays.stream(conf.getStarting()).forEach(pred -> pred_names.add(pred));
+                        pred_names.addAll(conf.getStarting());
                     if (conf.getEnding() != null)
-                        Arrays.stream(conf.getEnding()).forEach(pred -> pred_names.add(pred));
+                        pred_names.addAll(conf.getEnding());
                 } catch (JsonProcessingException ex) {
                     LOG.error("Cannot read config file..", ex);
                 }
