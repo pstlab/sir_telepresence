@@ -23,6 +23,14 @@ export function init() {
                     const house_row = create_house_row(house_row_template, house);
                     houses_list.append(house_row);
                     refine_house_row(house_row, house);
+
+                    fetch('http://' + config.host + ':' + config.service_port + '/house_data/?house_id=' + house.id + '&user_id=' + context.user.id, {
+                        method: 'post',
+                        headers: { 'Authorization': 'Basic ' + context.user.id }
+                    }).then(response => {
+                        if (!response.ok)
+                            alert(response.statusText);
+                    });
                 }
             });
         } else
@@ -121,9 +129,9 @@ export function new_house_robot() {
             response.json().then(robot => {
                 c_house.devices.push(robot);
                 $('#new-house-robot-type').append($('<option>', { value: robot.id, text: robot.name }));
-                $('#house-robots-list').append(create_house_robot_row($('#house-robot-row'), c_house.id, robot));
-                refine_house_robot_row(c_house.id, robot);
-                $('#plan-tabs').append(create_plan_tab($('#plan-tab'), robot));
+                $('#house-robots-list').append(create_house_robot_row($('#house-robot-row'), robot));
+                $('#plan-tabs').append(create_plan_tab($('#plan-tab'), c_house.id, robot));
+                refine_plan_tab(c_house.id, robot);
             });
         } else
             alert(response.statusText);
@@ -136,6 +144,26 @@ function create_house_row(template, house) {
     row_content.id += house.id;
     row_content.querySelector('.house_id').append(house.id);
     row_content.querySelector('.house_name').append(house.name);
+
+    const tl_data = new TimelinesData();
+    const gr_data = new GraphData();
+    context.timelines.set(house.id.toString(), tl_data);
+    context.graphs.set(house.id.toString(), gr_data);
+    for (const c_device of house.devices)
+        switch (c_device.type.type) {
+            case 'sensor':
+                break;
+            case 'robot':
+                const tl_data = new TimelinesData();
+                const gr_data = new GraphData();
+                context.timelines.set(house.id + '/' + c_device.id, tl_data);
+                context.graphs.set(house.id + '/' + c_device.id, gr_data);
+                break;
+            default:
+                console.error('invalid device type ' + c_device.type);
+                break;
+        }
+
     return house_row;
 }
 
@@ -151,15 +179,17 @@ function refine_house_row(house_row, house) {
 
         const plan_tab_template = $('#plan-tab');
         const plan_tab = plan_tab_template[0].content.cloneNode(true);
-        plan_tab.id += house.id;
         const plan_tab_content = plan_tab.querySelector('a');
+        plan_tab_content.id += house.id;
         plan_tab_content.classList.add('active', 'bi', 'bi-house');
         plan_tabs.append(plan_tab);
 
-        const tl_data = new TimelinesData();
-        const gr_data = new GraphData();
-        context.timelines.set(house.id.toString(), tl_data);
-        context.graphs.set(house.id.toString(), gr_data);
+        const tl_data = context.timelines.get(house.id.toString());
+        const gr_data = context.graphs.get(house.id.toString());
+
+        timelines.update(tl_data);
+        timelines.updateTime(tl_data);
+        graph.update(gr_data);
 
         $('#plan-tab-' + house.id).on('show.bs.tab', function (event) {
             current_plan = house.id.toString();
@@ -181,10 +211,9 @@ function refine_house_row(house_row, house) {
                     sensors_list.append(create_house_sensor_row(sensor_row_template, c_device));
                     break;
                 case 'robot':
-                    robots_list.append(create_house_robot_row(robot_row_template, house.id, c_device));
-                    refine_house_robot_row(house.id, c_device);
-                    const plan_tab = create_plan_tab(plan_tab_template, c_device);
-                    plan_tabs.append(plan_tab);
+                    robots_list.append(create_house_robot_row(robot_row_template, c_device));
+                    plan_tabs.append(create_plan_tab(plan_tab_template, house.id, c_device));
+                    refine_plan_tab(house.id, c_device);
                     break;
                 default:
                     console.error('invalid device type ' + c_device.type);
@@ -241,10 +270,10 @@ function create_house_user_row(template, user) {
     return row_content;
 }
 
-function create_plan_tab(template, robot) {
+function create_plan_tab(template, house_id, robot) {
     const plan_tab = template[0].content.cloneNode(true);
     const plan_tab_content = plan_tab.querySelector('a');
-    plan_tab_content.id += robot.id;
+    plan_tab_content.id += house_id + '-' + robot.id;
     plan_tab_content.append(robot.name);
     return plan_tab;
 }
@@ -257,23 +286,16 @@ function create_house_sensor_row(template, sensor) {
     return row_content;
 }
 
-function create_house_robot_row(template, house_id, robot) {
+function create_house_robot_row(template, robot) {
     const robot_row = template[0].content.cloneNode(true);
     const row_content = robot_row.querySelector('.list-group-item');
-    row_content.id += house_id + '-' + robot.id;
     row_content.append(robot.name);
-
-    const tl_data = new TimelinesData();
-    const gr_data = new GraphData();
-    context.timelines.set(house_id + '/' + robot.id, tl_data);
-    context.graphs.set(house_id + '/' + robot.id, gr_data);
-
     return row_content;
 }
 
-function refine_house_robot_row(house_id, robot) {
+function refine_plan_tab(house_id, robot) {
     $('#plan-tab-' + house_id + '-' + robot.id).on('show.bs.tab', function (event) {
-        current_plan = house_id.toString();
+        current_plan = house_id + '/' + robot.id;
 
         const c_tl_data = context.timelines.get(house_id + '/' + robot.id);
         const c_gr_data = context.graphs.get(house_id + '/' + robot.id);

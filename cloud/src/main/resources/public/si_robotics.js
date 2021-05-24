@@ -129,20 +129,20 @@ function set_user(usr) {
                             admin_houses.graph.update(context.graphs.get(c_msg.plan_id));
                         break;
                     case 'timelines':
-                        context.user.admin_housesingLessons[c_msg.lesson].timelines.reset(c_msg.timelines);
+                        context.timelines.get(c_msg.plan_id).reset(c_msg.timelines);
                         if (admin_houses.current_plan == c_msg.plan_id)
-                            admin_houses.timelines.update(context.user.admin_housesingLessons[c_msg.lesson].timelines);
+                            admin_houses.timelines.update(context.timelines.get(c_msg.plan_id));
                         break;
                     case 'tick':
-                        context.user.admin_housesingLessons[c_msg.lesson].timelines.tick(c_msg.current_time.num / c_msg.current_time.den);
+                        context.timelines.get(c_msg.plan_id).tick(c_msg.current_time.num / c_msg.current_time.den);
                         if (admin_houses.current_plan == c_msg.plan_id)
-                            admin_houses.timelines.updateTime(context.user.admin_housesingLessons[c_msg.lesson].timelines);
+                            admin_houses.timelines.updateTime(context.timelines.get(c_msg.plan_id));
                         break;
                     case 'starting_atoms':
-                        context.user.admin_housesingLessons[c_msg.lesson].timelines.starting_atoms(c_msg);
+                        context.timelines.get(c_msg.plan_id).starting_atoms(c_msg);
                         break;
                     case 'ending_atoms':
-                        context.user.admin_housesingLessons[c_msg.lesson].timelines.ending_atoms(c_msg);
+                        context.timelines.get(c_msg.plan_id).ending_atoms(c_msg);
                         break;
                     default:
                         console.log(msg);

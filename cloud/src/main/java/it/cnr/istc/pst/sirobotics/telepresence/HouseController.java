@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import io.javalin.http.ConflictResponse;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
+import io.javalin.websocket.WsContext;
+import it.cnr.istc.pst.sirobotics.telepresence.HouseManager.SolverManager;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Robot;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Sensor;
@@ -255,6 +257,48 @@ public class HouseController {
         house_entity.removeUser(user_entity);
         user_entity.removeHouse(house_entity);
         em.getTransaction().commit();
+
+        ctx.status(204);
+        em.close();
+    }
+
+    static synchronized void houseData(final Context ctx) {
+        final long user_id = Long.valueOf(ctx.queryParam("user_id"));
+        final long house_id = Long.valueOf(ctx.queryParam("house_id"));
+        LOG.info("retrieving plan data for user #{} and house #{}..", user_id, house_id);
+        final EntityManager em = App.EMF.createEntityManager();
+        final UserEntity user_entity = em.find(UserEntity.class, user_id);
+        if (user_entity == null)
+            throw new NotFoundResponse();
+        final HouseEntity house_entity = em.find(HouseEntity.class, house_id);
+        if (house_entity == null)
+            throw new NotFoundResponse();
+
+        if (UserController.ONLINE.containsKey(user_id)) {
+            try {
+                WsContext ws_ctx = UserController.ONLINE.get(user_id);
+                String prefix = Long.toString(house_id);
+                SolverManager sm = HouseManager.SOLVER_MANAGERS.get(prefix);
+                ws_ctx.send(App.MAPPER
+                        .writeValueAsString(new SolverManager.Message.Graph(prefix, sm.getFlaws(), sm.getResolvers())));
+                ws_ctx.send(
+                        App.MAPPER.writeValueAsString(new SolverManager.Message.Timelines(prefix, sm.getTimelines())));
+                ws_ctx.send(App.MAPPER.writeValueAsString(new SolverManager.Message.Tick(prefix, sm.getCurrentTime())));
+                for (DeviceEntity dev : house_entity.getDevices())
+                    if (dev.getType() instanceof RobotTypeEntity) {
+                        prefix = Long.toString(house_id) + '/' + Long.toString(dev.getId());
+                        sm = HouseManager.SOLVER_MANAGERS.get(prefix);
+                        ws_ctx.send(App.MAPPER.writeValueAsString(
+                                new SolverManager.Message.Graph(prefix, sm.getFlaws(), sm.getResolvers())));
+                        ws_ctx.send(App.MAPPER
+                                .writeValueAsString(new SolverManager.Message.Timelines(prefix, sm.getTimelines())));
+                        ws_ctx.send(App.MAPPER
+                                .writeValueAsString(new SolverManager.Message.Tick(prefix, sm.getCurrentTime())));
+                    }
+            } catch (final JsonProcessingException e) {
+                LOG.error(e.getMessage(), e);
+            }
+        }
 
         ctx.status(204);
         em.close();

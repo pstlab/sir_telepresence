@@ -38,6 +38,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.javalin.websocket.WsContext;
 import it.cnr.istc.pst.oratio.Atom;
 import it.cnr.istc.pst.oratio.Bound;
 import it.cnr.istc.pst.oratio.GraphListener;
@@ -71,12 +72,12 @@ public class HouseManager {
     private static final ScheduledExecutorService EXECUTOR = Executors
             .newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
     private final HouseEntity house;
-    private final Map<String, SolverManager> solver_managers = new HashMap<>();
+    static final Map<String, SolverManager> SOLVER_MANAGERS = new HashMap<>();
 
     public HouseManager(final HouseEntity house) {
         this.house = house;
         final String prefix = Long.toString(house.getId());
-        solver_managers.put(prefix, new SolverManager(prefix, "{}"));
+        SOLVER_MANAGERS.put(prefix, new SolverManager(prefix, "{}"));
 
         for (final DeviceEntity device_entity : house.getDevices()) {
             if (device_entity instanceof RobotEntity) {
@@ -89,7 +90,7 @@ public class HouseManager {
 
     public void addRobot(final RobotEntity robot_entity) {
         final String prefix = house.getId() + "/" + robot_entity.getId();
-        solver_managers.put(prefix,
+        SOLVER_MANAGERS.put(prefix,
                 new SolverManager(prefix, ((RobotTypeEntity) robot_entity.getType()).getConfiguration()));
     }
 
@@ -207,6 +208,26 @@ public class HouseManager {
             reset();
         }
 
+        public Collection<Flaw> getFlaws() {
+            return flaws.values();
+        }
+
+        public Flaw getCurrentFlaw() {
+            return current_flaw;
+        }
+
+        public Collection<Resolver> getResolvers() {
+            return resolvers.values();
+        }
+
+        public Resolver getCurrentResolver() {
+            return current_resolver;
+        }
+
+        public Rational getCurrentTime() {
+            return current_time;
+        }
+
         public SolverState getState() {
             return state;
         }
@@ -218,11 +239,31 @@ public class HouseManager {
 
         public void reset() {
             LOG.info("[" + prefix + "] Resetting the solver..");
+            flaws.clear();
+            resolvers.clear();
+            current_time = new Rational();
             solver = new Solver();
             solver.addStateListener(this);
+            solver.addGraphListener(this);
             timelines = new TimelinesList(solver);
             tl_exec = new TimelinesExecutor(solver, new Rational(1));
             tl_exec.addExecutorListener(this);
+            try {
+                final EntityManager em = App.EMF.createEntityManager();
+                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
+                        .getResultList();
+                for (UserEntity ue : user_entities)
+                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId())) {
+                        WsContext ctx = UserController.ONLINE.get(ue.getId());
+                        ctx.send(App.MAPPER
+                                .writeValueAsString(new Message.Graph(prefix, flaws.values(), resolvers.values())));
+                        ctx.send(App.MAPPER.writeValueAsString(new Message.Timelines(prefix, getTimelines())));
+                        ctx.send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
+                    }
+                em.close();
+            } catch (final JsonProcessingException e) {
+                LOG.error("Cannot serialize", e);
+            }
             setState(SolverState.Waiting);
         }
 
@@ -282,6 +323,7 @@ public class HouseManager {
 
         @Override
         public void stateChanged() {
+            timelines.stateChanged();
         }
 
         @Override
@@ -291,7 +333,7 @@ public class HouseManager {
         }
 
         @Override
-        public void solutionFound() {
+        public synchronized void solutionFound() {
             if (state == SolverState.Solving) {
                 LOG.info("[" + prefix + "] Solution found..");
                 setState(SolverState.Solution);
@@ -315,7 +357,7 @@ public class HouseManager {
                         scheduled_feature.cancel(false);
                         reset();
                     }
-                }, 0, 1, TimeUnit.SECONDS);
+                }, 1, 1, TimeUnit.SECONDS);
             } else
                 LOG.info("[" + prefix + "] Solution updated..");
 
@@ -330,13 +372,11 @@ public class HouseManager {
                 final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
                         .getResultList();
                 for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin")) {
-                        UserController.ONLINE.get(ue.getId())
-                                .send(App.MAPPER.writeValueAsString(new Message.Timelines(prefix, getTimelines())));
-                        UserController.ONLINE.get(ue.getId())
-                                .send(App.MAPPER.writeValueAsString(new Message.SolutionFound(prefix)));
-                        UserController.ONLINE.get(ue.getId())
-                                .send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
+                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId())) {
+                        WsContext ctx = UserController.ONLINE.get(ue.getId());
+                        ctx.send(App.MAPPER.writeValueAsString(new Message.Timelines(prefix, getTimelines())));
+                        ctx.send(App.MAPPER.writeValueAsString(new Message.SolutionFound(prefix)));
+                        ctx.send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
                     }
                 em.close();
             } catch (final JsonProcessingException e) {
@@ -364,7 +404,7 @@ public class HouseManager {
                 final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
                         .getResultList();
                 for (UserEntity ue : user_entities)
-                    if (ue.getRoles().contains("Admin"))
+                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
                         UserController.ONLINE.get(ue.getId()).send(App.MAPPER.writeValueAsString(
                                 new Message.FlawCreated(prefix, id, causes, label, (byte) state.ordinal(), position)));
                 em.close();
@@ -375,41 +415,170 @@ public class HouseManager {
 
         @Override
         public void flawStateChanged(final long id, final State state) {
+            final Flaw flaw = flaws.get(id);
+            flaw.state = state;
+            try {
+                final EntityManager em = App.EMF.createEntityManager();
+                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
+                        .getResultList();
+                for (UserEntity ue : user_entities)
+                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
+                        UserController.ONLINE.get(ue.getId()).send(App.MAPPER
+                                .writeValueAsString(new Message.FlawStateChanged(prefix, id, (byte) state.ordinal())));
+                em.close();
+            } catch (final JsonProcessingException e) {
+                LOG.error("Cannot serialize", e);
+            }
         }
 
         @Override
         public void flawCostChanged(final long id, final Rational cost) {
+            final Flaw flaw = flaws.get(id);
+            flaw.cost = cost;
+            try {
+                final EntityManager em = App.EMF.createEntityManager();
+                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
+                        .getResultList();
+                for (UserEntity ue : user_entities)
+                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
+                        UserController.ONLINE.get(ue.getId())
+                                .send(App.MAPPER.writeValueAsString(new Message.FlawCostChanged(prefix, id, cost)));
+                em.close();
+            } catch (final JsonProcessingException e) {
+                LOG.error("Cannot serialize", e);
+            }
         }
 
         @Override
         public void flawPositionChanged(final long id, final Bound position) {
+            final Flaw flaw = flaws.get(id);
+            flaw.position = position;
+            try {
+                final EntityManager em = App.EMF.createEntityManager();
+                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
+                        .getResultList();
+                for (UserEntity ue : user_entities)
+                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
+                        UserController.ONLINE.get(ue.getId()).send(
+                                App.MAPPER.writeValueAsString(new Message.FlawPositionChanged(prefix, id, position)));
+                em.close();
+            } catch (final JsonProcessingException e) {
+                LOG.error("Cannot serialize", e);
+            }
         }
 
         @Override
         public void currentFlaw(final long id) {
+            if (current_flaw != null)
+                current_flaw.current = false;
+            final Flaw flaw = flaws.get(id);
+            current_flaw = flaw;
+            current_flaw.current = true;
+            try {
+                final EntityManager em = App.EMF.createEntityManager();
+                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
+                        .getResultList();
+                for (UserEntity ue : user_entities)
+                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
+                        UserController.ONLINE.get(ue.getId())
+                                .send(App.MAPPER.writeValueAsString(new Message.CurrentFlaw(prefix, id)));
+                em.close();
+            } catch (final JsonProcessingException e) {
+                LOG.error("Cannot serialize", e);
+            }
         }
 
         @Override
         public void resolverCreated(final long id, final long effect, final Rational cost, final String label,
                 final State state) {
+            final Resolver resolver = new Resolver(id, flaws.get(effect), label, state, cost);
+            resolvers.put(id, resolver);
+            try {
+                final EntityManager em = App.EMF.createEntityManager();
+                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
+                        .getResultList();
+                for (UserEntity ue : user_entities)
+                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
+                        UserController.ONLINE.get(ue.getId()).send(App.MAPPER.writeValueAsString(
+                                new Message.ResolverCreated(prefix, id, effect, cost, label, (byte) state.ordinal())));
+                em.close();
+            } catch (final JsonProcessingException e) {
+                LOG.error("Cannot serialize", e);
+            }
         }
 
         @Override
         public void resolverStateChanged(final long id, final State state) {
+            final Resolver resolver = resolvers.get(id);
+            resolver.state = state;
+            try {
+                final EntityManager em = App.EMF.createEntityManager();
+                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
+                        .getResultList();
+                for (UserEntity ue : user_entities)
+                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
+                        UserController.ONLINE.get(ue.getId()).send(App.MAPPER.writeValueAsString(
+                                new Message.ResolverStateChanged(prefix, id, (byte) state.ordinal())));
+                em.close();
+            } catch (final JsonProcessingException e) {
+                LOG.error("Cannot serialize", e);
+            }
         }
 
         @Override
         public void currentResolver(final long id) {
+            if (current_resolver != null)
+                current_resolver.current = false;
+            final Resolver resolver = resolvers.get(id);
+            current_resolver = resolver;
+            current_resolver.current = true;
+            try {
+                final EntityManager em = App.EMF.createEntityManager();
+                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
+                        .getResultList();
+                for (UserEntity ue : user_entities)
+                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
+                        UserController.ONLINE.get(ue.getId())
+                                .send(App.MAPPER.writeValueAsString(new Message.CurrentResolver(prefix, id)));
+                em.close();
+            } catch (final JsonProcessingException e) {
+                LOG.error("Cannot serialize", e);
+            }
         }
 
         @Override
         public void causalLinkAdded(final long flaw, final long resolver) {
+            resolvers.get(resolver).preconditions.add(flaws.get(flaw));
+            try {
+                final EntityManager em = App.EMF.createEntityManager();
+                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
+                        .getResultList();
+                for (UserEntity ue : user_entities)
+                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
+                        UserController.ONLINE.get(ue.getId()).send(
+                                App.MAPPER.writeValueAsString(new Message.CausalLinkAdded(prefix, flaw, resolver)));
+                em.close();
+            } catch (final JsonProcessingException e) {
+                LOG.error("Cannot serialize", e);
+            }
         }
 
         @Override
         public void tick(final Rational current_time) {
             LOG.info("[" + prefix + "] Current time: " + current_time.toString());
             this.current_time = current_time;
+            try {
+                final EntityManager em = App.EMF.createEntityManager();
+                final List<UserEntity> user_entities = em.createQuery("SELECT ue FROM UserEntity ue", UserEntity.class)
+                        .getResultList();
+                for (UserEntity ue : user_entities)
+                    if (ue.getRoles().contains("Admin") && UserController.ONLINE.containsKey(ue.getId()))
+                        UserController.ONLINE.get(ue.getId())
+                                .send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
+                em.close();
+            } catch (final JsonProcessingException e) {
+                LOG.error("Cannot serialize", e);
+            }
             try {
                 if (((ArithItem) solver.get("horizon")).getValue().leq(current_time)) {
                     LOG.info("Nothing more to execute..");
@@ -638,9 +807,9 @@ public class HouseManager {
             private final long id;
             private final Resolver[] causes;
             private final String label;
-            private final State state;
-            private final Bound position;
-            private final Rational cost = Rational.POSITIVE_INFINITY;
+            private State state;
+            private Bound position;
+            private Rational cost = Rational.POSITIVE_INFINITY;
             private boolean current = false;
 
             private Flaw(final long id, final Resolver[] causes, final String label, final State state,
@@ -695,7 +864,7 @@ public class HouseManager {
             private final long id;
             private final Flaw effect;
             private final String label;
-            private final State state;
+            private State state;
             private final Rational cost;
             private final Set<Flaw> preconditions = new HashSet<>();
             private boolean current = false;
@@ -749,7 +918,7 @@ public class HouseManager {
         }
 
         @SuppressWarnings({ "unused" })
-        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "message_type")
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
         @JsonSubTypes({ @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.Log.class, name = "log"),
                 @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.StartedSolving.class, name = "started_solving"),
                 @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.SolutionFound.class, name = "solution_found"),

@@ -296,6 +296,7 @@ public class App {
                     get(HouseController::getHouse, roles(SIRRole.Admin, SIRRole.User));
                 });
             });
+            path("house_data", () -> post(HouseController::houseData, roles(SIRRole.Admin)));
             path("house_params", () -> get(HouseController::houseParams, roles(SIRRole.Admin)));
             path("assign", () -> post(HouseController::assignUser, roles(SIRRole.Admin)));
             path("unassign", () -> post(HouseController::unassignUser, roles(SIRRole.Admin)));
