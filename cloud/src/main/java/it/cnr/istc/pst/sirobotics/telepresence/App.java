@@ -262,8 +262,16 @@ public class App {
                     ohmni_type.setConfiguration(
                             "{\"starting\": [\"GoingTo\",\"CheckUserAround\",\"CognitiveExercize\",\"PhysicalExercize\"],\"done\": [\"At\"],\"ending\": [\"CognitiveExercize\"]}");
 
+                    final RobotTypeEntity sanbot_type = new RobotTypeEntity();
+                    sanbot_type.setName("Sanbot Elf");
+                    sanbot_type.setDescription(
+                            "Un robot di telepresenza che trasforma il modo in cui le persone si connettono.");
+                    sanbot_type.setConfiguration(
+                            "{\"starting\": [\"GoingTo\",\"CheckUserAround\",\"RaiseHand\",\"LowerHand\",\"CognitiveExercize\",\"PhysicalExercize\"],\"done\": [\"At\"],\"ending\": [\"CognitiveExercize\"]}");
+
                     em.getTransaction().begin();
                     em.persist(ohmni_type);
+                    em.persist(sanbot_type);
                     em.getTransaction().commit();
                 }
 
