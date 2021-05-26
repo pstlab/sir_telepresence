@@ -6,12 +6,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -22,18 +20,10 @@ import java.util.stream.Stream;
 
 import javax.persistence.EntityManager;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
@@ -58,6 +48,8 @@ import it.cnr.istc.pst.oratio.timelines.StateVariable;
 import it.cnr.istc.pst.oratio.timelines.Timeline;
 import it.cnr.istc.pst.oratio.timelines.TimelinesExecutor;
 import it.cnr.istc.pst.oratio.timelines.TimelinesList;
+import it.cnr.istc.pst.oratio.utils.Flaw;
+import it.cnr.istc.pst.oratio.utils.Resolver;
 import it.cnr.istc.pst.sirobotics.telepresence.api.ExecConf;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.HouseEntity;
@@ -278,9 +270,9 @@ public class HouseManager {
                         if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId())) {
                             WsContext ctx = UserController.getWsContext(ue.getId());
                             ctx.send(App.MAPPER
-                                    .writeValueAsString(new Message.Graph(prefix, flaws.values(), resolvers.values())));
-                            ctx.send(App.MAPPER.writeValueAsString(new Message.Timelines(prefix, getTimelines())));
-                            ctx.send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
+                                    .writeValueAsString(new Graph(prefix, flaws.values(), resolvers.values())));
+                            ctx.send(App.MAPPER.writeValueAsString(new Timelines(prefix, getTimelines())));
+                            ctx.send(App.MAPPER.writeValueAsString(new Tick(prefix, current_time)));
                         }
                     em.close();
                 } catch (final JsonProcessingException e) {
@@ -290,45 +282,18 @@ public class HouseManager {
             });
         }
 
-        Collection<Object> getTimelines() {
-            final Collection<Object> c_tls = new ArrayList<>();
+        Collection<it.cnr.istc.pst.oratio.utils.Timeline> getTimelines() {
+            final Collection<it.cnr.istc.pst.oratio.utils.Timeline> c_tls = new ArrayList<>();
             for (final Timeline<?> tl : timelines) {
                 if (tl instanceof StateVariable) {
-                    c_tls.add(toTimeline((StateVariable) tl));
+                    c_tls.add(new it.cnr.istc.pst.oratio.utils.Timeline.SVTimeline((StateVariable) tl));
                 } else if (tl instanceof ReusableResource) {
-                    c_tls.add(toTimeline((ReusableResource) tl));
+                    c_tls.add(new it.cnr.istc.pst.oratio.utils.Timeline.RRTimeline((ReusableResource) tl));
                 } else if (tl instanceof PropositionalAgent) {
-                    c_tls.add(toTimeline((PropositionalAgent) tl));
+                    c_tls.add(new it.cnr.istc.pst.oratio.utils.Timeline.Agent((PropositionalAgent) tl));
                 }
             }
             return c_tls;
-        }
-
-        private static SVTimeline toTimeline(final StateVariable sv) {
-            return new SVTimeline(sv.getName(), sv.getOrigin().doubleValue(), sv.getHorizon().doubleValue(), sv
-                    .getValues().stream()
-                    .map(val -> new SVTimeline.Value(
-                            val.getAtoms().stream().map(atm -> atm.toString()).collect(Collectors.joining(", ")),
-                            val.getFrom().doubleValue(), val.getTo().doubleValue(),
-                            val.getAtoms().stream().map(atm -> atm.getSigma()).collect(Collectors.toList())))
-                    .collect(Collectors.toList()));
-        }
-
-        private static RRTimeline toTimeline(final ReusableResource rr) {
-            return new RRTimeline(rr.getName(), rr.getCapacity().doubleValue(), rr.getOrigin().doubleValue(),
-                    rr.getHorizon().doubleValue(),
-                    rr.getValues().stream()
-                            .map(val -> new RRTimeline.Value(val.getUsage().doubleValue(), val.getFrom().doubleValue(),
-                                    val.getTo().doubleValue(),
-                                    val.getAtoms().stream().map(atm -> atm.getSigma()).collect(Collectors.toList())))
-                            .collect(Collectors.toList()));
-        }
-
-        private static Agent toTimeline(final PropositionalAgent pa) {
-            return new Agent(pa.getName(), pa.getOrigin().doubleValue(), pa.getHorizon().doubleValue(),
-                    pa.getValues().stream().map(val -> new Agent.Value(val.getAtom().toString(),
-                            val.getFrom().doubleValue(), val.getTo().doubleValue(), val.getAtom().getSigma()))
-                            .collect(Collectors.toList()));
         }
 
         @Override
@@ -400,9 +365,9 @@ public class HouseManager {
                     for (UserEntity ue : user_entities)
                         if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId())) {
                             WsContext ctx = UserController.getWsContext(ue.getId());
-                            ctx.send(App.MAPPER.writeValueAsString(new Message.Timelines(prefix, getTimelines())));
-                            ctx.send(App.MAPPER.writeValueAsString(new Message.SolutionFound(prefix)));
-                            ctx.send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
+                            ctx.send(App.MAPPER.writeValueAsString(new Timelines(prefix, getTimelines())));
+                            ctx.send(App.MAPPER.writeValueAsString(new SolutionFound(prefix)));
+                            ctx.send(App.MAPPER.writeValueAsString(new Tick(prefix, current_time)));
                         }
                     em.close();
                 } catch (final JsonProcessingException e) {
@@ -433,9 +398,8 @@ public class HouseManager {
                             .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
                     for (UserEntity ue : user_entities)
                         if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                            UserController.getWsContext(ue.getId())
-                                    .send(App.MAPPER.writeValueAsString(new Message.FlawCreated(prefix, id, causes,
-                                            label, (byte) state.ordinal(), position)));
+                            UserController.getWsContext(ue.getId()).send(App.MAPPER.writeValueAsString(
+                                    new FlawCreated(prefix, id, causes, label, (byte) state.ordinal(), position)));
                     em.close();
                 } catch (final JsonProcessingException e) {
                     LOG.error("Cannot serialize", e);
@@ -454,8 +418,8 @@ public class HouseManager {
                             .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
                     for (UserEntity ue : user_entities)
                         if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                            UserController.getWsContext(ue.getId()).send(App.MAPPER.writeValueAsString(
-                                    new Message.FlawStateChanged(prefix, id, (byte) state.ordinal())));
+                            UserController.getWsContext(ue.getId()).send(App.MAPPER
+                                    .writeValueAsString(new FlawStateChanged(prefix, id, (byte) state.ordinal())));
                     em.close();
                 } catch (final JsonProcessingException e) {
                     LOG.error("Cannot serialize", e);
@@ -475,7 +439,7 @@ public class HouseManager {
                     for (UserEntity ue : user_entities)
                         if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
                             UserController.getWsContext(ue.getId())
-                                    .send(App.MAPPER.writeValueAsString(new Message.FlawCostChanged(prefix, id, cost)));
+                                    .send(App.MAPPER.writeValueAsString(new FlawCostChanged(prefix, id, cost)));
                     em.close();
                 } catch (final JsonProcessingException e) {
                     LOG.error("Cannot serialize", e);
@@ -494,8 +458,8 @@ public class HouseManager {
                             .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
                     for (UserEntity ue : user_entities)
                         if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                            UserController.getWsContext(ue.getId()).send(App.MAPPER
-                                    .writeValueAsString(new Message.FlawPositionChanged(prefix, id, position)));
+                            UserController.getWsContext(ue.getId())
+                                    .send(App.MAPPER.writeValueAsString(new FlawPositionChanged(prefix, id, position)));
                     em.close();
                 } catch (final JsonProcessingException e) {
                     LOG.error("Cannot serialize", e);
@@ -518,7 +482,7 @@ public class HouseManager {
                     for (UserEntity ue : user_entities)
                         if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
                             UserController.getWsContext(ue.getId())
-                                    .send(App.MAPPER.writeValueAsString(new Message.CurrentFlaw(prefix, id)));
+                                    .send(App.MAPPER.writeValueAsString(new CurrentFlaw(prefix, id)));
                     em.close();
                 } catch (final JsonProcessingException e) {
                     LOG.error("Cannot serialize", e);
@@ -538,9 +502,8 @@ public class HouseManager {
                             .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
                     for (UserEntity ue : user_entities)
                         if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                            UserController.getWsContext(ue.getId())
-                                    .send(App.MAPPER.writeValueAsString(new Message.ResolverCreated(prefix, id, effect,
-                                            cost, label, (byte) state.ordinal())));
+                            UserController.getWsContext(ue.getId()).send(App.MAPPER.writeValueAsString(
+                                    new ResolverCreated(prefix, id, effect, cost, label, (byte) state.ordinal())));
                     em.close();
                 } catch (final JsonProcessingException e) {
                     LOG.error("Cannot serialize", e);
@@ -559,8 +522,8 @@ public class HouseManager {
                             .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
                     for (UserEntity ue : user_entities)
                         if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                            UserController.getWsContext(ue.getId()).send(App.MAPPER.writeValueAsString(
-                                    new Message.ResolverStateChanged(prefix, id, (byte) state.ordinal())));
+                            UserController.getWsContext(ue.getId()).send(App.MAPPER
+                                    .writeValueAsString(new ResolverStateChanged(prefix, id, (byte) state.ordinal())));
                     em.close();
                 } catch (final JsonProcessingException e) {
                     LOG.error("Cannot serialize", e);
@@ -583,7 +546,7 @@ public class HouseManager {
                     for (UserEntity ue : user_entities)
                         if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
                             UserController.getWsContext(ue.getId())
-                                    .send(App.MAPPER.writeValueAsString(new Message.CurrentResolver(prefix, id)));
+                                    .send(App.MAPPER.writeValueAsString(new CurrentResolver(prefix, id)));
                     em.close();
                 } catch (final JsonProcessingException e) {
                     LOG.error("Cannot serialize", e);
@@ -601,8 +564,8 @@ public class HouseManager {
                             .createQuery("SELECT ue FROM UserEntity ue", UserEntity.class).getResultList();
                     for (UserEntity ue : user_entities)
                         if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
-                            UserController.getWsContext(ue.getId()).send(
-                                    App.MAPPER.writeValueAsString(new Message.CausalLinkAdded(prefix, flaw, resolver)));
+                            UserController.getWsContext(ue.getId())
+                                    .send(App.MAPPER.writeValueAsString(new CausalLinkAdded(prefix, flaw, resolver)));
                     em.close();
                 } catch (final JsonProcessingException e) {
                     LOG.error("Cannot serialize", e);
@@ -622,7 +585,7 @@ public class HouseManager {
                     for (UserEntity ue : user_entities)
                         if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId()))
                             UserController.getWsContext(ue.getId())
-                                    .send(App.MAPPER.writeValueAsString(new Message.Tick(prefix, current_time)));
+                                    .send(App.MAPPER.writeValueAsString(new Tick(prefix, current_time)));
                     em.close();
                 } catch (final JsonProcessingException e) {
                     LOG.error("Cannot serialize", e);
@@ -771,426 +734,162 @@ public class HouseManager {
             }
         }
 
-        @SuppressWarnings("unused")
-        @JsonAutoDetect(fieldVisibility = Visibility.ANY)
-        private static class SVTimeline {
-
-            private final String type = "state-variable";
-            private final String name;
-            private final double origin, horizon;
-            private final List<Value> values;
-
-            private SVTimeline(final String name, final double origin, final double horizon, final List<Value> values) {
-                this.name = name;
-                this.origin = origin;
-                this.horizon = horizon;
-                this.values = values;
-            }
-
-            @JsonAutoDetect(fieldVisibility = Visibility.ANY)
-            private static class Value {
-
-                private final String name;
-                private final double from, to;
-                private final Collection<Long> atoms;
-
-                private Value(final String name, final double from, final double to, final Collection<Long> atoms) {
-                    this.name = name;
-                    this.from = from;
-                    this.to = to;
-                    this.atoms = atoms;
-                }
-            }
-        }
-
-        @SuppressWarnings("unused")
-        @JsonAutoDetect(fieldVisibility = Visibility.ANY)
-        private static class RRTimeline {
-
-            private final String type = "reusable-resource";
-            private final String name;
-            private final double capacity;
-            private final double origin, horizon;
-            private final List<Value> values;
-
-            private RRTimeline(final String name, final double capacity, final double origin, final double horizon,
-                    final List<Value> values) {
-                this.name = name;
-                this.capacity = capacity;
-                this.origin = origin;
-                this.horizon = horizon;
-                this.values = values;
-            }
-
-            @JsonAutoDetect(fieldVisibility = Visibility.ANY)
-            private static class Value {
-
-                private final double usage;
-                private final double from, to;
-                private final Collection<Long> atoms;
-
-                private Value(final double usage, final double from, final double to, final Collection<Long> atoms) {
-                    this.usage = usage;
-                    this.from = from;
-                    this.to = to;
-                    this.atoms = atoms;
-                }
-            }
-        }
-
-        @SuppressWarnings("unused")
-        @JsonAutoDetect(fieldVisibility = Visibility.ANY)
-        private static class Agent {
-
-            private final String type = "agent";
-            private final String name;
-            private final double origin, horizon;
-            private final List<Value> values;
-
-            private Agent(final String name, final double origin, final double horizon, final List<Value> values) {
-                this.name = name;
-                this.origin = origin;
-                this.horizon = horizon;
-                this.values = values;
-            }
-
-            @JsonAutoDetect(fieldVisibility = Visibility.ANY)
-            private static class Value {
-
-                private final String name;
-                private final double from, to;
-                private final Long atom;
-
-                private Value(final String name, final double from, final double to, final Long atom) {
-                    this.name = name;
-                    this.from = from;
-                    this.to = to;
-                    this.atom = atom;
-                }
-            }
-        }
-
-        @JsonSerialize(using = FlawSerializer.class)
-        class Flaw {
-
-            private final long id;
-            private final Resolver[] causes;
-            private final String label;
-            private State state;
-            private Bound position;
-            private Rational cost = Rational.POSITIVE_INFINITY;
-            private boolean current = false;
-
-            private Flaw(final long id, final Resolver[] causes, final String label, final State state,
-                    final Bound position) {
-                this.id = id;
-                this.causes = causes;
-                this.label = label;
-                this.state = state;
-                this.position = position;
-            }
-        }
-
-        private static class FlawSerializer extends StdSerializer<Flaw> {
-
-            private static final long serialVersionUID = 1L;
-
-            private FlawSerializer() {
-                super(Flaw.class);
-            }
-
-            @Override
-            public void serialize(final Flaw flaw, final JsonGenerator gen, final SerializerProvider provider)
-                    throws IOException {
-                gen.writeStartObject();
-                gen.writeNumberField("id", flaw.id);
-                gen.writeArrayFieldStart("causes");
-                Arrays.stream(flaw.causes).forEach(c -> {
-                    try {
-                        gen.writeNumber(c.id);
-                    } catch (final IOException e) {
-                        LOG.error("Cannot serialize", e);
-                    }
-                });
-                gen.writeEndArray();
-                gen.writeStringField("label", flaw.label);
-                gen.writeNumberField("state", flaw.state.ordinal());
-
-                if (flaw.position.min != -Bound.INF || flaw.position.max != Bound.INF)
-                    gen.writeObjectField("position", flaw.position);
-
-                gen.writeObjectField("cost", flaw.cost);
-
-                gen.writeBooleanField("current", flaw.current);
-
-                gen.writeEndObject();
-            }
-        }
-
-        @JsonSerialize(using = ResolverSerializer.class)
-        class Resolver {
-
-            private final long id;
-            private final Flaw effect;
-            private final String label;
-            private State state;
-            private final Rational cost;
-            private final Set<Flaw> preconditions = new HashSet<>();
-            private boolean current = false;
-
-            private Resolver(final long id, final Flaw effect, final String label, final State state,
-                    final Rational cost) {
-                this.id = id;
-                this.effect = effect;
-                this.label = label;
-                this.state = state;
-                this.cost = cost;
-            }
-        }
-
-        private static class ResolverSerializer extends StdSerializer<Resolver> {
-
-            private ResolverSerializer() {
-                super(Resolver.class);
-            }
-
-            /**
-             *
-             */
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void serialize(final Resolver resolver, final JsonGenerator gen, final SerializerProvider provider)
-                    throws IOException {
-                gen.writeStartObject();
-                gen.writeNumberField("id", resolver.id);
-                gen.writeNumberField("effect", resolver.effect.id);
-                gen.writeStringField("label", resolver.label);
-                gen.writeNumberField("state", resolver.state.ordinal());
-
-                gen.writeObjectField("cost", resolver.cost);
-
-                gen.writeArrayFieldStart("preconditions");
-                resolver.preconditions.stream().forEach(pre -> {
-                    try {
-                        gen.writeNumber(pre.id);
-                    } catch (final IOException e) {
-                        LOG.error("Cannot serialize", e);
-                    }
-                });
-                gen.writeEndArray();
-
-                gen.writeBooleanField("current", resolver.current);
-
-                gen.writeEndObject();
-            }
-        }
-
-        @SuppressWarnings({ "unused" })
-        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-        @JsonSubTypes({ @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.Log.class, name = "log"),
-                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.StartedSolving.class, name = "started_solving"),
-                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.SolutionFound.class, name = "solution_found"),
-                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.InconsistentProblem.class, name = "inconsistent_problem"),
-                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.Graph.class, name = "graph"),
-                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.FlawCreated.class, name = "flaw_created"),
-                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.FlawStateChanged.class, name = "flaw_state_changed"),
-                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.FlawCostChanged.class, name = "flaw_cost_changed"),
-                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.FlawPositionChanged.class, name = "flaw_position_changed"),
-                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.CurrentFlaw.class, name = "current_flaw"),
-                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.ResolverCreated.class, name = "resolver_created"),
-                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.ResolverStateChanged.class, name = "resolver_state_changed"),
-                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.CurrentResolver.class, name = "current_resolver"),
-                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.CausalLinkAdded.class, name = "causal_link_added"),
-                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.Timelines.class, name = "timelines"),
-                @com.fasterxml.jackson.annotation.JsonSubTypes.Type(value = Message.Tick.class, name = "tick") })
-        static abstract class Message {
+        static class Log extends it.cnr.istc.pst.oratio.utils.Message.Log {
 
             public final String plan_id;
 
-            Message(final String plan_id) {
+            Log(final String plan_id, final String log) {
+                super(log);
                 this.plan_id = plan_id;
             }
+        }
 
-            static class Log extends Message {
+        static class StartedSolving extends it.cnr.istc.pst.oratio.utils.Message.StartedSolving {
 
-                public final String log;
+            public final String plan_id;
 
-                Log(final String plan_id, final String log) {
-                    super(plan_id);
-                    this.log = log;
-                }
+            StartedSolving(final String plan_id) {
+                this.plan_id = plan_id;
             }
+        }
 
-            static class StartedSolving extends Message {
+        static class SolutionFound extends it.cnr.istc.pst.oratio.utils.Message.SolutionFound {
 
-                StartedSolving(final String plan_id) {
-                    super(plan_id);
-                }
+            public final String plan_id;
+
+            SolutionFound(final String plan_id) {
+                this.plan_id = plan_id;
             }
+        }
 
-            static class SolutionFound extends Message {
+        static class InconsistentProblem extends it.cnr.istc.pst.oratio.utils.Message.InconsistentProblem {
 
-                SolutionFound(final String plan_id) {
-                    super(plan_id);
-                }
+            public final String plan_id;
+
+            InconsistentProblem(final String plan_id) {
+                this.plan_id = plan_id;
             }
+        }
 
-            static class InconsistentProblem extends Message {
+        static class Graph extends it.cnr.istc.pst.oratio.utils.Message.Graph {
 
-                InconsistentProblem(final String plan_id) {
-                    super(plan_id);
-                }
+            public final String plan_id;
+
+            Graph(final String plan_id, final Collection<Flaw> flaws, final Collection<Resolver> resolvers) {
+                super(flaws, resolvers);
+                this.plan_id = plan_id;
             }
+        }
 
-            static class Graph extends Message {
+        static class FlawCreated extends it.cnr.istc.pst.oratio.utils.Message.FlawCreated {
 
-                public final Collection<Flaw> flaws;
-                public final Collection<Resolver> resolvers;
+            public final String plan_id;
 
-                Graph(final String plan_id, final Collection<Flaw> flaws, final Collection<Resolver> resolvers) {
-                    super(plan_id);
-                    this.flaws = flaws;
-                    this.resolvers = resolvers;
-                }
+            FlawCreated(final String plan_id, final long id, final long[] causes, final String label, final byte state,
+                    final Bound position) {
+                super(id, causes, label, state, position);
+                this.plan_id = plan_id;
             }
+        }
 
-            static class FlawCreated extends Message {
+        static class FlawStateChanged extends it.cnr.istc.pst.oratio.utils.Message.FlawStateChanged {
 
-                public final long id;
-                public final long[] causes;
-                public final String label;
-                public final byte state;
-                public final Bound position;
+            public final String plan_id;
 
-                FlawCreated(final String plan_id, final long id, final long[] causes, final String label,
-                        final byte state, final Bound position) {
-                    super(plan_id);
-                    this.id = id;
-                    this.causes = causes;
-                    this.label = label;
-                    this.state = state;
-                    this.position = position;
-                }
+            FlawStateChanged(final String plan_id, final long id, final byte state) {
+                super(id, state);
+                this.plan_id = plan_id;
             }
+        }
 
-            static class FlawStateChanged extends Message {
+        static class FlawCostChanged extends it.cnr.istc.pst.oratio.utils.Message.FlawCostChanged {
 
-                public final long id;
-                public final byte state;
+            public final String plan_id;
 
-                FlawStateChanged(final String plan_id, final long id, final byte state) {
-                    super(plan_id);
-                    this.id = id;
-                    this.state = state;
-                }
+            FlawCostChanged(final String plan_id, final long id, final Rational cost) {
+                super(id, cost);
+                this.plan_id = plan_id;
             }
+        }
 
-            static class FlawCostChanged extends Message {
+        static class FlawPositionChanged extends it.cnr.istc.pst.oratio.utils.Message.FlawPositionChanged {
 
-                public final long id;
-                public final Rational cost;
+            public final String plan_id;
 
-                FlawCostChanged(final String plan_id, final long id, final Rational cost) {
-                    super(plan_id);
-                    this.id = id;
-                    this.cost = cost;
-                }
+            FlawPositionChanged(final String plan_id, final long id, final Bound position) {
+                super(id, position);
+                this.plan_id = plan_id;
             }
+        }
 
-            static class FlawPositionChanged extends Message {
+        static class CurrentFlaw extends it.cnr.istc.pst.oratio.utils.Message.CurrentFlaw {
 
-                public final long id;
-                public final Bound position;
+            public final String plan_id;
 
-                FlawPositionChanged(final String plan_id, final long id, final Bound position) {
-                    super(plan_id);
-                    this.id = id;
-                    this.position = position;
-                }
+            CurrentFlaw(final String plan_id, final long id) {
+                super(id);
+                this.plan_id = plan_id;
             }
+        }
 
-            static class CurrentFlaw extends Message {
+        static class ResolverCreated extends it.cnr.istc.pst.oratio.utils.Message.ResolverCreated {
 
-                public final long id;
+            public final String plan_id;
 
-                CurrentFlaw(final String plan_id, final long id) {
-                    super(plan_id);
-                    this.id = id;
-                }
+            ResolverCreated(final String plan_id, final long id, final long effect, final Rational cost,
+                    final String label, final byte state) {
+                super(id, effect, cost, label, state);
+                this.plan_id = plan_id;
             }
+        }
 
-            static class ResolverCreated extends Message {
+        static class ResolverStateChanged extends it.cnr.istc.pst.oratio.utils.Message.ResolverStateChanged {
 
-                public final long id;
-                public final long effect;
-                public final Rational cost;
-                public final String label;
-                public final byte state;
+            public final String plan_id;
 
-                ResolverCreated(final String plan_id, final long id, final long effect, final Rational cost,
-                        final String label, final byte state) {
-                    super(plan_id);
-                    this.id = id;
-                    this.effect = effect;
-                    this.cost = cost;
-                    this.label = label;
-                    this.state = state;
-                }
+            ResolverStateChanged(final String plan_id, final long id, final byte state) {
+                super(id, state);
+                this.plan_id = plan_id;
             }
+        }
 
-            static class ResolverStateChanged extends Message {
+        static class CurrentResolver extends it.cnr.istc.pst.oratio.utils.Message.CurrentResolver {
 
-                public final long id;
-                public final byte state;
+            public final String plan_id;
 
-                ResolverStateChanged(final String plan_id, final long id, final byte state) {
-                    super(plan_id);
-                    this.id = id;
-                    this.state = state;
-                }
+            CurrentResolver(final String plan_id, final long id) {
+                super(id);
+                this.plan_id = plan_id;
             }
+        }
 
-            static class CurrentResolver extends Message {
+        static class CausalLinkAdded extends it.cnr.istc.pst.oratio.utils.Message.CausalLinkAdded {
 
-                public final long id;
+            public final String plan_id;
 
-                CurrentResolver(final String plan_id, final long id) {
-                    super(plan_id);
-                    this.id = id;
-                }
+            CausalLinkAdded(final String plan_id, final long flaw, final long resolver) {
+                super(flaw, resolver);
+                this.plan_id = plan_id;
             }
+        }
 
-            static class CausalLinkAdded extends Message {
+        static class Timelines extends it.cnr.istc.pst.oratio.utils.Message.Timelines {
 
-                public final long flaw;
-                public final long resolver;
+            public final String plan_id;
 
-                CausalLinkAdded(final String plan_id, final long flaw, final long resolver) {
-                    super(plan_id);
-                    this.flaw = flaw;
-                    this.resolver = resolver;
-                }
+            Timelines(final String plan_id, final Collection<it.cnr.istc.pst.oratio.utils.Timeline> timelines) {
+                super(timelines);
+                this.plan_id = plan_id;
             }
+        }
 
-            static class Timelines extends Message {
+        static class Tick extends it.cnr.istc.pst.oratio.utils.Message.Tick {
 
-                public final Collection<Object> timelines;
+            public final String plan_id;
 
-                Timelines(final String plan_id, final Collection<Object> timelines) {
-                    super(plan_id);
-                    this.timelines = timelines;
-                }
-            }
-
-            static class Tick extends Message {
-
-                public final Rational current_time;
-
-                Tick(final String plan_id, final Rational current_time) {
-                    super(plan_id);
-                    this.current_time = current_time;
-                }
+            Tick(final String plan_id, final Rational current_time) {
+                super(current_time);
+                this.plan_id = plan_id;
             }
         }
     }
