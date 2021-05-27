@@ -42,12 +42,8 @@ import it.cnr.istc.pst.oratio.StateListener;
 import it.cnr.istc.pst.oratio.Type;
 import it.cnr.istc.pst.oratio.timelines.ExecutorException;
 import it.cnr.istc.pst.oratio.timelines.ExecutorListener;
-import it.cnr.istc.pst.oratio.timelines.PropositionalAgent;
-import it.cnr.istc.pst.oratio.timelines.ReusableResource;
-import it.cnr.istc.pst.oratio.timelines.StateVariable;
 import it.cnr.istc.pst.oratio.timelines.Timeline;
 import it.cnr.istc.pst.oratio.timelines.TimelinesExecutor;
-import it.cnr.istc.pst.oratio.timelines.TimelinesList;
 import it.cnr.istc.pst.oratio.utils.Flaw;
 import it.cnr.istc.pst.oratio.utils.Resolver;
 import it.cnr.istc.pst.sirobotics.telepresence.api.ExecConf;
@@ -120,7 +116,6 @@ public class HouseManager {
 
         private final String prefix;
         private Solver solver = null;
-        private TimelinesList timelines = null;
         private final Map<Long, Atom> c_atoms = new HashMap<>();
         private TimelinesExecutor tl_exec = null;
         private ScheduledFuture<?> scheduled_feature;
@@ -221,6 +216,10 @@ public class HouseManager {
             reset();
         }
 
+        public Solver getSolver() {
+            return solver;
+        }
+
         public Collection<Flaw> getFlaws() {
             return flaws.values();
         }
@@ -259,7 +258,6 @@ public class HouseManager {
                 solver = new Solver();
                 solver.addStateListener(this);
                 solver.addGraphListener(this);
-                timelines = new TimelinesList(solver);
                 tl_exec = new TimelinesExecutor(solver, new Rational(1));
                 tl_exec.addExecutorListener(this);
                 try {
@@ -271,7 +269,7 @@ public class HouseManager {
                             WsContext ctx = UserController.getWsContext(ue.getId());
                             ctx.send(App.MAPPER
                                     .writeValueAsString(new Graph(prefix, flaws.values(), resolvers.values())));
-                            ctx.send(App.MAPPER.writeValueAsString(new Timelines(prefix, getTimelines())));
+                            ctx.send(App.MAPPER.writeValueAsString(new Timelines(prefix, solver.getTimelines())));
                             ctx.send(App.MAPPER.writeValueAsString(new Tick(prefix, current_time)));
                         }
                     em.close();
@@ -280,20 +278,6 @@ public class HouseManager {
                 }
                 setState(SolverState.Waiting);
             });
-        }
-
-        Collection<it.cnr.istc.pst.oratio.utils.Timeline> getTimelines() {
-            final Collection<it.cnr.istc.pst.oratio.utils.Timeline> c_tls = new ArrayList<>();
-            for (final Timeline<?> tl : timelines) {
-                if (tl instanceof StateVariable) {
-                    c_tls.add(new it.cnr.istc.pst.oratio.utils.Timeline.SVTimeline((StateVariable) tl));
-                } else if (tl instanceof ReusableResource) {
-                    c_tls.add(new it.cnr.istc.pst.oratio.utils.Timeline.RRTimeline((ReusableResource) tl));
-                } else if (tl instanceof PropositionalAgent) {
-                    c_tls.add(new it.cnr.istc.pst.oratio.utils.Timeline.Agent((PropositionalAgent) tl));
-                }
-            }
-            return c_tls;
         }
 
         @Override
@@ -311,7 +295,6 @@ public class HouseManager {
 
         @Override
         public void stateChanged() {
-            timelines.stateChanged();
         }
 
         @Override
@@ -365,7 +348,7 @@ public class HouseManager {
                     for (UserEntity ue : user_entities)
                         if (ue.getRoles().contains("Admin") && UserController.isOnline(ue.getId())) {
                             WsContext ctx = UserController.getWsContext(ue.getId());
-                            ctx.send(App.MAPPER.writeValueAsString(new Timelines(prefix, getTimelines())));
+                            ctx.send(App.MAPPER.writeValueAsString(new Timelines(prefix, solver.getTimelines())));
                             ctx.send(App.MAPPER.writeValueAsString(new SolutionFound(prefix)));
                             ctx.send(App.MAPPER.writeValueAsString(new Tick(prefix, current_time)));
                         }
@@ -877,7 +860,7 @@ public class HouseManager {
 
             public final String plan_id;
 
-            Timelines(final String plan_id, final Collection<it.cnr.istc.pst.oratio.utils.Timeline> timelines) {
+            Timelines(final String plan_id, final Collection<Timeline<?>> timelines) {
                 super(timelines);
                 this.plan_id = plan_id;
             }

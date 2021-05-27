@@ -75,30 +75,13 @@ function setup_ws() {
         const c_msg = JSON.parse(msg.data);
         switch (c_msg.type) {
             case 'Graph':
-                c_msg.flaws.forEach(f => {
-                    f.label = JSON.parse(f.label);
-                    if (f.cost)
-                        f.cost = (f.cost.num / f.cost.den);
-                    else
-                        f.cost = Number.POSITIVE_INFINITY;
-                });
-                c_msg.resolvers.forEach(r => {
-                    r.label = JSON.parse(r.label);
-                    r.intrinsic_cost = r.cost.num / r.cost.den;
-                    r.cost = r.intrinsic_cost;
-                });
                 if (!context.graphs.has(c_msg.plan_id))
                     context.graphs.set(c_msg.plan_id, new GraphData());
-                context.graphs.get(c_msg.plan_id).reset(c_msg.flaws, c_msg.resolvers);
+                context.graphs.get(c_msg.plan_id).reset(c_msg);
                 if (admin_houses.current_plan == c_msg.plan_id)
                     admin_houses.graph.update(context.graphs.get(c_msg.plan_id));
                 break;
             case 'FlawCreated':
-                c_msg.label = JSON.parse(c_msg.label);
-                if (c_msg.cost)
-                    c_msg.cost = (c_msg.cost.num / c_msg.cost.den);
-                else
-                    c_msg.cost = Number.POSITIVE_INFINITY;
                 context.graphs.get(c_msg.plan_id).flaw_created(c_msg);
                 if (admin_houses.current_plan == c_msg.plan_id)
                     admin_houses.graph.update(context.graphs.get(c_msg.plan_id));
@@ -109,7 +92,6 @@ function setup_ws() {
                     admin_houses.graph.update(context.graphs.get(c_msg.plan_id));
                 break;
             case 'FlawCostChanged':
-                c_msg.cost = c_msg.cost.num / c_msg.cost.den;
                 context.graphs.get(c_msg.plan_id).flaw_cost_changed(c_msg);
                 if (admin_houses.current_plan == c_msg.plan_id)
                     admin_houses.graph.update(context.graphs.get(c_msg.plan_id));
@@ -125,9 +107,6 @@ function setup_ws() {
                     admin_houses.graph.update(context.graphs.get(c_msg.plan_id));
                 break;
             case 'ResolverCreated':
-                c_msg.label = JSON.parse(c_msg.label);
-                c_msg.intrinsic_cost = c_msg.cost.num / c_msg.cost.den;
-                c_msg.cost = c_msg.intrinsic_cost;
                 context.graphs.get(c_msg.plan_id).resolver_created(c_msg);
                 if (admin_houses.current_plan == c_msg.plan_id)
                     admin_houses.graph.update(context.graphs.get(c_msg.plan_id));
@@ -148,15 +127,14 @@ function setup_ws() {
                     admin_houses.graph.update(context.graphs.get(c_msg.plan_id));
                 break;
             case 'Timelines':
-                c_msg.timelines.forEach(tl => tl.values.forEach(v => v.value = JSON.parse(v.value)));
                 if (!context.timelines.has(c_msg.plan_id))
                     context.timelines.set(c_msg.plan_id, new TimelinesData());
-                context.timelines.get(c_msg.plan_id).reset(c_msg.timelines);
+                context.timelines.get(c_msg.plan_id).reset(c_msg);
                 if (admin_houses.current_plan == c_msg.plan_id)
                     admin_houses.timelines.update(context.timelines.get(c_msg.plan_id));
                 break;
             case 'Tick':
-                context.timelines.get(c_msg.plan_id).tick(c_msg.current_time.num / c_msg.current_time.den);
+                context.timelines.get(c_msg.plan_id).tick(c_msg);
                 if (admin_houses.current_plan == c_msg.plan_id)
                     admin_houses.timelines.updateTime(context.timelines.get(c_msg.plan_id));
                 break;

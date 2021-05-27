@@ -280,7 +280,8 @@ public class HouseController {
                 SolverManager sm = HouseManager.SOLVER_MANAGERS.get(prefix);
                 ws_ctx.send(App.MAPPER
                         .writeValueAsString(new SolverManager.Graph(prefix, sm.getFlaws(), sm.getResolvers())));
-                ws_ctx.send(App.MAPPER.writeValueAsString(new SolverManager.Timelines(prefix, sm.getTimelines())));
+                ws_ctx.send(App.MAPPER
+                        .writeValueAsString(new SolverManager.Timelines(prefix, sm.getSolver().getTimelines())));
                 ws_ctx.send(App.MAPPER.writeValueAsString(new SolverManager.Tick(prefix, sm.getCurrentTime())));
                 for (DeviceEntity dev : house_entity.getDevices())
                     if (dev.getType() instanceof RobotTypeEntity) {
@@ -288,8 +289,8 @@ public class HouseController {
                         sm = HouseManager.SOLVER_MANAGERS.get(prefix);
                         ws_ctx.send(App.MAPPER
                                 .writeValueAsString(new SolverManager.Graph(prefix, sm.getFlaws(), sm.getResolvers())));
-                        ws_ctx.send(
-                                App.MAPPER.writeValueAsString(new SolverManager.Timelines(prefix, sm.getTimelines())));
+                        ws_ctx.send(App.MAPPER.writeValueAsString(
+                                new SolverManager.Timelines(prefix, sm.getSolver().getTimelines())));
                         ws_ctx.send(App.MAPPER.writeValueAsString(new SolverManager.Tick(prefix, sm.getCurrentTime())));
                     }
             } catch (final JsonProcessingException e) {
