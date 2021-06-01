@@ -260,14 +260,14 @@ public class App {
                     ohmni_type.setDescription(
                             "Un robot di telepresenza che trasforma il modo in cui le persone si connettono.");
                     ohmni_type.setConfiguration(
-                            "{\"starting\": [\"GoingTo\",\"CheckUserAround\",\"CognitiveExercize\",\"PhysicalExercize\"],\"done\": [\"At\"],\"ending\": [\"CognitiveExercize\"]}");
+                            "{\"notify-start\": [\"Navigator.GoingTo\",\"Robot.CheckUserAround\",\"Robot.CognitiveExercize\",\"Robot.PhysicalExercize\"],\"notify-end\": [\"Robot.CognitiveExercize\"],\"auto-done\": [\"Navigator.At\"]}");
 
                     final RobotTypeEntity sanbot_type = new RobotTypeEntity();
                     sanbot_type.setName("Sanbot Elf");
                     sanbot_type.setDescription(
                             "Un robot di telepresenza che trasforma il modo in cui le persone si connettono.");
                     sanbot_type.setConfiguration(
-                            "{\"starting\": [\"GoingTo\",\"CheckUserAround\",\"RaiseHand\",\"LowerHand\",\"CognitiveExercize\",\"PhysicalExercize\"],\"done\": [\"At\"],\"ending\": [\"CognitiveExercize\"]}");
+                            "{\"notify-start\": [\"Navigator.GoingTo\",\"Robot.CheckUserAround\",\"Robot.CognitiveExercize\",\"Robot.PhysicalExercize\",\"Arm.RaiseHand\",\"Arm.LowerHand\"],\"notify-end\": [\"Robot.CognitiveExercize\"],\"auto-done\": [\"Navigator.At\"]}");
 
                     em.getTransaction().begin();
                     em.persist(ohmni_type);

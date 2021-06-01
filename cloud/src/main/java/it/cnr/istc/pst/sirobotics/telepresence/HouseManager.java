@@ -6,9 +6,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -125,6 +127,10 @@ public class HouseManager {
         private Resolver current_resolver = null;
         private Rational current_time = new Rational();
         private ExecConf conf;
+        private final Set<Predicate> notify_starting = new HashSet<>();
+        private final Set<Predicate> notify_ending = new HashSet<>();
+        private final Set<Predicate> auto_done = new HashSet<>();
+        private final Set<Atom> executing = new HashSet<>();
         private SolverState state = null;
 
         public SolverManager(final String prefix, final String configuration) {
@@ -173,10 +179,10 @@ public class HouseManager {
                         try {
                             final LongArray long_array_message = App.MAPPER.readValue(message.getPayload(),
                                     LongArray.class);
-                            tl_exec.done(long_array_message.data);
-                            LOG.info("[" + prefix + "] Done " + long_array_message.data + "..");
-                        } catch (IOException | ExecutorException e) {
-                            LOG.error("Cannot close the given commands", e);
+                            for (long atm_sgm : long_array_message.data)
+                                executing.remove(c_atoms.get(atm_sgm));
+                        } catch (IOException e) {
+                            LOG.error("Cannot parse the closing command", e);
                         }
                     });
                 });
@@ -258,8 +264,14 @@ public class HouseManager {
                 solver = new Solver();
                 solver.addStateListener(this);
                 solver.addGraphListener(this);
-                tl_exec = new TimelinesExecutor(solver, new Rational(1));
+                tl_exec = new TimelinesExecutor(solver,
+                        "{ \"relevant-predicates\": ["
+                                + conf.getRelevantPredicates().stream().collect(Collectors.joining(", ")) + "]}",
+                        new Rational(1));
                 tl_exec.addExecutorListener(this);
+                notify_starting.clear();
+                notify_ending.clear();
+                auto_done.clear();
                 try {
                     final EntityManager em = App.EMF.createEntityManager();
                     final List<UserEntity> user_entities = em
@@ -285,12 +297,64 @@ public class HouseManager {
             LOG.info("[" + prefix + "] " + log);
         }
 
+        private Predicate getPredicate(String predicate) throws ClassNotFoundException {
+            String[] pred = predicate.split(".");
+            if (pred.length == 1)
+                return solver.getPredicate(pred[0]);
+            else {
+                Type t = solver.getType(pred[0]);
+                for (int i = 1; i < pred.length - 1; i++)
+                    t = t.getType(pred[i]);
+                return t.getPredicate(pred[pred.length - 1]);
+            }
+        }
+
         @Override
         public void read(final String script) {
+            COMMAND_EXECUTOR.execute(() -> {
+                for (String predicate : conf.getNotifyStarting())
+                    try {
+                        notify_starting.add(getPredicate(predicate));
+                    } catch (ClassNotFoundException e) {
+                        LOG.info("Cannot find predicate {}", predicate);
+                    }
+                for (String predicate : conf.getNotifyEnding())
+                    try {
+                        notify_ending.add(getPredicate(predicate));
+                    } catch (ClassNotFoundException e) {
+                        LOG.info("Cannot find predicate {}", predicate);
+                    }
+                for (String predicate : conf.getAutoDone())
+                    try {
+                        auto_done.add(getPredicate(predicate));
+                    } catch (ClassNotFoundException e) {
+                        LOG.info("Cannot find predicate {}", predicate);
+                    }
+            });
         }
 
         @Override
         public void read(final String[] files) {
+            COMMAND_EXECUTOR.execute(() -> {
+                for (String predicate : conf.getNotifyStarting())
+                    try {
+                        notify_starting.add(getPredicate(predicate));
+                    } catch (ClassNotFoundException e) {
+                        LOG.info("Cannot find predicate {}", predicate);
+                    }
+                for (String predicate : conf.getNotifyEnding())
+                    try {
+                        notify_ending.add(getPredicate(predicate));
+                    } catch (ClassNotFoundException e) {
+                        LOG.info("Cannot find predicate {}", predicate);
+                    }
+                for (String predicate : conf.getAutoDone())
+                    try {
+                        auto_done.add(getPredicate(predicate));
+                    } catch (ClassNotFoundException e) {
+                        LOG.info("Cannot find predicate {}", predicate);
+                    }
+            });
         }
 
         @Override
@@ -587,12 +651,16 @@ public class HouseManager {
 
         @Override
         public void startingAtoms(final long[] atoms) {
+        }
+
+        @Override
+        public void startAtoms(long[] atoms) {
             COMMAND_EXECUTOR.execute(() -> {
                 LOG.info("[" + prefix + "] Starting atoms: " + Arrays.toString(atoms));
                 final Map<Type, Collection<Atom>> starting_atoms = new IdentityHashMap<>();
                 for (int i = 0; i < atoms.length; i++) {
                     final Atom starting_atom = c_atoms.get(atoms[i]);
-                    if (conf.getStarting().contains(starting_atom.getType().getName())) {
+                    if (notify_starting.contains(starting_atom.getType())) {
                         Collection<Atom> c_atms = starting_atoms.get(starting_atom.getType());
                         if (c_atms == null) {
                             c_atms = new ArrayList<>();
@@ -600,6 +668,7 @@ public class HouseManager {
                         }
                         c_atms.add(starting_atom);
                     }
+                    executing.add(starting_atom);
                 }
                 try {
                     for (final Entry<Type, Collection<Atom>> entry : starting_atoms.entrySet())
@@ -617,12 +686,38 @@ public class HouseManager {
         @Override
         public void endingAtoms(final long[] atoms) {
             COMMAND_EXECUTOR.execute(() -> {
+                LOG.info("[" + prefix + "] Checking the ending of atoms: {}" + Arrays.toString(atoms));
+                final List<Atom> dont_end_yet = new ArrayList<>();
+                for (int i = 0; i < atoms.length; i++) {
+                    final Atom ending_atom = c_atoms.get(atoms[i]);
+                    if (auto_done.contains(ending_atom.getType()))
+                        executing.remove(ending_atom);
+                    else if (executing.contains(ending_atom))
+                        dont_end_yet.add(ending_atom);
+                }
+                if (!dont_end_yet.isEmpty()) {
+                    long[] dont_e = new long[dont_end_yet.size()];
+                    for (int i = 0; i < dont_e.length; i++)
+                        dont_e[i] = dont_end_yet.get(i).getSigma();
+                    LOG.info("[" + prefix + "] Delaying atoms: {}" + Arrays.toString(dont_e));
+                    try {
+                        tl_exec.dont_end_yet(dont_e);
+                    } catch (ExecutorException e) {
+                        LOG.error("Cannot delay the ending of some commands..", e);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void endAtoms(long[] atoms) {
+            COMMAND_EXECUTOR.execute(() -> {
                 LOG.info("[" + prefix + "] Ending atoms: {}" + Arrays.toString(atoms));
                 final Map<Type, Collection<Atom>> ending_atoms = new IdentityHashMap<>();
                 final List<Atom> done_atoms = new ArrayList<>();
                 for (int i = 0; i < atoms.length; i++) {
                     final Atom ending_atom = c_atoms.get(atoms[i]);
-                    if (conf.getEnding().contains(ending_atom.getType().getName())) {
+                    if (notify_ending.contains(ending_atom.getType())) {
                         Collection<Atom> c_atms = ending_atoms.get(ending_atom.getType());
                         if (c_atms == null) {
                             c_atms = new ArrayList<>();
@@ -630,18 +725,6 @@ public class HouseManager {
                         }
                         c_atms.add(ending_atom);
                         done_atoms.add(ending_atom);
-                    }
-                    if (conf.getDone().contains(ending_atom.getType().getName()) && !done_atoms.contains(ending_atom))
-                        done_atoms.add(ending_atom);
-                }
-                if (!done_atoms.isEmpty()) {
-                    long[] c_done = new long[done_atoms.size()];
-                    for (int i = 0; i < c_done.length; i++)
-                        c_done[i] = done_atoms.get(i).getSigma();
-                    try {
-                        tl_exec.done(c_done);
-                    } catch (ExecutorException e) {
-                        LOG.error("Cannot close some commands..", e);
                     }
                 }
                 try {
@@ -682,9 +765,9 @@ public class HouseManager {
             }
         }
 
-        @SuppressWarnings("unused")
         private static final class Command {
 
+            @SuppressWarnings("unused")
             private final Collection<CommandAtom> atoms;
 
             private Command(final Collection<CommandAtom> atoms) {
@@ -692,7 +775,6 @@ public class HouseManager {
             }
         }
 
-        @SuppressWarnings("unused")
         static final class CommandAtom {
 
             private final Atom atom;

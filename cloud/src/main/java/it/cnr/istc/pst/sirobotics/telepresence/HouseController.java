@@ -379,10 +379,10 @@ public class HouseController {
                 Set<String> pred_names = new HashSet<>();
                 try {
                     ExecConf conf = App.MAPPER.readValue(type.getConfiguration(), ExecConf.class);
-                    if (conf.getStarting() != null)
-                        pred_names.addAll(conf.getStarting());
-                    if (conf.getEnding() != null)
-                        pred_names.addAll(conf.getEnding());
+                    if (conf.getNotifyStarting() != null)
+                        pred_names.addAll(conf.getNotifyStarting());
+                    if (conf.getNotifyEnding() != null)
+                        pred_names.addAll(conf.getNotifyEnding());
                 } catch (JsonProcessingException ex) {
                     LOG.error("Cannot read config file..", ex);
                 }
