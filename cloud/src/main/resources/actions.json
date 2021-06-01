@@ -1,0 +1,84 @@
+[
+    {
+        "name": "reminder_1_1",
+        "condition": {
+            "type": "and",
+            "conditions": [
+                {
+                    "type": "var",
+                    "variable": "command",
+                    "value": "Reminder",
+                    "cond_type": "Eq"
+                },
+                {
+                    "type": "num-var",
+                    "variable": "id",
+                    "value": 1,
+                    "cond_type": "Eq"
+                }
+            ]
+        },
+        "response_texts": [
+            "Hai preso le pillole per la pressione?",
+            "Hai già preso le pillole per la pressione?",
+            "Hai preso le pillole per la pressione oggi?"
+        ],
+        "context": {
+            "reminder_1_1": "n0"
+        }
+    },
+    {
+        "name": "reminder_1_si",
+        "condition": {
+            "type": "and",
+            "conditions": [
+                {
+                    "type": "var",
+                    "variable": "intent",
+                    "value": "Affermazione",
+                    "cond_type": "Eq"
+                },
+                {
+                    "type": "var",
+                    "variable": "reminder_1_1",
+                    "value": "n0",
+                    "cond_type": "Eq"
+                }
+            ]
+        },
+        "response_texts": [
+            "Molto bene!",
+            "Ben fatto!"
+        ],
+        "context": {
+            "success": "True"
+        }
+    },
+    {
+        "name": "reminder_1_no",
+        "condition": {
+            "type": "and",
+            "conditions": [
+                {
+                    "type": "var",
+                    "variable": "intent",
+                    "value": "Negazione",
+                    "cond_type": "Eq"
+                },
+                {
+                    "type": "var",
+                    "variable": "reminder_1_1",
+                    "value": "n0",
+                    "cond_type": "Eq"
+                }
+            ]
+        },
+        "response_texts": [
+            "Non preoccuparti! Puoi prenderle ora!",
+            "Come faresti se non ci fossi io!"
+        ],
+        "context": {
+            "success": "True"
+        }
+    }
+]

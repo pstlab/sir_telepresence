@@ -16,7 +16,6 @@ import io.javalin.http.ConflictResponse;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.websocket.WsContext;
-import it.cnr.istc.pst.sirobotics.telepresence.HouseManager.SolverManager;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Robot;
 import it.cnr.istc.pst.sirobotics.telepresence.api.Device.Sensor;
@@ -337,14 +336,16 @@ public class HouseController {
                 sb.append("# user's utterances to robot #").append(device.getId()).append("..\n");
                 sb.append("  - factory: mqtt_bridge.bridge:RosToMqttBridge\n");
                 sb.append("    msg_type: std_msgs.msg:String\n");
-                sb.append("    topic_from: /nlp/in\n");
-                sb.append("    topic_to: ").append(house_id).append('/').append(device.getId()).append("/nlp/in\n");
+                sb.append("    topic_from: /user_utterance\n");
+                sb.append("    topic_to: ").append(house_id).append('/').append(device.getId())
+                        .append("/user_utterance\n");
                 sb.append('\n');
                 sb.append("# robot #").append(device.getId()).append("'s utterances..\n");
                 sb.append("  - factory: mqtt_bridge.bridge:MqttToRosBridge\n");
                 sb.append("    msg_type: std_msgs.msg:String\n");
-                sb.append("    topic_from: ").append(house_id).append('/').append(device.getId()).append("/nlp/out\n");
-                sb.append("    topic_to: /nlp/out\n");
+                sb.append("    topic_from: ").append(house_id).append('/').append(device.getId())
+                        .append("/system_utterance\n");
+                sb.append("    topic_to: /system_utterance\n");
                 sb.append('\n');
 
                 // the planner bridge..
