@@ -12,7 +12,30 @@ stories:
   - intent: presentazione
   - action: utter_saluto_name
 
-- story: ricorda le cose
+- story: ricorda pillole pressione ok
   steps:
   - intent: ricordami_pillole_pressione
   - action: utter_ricorda_pillole_pressione
+  - intent: affermazione
+  - action: utter_ok
+
+- story: ricorda pillole pressione male
+  steps:
+  - intent: ricordami_pillole_pressione
+  - action: utter_ricorda_pillole_pressione
+  - intent: negazione
+  - action: utter_male
+
+- story: ricorda misurazione pressione ok
+  steps:
+  - intent: ricordami_misurazione_pressione
+  - action: utter_ricorda_misurazione_pressione
+  - intent: affermazione
+  - action: utter_ok
+
+- story: ricorda misurazione pressione male
+  steps:
+  - intent: ricordami_misurazione_pressione
+  - action: utter_ricorda_misurazione_pressione
+  - intent: negazione
+  - action: utter_male

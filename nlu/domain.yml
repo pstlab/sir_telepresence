@@ -3,7 +3,10 @@ version: "2.0"
 intents:
   - saluto
   - presentazione
+  - affermazione
+  - negazione
   - ricordami_pillole_pressione
+  - ricordami_misurazione_pressione
 
 entities:
   - PERSON
@@ -18,15 +21,35 @@ slots:
 
 responses:
   utter_saluto:
-  - text: "Ciao!"
-  - text: "Buongiorno!"
+  - text: Ciao!
+  - text: Buongiorno!
 
   utter_saluto_name:
-  - text: "Ciao {PERSON}!"
+  - text: Ciao {PERSON}!
+
+  utter_ok:
+  - text: Ok!
+  - text: Molto bene!
+  - text: Ben fatto!
+
+  utter_male:
+  - text: Non preoccuparti! Sono qui per questo.
+  - text: Sono qui per aiutarti!
+  - text: Se non ci fossi io...
 
   utter_ricorda_pillole_pressione:
-  - text: "Hai già preso le pillole per la pressione?"
-  - text: "Hai preso le pillole per la pressione, oggi?"
+  - text: Hai già preso le pillole per la pressione?
+  - text: Hai preso le pillole per la pressione, oggi?
+
+  utter_ricorda_misurazione_pressione:
+  - text: Hai già preso misurato la pressione?
+  - text: Hai già preso misurato la pressione cardiaca?
+  - text: Hai misurato la pressione, oggi?
+
+  utter_default:
+  - text: Scusami ma non ho capito. Puoi ripetere in un altro modo?
+  - text: Non ho capito. Puoi ripetere in un altro modo?
+  - text: Non ho capito cosa hai detto. Puoi ridirlo in un altro modo?
 
 session_config:
   session_expiration_time: 60

@@ -10,11 +10,31 @@ nlu:
 - intent: presentazione
   examples: |
     - mi chiamo [Riccardo](PERSON)
+    - mi chiamo [Amedeo](PERSON)
     - sono [Giovanni](PERSON)
+    - sono [Gabriella](PERSON)
     - il mio nome è [Maria](PERSON)
     - il mio nome è [Francesco](PERSON)
+
+- intent: affermazione
+  examples: |
+    - sì
+    - certo
+    - certamente
+    - certo che sì
+    - ovviamente
+
+- intent: negazione
+  examples: |
+    - no
+    - non ancora
+    - me ne sono dimenticato
 
 - intent: ricordami_pillole_pressione
   examples: |
     - ricordami di prendere le pillole per la pressione
     - ricordami le pillole per la pressione
+
+- intent: ricordami_misurazione_pressione
+  examples: |
+    - ricordami di misurare la pressione
