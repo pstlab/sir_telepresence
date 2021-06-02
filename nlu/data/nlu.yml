@@ -1,0 +1,13 @@
+version: "2.0"
+
+nlu:
+- intent: saluto
+  examples: |
+    - ciao
+    - buongiorno
+    - salve
+
+- intent: reminder
+  examples: |
+    - ricordami
+    - mandami un ricordo

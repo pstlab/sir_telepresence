@@ -1,0 +1,17 @@
+#### This file contains tests to evaluate that your bot behaves as expected.
+#### If you want to learn more, please see the docs: https://rasa.com/docs/rasa/testing-your-assistant
+
+stories:
+- story: salutiamoci
+  steps:
+  - user: |
+      Ciao!
+    intent: saluto
+  - action: saluta
+
+- story: ricordami
+  steps:
+  - user: |
+      ricordami di prendere le pillole
+    intent: reminder
+  - action: reminder

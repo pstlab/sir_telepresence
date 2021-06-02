@@ -1,0 +1,8 @@
+version: "2.0"
+
+rules:
+
+- rule: Saluta ogni volta che l'utente saluta
+  steps:
+  - intent: saluto
+  - action: saluta
