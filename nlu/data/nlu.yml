@@ -10,7 +10,9 @@ nlu:
 - intent: presentazione
   examples: |
     - mi chiamo [Riccardo](PERSON)
-    - sono [Riccardo](PERSON)
+    - sono [Giovanni](PERSON)
+    - il mio nome è [Maria](PERSON)
+    - il mio nome è [Francesco](PERSON)
 
 - intent: ricordami_pillole_pressione
   examples: |

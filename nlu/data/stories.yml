@@ -10,8 +10,6 @@ stories:
 - story: conosciamoci
   steps:
   - intent: presentazione
-    entities:
-    - PERSON
   - action: utter_saluto_name
 
 - story: ricorda le cose

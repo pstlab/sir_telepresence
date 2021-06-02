@@ -9,7 +9,7 @@ entities:
   - PERSON
 
 slots:
-  name:
+  PERSON:
     type: text
     influence_conversation: true
   happiness:
