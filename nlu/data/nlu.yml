@@ -7,7 +7,12 @@ nlu:
     - buongiorno
     - salve
 
-- intent: reminder
+- intent: presentazione
   examples: |
-    - ricordami
-    - mandami un ricordo
+    - mi chiamo [Riccardo](PERSON)
+    - sono [Riccardo](PERSON)
+
+- intent: ricordami_pillole_pressione
+  examples: |
+    - ricordami di prendere le pillole per la pressione
+    - ricordami le pillole per la pressione

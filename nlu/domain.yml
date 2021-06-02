@@ -2,13 +2,31 @@ version: "2.0"
 
 intents:
   - saluto
+  - presentazione
+  - ricordami_pillole_pressione
+
+entities:
+  - PERSON
+
+slots:
+  name:
+    type: text
+    influence_conversation: true
+  happiness:
+    type: float
+    influence_conversation: true
 
 responses:
-  saluta:
+  utter_saluto:
   - text: "Ciao!"
+  - text: "Buongiorno!"
 
-  reminder:
-  - text: "Ciao! Volevo ricordarti di prendere le pillole per la pressione."
+  utter_saluto_name:
+  - text: "Ciao {PERSON}!"
+
+  utter_ricorda_pillole_pressione:
+  - text: "Hai già preso le pillole per la pressione?"
+  - text: "Hai preso le pillole per la pressione, oggi?"
 
 session_config:
   session_expiration_time: 60

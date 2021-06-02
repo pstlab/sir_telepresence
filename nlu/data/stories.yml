@@ -2,12 +2,19 @@ version: "2.0"
 
 stories:
 
-- story: salutiamoci
+- story: salutiamoci1
   steps:
   - intent: saluto
-  - action: saluta
+  - action: utter_saluto
+
+- story: conosciamoci
+  steps:
+  - intent: presentazione
+    entities:
+    - PERSON
+  - action: utter_saluto_name
 
 - story: ricorda le cose
   steps:
-  - intent: reminder
-  - action: reminder
+  - intent: ricordami_pillole_pressione
+  - action: utter_ricorda_pillole_pressione
