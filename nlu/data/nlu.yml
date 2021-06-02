@@ -9,12 +9,9 @@ nlu:
 
 - intent: presentazione
   examples: |
-    - mi chiamo [Riccardo](PERSON)
-    - mi chiamo [Amedeo](PERSON)
-    - sono [Giovanni](PERSON)
-    - sono [Gabriella](PERSON)
-    - il mio nome è [Maria](PERSON)
-    - il mio nome è [Francesco](PERSON)
+    - mi chiamo Riccardo
+    - sono Gabriella
+    - il mio nome è Gloria
 
 - intent: affermazione
   examples: |
@@ -34,7 +31,9 @@ nlu:
   examples: |
     - ricordami di prendere le pillole per la pressione
     - ricordami le pillole per la pressione
+    - devi ricordarmi le pillole per la pressione
 
 - intent: ricordami_misurazione_pressione
   examples: |
     - ricordami di misurare la pressione
+    - devi ricordarmi di misurare la pressione

@@ -9,12 +9,17 @@ intents:
   - ricordami_misurazione_pressione
 
 entities:
-  - PERSON
+  - PER
+  - time
+  - number
 
 slots:
-  PERSON:
+  PER:
     type: text
     influence_conversation: true
+  command_id:
+    type: any
+    influence_conversation: false
   happiness:
     type: float
     influence_conversation: true
@@ -25,7 +30,10 @@ responses:
   - text: Buongiorno!
 
   utter_saluto_name:
-  - text: Ciao {PERSON}!
+  - text: Ciao {PER}! Posso esserti utile?
+  - text: Ciao {PER}! Cosa posso fare per te?
+  - text: Ciao {PER}! Posso fare qualcosa per te?
+  - text: Ciao {PER}! Come posso aiutarti?
 
   utter_ok:
   - text: Ok!
@@ -50,6 +58,10 @@ responses:
   - text: Scusami ma non ho capito. Puoi ripetere in un altro modo?
   - text: Non ho capito. Puoi ripetere in un altro modo?
   - text: Non ho capito cosa hai detto. Puoi ridirlo in un altro modo?
+
+actions:
+  - action_command_start
+  - action_command_done
 
 session_config:
   session_expiration_time: 60

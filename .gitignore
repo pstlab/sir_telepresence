@@ -7,4 +7,5 @@ build
 target
 models
 results
+__pycache__
 dependency-reduced-pom.xml
