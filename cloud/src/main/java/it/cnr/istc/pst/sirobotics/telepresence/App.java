@@ -6,7 +6,6 @@ import static io.javalin.apibuilder.ApiBuilder.path;
 import static io.javalin.apibuilder.ApiBuilder.post;
 import static io.javalin.core.security.SecurityUtil.roles;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -29,7 +28,6 @@ import javax.persistence.Persistence;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -115,16 +113,6 @@ public class App {
             LOG.info("NLU Provider: {}", version);
         } catch (Exception ex) {
             LOG.error("Cannot connect to the NLU provider..", ex);
-        }
-
-        LOG.info("Loading the executable actions..");
-        try {
-            final List<Action> as = App.MAPPER.readValue(new File("actions.json"), new TypeReference<List<Action>>() {
-            });
-            for (final Action a : as)
-                InteractionManager.ACTIONS.put(a.getName(), a);
-        } catch (final IOException e) {
-            LOG.error("Failed at loading actions file..", e);
         }
 
         final Javalin app = Javalin.create(config -> {

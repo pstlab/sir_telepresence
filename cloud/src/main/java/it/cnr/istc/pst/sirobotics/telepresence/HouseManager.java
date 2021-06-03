@@ -22,11 +22,13 @@ public class HouseManager {
     private static final Logger LOG = LoggerFactory.getLogger(HouseManager.class);
     private final HouseEntity house;
     static final Map<String, SolverManager> SOLVER_MANAGERS = new HashMap<>();
+    static final Map<String, InteractionManager> INTERACTION_MANAGERS = new HashMap<>();
 
     public HouseManager(final HouseEntity house) {
         this.house = house;
         final String prefix = Long.toString(house.getId());
         SOLVER_MANAGERS.put(prefix, new SolverManager(prefix, "{}"));
+        INTERACTION_MANAGERS.put(prefix, new InteractionManager(prefix));
 
         for (final DeviceEntity device_entity : house.getDevices()) {
             if (device_entity instanceof RobotEntity) {
@@ -41,6 +43,7 @@ public class HouseManager {
         final String prefix = house.getId() + "/" + robot_entity.getId();
         SOLVER_MANAGERS.put(prefix,
                 new SolverManager(prefix, ((RobotTypeEntity) robot_entity.getType()).getConfiguration()));
+        INTERACTION_MANAGERS.put(prefix, new InteractionManager(prefix));
     }
 
     public void addSensor(final SensorEntity sensor_entity) {
