@@ -20,6 +20,8 @@ nlu:
       - certamente
       - certo che sì
       - ovviamente
+      - perfetto
+      - sì, dai
 
   - intent: negation
     examples: |

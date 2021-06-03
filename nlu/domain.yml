@@ -82,8 +82,8 @@ responses:
     - text: È il momento di svolgere delle distensioni delle braccia sul petto. Va bene?
 
   utter_chest_press_start:
-    - text: Ottimo! Iniziamo con il fare {arg0} distensioni delle braccia sul petto con {arg1} kg.
-    - text: Molto bene! Faremo {arg0} distensioni delle braccia sul petto con {arg1} kg.
+    - text: Iniziamo con il fare {arg0} distensioni delle braccia sul petto con {arg1} kg.
+    - text: Faremo {arg0} distensioni delle braccia sul petto con {arg1} kg.
 
   utter_default:
     - text: Scusami ma non ho capito. Puoi ripetere in un altro modo?
