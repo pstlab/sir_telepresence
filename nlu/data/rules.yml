@@ -1,7 +1,7 @@
 version: "2.0"
 
 rules:
-  - rule: Saluta ogni volta che l'utente saluta
+  - rule: prefisso MQTT
     steps:
-      - intent: greeting
-      - action: utter_greeting
+      - intent: MQTT_Prefix
+      - action: action_mqtt_prefix

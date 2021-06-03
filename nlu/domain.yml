@@ -5,6 +5,7 @@ intents:
   - presentation
   - affirmation
   - negation
+  - help_request
   - pressure_pills_reminder_start_command
   - pressure_measurement_reminder_start_command
   - MQTT_Prefix
@@ -13,8 +14,6 @@ entities:
   - PER
   - time
   - number
-  - sigma
-  - prefix
 
 slots:
   PER:
@@ -32,14 +31,18 @@ slots:
 
 responses:
   utter_greeting:
+    - condition:
+        - type: slot
+          name: PER
+          value: any
+      text: Ciao {PER}!
+    - condition:
+        - type: slot
+          name: PER
+          value: any
+      text: Buongiorno {PER}!
     - text: Ciao!
     - text: Buongiorno!
-
-  utter_greeting_name:
-    - text: Ciao {PER}! Posso esserti utile?
-    - text: Ciao {PER}! Cosa posso fare per te?
-    - text: Ciao {PER}! Posso fare qualcosa per te?
-    - text: Ciao {PER}! Come posso aiutarti?
 
   utter_good:
     - text: Ok!
@@ -50,6 +53,12 @@ responses:
     - text: Non preoccuparti! Sono qui per questo.
     - text: Sono qui per aiutarti!
     - text: Se non ci fossi io...
+
+  utter_help_offer:
+    - text: Posso esserti utile?
+    - text: Cosa posso fare per te?
+    - text: Posso fare qualcosa per te?
+    - text: Come posso aiutarti?
 
   utter_pressure_pills_reminder:
     - text: Hai già preso le pillole per la pressione?

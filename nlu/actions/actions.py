@@ -13,7 +13,7 @@ def on_connect(client, userdata, flags, rc):
 client = mqtt.Client('RASA Actions')
 client.on_connect = on_connect
 client.connect('localhost')
-client.loop_forever()
+client.loop_start()
 
 
 class ActionSetPrefix(Action):
@@ -21,10 +21,18 @@ class ActionSetPrefix(Action):
         return 'action_mqtt_prefix'
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        prefix = next(tracker.get_latest_entity_values('prefix'), None)
-        prefix = prefix.replace('prefix:', '')
-        logging.info('MQTT prefix: ' + prefix)
-        return [SlotSet('mqtt_prefix', prefix)]
+        n = tracker.get_latest_entity_values('number')
+        try:
+            prefix = str(next(n))
+            while True:
+                try:
+                    prefix += '/' + str(next(n))
+                except StopIteration:
+                    break
+            logging.info('MQTT prefix: ' + prefix)
+            return [SlotSet('mqtt_prefix', prefix)]
+        except StopIteration:
+            return []
 
 
 class ActionCommandStart(Action):
@@ -32,10 +40,12 @@ class ActionCommandStart(Action):
         return 'action_command_start'
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        sigma = next(tracker.get_latest_entity_values('sigma'), None)
-        sigma = sigma.replace('sigma:', '')
-        logging.info('starting command sigma: ' + sigma)
-        return [SlotSet('sigma', sigma)]
+        sigma = next(tracker.get_latest_entity_values('number'), None)
+        if sigma:
+            sigma = str(sigma)
+            logging.info('starting command sigma: ' + sigma)
+            return [SlotSet('sigma', sigma)]
+        return []
 
 
 class ActionCommandDone(Action):
@@ -45,8 +55,10 @@ class ActionCommandDone(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         prefix = tracker.get_slot('mqtt_prefix')
         sigma = tracker.get_slot('sigma')
-        logging.info('ending command sigma: ' + sigma)
-        client.publish(prefix + '\done', '[' + sigma + ']')
+        if prefix and sigma:
+            logging.info('ending command sigma: ' + sigma)
+            client.publish(prefix + '/done', '[' + sigma + ']')
+            return [SlotSet('sigma', None)]
         return []
 
 
@@ -57,6 +69,8 @@ class ActionCommandFailure(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         prefix = tracker.get_slot('mqtt_prefix')
         sigma = tracker.get_slot('sigma')
-        logging.info('failing command sigma: ' + sigma)
-        client.publish(prefix + '\failure', '[' + sigma + ']')
+        if prefix and sigma:
+            logging.info('failing command sigma: ' + sigma)
+            client.publish(prefix + '/failure', '[' + sigma + ']')
+            return [SlotSet('sigma', None)]
         return []

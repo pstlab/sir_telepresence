@@ -27,26 +27,25 @@ nlu:
       - non ancora
       - me ne sono dimenticato
 
+  - intent: help_request
+    examples: |
+      - puoi aiutarmi?
+      - ho bisogno di aiuto
+      - mi serve una mano
+      - ho bisogno che tu faccia una cosa per me
+
   - intent: pressure_pills_reminder_start_command
     examples: |
-      - ricordami di prendere le pillole per la pressione [sigma:42](sigma)
-      - ricordami le pillole per la pressione [sigma:42](sigma)
-      - devi ricordarmi le pillole per la pressione [sigma:42](sigma)
+      - ricordami di prendere le pillole per la pressione
+      - ricordami le pillole per la pressione
+      - devi ricordarmi le pillole per la pressione
 
   - intent: pressure_measurement_reminder_start_command
     examples: |
-      - ricordami di misurare la pressione [sigma:42](sigma)
-      - devi ricordarmi di misurare la pressione [sigma:42](sigma)
+      - ricordami di misurare la pressione
+      - devi ricordarmi di misurare la pressione
 
   - intent: MQTT_Prefix
     examples: |
-      - ti mando il mio prefisso MQTT [prefix:42](prefix)
-      - ti comunico il mio prefisso MQTT [prefix:42](prefix)
-
-  - regex: sigma
-    examples: |
-      - sigma:\d+
-
-  - regex: prefix
-    examples: |
-      - prefix:\d+(\/\d+)?
+      - ti mando il mio prefisso MQTT
+      - ti comunico il mio prefisso MQTT

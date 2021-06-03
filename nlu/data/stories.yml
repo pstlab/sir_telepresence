@@ -1,19 +1,32 @@
 version: "2.0"
 
 stories:
-  - story: salutiamoci
+  - story: salutiamoci 1
     steps:
       - intent: greeting
       - action: utter_greeting
+      - action: utter_help_offer
+
+  - story: salutiamoci 2
+    steps:
+      - intent: greeting
+      - action: utter_greeting
+      - action: utter_help_offer
 
   - story: conosciamoci
     steps:
       - intent: presentation
-      - action: utter_greeting_name
+      - action: utter_greeting
+      - action: utter_help_offer
+
+  - story: richiesta di aiuto
+    steps:
+      - intent: help_request
+      - action: utter_help_offer
 
   - story: ricorda pillole pressione ok
     steps:
-      - intent: pressure_pills_reminder
+      - intent: pressure_pills_reminder_start_command
       - action: action_command_start
       - action: utter_pressure_pills_reminder
       - intent: affirmation
@@ -22,7 +35,7 @@ stories:
 
   - story: ricorda pillole pressione male
     steps:
-      - intent: pressure_pills_reminder
+      - intent: pressure_pills_reminder_start_command
       - action: action_command_start
       - action: utter_pressure_pills_reminder
       - intent: negation
@@ -31,7 +44,7 @@ stories:
 
   - story: ricorda misurazione pressione ok
     steps:
-      - intent: pressure_measurement_reminder
+      - intent: pressure_measurement_reminder_start_command
       - action: action_command_start
       - action: utter_pressure_measurement_reminder
       - intent: affirmation
@@ -40,7 +53,7 @@ stories:
 
   - story: ricorda misurazione pressione male
     steps:
-      - intent: pressure_measurement_reminder
+      - intent: pressure_measurement_reminder_start_command
       - action: action_command_start
       - action: utter_pressure_measurement_reminder
       - intent: negation
