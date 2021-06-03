@@ -6,7 +6,7 @@ stories:
     steps:
       - user: |
           Ciao!
-        intent: saluto
+        intent: greeting
       - action: saluta
 
   - story: ricordami

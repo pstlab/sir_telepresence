@@ -3,46 +3,46 @@ version: "2.0"
 stories:
   - story: salutiamoci
     steps:
-      - intent: saluto
-      - action: utter_saluto
+      - intent: greeting
+      - action: utter_greeting
 
   - story: conosciamoci
     steps:
-      - intent: presentazione
-      - action: utter_saluto_name
+      - intent: presentation
+      - action: utter_greeting_name
 
   - story: ricorda pillole pressione ok
     steps:
-      - intent: ricordami_pillole_pressione
+      - intent: pressure_pills_reminder
       - action: action_command_start
-      - action: utter_ricorda_pillole_pressione
-      - intent: affermazione
-      - action: utter_ok
+      - action: utter_pressure_pills_reminder
+      - intent: affirmation
+      - action: utter_good
       - action: action_command_done
 
   - story: ricorda pillole pressione male
     steps:
-      - intent: ricordami_pillole_pressione
+      - intent: pressure_pills_reminder
       - action: action_command_start
-      - action: utter_ricorda_pillole_pressione
-      - intent: negazione
-      - action: utter_male
+      - action: utter_pressure_pills_reminder
+      - intent: negation
+      - action: utter_bad
       - action: action_command_done
 
   - story: ricorda misurazione pressione ok
     steps:
-      - intent: ricordami_misurazione_pressione
+      - intent: pressure_measurement_reminder
       - action: action_command_start
-      - action: utter_ricorda_misurazione_pressione
-      - intent: affermazione
-      - action: utter_ok
+      - action: utter_pressure_measurement_reminder
+      - intent: affirmation
+      - action: utter_good
       - action: action_command_done
 
   - story: ricorda misurazione pressione male
     steps:
-      - intent: ricordami_misurazione_pressione
+      - intent: pressure_measurement_reminder
       - action: action_command_start
-      - action: utter_ricorda_misurazione_pressione
-      - intent: negazione
-      - action: utter_male
+      - action: utter_pressure_measurement_reminder
+      - intent: negation
+      - action: utter_bad
       - action: action_command_done

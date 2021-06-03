@@ -1,19 +1,19 @@
 version: "2.0"
 
 nlu:
-  - intent: saluto
+  - intent: greeting
     examples: |
       - ciao
       - buongiorno
       - salve
 
-  - intent: presentazione
+  - intent: presentation
     examples: |
       - mi chiamo Riccardo
       - sono Gabriella
       - il mio nome è Gloria
 
-  - intent: affermazione
+  - intent: affirmation
     examples: |
       - sì
       - certo
@@ -21,27 +21,27 @@ nlu:
       - certo che sì
       - ovviamente
 
-  - intent: negazione
+  - intent: negation
     examples: |
       - no
       - non ancora
       - me ne sono dimenticato
 
-  - intent: ricordami_pillole_pressione
+  - intent: pressure_pills_reminder_start_command
     examples: |
-      - ricordami di prendere le pillole per la pressione
-      - ricordami le pillole per la pressione
-      - devi ricordarmi le pillole per la pressione
+      - ricordami di prendere le pillole per la pressione [sigma:42](sigma)
+      - ricordami le pillole per la pressione [sigma:42](sigma)
+      - devi ricordarmi le pillole per la pressione [sigma:42](sigma)
 
-  - intent: ricordami_misurazione_pressione
+  - intent: pressure_measurement_reminder_start_command
     examples: |
-      - ricordami di misurare la pressione
-      - devi ricordarmi di misurare la pressione
+      - ricordami di misurare la pressione [sigma:42](sigma)
+      - devi ricordarmi di misurare la pressione [sigma:42](sigma)
 
-  - intent: prefisso_MQTT
+  - intent: MQTT_Prefix
     examples: |
-      - ricordami di misurare la pressione
-      - devi ricordarmi di misurare la pressione
+      - ti mando il mio prefisso MQTT [prefix:42](prefix)
+      - ti comunico il mio prefisso MQTT [prefix:42](prefix)
 
   - regex: sigma
     examples: |

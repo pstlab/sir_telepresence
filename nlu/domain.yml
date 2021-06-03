@@ -1,12 +1,13 @@
 version: "2.0"
 
 intents:
-  - saluto
-  - presentazione
-  - affermazione
-  - negazione
-  - ricordami_pillole_pressione
-  - ricordami_misurazione_pressione
+  - greeting
+  - presentation
+  - affirmation
+  - negation
+  - pressure_pills_reminder_start_command
+  - pressure_measurement_reminder_start_command
+  - MQTT_Prefix
 
 entities:
   - PER
@@ -19,42 +20,42 @@ slots:
   PER:
     type: text
     influence_conversation: true
-  prefix:
+  mqtt_prefix:
     type: text
     influence_conversation: false
-  command_id:
-    type: any
+  sigma:
+    type: text
     influence_conversation: false
   happiness:
     type: float
     influence_conversation: true
 
 responses:
-  utter_saluto:
+  utter_greeting:
     - text: Ciao!
     - text: Buongiorno!
 
-  utter_saluto_name:
+  utter_greeting_name:
     - text: Ciao {PER}! Posso esserti utile?
     - text: Ciao {PER}! Cosa posso fare per te?
     - text: Ciao {PER}! Posso fare qualcosa per te?
     - text: Ciao {PER}! Come posso aiutarti?
 
-  utter_ok:
+  utter_good:
     - text: Ok!
     - text: Molto bene!
     - text: Ben fatto!
 
-  utter_male:
+  utter_bad:
     - text: Non preoccuparti! Sono qui per questo.
     - text: Sono qui per aiutarti!
     - text: Se non ci fossi io...
 
-  utter_ricorda_pillole_pressione:
+  utter_pressure_pills_reminder:
     - text: Hai già preso le pillole per la pressione?
     - text: Hai preso le pillole per la pressione, oggi?
 
-  utter_ricorda_misurazione_pressione:
+  utter_pressure_measurement_reminder:
     - text: Hai già preso misurato la pressione?
     - text: Hai già preso misurato la pressione cardiaca?
     - text: Hai misurato la pressione, oggi?
@@ -65,8 +66,10 @@ responses:
     - text: Non ho capito cosa hai detto. Puoi ridirlo in un altro modo?
 
 actions:
+  - action_mqtt_prefix
   - action_command_start
   - action_command_done
+  - action_command_failure
 
 session_config:
   session_expiration_time: 60
