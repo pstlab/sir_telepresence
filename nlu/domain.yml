@@ -6,6 +6,7 @@ intents:
   - affirmation
   - negation
   - help_request
+  - chest_press_start_command
   - pressure_pills_reminder_start_command
   - pressure_measurement_reminder_start_command
   - MQTT_Prefix
@@ -23,6 +24,12 @@ slots:
     type: text
     influence_conversation: false
   sigma:
+    type: text
+    influence_conversation: false
+  arg0:
+    type: text
+    influence_conversation: false
+  arg1:
     type: text
     influence_conversation: false
   happiness:
@@ -68,6 +75,15 @@ responses:
     - text: Hai già preso misurato la pressione?
     - text: Hai già preso misurato la pressione cardiaca?
     - text: Hai misurato la pressione, oggi?
+
+  utter_chest_press:
+    - text: Svolgeremo delle distensioni delle braccia sul petto. Va bene?
+    - text: Che ne dici di svolgere delle distensioni delle braccia sul petto?
+    - text: È il momento di svolgere delle distensioni delle braccia sul petto. Va bene?
+
+  utter_chest_press_start:
+    - text: Ottimo! Iniziamo con il fare {arg0} distensioni delle braccia sul petto con {arg1} kg.
+    - text: Molto bene! Faremo {arg0} distensioni delle braccia sul petto con {arg1} kg.
 
   utter_default:
     - text: Scusami ma non ho capito. Puoi ripetere in un altro modo?

@@ -40,6 +40,11 @@ nlu:
       - ricordami le pillole per la pressione
       - devi ricordarmi le pillole per la pressione
 
+  - intent: chest_press_start_command
+    examples: |
+      - distensioni braccia petto
+      - avvia esercizio di distensioni braccia petto
+
   - intent: pressure_measurement_reminder_start_command
     examples: |
       - ricordami di misurare la pressione

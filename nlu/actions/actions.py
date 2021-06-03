@@ -40,12 +40,23 @@ class ActionCommandStart(Action):
         return 'action_command_start'
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        sigma = next(tracker.get_latest_entity_values('number'), None)
-        if sigma:
-            sigma = str(sigma)
+        n = tracker.get_latest_entity_values('number')
+        try:
+            sigma = str(next(n))
             logging.info('starting command sigma: ' + sigma)
-            return [SlotSet('sigma', sigma)]
-        return []
+            actions = [SlotSet('sigma', sigma)]
+            arg_n = 0
+            while True:
+                try:
+                    arg_val = str(next(n))
+                    logging.info('setting arg' + str(arg_n) + ' at ' + arg_val)
+                    actions.append(SlotSet('arg' + str(arg_n), arg_val))
+                    arg_n = arg_n + 1
+                except StopIteration:
+                    break
+            return actions
+        except StopIteration:
+            return []
 
 
 class ActionCommandDone(Action):
@@ -58,7 +69,6 @@ class ActionCommandDone(Action):
         if prefix and sigma:
             logging.info('ending command sigma: ' + sigma)
             client.publish(prefix + '/done', '[' + sigma + ']')
-            return [SlotSet('sigma', None)]
         return []
 
 

@@ -24,7 +24,26 @@ stories:
       - intent: help_request
       - action: utter_help_offer
 
-  - story: ricorda pillole pressione ok
+  - story: chest press ok
+    steps:
+      - intent: chest_press_start_command
+      - action: action_command_start
+      - action: utter_chest_press
+      - intent: affirmation
+      - action: utter_good
+      - action: utter_chest_press_start
+      - action: action_command_done
+
+  - story: chest press bad
+    steps:
+      - intent: chest_press_start_command
+      - action: action_command_start
+      - action: utter_chest_press
+      - intent: negation
+      - action: utter_good
+      - action: action_command_failure
+
+  - story: pressure pills reminder ok
     steps:
       - intent: pressure_pills_reminder_start_command
       - action: action_command_start
@@ -33,7 +52,7 @@ stories:
       - action: utter_good
       - action: action_command_done
 
-  - story: ricorda pillole pressione male
+  - story: pressure pills reminder bad
     steps:
       - intent: pressure_pills_reminder_start_command
       - action: action_command_start
@@ -42,7 +61,7 @@ stories:
       - action: utter_bad
       - action: action_command_done
 
-  - story: ricorda misurazione pressione ok
+  - story: pressure measurement reminder ok
     steps:
       - intent: pressure_measurement_reminder_start_command
       - action: action_command_start
@@ -51,7 +70,7 @@ stories:
       - action: utter_good
       - action: action_command_done
 
-  - story: ricorda misurazione pressione male
+  - story: pressure measurement reminder bad
     steps:
       - intent: pressure_measurement_reminder_start_command
       - action: action_command_start
