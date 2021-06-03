@@ -1,49 +1,48 @@
 version: "2.0"
 
 stories:
+  - story: salutiamoci
+    steps:
+      - intent: saluto
+      - action: utter_saluto
 
-- story: salutiamoci
-  steps:
-  - intent: saluto
-  - action: utter_saluto
+  - story: conosciamoci
+    steps:
+      - intent: presentazione
+      - action: utter_saluto_name
 
-- story: conosciamoci
-  steps:
-  - intent: presentazione
-  - action: utter_saluto_name
+  - story: ricorda pillole pressione ok
+    steps:
+      - intent: ricordami_pillole_pressione
+      - action: action_command_start
+      - action: utter_ricorda_pillole_pressione
+      - intent: affermazione
+      - action: utter_ok
+      - action: action_command_done
 
-- story: ricorda pillole pressione ok
-  steps:
-  - intent: ricordami_pillole_pressione
-  - action: action_command_start
-  - action: utter_ricorda_pillole_pressione
-  - intent: affermazione
-  - action: utter_ok
-  - action: action_command_done
+  - story: ricorda pillole pressione male
+    steps:
+      - intent: ricordami_pillole_pressione
+      - action: action_command_start
+      - action: utter_ricorda_pillole_pressione
+      - intent: negazione
+      - action: utter_male
+      - action: action_command_done
 
-- story: ricorda pillole pressione male
-  steps:
-  - intent: ricordami_pillole_pressione
-  - action: action_command_start
-  - action: utter_ricorda_pillole_pressione
-  - intent: negazione
-  - action: utter_male
-  - action: action_command_done
+  - story: ricorda misurazione pressione ok
+    steps:
+      - intent: ricordami_misurazione_pressione
+      - action: action_command_start
+      - action: utter_ricorda_misurazione_pressione
+      - intent: affermazione
+      - action: utter_ok
+      - action: action_command_done
 
-- story: ricorda misurazione pressione ok
-  steps:
-  - intent: ricordami_misurazione_pressione
-  - action: action_command_start
-  - action: utter_ricorda_misurazione_pressione
-  - intent: affermazione
-  - action: utter_ok
-  - action: action_command_done
-
-- story: ricorda misurazione pressione male
-  steps:
-  - intent: ricordami_misurazione_pressione
-  - action: action_command_start
-  - action: utter_ricorda_misurazione_pressione
-  - intent: negazione
-  - action: utter_male
-  - action: action_command_done
+  - story: ricorda misurazione pressione male
+    steps:
+      - intent: ricordami_misurazione_pressione
+      - action: action_command_start
+      - action: utter_ricorda_misurazione_pressione
+      - intent: negazione
+      - action: utter_male
+      - action: action_command_done

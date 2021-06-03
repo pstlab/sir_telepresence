@@ -12,11 +12,16 @@ entities:
   - PER
   - time
   - number
+  - sigma
+  - prefix
 
 slots:
   PER:
     type: text
     influence_conversation: true
+  prefix:
+    type: text
+    influence_conversation: false
   command_id:
     type: any
     influence_conversation: false
@@ -26,38 +31,38 @@ slots:
 
 responses:
   utter_saluto:
-  - text: Ciao!
-  - text: Buongiorno!
+    - text: Ciao!
+    - text: Buongiorno!
 
   utter_saluto_name:
-  - text: Ciao {PER}! Posso esserti utile?
-  - text: Ciao {PER}! Cosa posso fare per te?
-  - text: Ciao {PER}! Posso fare qualcosa per te?
-  - text: Ciao {PER}! Come posso aiutarti?
+    - text: Ciao {PER}! Posso esserti utile?
+    - text: Ciao {PER}! Cosa posso fare per te?
+    - text: Ciao {PER}! Posso fare qualcosa per te?
+    - text: Ciao {PER}! Come posso aiutarti?
 
   utter_ok:
-  - text: Ok!
-  - text: Molto bene!
-  - text: Ben fatto!
+    - text: Ok!
+    - text: Molto bene!
+    - text: Ben fatto!
 
   utter_male:
-  - text: Non preoccuparti! Sono qui per questo.
-  - text: Sono qui per aiutarti!
-  - text: Se non ci fossi io...
+    - text: Non preoccuparti! Sono qui per questo.
+    - text: Sono qui per aiutarti!
+    - text: Se non ci fossi io...
 
   utter_ricorda_pillole_pressione:
-  - text: Hai già preso le pillole per la pressione?
-  - text: Hai preso le pillole per la pressione, oggi?
+    - text: Hai già preso le pillole per la pressione?
+    - text: Hai preso le pillole per la pressione, oggi?
 
   utter_ricorda_misurazione_pressione:
-  - text: Hai già preso misurato la pressione?
-  - text: Hai già preso misurato la pressione cardiaca?
-  - text: Hai misurato la pressione, oggi?
+    - text: Hai già preso misurato la pressione?
+    - text: Hai già preso misurato la pressione cardiaca?
+    - text: Hai misurato la pressione, oggi?
 
   utter_default:
-  - text: Scusami ma non ho capito. Puoi ripetere in un altro modo?
-  - text: Non ho capito. Puoi ripetere in un altro modo?
-  - text: Non ho capito cosa hai detto. Puoi ridirlo in un altro modo?
+    - text: Scusami ma non ho capito. Puoi ripetere in un altro modo?
+    - text: Non ho capito. Puoi ripetere in un altro modo?
+    - text: Non ho capito cosa hai detto. Puoi ridirlo in un altro modo?
 
 actions:
   - action_command_start

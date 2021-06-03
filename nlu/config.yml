@@ -19,7 +19,7 @@ pipeline:
     dimensions: ["time", "number"]
     locale: "it_IT"
     timezone: "Europe/Rome"
-    timeout : 3
+    timeout: 3
   - name: EntitySynonymMapper
   - name: ResponseSelector
     epochs: 100
