@@ -1,7 +1,0 @@
-version: "2.0"
-
-rules:
-  - rule: prefisso MQTT
-    steps:
-      - intent: MQTT_Prefix
-      - action: action_mqtt_prefix

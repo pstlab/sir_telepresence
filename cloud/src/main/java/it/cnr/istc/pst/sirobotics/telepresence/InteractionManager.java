@@ -18,6 +18,8 @@ public class InteractionManager {
     private static final Executor COMMAND_EXECUTOR = Executors.newSingleThreadExecutor();
 
     public InteractionManager(final String prefix) {
+        JsonNode set = App.NLU_CLIENT.set(prefix, "mqtt_prefix", prefix);
+        LOG.info(set.get("slots").toString());
         try {
             App.MQTT_CLIENT.subscribe(prefix + "/user_utterance", (topic, message) -> {
                 COMMAND_EXECUTOR.execute(() -> {

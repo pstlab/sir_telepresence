@@ -16,25 +16,6 @@ client.connect('localhost')
 client.loop_start()
 
 
-class ActionSetPrefix(Action):
-    def name(self) -> Text:
-        return 'action_mqtt_prefix'
-
-    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        n = tracker.get_latest_entity_values('number')
-        try:
-            prefix = str(next(n))
-            while True:
-                try:
-                    prefix += '/' + str(next(n))
-                except StopIteration:
-                    break
-            logging.info('MQTT prefix: ' + prefix)
-            return [SlotSet('mqtt_prefix', prefix)]
-        except StopIteration:
-            return []
-
-
 class ActionCommandStart(Action):
     def name(self) -> Text:
         return 'action_command_start'

@@ -80,6 +80,15 @@ public class App {
             LOG.error("Cannot load config file..", ex);
         }
 
+        LOG.info("Connecting to the NLU provider..");
+        NLU_CLIENT = new RasaClient();
+        try {
+            JsonNode version = NLU_CLIENT.version();
+            LOG.info("NLU Provider: {}", version);
+        } catch (Exception ex) {
+            LOG.error("Cannot connect to the NLU provider..", ex);
+        }
+
         try {
             LOG.info("Creating the SI-Robotics cloud MQTT client..");
             final String server_uri = "tcp://" + PROPERTIES.getProperty("mqtt_host", "localhost") + ':'
@@ -104,15 +113,6 @@ public class App {
             });
         } catch (final MqttException ex) {
             LOG.error("Cannot create MQTT client..", ex);
-        }
-
-        LOG.info("Connecting to the NLU provider..");
-        NLU_CLIENT = new RasaClient();
-        try {
-            JsonNode version = NLU_CLIENT.version();
-            LOG.info("NLU Provider: {}", version);
-        } catch (Exception ex) {
-            LOG.error("Cannot connect to the NLU provider..", ex);
         }
 
         final Javalin app = Javalin.create(config -> {

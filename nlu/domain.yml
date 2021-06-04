@@ -26,10 +26,10 @@ slots:
   sigma:
     type: text
     influence_conversation: false
-  arg0:
+  num_press:
     type: text
     influence_conversation: false
-  arg1:
+  weight:
     type: text
     influence_conversation: false
   happiness:
@@ -82,8 +82,8 @@ responses:
     - text: È il momento di svolgere delle distensioni delle braccia sul petto. Va bene?
 
   utter_chest_press_start:
-    - text: Iniziamo con il fare {arg0} distensioni delle braccia sul petto con {arg1} kg.
-    - text: Faremo {arg0} distensioni delle braccia sul petto con {arg1} kg.
+    - text: Iniziamo con il fare {num_press} distensioni delle braccia sul petto con {weight} kg.
+    - text: Faremo {num_press} distensioni delle braccia sul petto con {weight} kg.
 
   utter_default:
     - text: Scusami ma non ho capito. Puoi ripetere in un altro modo?
