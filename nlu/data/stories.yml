@@ -1,28 +1,40 @@
 version: "2.0"
 
 stories:
-  - story: salutiamoci 1
+  - story: greetings
     steps:
       - intent: greeting
       - action: utter_greeting
       - action: utter_help_offer
 
-  - story: salutiamoci 2
+  - story: greetings name
     steps:
       - intent: greeting
-      - action: utter_greeting
+      - slot_was_set:
+        - PER
+      - action: utter_greeting_name
       - action: utter_help_offer
 
-  - story: conosciamoci
+  - story: presentations
     steps:
       - intent: presentation
-      - action: utter_greeting
+      - slot_was_set:
+        - PER
+      - action: utter_greeting_name
       - action: utter_help_offer
 
-  - story: richiesta di aiuto
+  - story: help request
     steps:
       - intent: help_request
       - action: utter_help_offer
+
+  - story: activate profile questionnaire
+    steps:
+    - intent: request_profile_questionnaire
+    - action: utter_profile_questionnaire_presentation
+    - intent: affirmation
+    - action: profile_questionnaire_form
+    - active_loop: profile_questionnaire_form
 
   - story: chest press ok
     steps:

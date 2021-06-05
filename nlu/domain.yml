@@ -7,6 +7,7 @@ intents:
   - negation
   - help_request
   - chest_press_start_command
+  - request_profile_questionnaire
   - pressure_pills_reminder_start_command
   - pressure_measurement_reminder_start_command
   - MQTT_Prefix
@@ -35,21 +36,19 @@ slots:
   happiness:
     type: float
     influence_conversation: true
+  has_memory_issues:
+    type: bool
+  has_physical_issues:
+    type: bool
 
 responses:
   utter_greeting:
-    - condition:
-        - type: slot
-          name: PER
-          value: any
-      text: Ciao {PER}!
-    - condition:
-        - type: slot
-          name: PER
-          value: any
-      text: Buongiorno {PER}!
     - text: Ciao!
     - text: Buongiorno!
+
+  utter_greeting_name:
+    - text: Ciao {PER}!
+    - text: Buongiorno {PER}!
 
   utter_good:
     - text: Ok!
@@ -66,6 +65,16 @@ responses:
     - text: Cosa posso fare per te?
     - text: Posso fare qualcosa per te?
     - text: Come posso aiutarti?
+  
+  utter_profile_questionnaire_presentation:
+    - text: Per migliorare l'interazione con il sistema ho bisogno di alcune semplici informazioni. Ti va di rispondere ad alcune domande?
+    - text: Per migliorare l'interazione con il sistema ho bisogno di farti alcune domande. Ti va di farlo ora?
+  
+  utter_ask_has_memory_issues:
+    - text: Ti capita spesso di dimenticare le cose?
+  
+  utter_ask_has_physical_issues:
+    - text: Ti capita spesso di affaticarti, anche quando svolgi dei compiti semplici?
 
   utter_pressure_pills_reminder:
     - text: Hai già preso le pillole per la pressione?
@@ -95,6 +104,24 @@ actions:
   - action_command_start
   - action_command_done
   - action_command_failure
+
+forms:
+  profile_questionnaire_form:
+    required_slots:
+        has_memory_issues:
+        - type: from_intent
+          value: true
+          intent: affirmation
+        - type: from_intent
+          value: false
+          intent: negation
+        has_physical_issues:
+        - type: from_intent
+          value: true
+          intent: affirmation
+        - type: from_intent
+          value: false
+          intent: negation
 
 session_config:
   session_expiration_time: 60

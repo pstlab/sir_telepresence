@@ -36,6 +36,11 @@ nlu:
       - mi serve una mano
       - ho bisogno che tu faccia una cosa per me
 
+  - intent: request_profile_questionnaire
+    examples: |
+      - voglio rispondere al questionario per migliorare l'interazione con il sistema
+      - voglio migliorare l'interazione con il sistema
+
   - intent: pressure_pills_reminder_start_command
   - intent: chest_press_start_command
   - intent: pressure_measurement_reminder_start_command
