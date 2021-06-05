@@ -48,6 +48,17 @@ public class RasaClient {
         }
     }
 
+    public JsonNode get(final String sender) {
+        LOG.info("{} is getting the state", sender);
+        final Response response = target.path("conversations").path(sender).path("tracker")
+                .queryParam("include_events", "NONE").request().get();
+        try {
+            return App.MAPPER.readTree(response.readEntity(String.class));
+        } catch (final JsonProcessingException e) {
+            return null;
+        }
+    }
+
     public JsonNode set(final String sender, final String slot, final String value) {
         LOG.info("{} is setting {} to {}", new Object[] { sender, slot, value });
         final Response response = target.path("conversations").path(sender).path("tracker/events")

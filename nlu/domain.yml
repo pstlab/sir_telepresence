@@ -7,7 +7,6 @@ intents:
   - negation
   - help_request
   - chest_press_start_command
-  - request_profile_questionnaire
   - pressure_pills_reminder_start_command
   - pressure_measurement_reminder_start_command
   - MQTT_Prefix
@@ -100,28 +99,9 @@ responses:
     - text: Non ho capito cosa hai detto. Puoi ridirlo in un altro modo?
 
 actions:
-  - action_mqtt_prefix
   - action_command_start
   - action_command_done
   - action_command_failure
-
-forms:
-  profile_questionnaire_form:
-    required_slots:
-        has_memory_issues:
-        - type: from_intent
-          value: true
-          intent: affirmation
-        - type: from_intent
-          value: false
-          intent: negation
-        has_physical_issues:
-        - type: from_intent
-          value: true
-          intent: affirmation
-        - type: from_intent
-          value: false
-          intent: negation
 
 session_config:
   session_expiration_time: 60

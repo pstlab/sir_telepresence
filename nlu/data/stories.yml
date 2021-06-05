@@ -28,14 +28,6 @@ stories:
       - intent: help_request
       - action: utter_help_offer
 
-  - story: activate profile questionnaire
-    steps:
-    - intent: request_profile_questionnaire
-    - action: utter_profile_questionnaire_presentation
-    - intent: affirmation
-    - action: profile_questionnaire_form
-    - active_loop: profile_questionnaire_form
-
   - story: chest press ok
     steps:
       - intent: chest_press_start_command
