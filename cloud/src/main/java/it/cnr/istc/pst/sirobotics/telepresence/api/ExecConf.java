@@ -22,9 +22,12 @@ public class ExecConf {
 
     public Set<String> getRelevantPredicates() {
         Set<String> relevant_predicates = new HashSet<>();
-        relevant_predicates.addAll(notify_starting);
-        relevant_predicates.addAll(notify_ending);
-        relevant_predicates.addAll(auto_done);
+        if (notify_starting != null)
+            relevant_predicates.addAll(notify_starting);
+        if (notify_ending != null)
+            relevant_predicates.addAll(notify_ending);
+        if (auto_done != null)
+            relevant_predicates.addAll(auto_done);
         return relevant_predicates;
     }
 

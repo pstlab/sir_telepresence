@@ -115,7 +115,7 @@ public class UserController {
         user_entity.setPassword(password);
         user_entity.setFirstName(first_name);
         user_entity.setLastName(last_name);
-        user_entity.addRole(SIRRole.User.name());
+        user_entity.addRole(SIRRole.PrimaryUser.name());
 
         try {
             em.getTransaction().begin();

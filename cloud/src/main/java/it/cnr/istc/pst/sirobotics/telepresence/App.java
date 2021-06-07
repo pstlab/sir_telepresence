@@ -49,7 +49,10 @@ import io.javalin.plugin.json.JavalinJackson;
 import io.javalin.websocket.WsContext;
 import it.cnr.istc.pst.sirobotics.telepresence.db.DeviceTypeEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.HouseEntity;
+import it.cnr.istc.pst.sirobotics.telepresence.db.RobotEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.RobotTypeEntity;
+import it.cnr.istc.pst.sirobotics.telepresence.db.SensorEntity;
+import it.cnr.istc.pst.sirobotics.telepresence.db.SensorTypeEntity;
 import it.cnr.istc.pst.sirobotics.telepresence.db.UserEntity;
 
 public class App {
@@ -83,9 +86,9 @@ public class App {
         LOG.info("Connecting to the NLU provider..");
         NLU_CLIENT = new RasaClient();
         try {
-            JsonNode version = NLU_CLIENT.version();
+            final JsonNode version = NLU_CLIENT.version();
             LOG.info("NLU Provider: {}", version);
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             LOG.error("Cannot connect to the NLU provider..", ex);
         }
 
@@ -147,8 +150,26 @@ public class App {
                     admin.setLastName("Admin");
                     admin.addRole(SIRRole.Admin.name());
 
+                    final UserEntity mario_rossi = new UserEntity();
+                    mario_rossi.setFirstName("Mario");
+                    mario_rossi.setLastName("Rossi");
+                    mario_rossi.setSalt(salt);
+                    mario_rossi.setEmail("mario.rossi@sirobotics.it");
+                    mario_rossi.setPassword(hashPassword("password123", salt));
+                    mario_rossi.addRole(SIRRole.PrimaryUser.name());
+
+                    final UserEntity silvia_neri = new UserEntity();
+                    silvia_neri.setFirstName("Silvia");
+                    silvia_neri.setLastName("Neri");
+                    silvia_neri.setSalt(salt);
+                    silvia_neri.setEmail("silvia.neri@sirobotics.it");
+                    silvia_neri.setPassword(hashPassword("password123", salt));
+                    silvia_neri.addRole(SIRRole.SecondaryUser.name());
+
                     em.getTransaction().begin();
                     em.persist(admin);
+                    em.persist(mario_rossi);
+                    em.persist(silvia_neri);
                     em.getTransaction().commit();
                 }
 
@@ -172,14 +193,56 @@ public class App {
                     sanbot_type.setConfiguration(
                             "{\"notify-start\": [\"Navigator.GoingTo\",\"Robot.CheckUserAround\",\"Robot.CognitiveExercize\",\"Robot.PhysicalExercize\",\"Arm.RaiseHand\",\"Arm.LowerHand\"],\"notify-end\": [\"Robot.CognitiveExercize\"],\"auto-done\": [\"Navigator.At\"]}");
 
+                    final SensorTypeEntity pir_type = new SensorTypeEntity();
+                    pir_type.setName("PIR");
+                    pir_type.setDescription("Sensore ad infrarossi passivo");
+
                     em.getTransaction().begin();
                     em.persist(ohmni_type);
                     em.persist(sanbot_type);
+                    em.persist(pir_type);
                     em.getTransaction().commit();
                 }
 
-                final List<HouseEntity> houses = em.createQuery("SELECT he FROM HouseEntity he", HouseEntity.class)
+                List<HouseEntity> houses = em.createQuery("SELECT he FROM HouseEntity he", HouseEntity.class)
                         .getResultList();
+                if (houses.isEmpty()) {
+                    LOG.info("Creating sample house..");
+                    final HouseEntity house_1 = new HouseEntity();
+                    house_1.setName("Casa 1");
+                    house_1.setDescription("Una casa con tanti robot e tanti sensori");
+                    house_1.addUser(em.createQuery(
+                            "SELECT ue FROM UserEntity ue WHERE ue.first_name = :first_name AND  ue.last_name = :last_name",
+                            UserEntity.class).setParameter("first_name", "Mario").setParameter("last_name", "Rossi")
+                            .getSingleResult());
+                    house_1.addUser(em.createQuery(
+                            "SELECT ue FROM UserEntity ue WHERE ue.first_name = :first_name AND  ue.last_name = :last_name",
+                            UserEntity.class).setParameter("first_name", "Silvia").setParameter("last_name", "Neri")
+                            .getSingleResult());
+
+                    final SensorEntity pir_1 = new SensorEntity();
+                    pir_1.setName("PIR 1");
+                    pir_1.setDescription("Sensore ad infrarossi passivo");
+                    pir_1.setPosition("Cucina");
+                    pir_1.setType(em.createQuery("SELECT dt FROM DeviceTypeEntity dt WHERE dt.name = :name",
+                            SensorTypeEntity.class).setParameter("name", "PIR").getSingleResult());
+
+                    final RobotEntity ohmni_1 = new RobotEntity();
+                    ohmni_1.setName("Ohmni 1");
+                    ohmni_1.setDescription("Robot di telepresenza");
+                    ohmni_1.setType(em.createQuery("SELECT dt FROM DeviceTypeEntity dt WHERE dt.name = :name",
+                            SensorTypeEntity.class).setParameter("name", "Ohmni Robot").getSingleResult());
+
+                    em.getTransaction().begin();
+                    em.persist(house_1);
+                    em.persist(pir_1);
+                    em.persist(ohmni_1);
+                    house_1.addDevice(pir_1);
+                    house_1.addDevice(ohmni_1);
+                    em.getTransaction().commit();
+
+                    houses = em.createQuery("SELECT he FROM HouseEntity he", HouseEntity.class).getResultList();
+                }
 
                 LOG.info("Loading {} houses..", houses.size());
                 for (final HouseEntity house : houses)
@@ -195,16 +258,17 @@ public class App {
             path("user", () -> {
                 post(UserController::createUser, roles(SIRRole.Guest, SIRRole.Admin));
                 path(":id", () -> {
-                    get(UserController::getUser, roles(SIRRole.Admin, SIRRole.User));
-                    post(UserController::updateUser, roles(SIRRole.Admin, SIRRole.User));
-                    delete(UserController::deleteUser, roles(SIRRole.Admin, SIRRole.User));
+                    get(UserController::getUser, roles(SIRRole.Admin, SIRRole.PrimaryUser, SIRRole.SecondaryUser));
+                    post(UserController::updateUser, roles(SIRRole.Admin, SIRRole.PrimaryUser, SIRRole.SecondaryUser));
+                    delete(UserController::deleteUser,
+                            roles(SIRRole.Admin, SIRRole.PrimaryUser, SIRRole.SecondaryUser));
                 });
             });
             path("users", () -> get(UserController::getAllUsers, roles(SIRRole.Admin)));
             path("house", () -> {
                 post(HouseController::createHouse, roles(SIRRole.Admin));
                 path(":id", () -> {
-                    get(HouseController::getHouse, roles(SIRRole.Admin, SIRRole.User));
+                    get(HouseController::getHouse, roles(SIRRole.Admin, SIRRole.PrimaryUser, SIRRole.SecondaryUser));
                 });
             });
             path("house_data", () -> post(HouseController::houseData, roles(SIRRole.Admin)));
@@ -222,7 +286,7 @@ public class App {
             ws.onConnect(ctx -> new_connection(ctx));
             ws.onClose(ctx -> lost_connection(ctx));
             ws.onMessage(ctx -> new_message(ctx));
-        }, roles(SIRRole.Admin, SIRRole.User));
+        }, roles(SIRRole.Admin, SIRRole.PrimaryUser, SIRRole.SecondaryUser));
 
         app.start();
 
@@ -296,6 +360,6 @@ public class App {
     }
 
     enum SIRRole implements Role {
-        Guest, User, Admin
+        Guest, PrimaryUser, SecondaryUser, Admin
     }
 }
