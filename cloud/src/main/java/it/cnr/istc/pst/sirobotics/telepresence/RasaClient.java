@@ -13,16 +13,21 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJsonProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RasaClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(RasaClient.class);
-    private final Client client = ClientBuilder.newClient();
+    private final Client client;
     private final WebTarget target;
 
     public RasaClient() {
+        ClientConfig config = new ClientConfig();
+        config.register(new JacksonJsonProvider(App.MAPPER));
+        client = ClientBuilder.newClient();
         final String server_uri = "http://" + App.PROPERTIES.getProperty("rasa_host", "localhost") + ':'
                 + App.PROPERTIES.getProperty("rasa_port", "5005");
         target = client.target(server_uri);
