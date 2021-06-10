@@ -31,54 +31,48 @@ stories:
   - story: chest press ok
     steps:
       - intent: chest_press_start_command
-      - action: action_command_start
       - action: utter_chest_press
       - intent: affirmation
       - action: utter_good
       - action: utter_chest_press_start
-      - action: action_command_done
+      - action: utter_done
 
   - story: chest press bad
     steps:
       - intent: chest_press_start_command
-      - action: action_command_start
       - action: utter_chest_press
       - intent: negation
       - action: utter_good
-      - action: action_command_failure
+      - action: utter_failure
 
   - story: pressure pills reminder ok
     steps:
       - intent: pressure_pills_reminder_start_command
-      - action: action_command_start
       - action: utter_pressure_pills_reminder
       - intent: affirmation
       - action: utter_good
-      - action: action_command_done
+      - action: utter_done
 
   - story: pressure pills reminder bad
     steps:
       - intent: pressure_pills_reminder_start_command
-      - action: action_command_start
       - action: utter_pressure_pills_reminder
       - intent: negation
       - action: utter_bad
-      - action: action_command_done
+      - action: utter_failure
 
   - story: pressure measurement reminder ok
     steps:
       - intent: pressure_measurement_reminder_start_command
-      - action: action_command_start
       - action: utter_pressure_measurement_reminder
       - intent: affirmation
       - action: utter_good
-      - action: action_command_done
+      - action: utter_done
 
   - story: pressure measurement reminder bad
     steps:
       - intent: pressure_measurement_reminder_start_command
-      - action: action_command_start
       - action: utter_pressure_measurement_reminder
       - intent: negation
       - action: utter_bad
-      - action: action_command_done
+      - action: utter_failure

@@ -15,8 +15,8 @@ Then you should download your config file for mqtt_bridge by connecting to http:
 ####################################
 for RASA
 
-cd sir_telepresence/nlu
-rasa train
+cd sir_telepresence/nlu  #every time to cancel cloud directory
+rasa train   
 
 
 One shell

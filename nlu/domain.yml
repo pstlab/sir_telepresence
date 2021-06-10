@@ -20,12 +20,6 @@ slots:
   PER:
     type: text
     influence_conversation: true
-  mqtt_prefix:
-    type: text
-    influence_conversation: false
-  sigma:
-    type: text
-    influence_conversation: false
   num_press:
     type: text
     influence_conversation: false
@@ -44,6 +38,8 @@ responses:
   utter_greeting:
     - text: Ciao!
     - text: Buongiorno!
+     
+    
 
   utter_greeting_name:
     - text: Ciao {PER}!
@@ -98,10 +94,14 @@ responses:
     - text: Non ho capito. Puoi ripetere in un altro modo?
     - text: Non ho capito cosa hai detto. Puoi ridirlo in un altro modo?
 
-actions:
-  - action_command_start
-  - action_command_done
-  - action_command_failure
+  utter_done:
+    - custom:
+        response_code: True
+
+  utter_failure:
+    - custom:
+        response_code: False
+
 
 session_config:
   session_expiration_time: 60
