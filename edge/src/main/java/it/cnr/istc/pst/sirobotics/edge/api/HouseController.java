@@ -1,7 +1,6 @@
 package it.cnr.istc.pst.sirobotics.edge.api;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,25 +44,22 @@ public class HouseController {
     Device new_device(@RequestParam(value = "name", required = true) final String name,
             @RequestParam(value = "name") final String description,
             @RequestParam(value = "type_id", required = true) final Long type_id) {
-        final Optional<DeviceTypeEntity> opt_dev_type = device_type_repository.findById(type_id);
+        final DeviceTypeEntity dev_type = device_type_repository.findById(type_id)
+                .orElseThrow(() -> new DeviceTypeNotFoundException(type_id));
 
-        if (opt_dev_type.isPresent()) {
-            final DeviceTypeEntity dev_type = opt_dev_type.get();
-            DeviceEntity dev = null;
-            if (dev_type instanceof SensorTypeEntity)
-                dev = new SensorEntity();
-            else if (dev_type instanceof RobotTypeEntity)
-                dev = new RobotEntity();
-            else
-                throw new UnsupportedOperationException();
+        DeviceEntity dev = null;
+        if (dev_type instanceof SensorTypeEntity)
+            dev = new SensorEntity();
+        else if (dev_type instanceof RobotTypeEntity)
+            dev = new RobotEntity();
+        else
+            throw new UnsupportedOperationException();
 
-            dev.setName(name);
-            dev.setDescription(description);
-            dev.setType(dev_type);
+        dev.setName(name);
+        dev.setDescription(description);
+        dev.setType(dev_type);
 
-            return toDevice(device_repository.save(dev), false);
-        } else
-            throw new DeviceTypeNotFoundException(type_id);
+        return toDevice(device_repository.save(dev), false);
     }
 
     static DeviceType toDeviceType(final DeviceTypeEntity entity) {
