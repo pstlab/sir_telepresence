@@ -4,12 +4,12 @@
 
 namespace sir
 {
-    class local_task_manager : public ratio::executor_listener
-    {
-    public:
-        local_task_manager(ratio::executor &e);
-        ~local_task_manager();
+  class local_task_manager : public ratio::executor_listener
+  {
+  public:
+    local_task_manager(ratio::executor &e);
+    ~local_task_manager();
 
-    private:
-    };
+  private:
+  };
 } // namespace sir
