@@ -8,10 +8,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "LTM");
     ros::NodeHandle nh;
 
-    ratio::solver slv;
-    ratio::executor exec(slv);
-
-    sir::local_task_manager ltm(exec);
+    sir::local_task_manager ltm;
 
     return 0;
 }
