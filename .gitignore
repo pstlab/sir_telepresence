@@ -1,11 +1,2 @@
 .vscode
-.classpath
-.project
-.settings
-.antlr
 build
-target
-models
-results
-__pycache__
-dependency-reduced-pom.xml
