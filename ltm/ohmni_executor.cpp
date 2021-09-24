@@ -5,7 +5,10 @@ using namespace ratio;
 
 namespace sir
 {
-    ohmni_executor::ohmni_executor() : slv(), exec(slv), core_listener(slv), executor_listener(exec) {}
+    ohmni_executor::ohmni_executor() : slv(), exec(slv), core_listener(slv), executor_listener(exec)
+    { // we read the domain files..
+        slv.read("");
+    }
     ohmni_executor::~ohmni_executor() {}
 
     void ohmni_executor::started_solving() { state = Solving; }

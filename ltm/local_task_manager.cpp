@@ -1,5 +1,8 @@
 #include "local_task_manager.h"
 #include "ohmni_executor.h"
+#include <thread>
+
+using namespace ratio;
 
 namespace sir
 {
@@ -9,22 +12,46 @@ namespace sir
 
     void local_task_manager::tick()
     {
-        if (!exec) // we create a new plan..
-            create_new_plan();
-        else if (exec->get_solver_state() == Finished || exec->get_solver_state() == Inconsistent)
-        { // we make some cleanings before creating a new plan..
-            delete exec;
-            create_new_plan();
+        switch (p_state)
+        {
+        case UnknownUser: // the user is still unknown..
+            // we start a dialogue for gathering a personalization profile from the user..
+            p_state = Talking;
+            break;
+        case KnownUser: // we now know the user..
+            /*
+            * Plan management
+            */
+            if (!exec) // we create a new plan..
+                create_new_plan();
+            else
+                switch (exec->get_solver_state())
+                {
+                case Finished:
+                case Inconsistent:
+                    // we make some cleanings before creating a new plan..
+                    delete exec;
+                    create_new_plan();
+                    break;
+                case Executing:
+                    // we call the executor's tick on a separate thread (notice that this can change the state of the solver)..
+                    std::thread(&executor::tick, &exec->get_executor());
+                    break;
+                default:
+                    break;
+                }
+            break;
+        default:
+            break;
         }
-        else if (exec->get_solver_state() == Executing)
-            // TODO: the executor's tick should be executed on a separate thread..
-            exec->get_executor().tick();
     }
 
     void local_task_manager::create_new_plan()
     {
         exec = new ohmni_executor();
-        // TODO: create the planning problem..
-        // TODO: solve the planning problem on a separate thread..
+        // we create a new planning problem according to the user's profile..
+        exec->get_solver().read("");
+        if (exec->get_solver_state() != Inconsistent) // we call the solver's solve on a separate thread..
+            std::thread(&solver::solve, &exec->get_solver());
     }
 } // namespace sir
