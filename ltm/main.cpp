@@ -8,7 +8,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "LTM");
     ros::NodeHandle nh;
 
-    sir::local_task_manager ltm(nh);
+    sir::local_task_manager exec(nh);
 
     return 0;
 }
