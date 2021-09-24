@@ -4,7 +4,8 @@ project(ltm)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(catkin REQUIRED COMPONENTS roscpp)
+find_package(catkin REQUIRED COMPONENTS roscpp roslaunch)
+roslaunch_add_file_check(launch)
 
 catkin_package()
 
