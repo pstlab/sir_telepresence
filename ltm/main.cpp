@@ -13,6 +13,7 @@ int main(int argc, char **argv)
     while (ros::ok())
     {
         exec.tick();
+        ros::spinOnce();
         loop_rate.sleep();
     }
 

@@ -46,6 +46,9 @@ namespace sir
                     // we call the executor's tick on a separate thread (notice that this can change the state of the solver)..
                     std::thread(&executor::tick, &exec->get_executor());
                     break;
+                case Solving:
+                    // we should recover these steps..
+                    break;
                 default:
                     break;
                 }

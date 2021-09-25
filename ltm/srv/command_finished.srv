@@ -1,0 +1,4 @@
+uint64 command_id;
+uint8 command_result; #0: ok; #1: command failure; #2 system failure;
+---
+uint8 result;

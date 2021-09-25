@@ -24,16 +24,23 @@ namespace sir
     }
 
     void ohmni_executor::starting(const std::unordered_set<atom *> &atms)
-    { // tell the executor to do not start some atoms..
+    { // tell the executor the atoms which are not yet ready to start..
         // exec.dont_start_yet(atms);
     }
     void ohmni_executor::start(const std::unordered_set<atom *> &atms)
     { // these atoms are now started..
+        current_commands.insert(atms.begin(), atms.end());
     }
 
     void ohmni_executor::ending(const std::unordered_set<atom *> &atms)
-    { // tell the executor to do not start some atoms..
-        // exec.dont_end_yet(atms);
+    { // tell the executor the atoms which are not yet ready to finish..
+        std::unordered_set<ratio::atom *> dey;
+        for (const auto &atm : atms)
+            if (current_commands.count(atm))
+                dey.insert(atm);
+
+        if (!dey.empty())
+            exec.dont_end_yet(atms);
     }
     void ohmni_executor::end(const std::unordered_set<atom *> &atms)
     { // these atoms are now ended..

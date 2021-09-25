@@ -43,6 +43,7 @@ namespace sir
     ratio::solver slv;
     ratio::executor exec;
     solver_state state = Idle;
+    std::unordered_set<ratio::atom *> current_commands;
   };
 
   inline const char *to_string(const ohmni_executor *exec)
