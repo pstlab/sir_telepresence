@@ -13,25 +13,6 @@ namespace sir
     Inconsistent
   };
 
-  inline const char *to_string(const solver_state &s_state)
-  {
-    switch (s_state)
-    {
-    case Idle:
-      return "idle";
-    case Solving:
-      return "solving";
-    case Executing:
-      return "executing";
-    case Finished:
-      return "finished";
-    case Inconsistent:
-      return "inconsistent";
-    default:
-      return "-";
-    }
-  }
-
   class ohmni_executor : public ratio::core_listener, public ratio::executor_listener
   {
   public:
@@ -60,4 +41,26 @@ namespace sir
     ratio::executor exec;
     solver_state state = Idle;
   };
+
+  inline const char *to_string(const ohmni_executor *exec)
+  {
+    if (exec)
+      switch (exec->get_solver_state())
+      {
+      case Idle:
+        return "idle";
+      case Solving:
+        return "solving";
+      case Executing:
+        return "executing";
+      case Finished:
+        return "finished";
+      case Inconsistent:
+        return "inconsistent";
+      default:
+        return "-";
+      }
+    else
+      return "null";
+  }
 } // namespace sir
