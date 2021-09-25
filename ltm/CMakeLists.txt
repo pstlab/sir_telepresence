@@ -12,5 +12,5 @@ catkin_package()
 include_directories(include ${catkin_INCLUDE_DIRS} /usr/local/include/json /usr/local/include/smt /usr/local/include/core /usr/local/include/riddle /usr/local/include/solver /usr/local/include/executor)
 add_compile_definitions(BUILD_LISTENERS)
 
-add_executable(ltm main.cpp ohmni_executor.cpp local_task_manager.cpp)
+add_executable(ltm main.cpp local_task_manager.cpp ohmni_executor.cpp dialogue_manager.cpp)
 target_link_libraries(ltm ${catkin_LIBRARIES} json smt core riddle solver executor)

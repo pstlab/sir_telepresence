@@ -1,26 +1,33 @@
 #include "local_task_manager.h"
-#include "ohmni_executor.h"
 #include <thread>
 
 using namespace ratio;
 
 namespace sir
 {
-
-    local_task_manager::local_task_manager(ros::NodeHandle &handle) : handle(handle) {}
+    local_task_manager::local_task_manager(ros::NodeHandle &handle) : handle(handle), d_manager(*this) {}
     local_task_manager::~local_task_manager() {}
 
     void local_task_manager::tick()
     {
-        ROS_INFO("{\"profile\": \"%s\", \"solver\": \"%s\"}", to_string(p_state), to_string(exec));
+        ROS_INFO("{\"System\": %s, \"Dialogue\": %s, \"Solver\": %s}", to_string(s_state), to_string(d_manager), to_string(exec));
 
-        switch (p_state)
+        switch (s_state)
         {
-        case UnknownUser: // the user is still unknown..
+        case Unconfigured: // the user is still unknown..
             // we start a dialogue for gathering a personalization profile from the user..
-            p_state = Talking;
+            d_manager.gather_profile();
+            s_state = GatheringProfile;
             break;
-        case KnownUser: // we now know the user..
+        case GatheringProfile: // we are gathering the user's profile..
+            break;
+        case ProfileGathered: // we now know the user..
+            // we start the mapping phase..
+            s_state = Mapping;
+            break;
+        case Mapping: // we are mapping the environment..
+            break;
+        case Configured: // the system is now configured..
             /*
             * Plan management
             */
@@ -50,7 +57,7 @@ namespace sir
 
     void local_task_manager::create_new_plan()
     {
-        exec = new ohmni_executor();
+        exec = new ohmni_executor(*this);
         // we create a new planning problem according to the user's profile..
         exec->get_solver().read("");
         if (exec->get_solver_state() != Inconsistent) // we call the solver's solve on a separate thread..

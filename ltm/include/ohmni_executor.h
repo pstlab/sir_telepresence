@@ -4,6 +4,8 @@
 
 namespace sir
 {
+  class local_task_manager;
+
   enum solver_state
   {
     Idle,
@@ -16,7 +18,7 @@ namespace sir
   class ohmni_executor : public ratio::core_listener, public ratio::executor_listener
   {
   public:
-    ohmni_executor();
+    ohmni_executor(local_task_manager &ltm);
     ~ohmni_executor();
 
     ratio::solver &get_solver() { return slv; }
@@ -37,6 +39,7 @@ namespace sir
     void end(const std::unordered_set<ratio::atom *> &) override;
 
   private:
+    local_task_manager &ltm;
     ratio::solver slv;
     ratio::executor exec;
     solver_state state = Idle;
@@ -48,17 +51,17 @@ namespace sir
       switch (exec->get_solver_state())
       {
       case Idle:
-        return "idle";
+        return "\"Idle\"";
       case Solving:
-        return "solving";
+        return "\"Solving\"";
       case Executing:
-        return "executing";
+        return "\"Executing\"";
       case Finished:
-        return "finished";
+        return "\"Finished\"";
       case Inconsistent:
-        return "inconsistent";
+        return "\"Inconsistent\"";
       default:
-        return "-";
+        return "\"-\"";
       }
     else
       return "null";

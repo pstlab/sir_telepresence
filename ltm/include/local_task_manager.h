@@ -1,16 +1,20 @@
 #pragma once
 
+#include "ohmni_executor.h"
+#include "dialogue_manager.h"
 #include <ros/ros.h>
 
 namespace sir
 {
   class ohmni_executor;
 
-  enum profile_state
+  enum system_state
   {
-    UnknownUser,
-    Talking,
-    KnownUser
+    Unconfigured,
+    GatheringProfile,
+    ProfileGathered,
+    Mapping,
+    Configured
   };
 
   class local_task_manager
@@ -18,6 +22,8 @@ namespace sir
   public:
     local_task_manager(ros::NodeHandle &handle);
     ~local_task_manager();
+
+    ros::NodeHandle &get_handle() { return handle; }
 
     void tick();
 
@@ -31,21 +37,26 @@ namespace sir
     * Local Task Manager state
     */
     ohmni_executor *exec;
-    profile_state p_state = UnknownUser;
+    system_state s_state = Unconfigured;
+    dialogue_manager d_manager;
   };
 
-  inline const char *to_string(const profile_state &p_state)
+  inline const char *to_string(const system_state &s_state)
   {
-    switch (p_state)
+    switch (s_state)
     {
-    case UnknownUser:
-      return "unknown";
-    case Talking:
-      return "talking";
-    case KnownUser:
-      return "known";
+    case Unconfigured:
+      return "\"Unconfigured\"";
+    case GatheringProfile:
+      return "\"GatheringProfile\"";
+    case ProfileGathered:
+      return "\"ProfileGathered\"";
+    case Mapping:
+      return "\"Mapping\"";
+    case Configured:
+      return "\"Configured\"";
     default:
-      return "-";
+      return "\"-\"";
     }
   }
 } // namespace sir

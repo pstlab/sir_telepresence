@@ -1,11 +1,12 @@
 #include "ohmni_executor.h"
+#include "local_task_manager.h"
 #include "std_msgs/Int8.h"
 
 using namespace ratio;
 
 namespace sir
 {
-    ohmni_executor::ohmni_executor() : slv(), exec(slv), core_listener(slv), executor_listener(exec)
+    ohmni_executor::ohmni_executor(local_task_manager &ltm) : ltm(ltm), slv(), exec(slv), core_listener(slv), executor_listener(exec)
     { // we read the domain files..
         slv.read("");
     }
