@@ -18,7 +18,7 @@ namespace sir
     void dialogue_manager::start_dialogue(const ratio::atom &atm)
     {
         ROS_ASSERT(current_dialogue == nullptr);
-        ROS_INFO("Starting dialogue %s..", atm.get_type().get_name());
+        ROS_INFO("Starting dialogue %s..", atm.get_type().get_name().c_str());
         d_state = Talking;
         current_dialogue = &atm;
     }
