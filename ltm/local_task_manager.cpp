@@ -12,6 +12,8 @@ namespace sir
 
     void local_task_manager::tick()
     {
+        ROS_INFO("{\"profile\": \"%s\", \"solver\": \"%s\"}", to_string(p_state), exec ? to_string(exec->get_solver_state()) : "null");
+
         switch (p_state)
         {
         case UnknownUser: // the user is still unknown..

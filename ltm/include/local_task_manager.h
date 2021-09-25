@@ -13,6 +13,21 @@ namespace sir
     KnownUser
   };
 
+  inline const char *to_string(const profile_state &p_state)
+  {
+    switch (p_state)
+    {
+    case UnknownUser:
+      return "unknown";
+    case Talking:
+      return "talking";
+    case KnownUser:
+      return "known";
+    default:
+      return "-";
+    }
+  }
+
   class local_task_manager
   {
   public:
