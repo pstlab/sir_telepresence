@@ -1,6 +1,7 @@
 #pragma once
 
 #include "executor_listener.h"
+#include "ltm/task_finished.h"
 
 namespace sir
 {
@@ -38,12 +39,17 @@ namespace sir
     void ending(const std::unordered_set<ratio::atom *> &) override;
     void end(const std::unordered_set<ratio::atom *> &) override;
 
+    friend const char *to_string(const ohmni_executor *exec);
+
+  private:
+    bool task_finished(ltm::task_finished::Request &req, ltm::task_finished::Response &res);
+
   private:
     local_task_manager &ltm;
     ratio::solver slv;
     ratio::executor exec;
     solver_state state = Idle;
-    std::unordered_set<ratio::atom *> current_tasks;
+    std::unordered_map<smt::var, ratio::atom *> current_tasks;
   };
 
   inline const char *to_string(const ohmni_executor *exec)
@@ -56,7 +62,7 @@ namespace sir
       case Solving:
         return "\"Solving\"";
       case Executing:
-        return "\"Executing\"";
+        return ("\"Executing(" + std::to_string(exec->current_tasks.size()) + ")\"").c_str();
       case Finished:
         return "\"Finished\"";
       case Inconsistent:

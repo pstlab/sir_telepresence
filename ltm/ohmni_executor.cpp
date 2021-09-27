@@ -8,7 +8,9 @@ using namespace ratio;
 namespace sir
 {
     ohmni_executor::ohmni_executor(local_task_manager &ltm) : ltm(ltm), slv(), exec(slv), core_listener(slv), executor_listener(exec)
-    { // we read the domain files..
+    {
+        ltm.get_handle().advertiseService("task_finished", &ohmni_executor::task_finished, this);
+        // we read the domain files..
         slv.read("");
     }
     ohmni_executor::~ohmni_executor() {}
@@ -43,15 +45,17 @@ namespace sir
     void ohmni_executor::start(const std::unordered_set<atom *> &atms)
     { // these atoms are now started..
         for (auto &&atm : atms)
+        {
             ROS_INFO("Starting task %s..", atm->get_type().get_name().c_str());
-        current_tasks.insert(atms.begin(), atms.end());
+            current_tasks.emplace(atm->get_sigma(), atm);
+        }
     }
 
     void ohmni_executor::ending(const std::unordered_set<atom *> &atms)
     { // tell the executor the atoms which are not yet ready to finish..
         std::unordered_set<ratio::atom *> dey;
         for (const auto &atm : atms)
-            if (current_tasks.count(atm))
+            if (current_tasks.count(atm->get_sigma()))
                 dey.insert(atm);
 
         if (!dey.empty())
@@ -61,5 +65,14 @@ namespace sir
     { // these atoms are now ended..
         for (auto &&atm : atms)
             ROS_INFO("Ending task %s..", atm->get_type().get_name().c_str());
+    }
+
+    bool ohmni_executor::task_finished(ltm::task_finished::Request &req, ltm::task_finished::Response &res)
+    {
+        if (req.task_result == 1) // the task failed..
+            exec.failure({current_tasks.at(req.task_id)});
+        current_tasks.erase(req.task_id);
+        res.result = 0;
+        return true;
     }
 } // namespace sir

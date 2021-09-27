@@ -1,4 +1,4 @@
-uint64 task_id;
-uint8 task_result; #0: ok; #1: task failure; #2 system failure;
+uint64 task_id
+uint8 task_result #0: ok; #1: task failure; #2 system failure;
 ---
-uint8 result;
+uint8 result

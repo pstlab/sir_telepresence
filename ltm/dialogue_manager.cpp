@@ -4,15 +4,13 @@
 
 namespace sir
 {
-    dialogue_manager::dialogue_manager(local_task_manager &ltm) : ltm(ltm) {}
+    dialogue_manager::dialogue_manager(local_task_manager &ltm) : ltm(ltm) { ltm.get_handle().advertiseService("dialogue_finished", &dialogue_manager::dialogue_finished, this); }
     dialogue_manager::~dialogue_manager() {}
 
     void dialogue_manager::gather_profile()
     {
         ROS_INFO("Starting profile gathering phase..");
         d_state = Talking;
-        //ltm.get_handle().advertiseService("profile_gathered", []()
-        //                                  { return true; });
     }
 
     void dialogue_manager::start_dialogue(const ratio::atom &atm)
@@ -21,5 +19,14 @@ namespace sir
         ROS_INFO("Starting dialogue %s..", atm.get_type().get_name().c_str());
         d_state = Talking;
         current_dialogue = &atm;
+    }
+
+    bool dialogue_manager::dialogue_finished(ltm::dialogue_finished::Request &req, ltm::dialogue_finished::Response &res)
+    {
+        ROS_INFO("Dialogue %lu is finished..", req.dialogue_id);
+        d_state = Silent;
+        current_dialogue = nullptr;
+        res.result = 0;
+        return true;
     }
 } // namespace sir

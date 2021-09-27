@@ -1,6 +1,7 @@
 #pragma once
 
 #include "atom.h"
+#include "ltm/dialogue_finished.h"
 #include <ros/ros.h>
 
 namespace sir
@@ -23,6 +24,9 @@ namespace sir
 
     void gather_profile();
     void start_dialogue(const ratio::atom &atm);
+
+  private:
+    bool dialogue_finished(ltm::dialogue_finished::Request &req, ltm::dialogue_finished::Response &res);
 
   private:
     local_task_manager &ltm;
