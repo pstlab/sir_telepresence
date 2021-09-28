@@ -1,0 +1,6 @@
+uint64 dialogue_id
+string intent
+string[] entity_names
+string[] entity_values
+---
+uint8 result_code #0: ok; #1: system failure;

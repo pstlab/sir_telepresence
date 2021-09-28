@@ -25,8 +25,12 @@ namespace sir
     {
         ROS_INFO("Dialogue %lu is finished..", req.dialogue_id);
         d_state = Silent;
-        current_dialogue = nullptr;
-        res.result = 0;
+        if (current_dialogue)
+        { // the dialogue was started by a deliberative initiative..
+            ltm.get_executor()->finish_task(req.dialogue_id, !req.dialogue_result);
+            current_dialogue = nullptr;
+        }
+        res.result_code = 0;
         return true;
     }
 } // namespace sir

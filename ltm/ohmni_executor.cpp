@@ -2,6 +2,7 @@
 #include "local_task_manager.h"
 #include "predicate.h"
 #include "std_msgs/Int8.h"
+#include <thread>
 
 using namespace ratio;
 
@@ -67,12 +68,17 @@ namespace sir
             ROS_INFO("Ending task %s..", atm->get_type().get_name().c_str());
     }
 
+    void ohmni_executor::finish_task(const smt::var &id, const bool &success)
+    {
+        if (!success) // the task failed..
+            std::thread(&executor::failure, &exec, std::unordered_set<atom *>({current_tasks.at(id)}));
+        current_tasks.erase(id);
+    }
+
     bool ohmni_executor::task_finished(ltm::task_finished::Request &req, ltm::task_finished::Response &res)
     {
-        if (req.task_result == 1) // the task failed..
-            exec.failure({current_tasks.at(req.task_id)});
-        current_tasks.erase(req.task_id);
-        res.result = 0;
+        finish_task(req.task_id, !req.task_result);
+        res.result_code = 0;
         return true;
     }
 } // namespace sir

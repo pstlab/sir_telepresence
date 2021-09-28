@@ -24,6 +24,7 @@ namespace sir
     ~local_task_manager();
 
     ros::NodeHandle &get_handle() { return handle; }
+    ohmni_executor *get_executor() { return exec; }
 
     void tick();
 

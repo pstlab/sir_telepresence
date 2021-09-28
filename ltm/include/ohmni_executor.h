@@ -6,6 +6,7 @@
 namespace sir
 {
   class local_task_manager;
+  class dialogue_manager;
 
   enum solver_state
   {
@@ -18,6 +19,8 @@ namespace sir
 
   class ohmni_executor : public ratio::core_listener, public ratio::executor_listener
   {
+    friend class dialogue_manager;
+
   public:
     ohmni_executor(local_task_manager &ltm);
     ~ohmni_executor();
@@ -27,6 +30,7 @@ namespace sir
 
     const solver_state &get_solver_state() const { return state; }
 
+  private:
     void started_solving() override;
     void solution_found() override;
     void inconsistent_problem() override;
@@ -41,7 +45,7 @@ namespace sir
 
     friend const char *to_string(const ohmni_executor *exec);
 
-  private:
+    void finish_task(const smt::var &id, const bool &success = true);
     bool task_finished(ltm::task_finished::Request &req, ltm::task_finished::Response &res);
 
   private:
