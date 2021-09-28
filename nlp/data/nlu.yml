@@ -34,33 +34,12 @@ nlu:
     - Sicuramente no
     - No davvero
 
-- intent: start_welcoming
+- intent: gather_profile
   examples: |
-    - Inizia il welcoming
-    - Avvia il welcoming
-    - Inizia la fase di welcoming
-    - Avvia la fase di welcoming
-
-- intent: prepare_session
-  examples: |
-    - Prepara la sessione di danza
-    - Avvia la sessione di danza
-    - Inizia la sessione di danza
-
-- intent: send_game_feedback
-  examples: |
-    - Invia un feedback sul gioco
-    - Invia un feedback sul gioco agli utenti
-
-- intent: send_physiological_feedback
-  examples: |
-    - Invia un feedback fisiologico
-    - Invia un feedback fisiologico agli utenti
-
-- intent: send_equilibrium_feedback
-  examples: |
-    - Invia un feedback sull'equilibrio
-    - Invia un feedback sull'equilibrio agli utenti
+    - Voglio parlarti di me
+    - Voglio descriverti il mio profilo
+    - Voglio raccontarti di me
+    - Voglio descrivermi
 
 - intent: out_of_scope
   examples: |

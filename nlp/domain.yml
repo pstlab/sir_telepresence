@@ -21,70 +21,29 @@ slots:
   name:
     type: text
     influence_conversation: false
-  performance:
-    type: categorical
-    values:
-      - low
-      - medium
-      - high
-  heart_rate:
-    type: categorical
-    values:
-      - low
-      - high
-  equilibrium:
-    type: categorical
-    values:
-      - good
-      - bad
-  command_state:
-    type: categorical
-    influence_conversation: false
-    values:
-      - executing
-      - done
-      - failure
 
 responses:
   utter_greet:
-  - text: Hey! Posso esservi utile?
-  - text: Hey, ciao! Posso esservi utile?
-  - text: Hey, ciao! Come posso aiutarvi?
-  - text: Ciao! Posso esservi utile?
-  - text: Ciao! Come posso aiutarvi?
+  - text: Hey! Posso esserti utile?
+  - text: Hey, ciao! Posso esserti utile?
+  - text: Hey, ciao! Come posso aiutarti?
+  - text: Ciao! Posso esserti utile?
+  - text: Ciao! Come posso aiutarti?
 
   utter_goodbye:
   - text: Ciao!
   - text: Arrivederci!
   - text: A presto!
 
-  utter_start_welcoming:
-  - text: Benvenuti alla sessione di riabilitazione. La sessione comincerà a breve. Nel frattempo, se volete chiedermi qualcosa, potete farlo premendo il pulsante sullo schermo e pronunciando la vostra richiesta.
+  utter_start_profile_gathering:
+  - text: Ti farò alcune domande per capire meglio come interagire con te. Va bene?
+  - text: Ora ti farò alcune domande per capire meglio come interagire con te. Va bene?
+  - text: Ora va di rispondere ad alcune domande su di te?
 
-  utter_prepare_session:
-  - text: La sessione di danza comincerà fra poco. Siete pregati di togliervi le scarpe.
-  - text: La sessione di danza comincerà fra poco. Per favore, toglietevi le scarpe.
-  - text: La sessione di danza comincerà fra poco. Per favore, cominciate a togliervi le scarpe.
-
-  utter_positive_game_feedback:
-  - text: Continua così! Stai andando bene.
-  
-  utter_negative_game_feedback:
-  - text: Hai sbagliato! Ma non scoraggiarti.
-  - text: Hai sbagliato! Riprova.
-  
-  utter_slow_down:
-  - text: Ti stai stancando troppo! Rallenteremo un poco.
-  - text: Ti stai stancando troppo! Ora rallenteremo un po'.
-  
-  utter_speed_up:
-  - text: Vai benissimo! Aumenteremo la difficoltà.
-  
-  utter_good_equilibrium:
-  - text: Hai un buon equilibrio!
-  
-  utter_bad_equilibrium:
-  - text: Attenzione a non perdere l'equilibrio.
+  utter_end_profile_gathering:
+  - text: Molto bene. Ora so tutto quello di cui avevo bisogno.
+  - text: Molto bene. Ora conosco tutto quello di cui avevo bisogno.
+  - text: Molto bene. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
   
   utter_out_of_scope:
   - text: Mi spiace! Non so come gestire la tua richiesta.

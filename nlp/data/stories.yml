@@ -7,70 +7,11 @@ stories:
   - intent: greet
   - action: utter_greet
 
-- story: Welcoming
+- story: Profile gathering
   steps:
-  - intent: start_welcoming
+  - intent: gather_profile
   - action: action_command_start
-  - action: utter_start_welcoming
-  - action: action_command_done
-
-- story: Start session
-  steps:
-  - intent: prepare_session
-  - action: action_command_start
-  - action: utter_prepare_session
-  - action: action_command_done
-
-- story: Positive game feedback
-  steps:
-  - intent: send_game_feedback
-  - slot_was_set:
-    - performance : high
-  - action: action_command_start
-  - action: utter_positive_game_feedback
-  - action: action_command_done
-
-- story: Negative game feedback
-  steps:
-  - intent: send_game_feedback
-  - slot_was_set:
-    - performance : low
-  - action: action_command_start
-  - action: utter_negative_game_feedback
-  - action: action_command_done
-
-- story: Slow down feedback
-  steps:
-  - intent: send_physiological_feedback
-  - slot_was_set:
-    - heart_rate : high
-  - action: action_command_start
-  - action: utter_slow_down
-  - action: action_command_done
-
-- story: Speed up feedback
-  steps:
-  - intent: send_physiological_feedback
-  - slot_was_set:
-    - heart_rate : low
-  - action: action_command_start
-  - action: utter_speed_up
-  - action: action_command_done
-
-- story: Good equilibrium feedback
-  steps:
-  - intent: send_equilibrium_feedback
-  - slot_was_set:
-    - equilibrium : good
-  - action: action_command_start
-  - action: utter_slow_down
-  - action: action_command_done
-
-- story: Bad equilibrium feedback
-  steps:
-  - intent: send_equilibrium_feedback
-  - slot_was_set:
-    - equilibrium : bad
-  - action: action_command_start
-  - action: utter_speed_up
+  - action: utter_start_profile_gathering
+  - intent: affirm
+  - action: utter_end_profile_gathering
   - action: action_command_done
