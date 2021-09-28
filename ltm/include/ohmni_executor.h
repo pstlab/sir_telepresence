@@ -1,7 +1,7 @@
 #pragma once
 
 #include "executor_listener.h"
-#include "ltm/task_finished.h"
+#include "msgs/task_finished.h"
 
 namespace sir
 {
@@ -46,7 +46,7 @@ namespace sir
     friend const char *to_string(const ohmni_executor *exec);
 
     void finish_task(const smt::var &id, const bool &success = true);
-    bool task_finished(ltm::task_finished::Request &req, ltm::task_finished::Response &res);
+    bool task_finished(msgs::task_finished::Request &req, msgs::task_finished::Response &res);
 
   private:
     local_task_manager &ltm;

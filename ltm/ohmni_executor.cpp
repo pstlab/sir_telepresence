@@ -75,7 +75,7 @@ namespace sir
         current_tasks.erase(id);
     }
 
-    bool ohmni_executor::task_finished(ltm::task_finished::Request &req, ltm::task_finished::Response &res)
+    bool ohmni_executor::task_finished(msgs::task_finished::Request &req, msgs::task_finished::Response &res)
     {
         finish_task(req.task_id, !req.task_result);
         res.result_code = 0;
