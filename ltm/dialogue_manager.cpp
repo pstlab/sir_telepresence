@@ -1,16 +1,27 @@
 #include "dialogue_manager.h"
 #include "local_task_manager.h"
 #include "predicate.h"
+#include "ltm/start_dialogue.h"
 
 namespace sir
 {
-    dialogue_manager::dialogue_manager(local_task_manager &ltm) : ltm(ltm) { ltm.get_handle().advertiseService("dialogue_finished", &dialogue_manager::dialogue_finished, this); }
+    dialogue_manager::dialogue_manager(local_task_manager &ltm) : ltm(ltm), service_client(ltm.get_handle().serviceClient<ltm::start_dialogue>("start_dialogue")) { ltm.get_handle().advertiseService("dialogue_finished", &dialogue_manager::dialogue_finished, this); }
     dialogue_manager::~dialogue_manager() {}
 
     void dialogue_manager::gather_profile()
     {
         ROS_INFO("Starting profile gathering phase..");
-        d_state = Talking;
+        ltm::start_dialogue srv;
+        srv.request.intent = "gather_profile";
+        if (service_client.call(srv))
+        {
+            ROS_INFO("Started profile gathering phase..");
+            d_state = Talking;
+        }
+        else
+        {
+            ROS_INFO("Cannot start profile gathering phase..");
+        }
     }
 
     void dialogue_manager::start_dialogue(const ratio::atom &atm)

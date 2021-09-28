@@ -30,6 +30,7 @@ namespace sir
 
   private:
     local_task_manager &ltm;
+    ros::ServiceClient service_client;
     dialogue_state d_state = Silent;
     const ratio::atom *current_dialogue = nullptr;
   };

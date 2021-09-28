@@ -5,15 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ## Find catkin and any catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp roslaunch std_msgs genmsg)
+find_package(catkin REQUIRED COMPONENTS roscpp roslaunch msgs)
 roslaunch_add_file_check(launch)
-
-## Declare ROS messages and services
-#add_message_files(FILES Num.msg)
-add_service_files(FILES start_dialogue.srv dialogue_finished.srv task_finished.srv)
-
-## Generate added messages and services
-generate_messages(DEPENDENCIES std_msgs)
 
 ## Declare a catkin package
 catkin_package()
