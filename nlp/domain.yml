@@ -5,58 +5,77 @@ intents:
   - goodbye
   - affirm
   - deny
-  - start_welcoming
-  - prepare_session
-  - send_game_feedback
-  - send_physiological_feedback
-  - send_equilibrium_feedback
+  - gather_profile
+  - gather_name
 
 entities:
-  - name
-  - performance
-  - heart_rate
-  - equilibrium
+  - PER
 
 slots:
-  name:
+  PER:
     type: text
     influence_conversation: false
+  command_state:
+    type: categorical
+    influence_conversation: false
+    values:
+      - executing
+      - done
+      - failure
 
 responses:
   utter_greet:
-  - text: Hey! Posso esserti utile?
-  - text: Hey, ciao! Posso esserti utile?
-  - text: Hey, ciao! Come posso aiutarti?
-  - text: Ciao! Posso esserti utile?
-  - text: Ciao! Come posso aiutarti?
+    - text: Hey! Posso esserti utile?
+    - text: Hey, ciao! Posso esserti utile?
+    - text: Hey, ciao! Come posso aiutarti?
+    - text: Ciao! Posso esserti utile?
+    - text: Ciao! Come posso aiutarti?
+
+  utter_greet_name:
+    - text: Hey! Posso esserti utile?
+    - text: Hey {PER}! Posso esserti utile?
+    - text: Hey {PER}! Come posso aiutarti?
+    - text: Ciao {PER}! Posso esserti utile?
+    - text: Ciao {PER}! Come posso aiutarti?
+
+  utter_pleased_to_meet:
+    - text: Ciao {PER}! Piacere di conoscerti!
 
   utter_goodbye:
-  - text: Ciao!
-  - text: Arrivederci!
-  - text: A presto!
+    - text: Ciao!
+    - text: Arrivederci!
+    - text: A presto!
 
   utter_start_profile_gathering:
-  - text: Ti farò alcune domande per capire meglio come interagire con te. Va bene?
-  - text: Ora ti farò alcune domande per capire meglio come interagire con te. Va bene?
-  - text: Ora va di rispondere ad alcune domande su di te?
+    - text: Ti farò alcune domande per capire meglio come interagire con te. Va bene?
+    - text: Ora ti farò alcune domande per capire meglio come interagire con te. Va bene?
+    - text: Ti va di rispondere ad alcune domande su di te?
+
+  utter_ask_name:
+    - text: Come ti chiami?
+    - text: Quale è il tuo nome?
 
   utter_end_profile_gathering:
-  - text: Molto bene. Ora so tutto quello di cui avevo bisogno.
-  - text: Molto bene. Ora conosco tutto quello di cui avevo bisogno.
-  - text: Molto bene. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
-  
+    - text: Molto bene. Ora so tutto quello di cui avevo bisogno.
+    - text: Molto bene. Ora conosco tutto quello di cui avevo bisogno.
+    - text: Molto bene. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
+
   utter_out_of_scope:
-  - text: Mi spiace! Non so come gestire la tua richiesta.
-  - text: Spiacente! Non so come risponderti.
-  - text: Mi spiace! Non so risponderti.
+    - text: Mi spiace! Non so come gestire la tua richiesta.
+    - text: Spiacente! Non so come risponderti.
+    - text: Mi spiace! Non so risponderti.
 
   utter_please_rephrase:
-  - text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
-  - text: Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
+    - text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
+    - text: Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
+    - text: Puoi provare a ripeterlo in un altro modo?
+    - text: Puoi provare a ripetere l'ultima cosa che hai detto in un altro modo?
 
   utter_default:
-  - text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
-  - text: Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
+    - text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
+    - text: Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
+    - text: Puoi provare a ripeterlo in un altro modo?
+    - text: Puoi provare a ripetere l'ultima cosa che hai detto in un altro modo?
 
 actions:
   - action_command_start

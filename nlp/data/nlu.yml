@@ -1,49 +1,54 @@
 version: "2.0"
 
 nlu:
-- intent: greet
-  examples: |
-    - Ciao
-    - Salve
-    - Buongiorno
-    - Buonasera
+  - intent: greet
+    examples: |
+      - Ciao
+      - Salve
+      - Buongiorno
+      - Buonasera
 
-- intent: goodbye
-  examples: |
-    - Ci vediamo
-    - Arrivederci
-    - A presto
+  - intent: goodbye
+    examples: |
+      - Ci vediamo
+      - Arrivederci
+      - A presto
 
-- intent: affirm
-  examples: |
-    - Sì
-    - Certamente
-    - Sicuro
-    - Infatti
-    - Corretto
-    - Mi sembra giusto
+  - intent: affirm
+    examples: |
+      - Sì
+      - Certamente
+      - Sicuro
+      - Infatti
+      - Corretto
+      - Mi sembra giusto
 
-- intent: deny
-  examples: |
-    - No
-    - Mai
-    - Non credo
-    - Non c'è modo
-    - Proprio no
-    - Certo che no
-    - Sicuramente no
-    - No davvero
+  - intent: deny
+    examples: |
+      - No
+      - Mai
+      - Non credo
+      - Non c'è modo
+      - Proprio no
+      - Certo che no
+      - Sicuramente no
+      - No davvero
 
-- intent: gather_profile
-  examples: |
-    - Voglio parlarti di me
-    - Voglio descriverti il mio profilo
-    - Voglio raccontarti di me
-    - Voglio descrivermi
+  - intent: gather_profile
+    examples: |
+      - Voglio parlarti di me
+      - Voglio descriverti il mio profilo
+      - Voglio raccontarti di me
+      - Voglio descrivermi
 
-- intent: out_of_scope
-  examples: |
-    - A che ora si pranza?
-    - Posso ordinare del cibo?
-    - Quanto fa 2 + 2?
-    - Chi è il presidente del consiglio?
+  - intent: gather_name
+    examples: |
+      - Mi chiamo Riccardo
+      - Il mio nome è Riccardo
+
+  - intent: out_of_scope
+    examples: |
+      - A che ora si pranza?
+      - Posso ordinare del cibo?
+      - Quanto fa 2 + 2?
+      - Chi è il presidente del consiglio?

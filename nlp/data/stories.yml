@@ -1,17 +1,27 @@
 version: "2.0"
 
 stories:
+  - story: Happy path
+    steps:
+      - intent: greet
+      - action: utter_greet
 
-- story: Happy path
-  steps:
-  - intent: greet
-  - action: utter_greet
+  - story: Happy path name
+    steps:
+      - intent: greet
+      - slot_was_set:
+        - PER
+      - action: utter_greet_name
+      - action: action_listen
 
-- story: Profile gathering
-  steps:
-  - intent: gather_profile
-  - action: action_command_start
-  - action: utter_start_profile_gathering
-  - intent: affirm
-  - action: utter_end_profile_gathering
-  - action: action_command_done
+  - story: Profile gathering
+    steps:
+      - intent: gather_profile
+      - action: action_command_start
+      - action: utter_start_profile_gathering
+      - intent: affirm
+      - action: utter_ask_name
+      - intent: gather_name
+      - action: utter_pleased_to_meet
+      - action: utter_end_profile_gathering
+      - action: action_command_done
