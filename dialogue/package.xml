@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>gui</name>
+  <name>dialogue</name>
   <version>0.0.1</version>
-  <description>The Graphical User Interface (GUI) package</description>
+  <description>The Dialogue Manager package</description>
 
   <maintainer email="riccardo.debenedictis@istc.cnr.it">Riccardo De Benedictis</maintainer>
   <maintainer email="gloria.beraldo@istc.cnr.it">Gloria Beraldo</maintainer>

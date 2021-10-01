@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import rospy
 import sys
-from msgs.srv import *
+from msgs.srv import update_timelines, update_timelinesResponse
 
 
 def main(args):
