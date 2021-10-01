@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import rospy
 import sys
-from update_timelines.srv import *
+from msgs.srv import *
 
 
 def main(args):
