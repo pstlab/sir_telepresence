@@ -1,3 +1,4 @@
 <launch>
     <node name="local_task_manager" pkg="ltm" type="ltm" output="screen" />
+    <node name="graphical_user_interface" pkg="gui" type="gui.py" output="screen" />
 </launch>
