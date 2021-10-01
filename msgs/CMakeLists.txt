@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(msgs)
 
 ## Find catkin and any catkin packages
-find_package(catkin REQUIRED COMPONENTS std_msgs genmsg)
+find_package(catkin REQUIRED COMPONENTS std_msgs message_generation)
 
 ## Declare ROS messages and services
 #add_message_files(FILES Num.msg)
