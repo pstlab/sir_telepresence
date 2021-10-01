@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import rospy
 import sys
+from update_timelines.srv import *
 
 
 def main(args):
