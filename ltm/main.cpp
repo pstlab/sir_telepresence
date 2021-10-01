@@ -9,8 +9,8 @@ int main(int argc, char **argv)
     ROS_INFO("Starting Local Task Manager..");
     sir::local_task_manager exec(nh);
 
-    // wait for other nodes..
-    ros::Duration(1).sleep();
+    // wait for services..
+    ros::service::waitForService("start_dialogue");
 
     ros::Rate loop_rate(10);
     while (ros::ok())
