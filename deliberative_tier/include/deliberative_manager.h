@@ -28,6 +28,7 @@ namespace sir
     ros::NodeHandle &handle;
     ros::ServiceClient notify_state;
     ros::ServiceClient can_start;
+    ros::ServiceClient start_task;
     std::unordered_map<uint64_t, deliberative_executor *> executors;
   };
 } // namespace sir

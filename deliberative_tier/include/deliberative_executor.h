@@ -39,6 +39,16 @@ namespace sir
     void ending(const std::unordered_set<ratio::atom *> &) override;
     void end(const std::unordered_set<ratio::atom *> &) override;
 
+    struct task
+    {
+      uint64_t task_id;
+      std::string task_name;
+      std::vector<std::string> par_names;
+      std::vector<std::string> par_values;
+    };
+
+    task to_task(const ratio::atom &atm) const;
+
   private:
     deliberative_manager &d_mngr;
     uint64_t reasoner_id;

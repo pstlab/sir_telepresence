@@ -4,6 +4,7 @@
 #include "atom.h"
 #include "msgs/notify_reasoner_state.h"
 #include "msgs/can_start.h"
+#include "msgs/start_task.h"
 #include <ros/ros.h>
 
 using namespace ratio;
@@ -61,9 +62,13 @@ namespace sir
     { // tell the executor the atoms which are not yet ready to start..
         std::unordered_set<ratio::atom *> dsy;
         msgs::can_start srv;
+        task t;
         for (const auto &atm : atms)
         {
-            srv.request.task_name = atm->get_type().get_name();
+            t = to_task(*atm);
+            srv.request.task_name = t.task_name;
+            srv.request.par_names = t.par_names;
+            srv.request.par_values = t.par_values;
             if (d_mngr.can_start.call(srv) && !srv.response.can_start)
                 dsy.insert(atm);
         }
@@ -73,10 +78,19 @@ namespace sir
     }
     void deliberative_executor::start(const std::unordered_set<atom *> &atms)
     { // these atoms are now started..
+        msgs::start_task srv;
+        task t;
         for (const auto &atm : atms)
         {
             ROS_DEBUG("[%lu] Starting task %s..", reasoner_id, atm->get_type().get_name().c_str());
-            current_tasks.emplace(atm->get_sigma(), atm);
+            t = to_task(*atm);
+            srv.request.reasoner_id = reasoner_id;
+            srv.request.task_id = t.task_id;
+            srv.request.task_name = t.task_name;
+            srv.request.par_names = t.par_names;
+            srv.request.par_values = t.par_values;
+            if (d_mngr.can_start.call(srv) && srv.response.started)
+                current_tasks.emplace(atm->get_sigma(), atm);
         }
     }
 
@@ -92,8 +106,10 @@ namespace sir
     }
     void deliberative_executor::end(const std::unordered_set<atom *> &atms)
     { // these atoms are now ended..
-        for (auto &&atm : atms)
+        for (const auto &atm : atms)
+        {
             ROS_DEBUG("[%lu] Ending task %s..", reasoner_id, atm->get_type().get_name().c_str());
+        }
     }
 
     void deliberative_executor::finish_task(const smt::var &id, const bool &success)
@@ -101,5 +117,35 @@ namespace sir
         if (!success) // the task failed..
             exec.failure({current_tasks.at(id)});
         current_tasks.erase(id);
+    }
+
+    deliberative_executor::task deliberative_executor::to_task(const ratio::atom &atm) const
+    {
+        uint64_t task_id = atm.get_sigma();
+        std::string task_name = atm.get_type().get_name();
+        std::vector<std::string> par_names;
+        std::vector<std::string> par_values;
+        for (const auto &xpr : atm.get_exprs())
+            if (!xpr.first.compare(START) && !xpr.first.compare(END) && !xpr.first.compare(AT) && !xpr.first.compare(TAU))
+            {
+                par_names.push_back(xpr.first);
+                if (bool_item *bi = dynamic_cast<bool_item *>(&*xpr.second))
+                    switch (atm.get_core().bool_value(bi))
+                    {
+                    case smt::True:
+                        par_values.push_back("true");
+                        break;
+                    case smt::False:
+                        par_values.push_back("false");
+                        break;
+                    default:
+                        break;
+                    }
+                else if (arith_item *ai = dynamic_cast<arith_item *>(&*xpr.second))
+                    par_values.push_back(to_string(atm.get_core().arith_value(ai).get_rational()));
+                else if (string_item *si = dynamic_cast<string_item *>(&*xpr.second))
+                    par_values.push_back(si->get_value());
+            }
+        return {task_id, task_name, par_names, par_values};
     }
 } // namespace sir
