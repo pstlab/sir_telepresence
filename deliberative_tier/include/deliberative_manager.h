@@ -12,6 +12,8 @@ namespace sir
 
   class deliberative_manager
   {
+    friend class deliberative_executor;
+
   public:
     deliberative_manager(ros::NodeHandle &handle);
     ~deliberative_manager();
@@ -26,6 +28,6 @@ namespace sir
     ros::NodeHandle &handle;
     ros::ServiceClient notify_state;
     ros::ServiceClient can_start;
-    std::unordered_map<size_t, deliberative_executor *> executors;
+    std::unordered_map<uint64_t, deliberative_executor *> executors;
   };
 } // namespace sir

@@ -9,7 +9,7 @@ namespace sir
   enum executor_state
   {
     Idle,
-    Solving,
+    Reasoning,
     Executing,
     Finished,
     Inconsistent
@@ -18,7 +18,7 @@ namespace sir
   class deliberative_executor : public ratio::core_listener, public ratio::executor_listener
   {
   public:
-    deliberative_executor(deliberative_manager &d_mngr, const size_t &id);
+    deliberative_executor(deliberative_manager &d_mngr, const uint64_t &id);
     ~deliberative_executor();
 
     ratio::solver &get_solver() { return slv; }
@@ -41,7 +41,7 @@ namespace sir
 
   private:
     deliberative_manager &d_mngr;
-    size_t reasoner_id;
+    uint64_t reasoner_id;
     ratio::solver slv;
     ratio::executor exec;
     executor_state state = Idle;
