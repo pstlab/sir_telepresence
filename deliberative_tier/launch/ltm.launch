@@ -1,0 +1,3 @@
+<launch>
+    <node name="deliberative_tier" pkg="deliberative_tier" type="deliberative_tier" output="screen" />
+</launch>

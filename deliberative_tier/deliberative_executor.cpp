@@ -1,58 +1,58 @@
-#include "ohmni_executor.h"
-#include "local_task_manager.h"
+#include "deliberative_executor.h"
 #include "predicate.h"
-#include "std_msgs/Int8.h"
-#include <thread>
+#include "atom.h"
+#include "msgs/notify_reasoner_state.h"
+#include <ros/ros.h>
 
 using namespace ratio;
 
 namespace sir
 {
-    ohmni_executor::ohmni_executor(local_task_manager &ltm) : ltm(ltm), slv(), exec(slv), core_listener(slv), executor_listener(exec)
+    deliberative_executor::deliberative_executor(deliberative_manager &d_mngr, const size_t &id) : d_mngr(d_mngr), reasoner_id(id), slv(), exec(slv), core_listener(slv), executor_listener(exec)
     {
-        ltm.get_handle().advertiseService("task_finished", &ohmni_executor::task_finished, this);
         // we read the domain files..
         slv.read("");
     }
-    ohmni_executor::~ohmni_executor() {}
+    deliberative_executor::~deliberative_executor() {}
 
-    void ohmni_executor::started_solving()
+    void deliberative_executor::started_solving()
     {
         ROS_INFO("Started solving..");
         state = Solving;
+        msgs::notify_reasoner_state srv;
     }
-    void ohmni_executor::solution_found()
+    void deliberative_executor::solution_found()
     {
         ROS_INFO("Solution found..");
         state = Executing;
     }
-    void ohmni_executor::inconsistent_problem()
+    void deliberative_executor::inconsistent_problem()
     {
         ROS_INFO("Inconsistent problem..");
         state = Inconsistent;
     }
 
-    void ohmni_executor::tick(const smt::rational &time)
+    void deliberative_executor::tick(const smt::rational &time)
     {
         arith_expr horizon = slv.get("horizon");
         if (slv.arith_value(horizon) <= exec.get_current_time())
             state = Finished;
     }
 
-    void ohmni_executor::starting(const std::unordered_set<atom *> &atms)
+    void deliberative_executor::starting(const std::unordered_set<atom *> &atms)
     { // tell the executor the atoms which are not yet ready to start..
         // exec.dont_start_yet(atms);
     }
-    void ohmni_executor::start(const std::unordered_set<atom *> &atms)
+    void deliberative_executor::start(const std::unordered_set<atom *> &atms)
     { // these atoms are now started..
-        for (auto &&atm : atms)
+        for (const auto &atm : atms)
         {
             ROS_INFO("Starting task %s..", atm->get_type().get_name().c_str());
             current_tasks.emplace(atm->get_sigma(), atm);
         }
     }
 
-    void ohmni_executor::ending(const std::unordered_set<atom *> &atms)
+    void deliberative_executor::ending(const std::unordered_set<atom *> &atms)
     { // tell the executor the atoms which are not yet ready to finish..
         std::unordered_set<ratio::atom *> dey;
         for (const auto &atm : atms)
@@ -62,23 +62,16 @@ namespace sir
         if (!dey.empty())
             exec.dont_end_yet(atms);
     }
-    void ohmni_executor::end(const std::unordered_set<atom *> &atms)
+    void deliberative_executor::end(const std::unordered_set<atom *> &atms)
     { // these atoms are now ended..
         for (auto &&atm : atms)
             ROS_INFO("Ending task %s..", atm->get_type().get_name().c_str());
     }
 
-    void ohmni_executor::finish_task(const smt::var &id, const bool &success)
+    void deliberative_executor::finish_task(const smt::var &id, const bool &success)
     {
         if (!success) // the task failed..
-            std::thread(&executor::failure, &exec, std::unordered_set<atom *>({current_tasks.at(id)}));
+            exec.failure({current_tasks.at(id)});
         current_tasks.erase(id);
-    }
-
-    bool ohmni_executor::task_finished(msgs::task_finished::Request &req, msgs::task_finished::Response &res)
-    {
-        finish_task(req.task_id, !req.task_result);
-        res.result_code = 0;
-        return true;
     }
 } // namespace sir
