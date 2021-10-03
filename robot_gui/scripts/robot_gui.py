@@ -8,8 +8,10 @@ from msgs.msg import timelines
 
 
 rospack = rospkg.RosPack()
-template_path = rospack.get_path('robot_gui') + '/templates'
-app = Flask(__name__, template_folder=template_path)
+node_path = rospack.get_path('robot_gui')
+app = Flask(__name__,
+            template_folder=node_path + '/templates',
+            static_folder=node_path + '/static')
 app.debug = True
 
 
