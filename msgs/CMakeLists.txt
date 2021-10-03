@@ -5,7 +5,11 @@ project(msgs)
 find_package(catkin REQUIRED COMPONENTS std_msgs message_generation)
 
 ## Declare ROS messages and services
-#add_message_files(FILES Num.msg)
+add_message_files(
+    FILES
+    timelines.msg
+)
+
 add_service_files(
     FILES
     can_start.srv

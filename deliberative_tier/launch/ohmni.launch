@@ -1,3 +1,4 @@
 <launch>
+    <node name="robot_gui" pkg="robot_gui" type="robot_gui.py" output="screen" />
     <node name="deliberative_tier" pkg="deliberative_tier" type="deliberative_tier" output="screen" />
 </launch>
