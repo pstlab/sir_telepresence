@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import rospy
 import rospkg
-# import waitress
 from flask import Flask, request, render_template, json
 from flask_socketio import SocketIO, emit
 from std_srvs.srv import Trigger, TriggerRequest
@@ -41,9 +40,10 @@ def activate_microphone():
 
 def update_dialogue_state(state):
     if state.dialogue_state == 2:
-        emit('microphone', {'state': 'Active'}, broadcast=True)
+        socketio.emit('microphone_state', {'state': 'Active'}, broadcast=True)
     else:
-        emit('microphone', {'state': 'Inactive'}, broadcast=True)
+        socketio.emit('microphone_state', {
+                      'state': 'Inactive'}, broadcast=True)
 
 
 if __name__ == '__main__':
@@ -58,9 +58,7 @@ if __name__ == '__main__':
     rospy.Subscriber('timelines', timelines, update_timelines)
     rospy.Subscriber('dialogue_state', dialogue_state, update_dialogue_state)
 
-    #from waitress import serve
-    #serve(app, host='0.0.0.0', port=8080)
-    app.run(host='0.0.0.0', port='8080')
+    socketio.run(app, host='localhost', port=8080)
 
     try:
         rospy.spin()

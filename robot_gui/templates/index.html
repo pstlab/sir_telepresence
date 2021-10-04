@@ -7,20 +7,36 @@
     {% include "navbar.html" %}
 
     <div class="container d-grid gap-2 py-2">
-        <button id="listen-button" type="button" class="btn btn-primary btn-lg" data-bs-toggle="button" onclick="listen()">Ascolta</button>
+        <button id="listen-button" type="button" class="btn btn-primary btn-lg" data-bs-toggle="button"
+            onclick="listen()">Ascolta</button>
     </div>
 
-    <script>
-        document.getElementById("home-nav-item").classList.add("active");
-        document.getElementById("timelines-nav-item").classList.remove("active");
-
-        function listen() {
-            console.log('listening..');
-        }
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
         crossorigin="anonymous"></script>
+    <script src="https://cdn.socket.io/4.2.0/socket.io.min.js"
+        integrity="sha384-PiBR5S00EtOj2Lto9Uu81cmoyZqR57XcOna1oAuVuIEjzj0wpqDVfD0JA9eXlRsj"
+        crossorigin="anonymous"></script>
+    <script>
+        document.getElementById('home-nav-item').classList.add('active');
+        document.getElementById('timelines-nav-item').classList.remove('active');
+
+        const socket = io();
+
+        socket.on('connect', () => {
+            console.log(socket.id);
+        });
+
+        socket.on('microphone_state', (msg) => {
+            console.log(socket.id);
+            console.log(msg);
+        });
+
+        function listen() {
+            console.log('listening..');
+            socket.emit('activate_microphone', { data: 'I\'m connected!' });
+        }
+    </script>
 </body>
 
 </html>

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import rospy
-from rospy.topics import Message
 from std_srvs.srv import Trigger, TriggerResponse
 
 
