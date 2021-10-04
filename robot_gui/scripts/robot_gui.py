@@ -50,6 +50,7 @@ if __name__ == '__main__':
     rospy.init_node('robot_gui', anonymous=True)
     rospy.loginfo('Starting Robot GUI..')
 
+    rospy.logdebug('Waiting for microphone activation service..')
     rospy.wait_for_service('activate_microphone')
     open_mic = rospy.ServiceProxy('activate_microphone', Trigger)
     req = TriggerRequest()
