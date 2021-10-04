@@ -2,7 +2,7 @@
 #include "deliberative_manager.h"
 #include "predicate.h"
 #include "atom.h"
-#include "msgs/notify_reasoner_state.h"
+#include "msgs/deliberative_state.h"
 #include "msgs/can_start.h"
 #include "msgs/start_task.h"
 #include <ros/ros.h>
@@ -16,10 +16,10 @@ namespace sir
         // we read the domain files..
         slv.read("");
         ROS_DEBUG("[%lu] Created reasoner..", reasoner_id);
-        msgs::notify_reasoner_state srv;
-        srv.request.reasoner_id = reasoner_id;
-        srv.request.reasoner_state = srv.request.idle;
-        d_mngr.notify_state.call(srv);
+        msgs::deliberative_state state_msg;
+        state_msg.reasoner_id = reasoner_id;
+        state_msg.reasoner_state = state_msg.idle;
+        d_mngr.notify_state.publish(state_msg);
     }
     deliberative_executor::~deliberative_executor() {}
 
@@ -27,35 +27,42 @@ namespace sir
     {
         ROS_DEBUG("[%lu] Started reasoning..", reasoner_id);
         state = Reasoning;
-        msgs::notify_reasoner_state srv;
-        srv.request.reasoner_id = reasoner_id;
-        srv.request.reasoner_state = srv.request.reasoning;
-        d_mngr.notify_state.call(srv);
+        msgs::deliberative_state state_msg;
+        state_msg.reasoner_id = reasoner_id;
+        state_msg.reasoner_state = state_msg.reasoning;
+        d_mngr.notify_state.publish(state_msg);
     }
     void deliberative_executor::solution_found()
     {
         ROS_DEBUG("[%lu] Solution found..", reasoner_id);
         state = Executing;
-        msgs::notify_reasoner_state srv;
-        srv.request.reasoner_id = reasoner_id;
-        srv.request.reasoner_state = srv.request.executing;
-        d_mngr.notify_state.call(srv);
+        msgs::deliberative_state state_msg;
+        state_msg.reasoner_id = reasoner_id;
+        state_msg.reasoner_state = state_msg.executing;
+        d_mngr.notify_state.publish(state_msg);
     }
     void deliberative_executor::inconsistent_problem()
     {
         ROS_DEBUG("[%lu] Inconsistent problem..", reasoner_id);
         state = Inconsistent;
-        msgs::notify_reasoner_state srv;
-        srv.request.reasoner_id = reasoner_id;
-        srv.request.reasoner_state = srv.request.inconsistent;
-        d_mngr.notify_state.call(srv);
+        msgs::deliberative_state state_msg;
+        state_msg.reasoner_id = reasoner_id;
+        state_msg.reasoner_state = state_msg.inconsistent;
+        d_mngr.notify_state.publish(state_msg);
     }
 
     void deliberative_executor::tick(const smt::rational &time)
     {
         arith_expr horizon = slv.get("horizon");
         if (slv.arith_value(horizon) <= exec.get_current_time())
+        {
+            ROS_DEBUG("[%lu] Exhausted plan..", reasoner_id);
             state = Finished;
+            msgs::deliberative_state state_msg;
+            state_msg.reasoner_id = reasoner_id;
+            state_msg.reasoner_state = state_msg.finished;
+            d_mngr.notify_state.publish(state_msg);
+        }
     }
 
     void deliberative_executor::starting(const std::unordered_set<atom *> &atms)

@@ -1,12 +1,12 @@
 #include "deliberative_manager.h"
 #include "deliberative_executor.h"
-#include "msgs/notify_reasoner_state.h"
+#include "msgs/deliberative_state.h"
 #include "msgs/can_start.h"
 #include "msgs/start_task.h"
 
 namespace sir
 {
-    deliberative_manager::deliberative_manager(ros::NodeHandle &h) : handle(h), notify_state(h.serviceClient<msgs::notify_reasoner_state>("notify_reasoner_state")), can_start(h.serviceClient<msgs::can_start>("can_start")), start_task(h.serviceClient<msgs::start_task>("start_task"))
+    deliberative_manager::deliberative_manager(ros::NodeHandle &h) : handle(h), notify_state(handle.advertise<msgs::deliberative_state>("deliberative_state", 1000)), can_start(h.serviceClient<msgs::can_start>("can_start")), start_task(h.serviceClient<msgs::start_task>("start_task"))
     {
         ROS_DEBUG("Advertising deliberative services..");
         handle.advertiseService("create_reasoner", &deliberative_manager::create_reasoner, this);
