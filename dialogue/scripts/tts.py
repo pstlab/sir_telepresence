@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 import rospy
+import gtts
+import playsound
 from msgs.srv import string_service, string_serviceResponse
 
 
-speaking = False
+utterance = ''
 
 
 def speak(srv):
-    speaking = True
-    rospy.logdebug('synthesizing "%s"..', srv.text)
+    utterance = srv.text
+    rospy.logdebug('synthesizing "%s"..', utterance)
     return string_serviceResponse(True)
 
 
@@ -18,4 +20,11 @@ if __name__ == '__main__':
 
     speak_service = rospy.Service('activate_speaker', string_service, speak)
 
-    rospy.spin()
+    rate = rospy.Rate(50)
+    while not rospy.is_shutdown():
+        if(utterance):
+            tts = gtts.gTTS(utterance, lang="it")
+            tts.save("utterance.mp3")
+            playsound("utterance.mp3")
+            utterance = ''
+        rate.sleep()
