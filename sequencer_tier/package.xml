@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>deliberative_tier</name>
+  <name>sequencer_tier</name>
   <version>0.1.0</version>
-  <description>The Deliberative package</description>
+  <description>The Sequencer package</description>
 
   <maintainer email="riccardo.debenedictis@istc.cnr.it">Riccardo De Benedictis</maintainer>
   <maintainer email="gloria.beraldo@istc.cnr.it">Gloria Beraldo</maintainer>
