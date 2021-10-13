@@ -10,7 +10,9 @@ utterances = []
 
 
 def speak(srv):
-    rospy.logdebug('synthesizing "%s"..', srv.utterances)
+    global utterances
+    utterances = srv.utterances
+    rospy.logdebug('synthesizing "%s"..', utterances)
     return reproduce_responsesResponse(True)
 
 
