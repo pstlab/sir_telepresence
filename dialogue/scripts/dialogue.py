@@ -14,12 +14,16 @@ task_name = ''
 
 
 def listen(req):
-    if activate_microphone():
+    return TriggerResponse(activate_microphone())
+
+
+def activate_microphone():
+    if activate_microphone_trigger():
         rospy.logdebug('listening..')
         state.publish(dialogue_state(dialogue_state.listening))
-        return TriggerResponse(True)
+        return True
     else:
-        return TriggerResponse(False)
+        return False
 
 
 def start_dialogue(req):
@@ -57,20 +61,25 @@ def generate_responses(req):
     return string_serviceResponse(True)
 
 
-def generated_responses():
+def check_closed_dialogue(req):
     if slots['command_state'] == 'done' or slots['command_state'] == 'failure':
-        global reasoner_id, task_id, task_name
-        if slots['command_state'] == 'done':
-            task_finished_proxy(reasoner_id, task_id, True)
-        elif slots['command_state'] == 'failure':
-            task_finished_proxy(reasoner_id, task_id, False)
-        reasoner_id = -1
-        task_id = -1
-        task_name = ''
+        if task_name:
+            # we close the current task..
+            global reasoner_id, task_id, task_name
+            if slots['command_state'] == 'done':
+                # the task is closed with a success..
+                task_finished_proxy(reasoner_id, task_id, True)
+            elif slots['command_state'] == 'failure':
+                # the task is closed with a failure..
+                task_finished_proxy(reasoner_id, task_id, False)
+            reasoner_id = -1
+            task_id = -1
+            task_name = ''
         state.publish(dialogue_state(dialogue_state.idle))
+        return TriggerResponse(True)
     else:
-        # we reactivate the microphone..
-        listen()
+        # we are still talking, so we reactivate the microphone..
+        return TriggerResponse(activate_microphone())
 
 
 if __name__ == '__main__':
@@ -86,6 +95,7 @@ if __name__ == '__main__':
     dialogue_service = rospy.Service(
         'start_dialogue', start_task, start_dialogue)
 
+    # notifies the deliberative tier that a dialogue task has finished..
     task_finished_proxy = rospy.ServiceProxy('task_finished', task_finished)
 
     # called by the gui for starting a dialogue by the user..
@@ -96,11 +106,12 @@ if __name__ == '__main__':
         'generate_responses', string_service, generate_responses)
 
     # called by the text to speech..
-    generated_responses_service = rospy.Service('generated_responses',
-                                                Trigger, generated_responses)
+    check_closed_dialogue_service = rospy.Service('check_closed_dialogue',
+                                                  Trigger, check_closed_dialogue)
 
     # activates the speech to text..
-    activate_microphone = rospy.ServiceProxy('activate_microphone', Trigger)
+    activate_microphone_trigger = rospy.ServiceProxy(
+        'activate_microphone', Trigger)
 
     # activates the text to speech..
     responses_proxy = rospy.ServiceProxy(

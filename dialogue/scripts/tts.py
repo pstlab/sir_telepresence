@@ -22,7 +22,8 @@ if __name__ == '__main__':
 
     reproduce_responses_service = rospy.Service(
         'reproduce_responses', reproduce_responses, speak)
-    generated_responses = rospy.ServiceProxy('generated_responses', Trigger)
+    check_closed_dialogue = rospy.ServiceProxy(
+        'check_closed_dialogue', Trigger)
 
     rate = rospy.Rate(50)
     while not rospy.is_shutdown():
@@ -31,6 +32,6 @@ if __name__ == '__main__':
                 tts = gtts.gTTS(utterance, lang="it")
                 tts.save("utterance.mp3")
                 playsound("utterance.mp3")
-                generated_responses()
+                check_closed_dialogue()
             utterances.clear()
         rate.sleep()
