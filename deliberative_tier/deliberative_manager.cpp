@@ -15,6 +15,12 @@ namespace sir
     }
     deliberative_manager::~deliberative_manager() {}
 
+    void deliberative_manager::tick()
+    {
+        for (auto &exec : executors)
+            exec.second->get_executor().tick();
+    }
+
     bool deliberative_manager::create_reasoner(msgs::create_reasoner::Request &req, msgs::create_reasoner::Response &res)
     {
         ROS_DEBUG("[%lu] Creating new reasoner..", req.reasoner_id);

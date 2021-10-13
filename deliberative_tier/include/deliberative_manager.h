@@ -20,6 +20,9 @@ namespace sir
 
     ros::NodeHandle &get_handle() { return handle; }
 
+    void tick();
+
+  private:
     bool create_reasoner(msgs::create_reasoner::Request &req, msgs::create_reasoner::Response &res);
     bool new_requirement(msgs::new_requirement::Request &req, msgs::new_requirement::Response &res);
     bool task_finished(msgs::task_finished::Request &req, msgs::task_finished::Response &res);
