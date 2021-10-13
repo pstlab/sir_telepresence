@@ -2,29 +2,33 @@
 import rospy
 import gtts
 import playsound
-from msgs.srv import string_service, string_serviceResponse
+from msgs.srv import reproduce_responses, reproduce_responsesResponse
+from std_srvs.srv import Trigger
 
 
-utterance = ''
+utterances = []
 
 
 def speak(srv):
-    utterance = srv.text
-    rospy.logdebug('synthesizing "%s"..', utterance)
-    return string_serviceResponse(True)
+    rospy.logdebug('synthesizing "%s"..', srv.utterances)
+    return reproduce_responsesResponse(True)
 
 
 if __name__ == '__main__':
     rospy.init_node('text_to_speech', anonymous=True)
     rospy.loginfo('Starting Text to Speech Manager..')
 
-    speak_service = rospy.Service('activate_speaker', string_service, speak)
+    reproduce_responses_service = rospy.Service(
+        'reproduce_responses', reproduce_responses, speak)
+    generated_responses = rospy.ServiceProxy('generated_responses', Trigger)
 
     rate = rospy.Rate(50)
     while not rospy.is_shutdown():
-        if(utterance):
-            tts = gtts.gTTS(utterance, lang="it")
-            tts.save("utterance.mp3")
-            playsound("utterance.mp3")
-            utterance = ''
+        if utterances:
+            for utterance in utterances:
+                tts = gtts.gTTS(utterance, lang="it")
+                tts.save("utterance.mp3")
+                playsound("utterance.mp3")
+                generated_responses()
+            utterances.clear()
         rate.sleep()
