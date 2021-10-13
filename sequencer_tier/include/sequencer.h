@@ -13,8 +13,8 @@ namespace sir
     ~sequencer();
 
   private:
-    void update_deliberative_state(const msgs::deliberative_state &msg);
-    void update_dialogue_state(const msgs::dialogue_state &msg);
+    void updated_deliberative_state(const msgs::deliberative_state &msg);
+    void updated_dialogue_state(const msgs::dialogue_state &msg);
 
   private:
     ros::NodeHandle &handle;
