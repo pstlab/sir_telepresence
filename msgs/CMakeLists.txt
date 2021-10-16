@@ -22,6 +22,7 @@ add_service_files(
     task_finished.srv
     create_reasoner.srv
     new_requirement.srv
+    state.srv
     string_service.srv
     reproduce_responses.srv
     set_eyes.srv

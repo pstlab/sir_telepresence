@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import rospy
 import requests
-import json
+import time
 from msgs.msg import dialogue_state
-from msgs.srv import start_task, start_taskResponse, task_finished, string_service, string_serviceResponse, reproduce_responses, reproduce_responsesRequest
+from msgs.srv import start_task, start_taskResponse, task_finished, string_service, string_serviceResponse, reproduce_responses, reproduce_responsesRequest, state
 from std_srvs.srv import Trigger, TriggerResponse
 
 
@@ -24,7 +24,7 @@ class dialogue_manager:
         self.close_task = rospy.ServiceProxy('task_finished', task_finished)
 
         # called by the gui for starting a dialogue by the user..
-        self.listen_service = rospy.Service('listen', Trigger, self.listen)
+        listen_service = rospy.Service('listen', Trigger, self.listen)
 
         # called by the speech to text for generating responses..
         generate_responses_service = rospy.Service(
@@ -34,21 +34,25 @@ class dialogue_manager:
         check_closed_dialogue_service = rospy.Service('check_closed_dialogue',
                                                       Trigger, self.check_closed_dialogue)
 
-        # activates the speech to text..
-        self.open_microphone = rospy.ServiceProxy('open_microphone', Trigger)
-
-        # activates the speech to text..
+        # adjusts the microphone of the speech to text..
         self.adjust_microphone = rospy.ServiceProxy(
             'adjust_microphone', Trigger)
+
+        # activates the speech to text..
+        self.open_microphone = rospy.ServiceProxy('open_microphone', Trigger)
 
         # activates the text to speech..
         self.reproduce_responses = rospy.ServiceProxy(
             'reproduce_responses', reproduce_responses)
 
+        # retrieves the current emotions..
+        self.emotions = rospy.ServiceProxy(
+            'emotions', state)
+
         # publishes the state of the dialogue manager..
-        self.state = rospy.Publisher(
+        self.state_pub = rospy.Publisher(
             'dialogue_state', dialogue_state, queue_size=10, latch=True)
-        self.state.publish(dialogue_state(dialogue_state.idle))
+        self.state_pub.publish(dialogue_state(dialogue_state.idle))
 
     def start():
         rospy.spin()
@@ -63,13 +67,13 @@ class dialogue_manager:
             print("Service call failed: %s" % e)
         if open_mic:
             rospy.logdebug('listening..')
-            self.state.publish(dialogue_state(dialogue_state.listening))
+            self.state_pub.publish(dialogue_state(dialogue_state.listening))
             return True
         else:
             return False
 
     def start_dialogue_task(self, req):
-        self.state.publish(dialogue_state(dialogue_state.speaking))
+        self.state_pub.publish(dialogue_state(dialogue_state.speaking))
 
         # we adjust the speech to text for the ambient noise..
         try:
@@ -83,6 +87,14 @@ class dialogue_manager:
         self.task_id = req.task_id
         self.task_name = req.task_name
 
+        # we add the current perceived emotions..
+        try:
+            emotions = self.emotions()
+            req.par_names.extend(emotions.par_names)
+            req.par_values.extend(emotions.par_values)
+        except rospy.ServiceException as e:
+            print("Service call failed: %s" % e)
+
         # we prepare the request..
         payload = {'name': self.task_name}
         if req.par_names:
@@ -91,6 +103,8 @@ class dialogue_manager:
                 entities[req.par_names[i]] = req.par_values[i]
             payload['entities'] = entities
 
+        # we make the request..
+        rospy.logdebug('generating responses for "%s"..', self.task_name)
         r = requests.post('http://' + host + ':' + port + '/conversations/' + user +
                           '/trigger_intent', params={'include_events': 'NONE'}, json=self.payload)
         if(r.status_code == requests.codes.ok):
@@ -107,11 +121,21 @@ class dialogue_manager:
         return start_taskResponse(False)
 
     def generate_responses(self, req):
-        self.state.publish(dialogue_state(dialogue_state.speaking))
-        utterance = req.text
-        rospy.logdebug('generating response for "%s"..', utterance)
+        self.state_pub.publish(dialogue_state(dialogue_state.speaking))
+
+        # we set the current perceived emotions..
+        try:
+            emotions = self.emotions()
+            for i in range(len(emotions.par_names)):
+                slot_set = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
+                    'include_events': 'NONE'}, json={'event': 'slot', 'name': emotions.par_names[i], 'value': emotions.par_values[i], 'timestamp': time.time()}).json()
+        except rospy.ServiceException as e:
+            print("Service call failed: %s" % e)
+
+        # we make the request..
+        rospy.logdebug('generating responses for "%s"..', req.text)
         r = requests.post('http://' + host + ':' + port + '/webhooks/rest/webhook', params={
-            'include_events': 'NONE'}, json={'sender': user, 'message': utterance})
+            'include_events': 'NONE'}, json={'sender': user, 'message': req.text})
         if(r.status_code == requests.codes.ok):
             j_res = r.json()
             self.slots = j_res['slots']
@@ -140,7 +164,7 @@ class dialogue_manager:
                 self.reasoner_id = -1
                 self.task_id = -1
                 self.task_name = ''
-            self.state.publish(dialogue_state(dialogue_state.idle))
+            self.state_pub.publish(dialogue_state(dialogue_state.idle))
             return TriggerResponse(True)
         else:
             # we are still talking, so we reopen the microphone..
