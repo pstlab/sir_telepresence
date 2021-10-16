@@ -30,10 +30,10 @@ def timelines_view():
     return render_template('timelines.html')
 
 
-@socketio.on('/activate_microphone')
-def activate_microphone():
+@socketio.on('/open_microphone')
+def open_microphone():
     try:
-        res = open_mic(req)
+        res = open_microphone()
     except rospy.ServiceException as e:
         print("Service call failed: %s" % e)
 
@@ -51,8 +51,8 @@ if __name__ == '__main__':
     rospy.loginfo('Starting Robot GUI..')
 
     rospy.logdebug('Waiting for microphone activation service..')
-    rospy.wait_for_service('activate_microphone')
-    open_mic = rospy.ServiceProxy('activate_microphone', Trigger)
+    rospy.wait_for_service('open_microphone')
+    open_microphone = rospy.ServiceProxy('open_microphone', Trigger)
     req = TriggerRequest()
 
     rospy.Subscriber('timelines', timelines, update_timelines)
