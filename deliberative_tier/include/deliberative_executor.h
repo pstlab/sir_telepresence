@@ -39,6 +39,8 @@ namespace sir
     void ending(const std::unordered_set<ratio::atom *> &) override;
     void end(const std::unordered_set<ratio::atom *> &) override;
 
+    void set_state(const unsigned int &state);
+
     struct task
     {
       uint64_t task_id;

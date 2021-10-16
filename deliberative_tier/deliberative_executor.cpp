@@ -16,10 +16,7 @@ namespace sir
         // we read the domain files..
         slv.read("");
         ROS_DEBUG("[%lu] Created reasoner..", reasoner_id);
-        msgs::deliberative_state state_msg;
-        state_msg.reasoner_id = reasoner_id;
-        state_msg.reasoner_state = state_msg.idle;
-        d_mngr.notify_state.publish(state_msg);
+        set_state(msgs::deliberative_state::idle);
     }
     deliberative_executor::~deliberative_executor() {}
 
@@ -27,28 +24,19 @@ namespace sir
     {
         ROS_DEBUG("[%lu] Started reasoning..", reasoner_id);
         state = Reasoning;
-        msgs::deliberative_state state_msg;
-        state_msg.reasoner_id = reasoner_id;
-        state_msg.reasoner_state = state_msg.reasoning;
-        d_mngr.notify_state.publish(state_msg);
+        set_state(msgs::deliberative_state::reasoning);
     }
     void deliberative_executor::solution_found()
     {
         ROS_DEBUG("[%lu] Solution found..", reasoner_id);
         state = Executing;
-        msgs::deliberative_state state_msg;
-        state_msg.reasoner_id = reasoner_id;
-        state_msg.reasoner_state = state_msg.executing;
-        d_mngr.notify_state.publish(state_msg);
+        set_state(msgs::deliberative_state::executing);
     }
     void deliberative_executor::inconsistent_problem()
     {
         ROS_DEBUG("[%lu] Inconsistent problem..", reasoner_id);
         state = Inconsistent;
-        msgs::deliberative_state state_msg;
-        state_msg.reasoner_id = reasoner_id;
-        state_msg.reasoner_state = state_msg.inconsistent;
-        d_mngr.notify_state.publish(state_msg);
+        set_state(msgs::deliberative_state::inconsistent);
     }
 
     void deliberative_executor::tick(const smt::rational &time)
@@ -58,10 +46,7 @@ namespace sir
         {
             ROS_DEBUG("[%lu] Exhausted plan..", reasoner_id);
             state = Finished;
-            msgs::deliberative_state state_msg;
-            state_msg.reasoner_id = reasoner_id;
-            state_msg.reasoner_state = state_msg.finished;
-            d_mngr.notify_state.publish(state_msg);
+            set_state(msgs::deliberative_state::finished);
         }
     }
 
@@ -124,6 +109,14 @@ namespace sir
         if (!success) // the task failed..
             exec.failure({current_tasks.at(id)});
         current_tasks.erase(id);
+    }
+
+    void deliberative_executor::set_state(const unsigned int &state)
+    {
+        msgs::deliberative_state state_msg;
+        state_msg.reasoner_id = reasoner_id;
+        state_msg.reasoner_state = state;
+        d_mngr.notify_state.publish(state_msg);
     }
 
     deliberative_executor::task deliberative_executor::to_task(const ratio::atom &atm) const

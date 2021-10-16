@@ -39,7 +39,7 @@ namespace sir
 
     bool deliberative_manager::task_finished(msgs::task_finished::Request &req, msgs::task_finished::Response &res)
     {
-        ROS_DEBUG("[%lu] Ending a task..", req.reasoner_id);
+        ROS_DEBUG("[%lu] Ending task %lu..", req.reasoner_id, req.task_id);
         executors.at(req.reasoner_id)->finish_task(req.task_id, req.success);
         res.ended = true;
         return true;

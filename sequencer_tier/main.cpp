@@ -10,6 +10,13 @@ int main(int argc, char **argv)
 
     sequencer seq(nh);
 
-    ros::spin();
+    ros::Rate loop_rate(10);
+    while (ros::ok())
+    {
+        ros::spinOnce();
+        seq.tick();
+        loop_rate.sleep();
+    }
+
     return 0;
 }
