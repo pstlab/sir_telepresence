@@ -7,6 +7,11 @@
     {% include "navbar.html" %}
 
     <div class="container d-grid gap-2 py-2">
+        <img id="eyes" src="{{ url_for('static', filename='eyes_0.png') }}" alt="" height="200">
+        <img id="mouth" src="{{ url_for('static', filename='mouth_0.png') }}" alt="" height="200">
+    </div>
+
+    <div class="container d-grid gap-2 py-2">
         <button id="listen-button" type="button" class="btn btn-primary btn-lg" data-bs-toggle="button"
             onclick="listen()">Ascolta</button>
     </div>
@@ -32,9 +37,19 @@
             console.log(msg);
         });
 
+        socket.on('eyes_state', (msg) => {
+            console.log(socket.id);
+            console.log(msg);
+        });
+
+        socket.on('mouth_state', (msg) => {
+            console.log(socket.id);
+            console.log(msg);
+        });
+
         function listen() {
             console.log('listening..');
-            socket.emit('activate_microphone', { data: 'I\'m connected!' });
+            socket.emit('open_microphone', { data: 'I need microphone!' });
         }
     </script>
 </body>
