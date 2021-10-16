@@ -3,7 +3,7 @@ import rospy
 import requests
 import json
 from msgs.msg import dialogue_state
-from msgs.srv import start_task, start_taskResponse, task_finished, string_service, string_serviceResponse, pronounce_responses, pronounce_responsesRequest
+from msgs.srv import start_task, start_taskResponse, task_finished, string_service, string_serviceResponse, reproduce_responses, reproduce_responsesRequest
 from std_srvs.srv import Trigger, TriggerResponse
 
 
@@ -42,8 +42,8 @@ class dialogue_manager:
             'adjust_microphone', Trigger)
 
         # activates the text to speech..
-        self.pronounce_responses = rospy.ServiceProxy(
-            'pronounce_responses', pronounce_responses)
+        self.reproduce_responses = rospy.ServiceProxy(
+            'reproduce_responses', reproduce_responses)
 
         # publishes the state of the dialogue manager..
         self.state = rospy.Publisher(
@@ -57,7 +57,11 @@ class dialogue_manager:
         return TriggerResponse(self.open_microphone())
 
     def activate_microphone(self):
-        if self.open_microphone():
+        try:
+            open_mic = self.open_microphone()
+        except rospy.ServiceException as e:
+            print("Service call failed: %s" % e)
+        if open_mic:
             rospy.logdebug('listening..')
             self.state.publish(dialogue_state(dialogue_state.listening))
             return True
@@ -68,7 +72,10 @@ class dialogue_manager:
         self.state.publish(dialogue_state(dialogue_state.speaking))
 
         # we adjust the speech to text for the ambient noise..
-        self.adjust_microphone()
+        try:
+            res = self.adjust_microphone()
+        except rospy.ServiceException as e:
+            print("Service call failed: %s" % e)
 
         # we store the informations about the starting dialogue task..
         self.task = True
@@ -89,11 +96,14 @@ class dialogue_manager:
         if(r.status_code == requests.codes.ok):
             j_res = r.json()
             self.slots = j_res['tracker']['slots']
-            responses = pronounce_responsesRequest()
+            responses = reproduce_responsesRequest()
             for ans in j_res:
                 responses.utterances.append(ans['text'])
-            if self.pronounce_responses(responses):
-                return start_taskResponse(True)
+            try:
+                res = self.reproduce_responses(responses)
+            except rospy.ServiceException as e:
+                print("Service call failed: %s" % e)
+            return start_taskResponse(res)
         return start_taskResponse(False)
 
     def generate_responses(self, req):
@@ -105,11 +115,14 @@ class dialogue_manager:
         if(r.status_code == requests.codes.ok):
             j_res = r.json()
             self.slots = j_res['slots']
-            responses = pronounce_responsesRequest()
+            responses = reproduce_responsesRequest()
             for ans in j_res:
                 responses.utterances.append(ans['text'])
-            if self.pronounce_responses(responses):
-                return start_taskResponse(True)
+            try:
+                res = self.reproduce_responses(responses)
+            except rospy.ServiceException as e:
+                print("Service call failed: %s" % e)
+            return start_taskResponse(res)
         return string_serviceResponse(False)
 
     def check_closed_dialogue(self, req):

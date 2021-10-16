@@ -3,7 +3,7 @@ from build.dialogue.catkin_generated.installspace.tts import speak
 import rospy
 import gtts
 import playsound
-from msgs.srv import pronounce_responses, pronounce_responsesResponse
+from msgs.srv import reproduce_responses, reproduce_responsesResponse
 from std_srvs.srv import Trigger
 
 
@@ -13,7 +13,7 @@ class text_to_speech:
         self.utterances = []
 
         rep_res_service = rospy.Service(
-            'pronounce_responses', pronounce_responses, self.speak_request)
+            'reproduce_responses', reproduce_responses, self.speak_request)
         self.check_closed_dialogue = rospy.ServiceProxy(
             'check_closed_dialogue', Trigger)
 
@@ -31,12 +31,15 @@ class text_to_speech:
             tts = gtts.gTTS(utterance, lang="it")
             tts.save("utterance.mp3")
             playsound("utterance.mp3")
-            self.check_closed_dialogue()
+            try:
+                res = self.check_closed_dialogue()
+            except rospy.ServiceException as e:
+                print("Service call failed: %s" % e)
 
     def speak_request(self, srv):
         self.utterances = srv.utterances
         rospy.logdebug('request for synthesizing "%s"..', self.utterances)
-        return pronounce_responsesResponse(True)
+        return reproduce_responsesResponse(True)
 
 
 if __name__ == '__main__':

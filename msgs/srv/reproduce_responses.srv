@@ -1,3 +1,4 @@
 string[] utterances
+uint8[] emotions
 ---
 bool started

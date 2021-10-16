@@ -1,0 +1,5 @@
+uint8 default = 0
+uint8 speaking = 0
+uint8 mouth
+---
+bool shown
