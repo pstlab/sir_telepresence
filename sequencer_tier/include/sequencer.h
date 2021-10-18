@@ -25,6 +25,9 @@ namespace sir
   private:
     ros::NodeHandle &handle;
     ros::Publisher notify_state;
+    ros::ServiceClient create_reasoner;
+    ros::ServiceClient new_requirement;
+    ros::ServiceClient task_finished;
 
     /*
      * The sequencer state
@@ -35,6 +38,6 @@ namespace sir
     unsigned int deliberative_state = msgs::deliberative_state::idle;
     ros::Subscriber dialogue_state_sub;
     unsigned int dialogue_state = msgs::dialogue_state::idle;
-    ros::ServiceClient start_dialogue_service;
+    ros::ServiceClient start_dialogue;
   };
 } // namespace sir

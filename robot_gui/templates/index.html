@@ -6,8 +6,11 @@
 <body>
     {% include "navbar.html" %}
 
-    <div class="container d-grid gap-2 py-2">
+    <div class="d-flex justify-content-center">
         <img id="eyes" src="{{ url_for('static', filename='eyes_0.png') }}" alt="" height="200">
+    </div>
+
+    <div class="d-flex justify-content-center">
         <img id="mouth" src="{{ url_for('static', filename='mouth_0.png') }}" alt="" height="200">
     </div>
 

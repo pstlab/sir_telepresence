@@ -1,0 +1,11 @@
+class Dialogue : StateVariable {
+
+    Configuring() {
+        duration >= 20.0;
+    }
+}
+
+class Ohmni {
+
+    Dialogue dialogue = new Dialogue();
+}

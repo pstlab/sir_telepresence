@@ -54,7 +54,7 @@ class dialogue_manager:
             'dialogue_state', dialogue_state, queue_size=10, latch=True)
         self.state_pub.publish(dialogue_state(dialogue_state.idle))
 
-    def start():
+    def start(self):
         rospy.spin()
 
     def listen(self, req):

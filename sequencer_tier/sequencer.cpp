@@ -1,4 +1,7 @@
 #include "sequencer.h"
+#include "msgs/create_reasoner.h"
+#include "msgs/new_requirement.h"
+#include "msgs/task_finished.h"
 #include "msgs/start_task.h"
 
 namespace sir
@@ -7,7 +10,13 @@ namespace sir
     const char *deliberative_to_string(unsigned int &deliberative_state);
     const char *dialogue_to_string(unsigned int &dialogue_state);
 
-    sequencer::sequencer(ros::NodeHandle &handle) : handle(handle), notify_state(handle.advertise<msgs::system_state>("system_state", 10, true)), system_state_sub(handle.subscribe("system_state", 100, &sequencer::updated_system_state, this)), deliberative_state_sub(handle.subscribe("deliberative_state", 100, &sequencer::updated_deliberative_state, this)), dialogue_state_sub(handle.subscribe("dialogue_state", 100, &sequencer::updated_dialogue_state, this)), start_dialogue_service(handle.serviceClient<msgs::start_task>("start_dialogue")) {}
+    sequencer::sequencer(ros::NodeHandle &h) : handle(h), notify_state(h.advertise<msgs::system_state>("system_state", 10, true)), system_state_sub(h.subscribe("system_state", 100, &sequencer::updated_system_state, this)), deliberative_state_sub(h.subscribe("deliberative_state", 100, &sequencer::updated_deliberative_state, this)), dialogue_state_sub(h.subscribe("dialogue_state", 100, &sequencer::updated_dialogue_state, this)), create_reasoner(h.serviceClient<msgs::create_reasoner>("create_reasoner")), new_requirement(h.serviceClient<msgs::new_requirement>("new_requirement")), task_finished(h.serviceClient<msgs::task_finished>("task_finished")), start_dialogue(h.serviceClient<msgs::start_task>("start_dialogue"))
+    {
+        create_reasoner.waitForExistence();
+        new_requirement.waitForExistence();
+        task_finished.waitForExistence();
+        start_dialogue.waitForExistence();
+    }
     sequencer::~sequencer() {}
 
     void sequencer::tick()
@@ -18,7 +27,16 @@ namespace sir
         {
         case msgs::system_state::unconfigured:
             set_state(msgs::system_state::configuring);
-            // TODO: create configuration planning problem..
+            {
+                msgs::create_reasoner new_reasoner;
+                new_reasoner.request.reasoner_id = 0;
+                create_reasoner.call(new_reasoner);
+
+                msgs::new_requirement new_req;
+                new_req.request.reasoner_id = new_reasoner.request.reasoner_id;
+                new_req.request.requirement = "goal conf = new ohmni.dialogue.Configure();";
+                new_requirement.call(new_req);
+            }
             break;
         default:
             break;

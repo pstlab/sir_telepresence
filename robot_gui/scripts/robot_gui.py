@@ -29,6 +29,7 @@ def timelines_view():
 
 @socketio.on('/open_microphone')
 def open_mic():
+    print('opening microphone..')
     try:
         res = open_microphone()
     except rospy.ServiceException as e:

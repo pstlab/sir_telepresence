@@ -5,4 +5,8 @@
     <node name="text_to_speech" pkg="dialogue" type="tts.py" output="screen" />
     <node name="dialogue_manager" pkg="dialogue" type="dialogue.py" output="screen" />
     <node name="robot_gui" pkg="robot_gui" type="robot_gui.py" output="screen" />
+
+    <param name="rasa.host" type="string" value="localhost" />
+    <param name="rasa.port" type="string" value="5005" />
+    <param name="user" type="string" value="42" />
 </launch>
