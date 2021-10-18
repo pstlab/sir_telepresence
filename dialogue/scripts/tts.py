@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from build.dialogue.catkin_generated.installspace.tts import speak
 import rospy
 import gtts
 import playsound
@@ -21,7 +20,7 @@ class text_to_speech:
         rate = rospy.Rate(50)
         while not rospy.is_shutdown():
             if self.utterances:
-                speak()
+                self.speak()
                 self.utterances.clear()
             rate.sleep()
 
