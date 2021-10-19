@@ -79,7 +79,7 @@ namespace sir
             st_srv.request.task_name = t.task_name;
             st_srv.request.par_names = t.par_names;
             st_srv.request.par_values = t.par_values;
-            if (d_mngr.can_start.call(st_srv) && st_srv.response.started)
+            if (d_mngr.start_task.call(st_srv) && st_srv.response.started)
                 current_tasks.emplace(atm->get_sigma(), atm);
         }
     }
