@@ -5,8 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ## Find catkin and any catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp roslaunch msgs)
-roslaunch_add_file_check(launch)
+find_package(catkin REQUIRED COMPONENTS roscpp msgs)
 
 ## Declare a catkin package
 catkin_package()

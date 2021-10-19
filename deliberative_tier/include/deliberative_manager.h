@@ -5,6 +5,7 @@
 #include "msgs/new_requirement.h"
 #include <ros/ros.h>
 #include <unordered_map>
+#include <queue>
 
 namespace sir
 {
@@ -36,5 +37,6 @@ namespace sir
     ros::ServiceClient can_start;
     ros::ServiceClient start_task;
     std::unordered_map<uint64_t, deliberative_executor *> executors;
+    std::unordered_map<uint64_t, std::queue<std::string>> pending_requirements;
   };
 } // namespace sir

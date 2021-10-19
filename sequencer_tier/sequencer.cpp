@@ -34,7 +34,7 @@ namespace sir
 
                 msgs::new_requirement new_req;
                 new_req.request.reasoner_id = new_reasoner.request.reasoner_id;
-                new_req.request.requirement = "goal conf = new ohmni.dialogue.Configure();";
+                new_req.request.requirement = "goal conf = new ohmni.dialogue.Configuring();";
                 new_requirement.call(new_req);
             }
             break;

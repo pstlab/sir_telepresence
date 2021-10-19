@@ -17,13 +17,24 @@ namespace sir
 
     void deliberative_manager::tick()
     {
+        for (auto &req : pending_requirements)
+            while (!req.second.empty())
+            {
+                const std::string c_req = req.second.front();
+                ROS_DEBUG("[%lu] reading:%s", req.first, c_req.c_str());
+                executors.at(req.first)->get_solver().read(c_req);
+                ROS_DEBUG("[%lu] solving..", req.first);
+                executors.at(req.first)->get_solver().solve();
+                ROS_DEBUG("[%lu] solution found..", req.first);
+                req.second.pop();
+            }
         for (auto &exec : executors)
             exec.second->get_executor().tick();
     }
 
     bool deliberative_manager::create_reasoner(msgs::create_reasoner::Request &req, msgs::create_reasoner::Response &res)
     {
-        ROS_DEBUG("[%lu] Creating new reasoner..", req.reasoner_id);
+        ROS_DEBUG("Creating new reasoner %lu..", req.reasoner_id);
         executors[req.reasoner_id] = new deliberative_executor(*this, req.reasoner_id);
         res.created = true;
         return true;
@@ -31,15 +42,15 @@ namespace sir
 
     bool deliberative_manager::new_requirement(msgs::new_requirement::Request &req, msgs::new_requirement::Response &res)
     {
-        ROS_DEBUG("[%lu] Adding new requirement..", req.reasoner_id);
-        executors.at(req.reasoner_id)->get_solver().read(req.requirement);
+        ROS_DEBUG("Adding new requirement to reasoner %lu..", req.reasoner_id);
+        pending_requirements[req.reasoner_id].push(req.requirement);
         res.consistent = true;
         return true;
     }
 
     bool deliberative_manager::task_finished(msgs::task_finished::Request &req, msgs::task_finished::Response &res)
     {
-        ROS_DEBUG("[%lu] Ending task %lu..", req.reasoner_id, req.task_id);
+        ROS_DEBUG("Ending task %lu for reasoner %lu..", req.reasoner_id, req.task_id);
         executors.at(req.reasoner_id)->finish_task(req.task_id, req.success);
         res.ended = true;
         return true;
