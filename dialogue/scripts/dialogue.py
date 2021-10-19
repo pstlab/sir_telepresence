@@ -106,7 +106,7 @@ class dialogue_manager:
         # we make the request..
         rospy.logdebug('generating responses for "%s"..', self.task_name)
         r = requests.post('http://' + host + ':' + port + '/conversations/' + user +
-                          '/trigger_intent', params={'include_events': 'NONE'}, json=self.payload)
+                          '/trigger_intent', params={'include_events': 'NONE'}, json=payload)
         if(r.status_code == requests.codes.ok):
             j_res = r.json()
             self.slots = j_res['tracker']['slots']
