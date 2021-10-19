@@ -25,3 +25,10 @@ stories:
       - action: utter_pleased_to_meet
       - action: utter_end_profile_gathering
       - action: action_command_done
+
+  - story: Welcome president
+    steps:
+      - intent: welcome_president
+      - action: action_command_start
+      - action: utter_welcome_president
+      - action: action_command_done

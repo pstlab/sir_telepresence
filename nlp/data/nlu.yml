@@ -46,6 +46,10 @@ nlu:
       - Mi chiamo Riccardo
       - Il mio nome è Riccardo
 
+  - intent: welcome_president
+    examples: |
+      - Dammi il benvenuto
+
   - intent: out_of_scope
     examples: |
       - A che ora si pranza?

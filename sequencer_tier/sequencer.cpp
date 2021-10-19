@@ -70,7 +70,7 @@ namespace sir
             msgs::start_task sd_srv;
             sd_srv.request.reasoner_id = req.reasoner_id;
             sd_srv.request.task_id = req.task_id;
-            sd_srv.request.task_name = req.task_name;
+            sd_srv.request.task_name = "welcome_president";
             sd_srv.request.par_names = req.par_names;
             sd_srv.request.par_values = req.par_values;
             res.started = start_dialogue.call(sd_srv);
