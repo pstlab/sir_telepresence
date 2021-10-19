@@ -29,6 +29,9 @@ namespace sir
 
   private:
     ros::NodeHandle &handle;
+    ros::ServiceServer create_reasoner_server;
+    ros::ServiceServer new_requirement_server;
+    ros::ServiceServer task_finished_server;
     ros::Publisher notify_state;
     ros::ServiceClient can_start;
     ros::ServiceClient start_task;

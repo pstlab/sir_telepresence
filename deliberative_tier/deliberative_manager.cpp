@@ -6,13 +6,13 @@
 
 namespace sir
 {
-    deliberative_manager::deliberative_manager(ros::NodeHandle &h) : handle(h), notify_state(handle.advertise<msgs::deliberative_state>("deliberative_state", 10, true)), can_start(h.serviceClient<msgs::can_start>("can_start")), start_task(h.serviceClient<msgs::start_task>("start_task"))
-    {
-        ROS_DEBUG("Advertising deliberative services..");
-        handle.advertiseService("create_reasoner", &deliberative_manager::create_reasoner, this);
-        handle.advertiseService("new_requirement", &deliberative_manager::new_requirement, this);
-        handle.advertiseService("task_finished", &deliberative_manager::task_finished, this);
-    }
+    deliberative_manager::deliberative_manager(ros::NodeHandle &h) : handle(h),
+                                                                     create_reasoner_server(h.advertiseService("create_reasoner", &deliberative_manager::create_reasoner, this)),
+                                                                     new_requirement_server(h.advertiseService("new_requirement", &deliberative_manager::new_requirement, this)),
+                                                                     task_finished_server(h.advertiseService("task_finished", &deliberative_manager::task_finished, this)),
+                                                                     notify_state(handle.advertise<msgs::deliberative_state>("deliberative_state", 10, true)),
+                                                                     can_start(h.serviceClient<msgs::can_start>("can_start")),
+                                                                     start_task(h.serviceClient<msgs::start_task>("start_task")) {}
     deliberative_manager::~deliberative_manager() {}
 
     void deliberative_manager::tick()
