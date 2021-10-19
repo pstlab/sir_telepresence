@@ -14,7 +14,7 @@ namespace sir
     deliberative_executor::deliberative_executor(deliberative_manager &d_mngr, const uint64_t &id) : d_mngr(d_mngr), reasoner_id(id), slv(), exec(slv), core_listener(slv), executor_listener(exec)
     {
         // we read the domain files..
-        slv.read("class Dialogue : StateVariable { Configuring() { duration >= 20.0; } } class Ohmni { Dialogue dialogue = new Dialogue(); } Ohmni ohmni = new Ohmni();");
+        slv.read("class Dialogue : StateVariable { predicate Configuring() { duration >= 20.0; } } class Ohmni { Dialogue dialogue = new Dialogue(); } Ohmni ohmni = new Ohmni();");
         ROS_DEBUG("[%lu] Created reasoner..", reasoner_id);
         set_state(msgs::deliberative_state::idle);
     }

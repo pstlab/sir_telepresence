@@ -1,4 +1,6 @@
 #include "deliberative_manager.h"
+#include "solver.h"
+#include "executor.h"
 #include <thread>
 #include <chrono>
 
@@ -12,6 +14,9 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "deliberative_tier");
     ros::NodeHandle nh;
     ROS_INFO("Starting the Deliberative Tier..");
+
+    if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
+        ros::console::notifyLoggerLevelsChanged();
 
     deliberative_manager dm(nh);
 

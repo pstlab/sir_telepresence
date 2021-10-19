@@ -1,6 +1,6 @@
 class Dialogue : StateVariable {
 
-    Configuring() {
+    predicate Configuring() {
         duration >= 20.0;
     }
 }
