@@ -58,14 +58,14 @@ class dialogue_manager:
         rospy.spin()
 
     def listen(self, req):
-        return TriggerResponse(self.open_microphone(), 'Opening microphone')
+        return TriggerResponse(self.open_microphone().success, 'Opening microphone')
 
     def activate_microphone(self):
         try:
             open_mic = self.open_microphone()
         except rospy.ServiceException as e:
             print("Service call failed: %s" % e)
-        if open_mic:
+        if open_mic.success:
             rospy.logdebug('listening..')
             self.state_pub.publish(dialogue_state(dialogue_state.listening))
             return True
@@ -168,7 +168,7 @@ class dialogue_manager:
             return TriggerResponse(True, 'Closed dialogue')
         else:
             # we are still talking, so we reopen the microphone..
-            return TriggerResponse(self.open_microphone(), 'Reopening microphone')
+            return TriggerResponse(self.open_microphone().success, 'Reopening microphone')
 
 
 if __name__ == '__main__':
