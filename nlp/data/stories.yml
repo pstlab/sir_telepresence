@@ -31,4 +31,7 @@ stories:
       - intent: welcome_president
       - action: action_command_start
       - action: utter_welcome_president
+      - action: utter_ask_who_I_am
+      - intent: deny
+      - action: utter_presentation
       - action: action_command_done

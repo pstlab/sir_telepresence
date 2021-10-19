@@ -64,6 +64,12 @@ responses:
   utter_welcome_president:
     - text: Buongiorno Presidente e benvenuta alla sede di Catania dell'ISTC!
 
+  utter_ask_who_I_am:
+    - text: Lo sa chi sono io?
+
+  utter_presentation:
+    - text: Sono un robot di assistenza domestica che sta sviluppando l'ISTC all'interno del progetto Si-Robotics!
+
   utter_out_of_scope:
     - text: Mi spiace! Non so come gestire la tua richiesta.
     - text: Spiacente! Non so come risponderti.
