@@ -51,15 +51,15 @@ namespace sir
     void deliberative_executor::starting(const std::unordered_set<atom *> &atms)
     { // tell the executor the atoms which are not yet ready to start..
         std::unordered_set<ratio::atom *> dsy;
-        msgs::can_start srv;
+        msgs::can_start cs_srv;
         task t;
         for (const auto &atm : atms)
         {
             t = to_task(*atm);
-            srv.request.task_name = t.task_name;
-            srv.request.par_names = t.par_names;
-            srv.request.par_values = t.par_values;
-            if (d_mngr.can_start.call(srv) && !srv.response.can_start)
+            cs_srv.request.task_name = t.task_name;
+            cs_srv.request.par_names = t.par_names;
+            cs_srv.request.par_values = t.par_values;
+            if (d_mngr.can_start.call(cs_srv) && !cs_srv.response.can_start)
                 dsy.insert(atm);
         }
 
@@ -68,18 +68,18 @@ namespace sir
     }
     void deliberative_executor::start(const std::unordered_set<atom *> &atms)
     { // these atoms are now started..
-        msgs::start_task srv;
+        msgs::start_task st_srv;
         task t;
         for (const auto &atm : atms)
         {
             ROS_DEBUG("[%lu] Starting task %s..", reasoner_id, atm->get_type().get_name().c_str());
             t = to_task(*atm);
-            srv.request.reasoner_id = reasoner_id;
-            srv.request.task_id = t.task_id;
-            srv.request.task_name = t.task_name;
-            srv.request.par_names = t.par_names;
-            srv.request.par_values = t.par_values;
-            if (d_mngr.can_start.call(srv) && srv.response.started)
+            st_srv.request.reasoner_id = reasoner_id;
+            st_srv.request.task_id = t.task_id;
+            st_srv.request.task_name = t.task_name;
+            st_srv.request.par_names = t.par_names;
+            st_srv.request.par_values = t.par_values;
+            if (d_mngr.can_start.call(st_srv) && st_srv.response.started)
                 current_tasks.emplace(atm->get_sigma(), atm);
         }
     }

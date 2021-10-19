@@ -12,7 +12,11 @@ namespace sir
                                                                      task_finished_server(h.advertiseService("task_finished", &deliberative_manager::task_finished, this)),
                                                                      notify_state(handle.advertise<msgs::deliberative_state>("deliberative_state", 10, true)),
                                                                      can_start(h.serviceClient<msgs::can_start>("can_start")),
-                                                                     start_task(h.serviceClient<msgs::start_task>("start_task")) {}
+                                                                     start_task(h.serviceClient<msgs::start_task>("start_task"))
+    {
+        can_start.waitForExistence();
+        start_task.waitForExistence();
+    }
     deliberative_manager::~deliberative_manager() {}
 
     void deliberative_manager::tick()
