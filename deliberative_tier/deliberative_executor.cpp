@@ -11,7 +11,7 @@ using namespace ratio;
 
 namespace sir
 {
-    deliberative_executor::deliberative_executor(deliberative_manager &d_mngr, const uint64_t &id) : d_mngr(d_mngr), reasoner_id(id), slv(), exec(slv), dcl(*this), executor_listener(exec)
+    deliberative_executor::deliberative_executor(deliberative_manager &d_mngr, const uint64_t &id) : d_mngr(d_mngr), reasoner_id(id), slv(), exec(slv), dcl(*this), del(*this)
     {
         // we read the domain files..
         ROS_DEBUG("[%lu] Reading domain..", reasoner_id);
@@ -19,6 +19,22 @@ namespace sir
         set_state(Idle);
     }
     deliberative_executor::~deliberative_executor() {}
+
+    void deliberative_executor::started_solving()
+    {
+        ROS_DEBUG("[%lu] Started reasoning..", reasoner_id);
+        set_state(Reasoning);
+    }
+    void deliberative_executor::solution_found()
+    {
+        ROS_DEBUG("[%lu] Solution found..", reasoner_id);
+        set_state(Executing);
+    }
+    void deliberative_executor::inconsistent_problem()
+    {
+        ROS_DEBUG("[%lu] Inconsistent problem..", reasoner_id);
+        set_state(Inconsistent);
+    }
 
     void deliberative_executor::tick(const smt::rational &time)
     {
@@ -130,24 +146,5 @@ namespace sir
                     par_values.push_back(si->get_value());
             }
         return {task_id, task_name, par_names, par_values};
-    }
-
-    deliberative_executor::deliberative_core_listener::deliberative_core_listener(deliberative_executor &exc) : exec(exc), core_listener(exc.get_solver()) {}
-    deliberative_executor::deliberative_core_listener::~deliberative_core_listener() {}
-
-    void deliberative_executor::deliberative_core_listener::started_solving()
-    {
-        ROS_DEBUG("[%lu] Started reasoning..", exec.reasoner_id);
-        exec.set_state(Reasoning);
-    }
-    void deliberative_executor::deliberative_core_listener::solution_found()
-    {
-        ROS_DEBUG("[%lu] Solution found..", exec.reasoner_id);
-        exec.set_state(Executing);
-    }
-    void deliberative_executor::deliberative_core_listener::inconsistent_problem()
-    {
-        ROS_DEBUG("[%lu] Inconsistent problem..", exec.reasoner_id);
-        exec.set_state(Inconsistent);
     }
 } // namespace sir
