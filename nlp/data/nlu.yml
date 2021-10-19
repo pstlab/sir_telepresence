@@ -49,6 +49,7 @@ nlu:
   - intent: welcome_president
     examples: |
       - Dammi il benvenuto
+      - Voglio il benvenuto
 
   - intent: out_of_scope
     examples: |

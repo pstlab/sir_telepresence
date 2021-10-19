@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import rospy
 import gtts
-import playsound
+from playsound import playsound
 from msgs.srv import reproduce_responses, reproduce_responsesResponse
 from std_srvs.srv import Trigger
 
