@@ -16,3 +16,4 @@ add_compile_definitions(BUILD_LISTENERS)
 
 add_executable(deliberative_tier main.cpp deliberative_manager.cpp deliberative_executor.cpp)
 target_link_libraries(deliberative_tier ${catkin_LIBRARIES} json smt core riddle solver executor)
+add_dependencies(deliberative_tier ${catkin_EXPORTED_TARGETS})
