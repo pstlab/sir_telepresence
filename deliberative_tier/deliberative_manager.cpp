@@ -21,11 +21,8 @@ namespace sir
             while (!req.second.empty())
             {
                 const std::string c_req = req.second.front();
-                ROS_DEBUG("[%lu] reading:%s", req.first, c_req.c_str());
                 executors.at(req.first)->get_solver().read(c_req);
-                ROS_DEBUG("[%lu] solving..", req.first);
                 executors.at(req.first)->get_solver().solve();
-                ROS_DEBUG("[%lu] solution found..", req.first);
                 req.second.pop();
             }
         for (auto &exec : executors)

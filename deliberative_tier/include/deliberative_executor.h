@@ -15,7 +15,7 @@ namespace sir
     Inconsistent
   };
 
-  class deliberative_executor : public ratio::core_listener, public ratio::executor_listener
+  class deliberative_executor : public ratio::executor_listener
   {
   public:
     deliberative_executor(deliberative_manager &d_mngr, const uint64_t &id);
@@ -27,10 +27,6 @@ namespace sir
     void finish_task(const smt::var &id, const bool &success = true);
 
   private:
-    void started_solving() override;
-    void solution_found() override;
-    void inconsistent_problem() override;
-
     void tick(const smt::rational &time) override;
 
     void starting(const std::unordered_set<ratio::atom *> &) override;
@@ -39,7 +35,7 @@ namespace sir
     void ending(const std::unordered_set<ratio::atom *> &) override;
     void end(const std::unordered_set<ratio::atom *> &) override;
 
-    void set_state(const unsigned int &state);
+    void set_state(const executor_state &state);
 
     struct task
     {
@@ -51,11 +47,27 @@ namespace sir
 
     task to_task(const ratio::atom &atm) const;
 
+    class deliberative_core_listener : public ratio::core_listener
+    {
+    public:
+      deliberative_core_listener(deliberative_executor &exec);
+      ~deliberative_core_listener();
+
+    private:
+      void started_solving() override;
+      void solution_found() override;
+      void inconsistent_problem() override;
+
+    private:
+      deliberative_executor &exec;
+    };
+
   private:
     deliberative_manager &d_mngr;
     uint64_t reasoner_id;
     ratio::solver slv;
     ratio::executor exec;
+    deliberative_core_listener dcl;
     executor_state state = Idle;
     std::unordered_map<smt::var, ratio::atom *> current_tasks;
   };
