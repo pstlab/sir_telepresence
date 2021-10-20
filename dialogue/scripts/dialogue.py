@@ -58,7 +58,7 @@ class dialogue_manager:
         rospy.spin()
 
     def listen(self, req):
-        return TriggerResponse(self.open_microphone().success, 'Opening microphone')
+        return TriggerResponse(self.activate_microphone(), 'Opening microphone')
 
     def activate_microphone(self):
         try:
@@ -172,7 +172,7 @@ class dialogue_manager:
             return TriggerResponse(True, 'Closed dialogue')
         else:
             # we are still talking, so we reopen the microphone..
-            return TriggerResponse(self.open_microphone().success, 'Reopening microphone')
+            return TriggerResponse(self.activate_microphone(), 'Reopening microphone')
 
 
 if __name__ == '__main__':
