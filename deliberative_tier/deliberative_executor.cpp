@@ -15,7 +15,7 @@ namespace sir
     {
         // we read the domain files..
         ROS_DEBUG("[%lu] Reading domain..", reasoner_id);
-        slv.read("class Dialogue : StateVariable { predicate Configuring() { duration >= 20.0; } } class Ohmni { Dialogue dialogue = new Dialogue(); } Ohmni ohmni = new Ohmni();");
+        slv.read("class Dialogue : StateVariable { predicate Configuring() { duration >= 2000.0; } } class Ohmni { Dialogue dialogue = new Dialogue(); } Ohmni ohmni = new Ohmni();");
         set_state(Idle);
     }
     deliberative_executor::~deliberative_executor() {}
