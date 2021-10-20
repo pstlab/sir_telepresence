@@ -30,10 +30,10 @@ class text_to_speech:
             tts = gtts.gTTS(utterance, lang='it')
             tts.save('utterance.mp3')
             playsound('utterance.mp3')
-            try:
-                res = self.check_closed_dialogue()
-            except rospy.ServiceException as e:
-                print('Service call failed: %s' % e)
+        try:
+            res = self.check_closed_dialogue()
+        except rospy.ServiceException as e:
+            print('Service call failed: %s' % e)
 
     def speak_request(self, srv):
         self.utterances = srv.utterances
