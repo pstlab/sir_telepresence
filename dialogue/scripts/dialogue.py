@@ -176,7 +176,7 @@ class dialogue_manager:
 
 
 if __name__ == '__main__':
-    rospy.init_node('dialogue_manager', anonymous=True)
+    rospy.init_node('dialogue_manager', anonymous=True, log_level=rospy.DEBUG)
     rospy.loginfo('Starting Dialogue Manager..')
 
     host = rospy.get_param('rasa.host')

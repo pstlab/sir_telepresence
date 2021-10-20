@@ -42,7 +42,7 @@ class text_to_speech:
 
 
 if __name__ == '__main__':
-    rospy.init_node('text_to_speech', anonymous=True)
+    rospy.init_node('text_to_speech', anonymous=True, log_level=rospy.DEBUG)
     rospy.loginfo('Starting Text to Speech Manager..')
 
     tts = text_to_speech()

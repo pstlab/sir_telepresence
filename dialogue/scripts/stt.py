@@ -65,7 +65,7 @@ class speech_to_text:
 
 
 if __name__ == '__main__':
-    rospy.init_node('speech_to_text', anonymous=True)
+    rospy.init_node('speech_to_text', anonymous=True, log_level=rospy.DEBUG)
     rospy.loginfo('Starting Speech to Text Manager..')
 
     stt = speech_to_text()
