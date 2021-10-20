@@ -138,10 +138,14 @@ class dialogue_manager:
             'include_events': 'NONE'}, json={'sender': user, 'message': req.text})
         if(r.status_code == requests.codes.ok):
             j_res = r.json()
-            self.slots = j_res['slots']
             responses = reproduce_responsesRequest()
             for ans in j_res:
                 responses.utterances.append(ans['text'])
+            r = requests.get('http://' + host + ':' + port + '/conversations/' + user +
+                             '/tracker', params={'include_events': 'NONE'})
+            if(r.status_code == requests.codes.ok):
+                j_res = r.json()
+                self.slots = j_res['slots']
             try:
                 res = self.reproduce_responses(responses)
             except rospy.ServiceException as e:

@@ -79,7 +79,9 @@ if __name__ == '__main__':
     show_mth_service = rospy.Service(
         'set_mouth', set_mouth, emit_mouth)
 
-    socketio.run(app, host='localhost', port=8080)
+    gui_host = rospy.get_param('gui.host')
+    gui_port = int(rospy.get_param('gui.port'))
+    socketio.run(app, host=gui_host, port=gui_port)
 
     try:
         rospy.spin()

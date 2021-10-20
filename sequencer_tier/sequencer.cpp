@@ -30,7 +30,7 @@ namespace sir
 
     void sequencer::tick()
     {
-        ROS_INFO("{\"System\": %s, \"Deliberative\": %s, \"Dialogue\": %s}", system_to_string(system_state), deliberative_to_string(deliberative_state), dialogue_to_string(dialogue_state));
+        ROS_DEBUG("{\"System\": %s, \"Deliberative\": %s, \"Dialogue\": %s}", system_to_string(system_state), deliberative_to_string(deliberative_state), dialogue_to_string(dialogue_state));
 
         switch (system_state)
         {

@@ -27,13 +27,13 @@ class text_to_speech:
     def speak(self):
         rospy.logdebug('synthesizing "%s"..', self.utterances)
         for utterance in self.utterances:
-            tts = gtts.gTTS(utterance, lang="it")
-            tts.save("utterance.mp3")
-            playsound("utterance.mp3")
+            tts = gtts.gTTS(utterance, lang='it')
+            tts.save('utterance.mp3')
+            playsound('utterance.mp3')
             try:
                 res = self.check_closed_dialogue()
             except rospy.ServiceException as e:
-                print("Service call failed: %s" % e)
+                print('Service call failed: %s' % e)
 
     def speak_request(self, srv):
         self.utterances = srv.utterances
