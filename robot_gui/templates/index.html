@@ -3,21 +3,25 @@
 
 {% include "head.html" %}
 
-<body>
+<body style="background-color:black;">
     {% include "navbar.html" %}
 
     <div class="d-flex justify-content-center">
-        <img id="eyes" src="{{ url_for('static', filename='eyes_0.png') }}" alt="" height="200">
+        <img id="eyes" src="{{ url_for('static', filename='nobkg_idle.png') }}" alt="" height="700">
     </div>
 
+    <!--
     <div class="d-flex justify-content-center">
         <img id="mouth" src="{{ url_for('static', filename='mouth_0.png') }}" alt="" height="200">
     </div>
+-->
 
-<!--     <div class="container d-grid gap-2 py-2">
+    <!--
+    <div class="container d-grid gap-2 py-2">
         <button id="listen-button" type="button" class="btn btn-primary btn-lg" data-bs-toggle="button"
             onclick="listen()">Ascolta</button>
-    </div> -->
+    </div>
+-->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
