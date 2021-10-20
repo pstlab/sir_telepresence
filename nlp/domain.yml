@@ -67,8 +67,17 @@ responses:
   utter_ask_who_I_am:
     - text: Lo sa chi sono io?
 
+  utter_present_as_well:
+    - text: Mi presento comunque!
+
   utter_presentation:
     - text: Sono un robot di assistenza domestica che sta sviluppando l'ISTC all'interno del progetto Si-Robotics!
+
+  utter_ask_what_I_do:
+    - text: Vuoi sapere cosa faccio?
+
+  utter_present_functionalities:
+    - text: Il mio compito è di cercare di aiutare le persone anziane a mantenersi sane e in forma. Se vuoi ulteriori informazioni chiedile pure a chi mi ha programmato.
 
   utter_out_of_scope:
     - text: Mi spiace! Non so come gestire la tua richiesta.
