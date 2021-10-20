@@ -26,7 +26,7 @@ stories:
       - action: utter_end_profile_gathering
       - action: action_command_done
 
-  - story: Welcome president
+  - story: Welcome president no
     steps:
       - intent: welcome_president
       - action: action_command_start
@@ -34,4 +34,21 @@ stories:
       - action: utter_ask_who_I_am
       - intent: deny
       - action: utter_presentation
+      - action: utter_ask_what_I_do
+      - intent: affirm
+      - action: utter_present_functionalities
+      - action: action_command_done
+
+  - story: Welcome president yes
+    steps:
+      - intent: welcome_president
+      - action: action_command_start
+      - action: utter_welcome_president
+      - action: utter_ask_who_I_am
+      - intent: affirm
+      - action: utter_present_as_well
+      - action: utter_presentation
+      - action: utter_ask_what_I_do
+      - intent: affirm
+      - action: utter_present_functionalities
       - action: action_command_done
