@@ -150,7 +150,7 @@ class dialogue_manager:
                 res = self.reproduce_responses(responses)
             except rospy.ServiceException as e:
                 print("Service call failed: %s" % e)
-            return start_taskResponse(res.started)
+            return string_serviceResponse(res.started)
         return string_serviceResponse(False)
 
     def check_closed_dialogue(self, req):
