@@ -1,4 +1,0 @@
-uint8 default = 0
-uint8 eyes
----
-bool shown

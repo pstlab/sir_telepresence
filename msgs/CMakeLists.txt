@@ -23,10 +23,8 @@ add_service_files(
     create_reasoner.srv
     new_requirement.srv
     state.srv
-    string_service.srv
-    reproduce_responses.srv
-    set_eyes.srv
-    set_mouth.srv
+    set_string.srv
+    get_string.srv
 )
 
 ## Generate added messages and services
