@@ -25,6 +25,7 @@ namespace sir
         new_requirement.waitForExistence();
         task_finished.waitForExistence();
         start_dialogue.waitForExistence();
+        ros::service::waitForService("set_face");
     }
     sequencer::~sequencer() {}
 

@@ -26,75 +26,152 @@ slots:
 
 responses:
   utter_greet:
-    - text: Hey! Posso esserti utile?
-    - text: Hey, ciao! Posso esserti utile?
-    - text: Hey, ciao! Come posso aiutarti?
-    - text: Ciao! Posso esserti utile?
-    - text: Ciao! Come posso aiutarti?
+    - custom:
+        text: Hey! Posso esserti utile?
+        face: nobkg_idle
+    - custom:
+        text: Hey, ciao! Posso esserti utile?
+        face: nobkg_idle
+    - custom:
+        text: Hey, ciao! Come posso aiutarti?
+        face: nobkg_idle
+    - custom:
+        text: Ciao! Posso esserti utile?
+        face: nobkg_idle
+    - custom:
+        text: Ciao! Come posso aiutarti?
+        face: nobkg_idle
 
   utter_greet_name:
-    - text: Hey! Posso esserti utile?
-    - text: Hey {PER}! Posso esserti utile?
-    - text: Hey {PER}! Come posso aiutarti?
-    - text: Ciao {PER}! Posso esserti utile?
-    - text: Ciao {PER}! Come posso aiutarti?
+    - custom:
+        text: Hey! Posso esserti utile?
+        face: nobkg_idle
+    - custom:
+        text: Hey {PER}! Posso esserti utile?
+        face: nobkg_idle
+    - custom:
+        text: Hey {PER}! Come posso aiutarti?
+        face: nobkg_idle
+    - custom:
+        text: Ciao {PER}! Posso esserti utile?
+        face: nobkg_idle
+    - custom:
+        text: Ciao {PER}! Come posso aiutarti?
+        face: nobkg_idle
 
   utter_pleased_to_meet:
-    - text: Ciao {PER}! Piacere di conoscerti!
+    - custom:
+        text: Ciao {PER}! Piacere di conoscerti!
+        face: nobkg_affetto
 
   utter_goodbye:
-    - text: Ciao!
-    - text: Arrivederci!
-    - text: A presto!
+    - custom:
+        text: Ciao!
+        face: nobkg_affetto
+    - custom:
+        text: Arrivederci!
+        face: nobkg_affetto
+    - custom:
+        text: A presto!
+        face: nobkg_affetto
 
   utter_start_profile_gathering:
-    - text: Ti farò alcune domande per capire meglio come interagire con te. Va bene?
-    - text: Ora ti farò alcune domande per capire meglio come interagire con te. Va bene?
-    - text: Ti va di rispondere ad alcune domande su di te?
+    - custom:
+        text: Ti farò alcune domande per capire meglio come interagire con te. Va bene?
+        face: nobkg_confusione
+    - custom:
+        text: Ora ti farò alcune domande per capire meglio come interagire con te. Va bene?
+        face: nobkg_confusione
+    - custom:
+        text: Ti va di rispondere ad alcune domande su di te?
+        face: nobkg_confusione
 
   utter_ask_name:
-    - text: Come ti chiami?
-    - text: Quale è il tuo nome?
+    - custom:
+        text: Come ti chiami?
+        face: nobkg_confusione
+    - custom:
+        text: Quale è il tuo nome?
+        face: nobkg_confusione
 
   utter_end_profile_gathering:
-    - text: Molto bene. Ora so tutto quello di cui avevo bisogno.
-    - text: Molto bene. Ora conosco tutto quello di cui avevo bisogno.
-    - text: Molto bene. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
+    - custom:
+        text: Molto bene. Ora so tutto quello di cui avevo bisogno.
+        face: nobkg_affetto
+    - custom:
+        text: Molto bene. Ora conosco tutto quello di cui avevo bisogno.
+        face: nobkg_affetto
+    - custom:
+        text: Molto bene. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
+        face: nobkg_affetto
 
   utter_welcome_president:
-    - text: Buongiorno Presidente e benvenuta alla sede di Catania dell'ISTC!
+    - custom:
+        text: Buongiorno Presidente e benvenuta alla sede di Catania dell'ISTC!
+        face: nobkg_festa
 
   utter_ask_who_I_am:
-    - text: Lo sa chi sono io?
+    - custom:
+        text: Lo sa chi sono io?
+        face: nobkg_confusione
 
   utter_present_as_well:
-    - text: Mi presento comunque!
+    - custom:
+        text: Mi presento comunque!
+        face: nobkg_disappunto
 
   utter_presentation:
-    - text: Sono un robot di assistenza domestica che sta sviluppando l'ISTC all'interno del progetto Si-Robotics!
+    - custom:
+        text: Sono un robot di assistenza domestica che sta sviluppando l'ISTC all'interno del progetto Si-Robotics!
+        face: nobkg_idle
 
   utter_ask_what_I_do:
-    - text: Vuoi sapere cosa faccio?
+    - custom:
+        text: Vuoi sapere cosa faccio?
+        face: nobkg_confusione
 
   utter_present_functionalities:
-    - text: Il mio compito è di cercare di aiutare le persone anziane a mantenersi sane e in forma. Se vuoi ulteriori informazioni chiedile pure a chi mi ha programmato.
+    - custom:
+        text: Il mio compito è di cercare di aiutare le persone anziane a mantenersi sane e in forma. Se vuoi ulteriori informazioni chiedile pure a chi mi ha programmato.
 
   utter_out_of_scope:
-    - text: Mi spiace! Non so come gestire la tua richiesta.
-    - text: Spiacente! Non so come risponderti.
-    - text: Mi spiace! Non so risponderti.
+    - custom:
+        text: Mi spiace! Non so come gestire la tua richiesta.
+        face: nobkg_confusione
+    - custom:
+        text: Spiacente! Non so come risponderti.
+        face: nobkg_confusione
+    - custom:
+        text: Mi spiace! Non so risponderti.
+        face: nobkg_confusione
 
   utter_please_rephrase:
-    - text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
-    - text: Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
-    - text: Puoi provare a ripeterlo in un altro modo?
-    - text: Puoi provare a ripetere l'ultima cosa che hai detto in un altro modo?
+    - custom:
+        text:  Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
+        face: nobkg_confusione
+    - custom:
+        text:  Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
+        face: nobkg_confusione
+    - custom:
+        text:  Puoi provare a ripeterlo in un altro modo?
+        face: nobkg_confusione
+    - custom:
+        text:  Puoi provare a ripetere l'ultima cosa che hai detto in un altro modo?
+        face: nobkg_confusione
 
   utter_default:
-    - text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
-    - text: Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
-    - text: Puoi provare a ripeterlo in un altro modo?
-    - text: Puoi provare a ripetere l'ultima cosa che hai detto in un altro modo?
+    - custom:
+        text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
+        face: nobkg_confusione
+    - custom:
+        text: Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
+        face: nobkg_confusione
+    - custom:
+        text: Puoi provare a ripeterlo in un altro modo?
+        face: nobkg_confusione
+    - custom:
+        text: Puoi provare a ripetere l'ultima cosa che hai detto in un altro modo?
+        face: nobkg_confusione
 
 actions:
   - action_command_start

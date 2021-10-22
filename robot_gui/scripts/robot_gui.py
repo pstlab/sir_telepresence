@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 import rospy
 import rospkg
+import traceback
 from flask import Flask, request, render_template, json
 from flask_socketio import SocketIO, emit
 from msgs.msg import timelines, dialogue_state
-from msgs.srv import set_eyes, set_eyesResponse, set_mouth, set_mouthResponse
-from std_srvs.srv import Trigger, TriggerRequest
+from msgs.srv import set_string, set_stringResponse
+from std_srvs.srv import Empty
 
 
 rospack = rospkg.RosPack()
@@ -31,53 +32,41 @@ def timelines_view():
 def open_mic():
     print('opening microphone..')
     try:
-        res = open_microphone()
-    except rospy.ServiceException as e:
-        print("Service call failed: %s" % e)
+        res = listen()
+    except rospy.ServiceException:
+        rospy.logerr('Service call failed\n' +
+                     ''.join(traceback.format_stack()))
 
 
 def emit_timelines(msg):
+    rospy.logdebug('emitting timelines..')
     rospy.loginfo(rospy.get_caller_id() + 'I heard %s', msg)
 
 
 def emit_dialogue_state(msg):
-    if msg.dialogue_state == dialogue_state.listening:
-        socketio.emit('microphone_state', {'state': 'Active'}, broadcast=True)
-    else:
-        socketio.emit('microphone_state', {
-                      'state': 'Inactive'}, broadcast=True)
+    rospy.logdebug('emitting dialogue state..')
+    socketio.emit('dialogue_state', {
+                  'state': msg.dialogue_state}, broadcast=True)
 
 
-def emit_eyes(req):
-    if req.eyes == set_eyes.default:
-        socketio.emit('eyes_state', {
-            'eyes': 'default'}, broadcast=True)
-    return set_eyesResponse(True)
-
-
-def emit_mouth(req):
-    if req.mouth == set_mouth.default:
-        socketio.emit('mouth_state', {
-            'mouth': 'default'}, broadcast=True)
-    return set_mouthResponse(True)
+def emit_face(req):
+    rospy.logdebug('emitting face..')
+    socketio.emit('face_state', {'face': req.text}, broadcast=True)
+    return set_stringResponse(True)
 
 
 if __name__ == '__main__':
     rospy.init_node('robot_gui', anonymous=True)
     rospy.loginfo('Starting Robot GUI..')
 
-    rospy.logdebug('Waiting for microphone activation service..')
-    rospy.wait_for_service('open_microphone')
-    open_microphone = rospy.ServiceProxy('open_microphone', Trigger)
-    req = TriggerRequest()
+    listen = rospy.ServiceProxy('listen', Empty)
+    listen.wait_for_service()
 
     rospy.Subscriber('timelines', timelines, emit_timelines)
     rospy.Subscriber('dialogue_state', dialogue_state, emit_dialogue_state)
 
     show_eys_service = rospy.Service(
-        'set_eyes', set_eyes, emit_eyes)
-    show_mth_service = rospy.Service(
-        'set_mouth', set_mouth, emit_mouth)
+        'set_face', set_string, emit_face)
 
     gui_host = rospy.get_param('gui.host')
     gui_port = int(rospy.get_param('gui.port'))

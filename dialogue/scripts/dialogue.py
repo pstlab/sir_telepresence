@@ -2,10 +2,13 @@
 import rospy
 import requests
 import time
+import traceback
 from msgs.msg import dialogue_state
 from msgs.srv import start_task, start_taskResponse, task_finished, state, get_string, set_string
 from std_srvs.srv import Empty, EmptyResponse
 
+nobkg_idle = 'nobkg_idle'
+nobkg_listening = 'nobkg_ascolto'
 
 class dialogue_manager:
 
@@ -35,19 +38,28 @@ class dialogue_manager:
         # activates the text to speech..
         self.text_to_speech = rospy.ServiceProxy(
             'text_to_speech', set_string)
+        self.text_to_speech.wait_for_service()
 
-        # activates the speech to text..
+        # activates the configuration of the speech to text..
         self.configure_speech_to_text = rospy.ServiceProxy(
             'configure_speech_to_text', Empty)
+        self.configure_speech_to_text.wait_for_service()
 
         # activates the speech to text..
         self.speech_to_text = rospy.ServiceProxy(
             'speech_to_text', get_string)
+        self.speech_to_text.wait_for_service()
+
+        # activates the speech to text..
+        self.set_face = rospy.ServiceProxy(
+            'set_face', set_string)
+        self.set_face.wait_for_service()
 
         # publishes the state of the dialogue manager..
         self.state_pub = rospy.Publisher(
             'dialogue_state', dialogue_state, queue_size=10, latch=True)
         self.state_pub.publish(dialogue_state(dialogue_state.idle))
+        self.set_face(nobkg_idle)
 
     def start_dialogue(self, req):
         # we store the informations about the starting dialogue task..
@@ -68,16 +80,22 @@ class dialogue_manager:
                 # we update the state..
                 self.state_pub.publish(
                     dialogue_state(dialogue_state.configuring))
+                self.set_face(nobkg_listening)
                 # we configure the speech to text..
-                stt = self.configure_speech_to_text()
+                try:
+                    stt_conf = self.configure_speech_to_text()
+                except rospy.ServiceException:
+                    rospy.logerr('Speech to text configuration service call failed\n' +
+                                 ''.join(traceback.format_stack()))
 
                 # we add the current perceived emotions..
                 try:
                     perceived_emotions = self.perceive_emotions()
                     self.par_names.extend(perceived_emotions.par_names)
                     self.par_values.extend(perceived_emotions.par_values)
-                except rospy.ServiceException as e:
-                    print("Service call failed: %s" % e)
+                except rospy.ServiceException:
+                    rospy.logerr('Emotions detection service call failed\n' +
+                                 ''.join(traceback.format_stack()))
 
                 # we prepare the request..
                 payload = {'name': self.task_name}
@@ -90,14 +108,31 @@ class dialogue_manager:
                 # we make the request..
                 rospy.logdebug(
                     'generating responses for "%s"..', self.task_name)
-                r = requests.post('http://' + host + ':' + port + '/conversations/' + user +
-                                  '/trigger_intent', params={'include_events': 'NONE'}, json=payload)
+                try:
+                    r = requests.post('http://' + host + ':' + port + '/conversations/' + user +
+                                      '/trigger_intent', params={'include_events': 'NONE'}, json=payload)
+                except requests.exceptions.RequestException as e:
+                    rospy.logerr('Rasa call failed\n' +
+                                 ''.join(traceback.format_stack()))
+                    raise SystemExit(e)
 
                 if(r.status_code == requests.codes.ok):
+                    # we update the state..
+                    self.state_pub.publish(
+                        dialogue_state(dialogue_state.speaking))
                     j_res = r.json()
                     self.state = j_res['tracker']['slots']
-                    for ans in j_res['messages']:
-                        self.text_to_speech(ans['text'])
+                    try:
+                        for ans in j_res['messages']:
+                            self.set_face(ans['custom']['face'])
+                            self.text_to_speech(ans['custom']['text'])
+                    except rospy.ServiceException:
+                        rospy.logerr('Text to speech service call failed\n' +
+                                     ''.join(traceback.format_stack()))
+                        # we update the state..
+                        self.state_pub.publish(
+                            dialogue_state(dialogue_state.idle))
+                        self.set_face(nobkg_idle)
                     self.dialogue()
 
             elif self.user_dialogue:
@@ -113,6 +148,7 @@ class dialogue_manager:
     def interact(self):
         # we update the state..
         self.state_pub.publish(dialogue_state(dialogue_state.listening))
+        self.set_face(nobkg_listening)
         # we listen..
         stt = self.speech_to_text()
 
@@ -124,22 +160,42 @@ class dialogue_manager:
                     'include_events': 'NONE'}, json={'event': 'slot', 'name': perceived_emotions.par_names[i], 'value': perceived_emotions.par_values[i], 'timestamp': time.time()})
             if(r.status_code == requests.codes.ok):
                 j_res = r.json()
-        except rospy.ServiceException as e:
-            print("Service call failed: %s" % e)
+        except rospy.ServiceException:
+            rospy.logerr('Emotions detection service call failed\n' +
+                         ''.join(traceback.format_stack()))
+        except requests.exceptions.RequestException as e:
+            rospy.logerr('Rasa call failed\n' +
+                         ''.join(traceback.format_stack()))
+            raise SystemExit(e)
 
         # we make the request..
         rospy.logdebug('generating responses for "%s"..', stt.text)
         r = requests.post('http://' + host + ':' + port + '/webhooks/rest/webhook', params={
             'include_events': 'NONE'}, json={'sender': user, 'message': stt.text})
         if(r.status_code == requests.codes.ok):
+            # we update the state..
+            self.state_pub.publish(dialogue_state(dialogue_state.speaking))
             j_res = r.json()
-            for ans in j_res:
+            try:
+                for ans in j_res:
+                    self.set_face(ans['custom']['face'])
+                    self.text_to_speech(ans['custom']['text'])
+            except rospy.ServiceException:
+                rospy.logerr('Text to speech service call failed\n' +
+                             ''.join(traceback.format_stack()))
                 # we update the state..
-                self.state_pub.publish(dialogue_state(dialogue_state.speaking))
-                # we speak..
-                self.text_to_speech(ans['text'])
-            r = requests.get('http://' + host + ':' + port + '/conversations/' + user +
-                             '/tracker', params={'include_events': 'NONE'})
+                self.state_pub.publish(
+                    dialogue_state(dialogue_state.idle))
+                self.set_face(nobkg_idle)
+
+            try:
+                r = requests.get('http://' + host + ':' + port + '/conversations/' + user +
+                                 '/tracker', params={'include_events': 'NONE'})
+            except requests.exceptions.RequestException as e:
+                rospy.logerr('Rasa call failed\n' +
+                             ''.join(traceback.format_stack()))
+                raise SystemExit(e)
+
             if(r.status_code == requests.codes.ok):
                 j_res = r.json()
                 self.state = j_res['slots']
@@ -166,6 +222,7 @@ class dialogue_manager:
                 self.user_dialogue = False
             # we update the state..
             self.state_pub.publish(dialogue_state(dialogue_state.idle))
+            self.set_face(nobkg_idle)
             return True
         else:
             # we are still talking..
