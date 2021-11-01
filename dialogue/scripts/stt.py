@@ -13,11 +13,11 @@ class speech_to_text:
         self.adjusting = False
 
         configure_service = rospy.Service('configure_speech_to_text',
-                                          Empty, self.configure_speech_to_text)
+                                          Empty, self.configure_stt)
         mic_service = rospy.Service('speech_to_text',
-                                    get_string, self.speech_to_text)
+                                    get_string, self.stt)
 
-    def configure_speech_to_text(self, req):
+    def configure_stt(self, req):
         rospy.logdebug('adjusting for ambient noise..')
         with sr.Microphone() as source:
             self.recognizer_instance.adjust_for_ambient_noise(
@@ -26,7 +26,7 @@ class speech_to_text:
                            str(self.recognizer_instance.energy_threshold))
         return EmptyResponse()
 
-    def speech_to_text(self, req):
+    def stt(self, req):
         rospy.logdebug('activating microphone..')
         with sr.Microphone() as source:
             audio = self.recognizer_instance.listen(source)
@@ -39,3 +39,11 @@ class speech_to_text:
             except Exception as e:
                 print(e)
         return get_stringResponse(False, '')
+
+
+if __name__ == '__main__':
+    rospy.init_node('text_to_speech', anonymous=True, log_level=rospy.DEBUG)
+    rospy.loginfo('Starting Text to Speech Manager..')
+
+    stt = speech_to_text()
+    rospy.spin()
