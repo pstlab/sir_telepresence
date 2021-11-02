@@ -6,6 +6,7 @@
 #include "msgs/can_start.h"
 #include "msgs/start_task.h"
 #include <ros/ros.h>
+#include <ros/package.h>
 
 using namespace ratio;
 
@@ -15,7 +16,19 @@ namespace sir
     {
         // we read the domain files..
         ROS_DEBUG("[%lu] Reading domain..", reasoner_id);
-        slv.read("class Dialogue : StateVariable { predicate Configuring() { duration >= 2000.0; } } class Ohmni { Dialogue dialogue = new Dialogue(); } Ohmni ohmni = new Ohmni();");
+
+        std::string package_path = ros::package::getPath("deliberative_tier");
+        ROS_DEBUG("[%lu] Package path: %s", reasoner_id, package_path);
+        std::vector<std::string> config_files;
+        ros::param::get("config_files", config_files);
+        for (auto it = config_files.begin(); it != config_files.end(); ++it)
+        {
+            ROS_DEBUG("[%lu] Package path: %s", reasoner_id, (*it).c_str());
+            it->insert(0, package_path);
+            ROS_DEBUG("[%lu] Package path: %s", reasoner_id, (*it).c_str());
+        }
+
+        slv.read(config_files);
         set_state(Idle);
     }
     deliberative_executor::~deliberative_executor() {}

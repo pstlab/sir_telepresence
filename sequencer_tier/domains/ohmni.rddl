@@ -1,0 +1,24 @@
+class DialogueStateVariable : StateVariable {
+
+    predicate Interact(string intent) {
+        duration >= 10.0;
+    }
+}
+
+class OhmniRobot {
+
+    DialogueStateVariable dialogue;
+
+    OhmniRobot() : dialogue(new DialogueStateVariable()) {}
+}
+
+predicate GatherProfile() : Interval {
+    goal gp = new robot.dialogue.Interact(intent: "gather_profile", start: start, duration: duration, end: end);
+}
+
+predicate Configure() : Interval {
+    goal gp = new GatherProfile();
+    gp.start >= start; gp.end <= end;
+}
+
+OhmniRobot robot = new OhmniRobot();

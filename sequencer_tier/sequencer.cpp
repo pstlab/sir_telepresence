@@ -25,6 +25,7 @@ namespace sir
         new_requirement.waitForExistence();
         task_finished.waitForExistence();
         start_dialogue.waitForExistence();
+
         ros::service::waitForService("set_face");
     }
     sequencer::~sequencer() {}
@@ -44,7 +45,10 @@ namespace sir
 
                 msgs::new_requirement new_req;
                 new_req.request.reasoner_id = new_reasoner.request.reasoner_id;
-                new_req.request.requirement = "goal conf = new ohmni.dialogue.Configuring();";
+
+                std::string config_goal;
+                ros::param::get("~config_goal", config_goal);
+                new_req.request.requirement = config_goal;
                 new_requirement.call(new_req);
             }
             break;
