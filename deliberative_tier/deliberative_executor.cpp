@@ -20,7 +20,7 @@ namespace sir
         std::string package_path = ros::package::getPath("deliberative_tier") + '/';
         ROS_DEBUG("[%lu] Package path: %s", reasoner_id, package_path.c_str());
         std::vector<std::string> config_files;
-        ros::param::get("config_files", config_files);
+        ros::param::get("~config_files", config_files);
         for (auto it = config_files.begin(); it != config_files.end(); ++it)
         {
             ROS_DEBUG("[%lu] Package path: %s", reasoner_id, (*it).c_str());
