@@ -1,14 +1,18 @@
 <launch>
-    <node name="sequencer_tier" pkg="sequencer_tier" type="sequencer_tier" output="screen" />
+    <node name="sequencer_tier" pkg="sequencer_tier" type="sequencer_tier" output="screen">
+        <rosparam param="config_files">["configure.rddl"]</rosparam>
+    </node>
     <node name="deliberative_tier" pkg="deliberative_tier" type="deliberative_tier" output="screen" />
     <node name="speech_to_text" pkg="dialogue" type="stt.py" output="screen" />
     <node name="text_to_speech" pkg="dialogue" type="tts.py" output="screen" />
-    <node name="dialogue_manager" pkg="dialogue" type="dialogue.py" output="screen" />
-    <node name="robot_gui" pkg="robot_gui" type="robot_gui.py" output="screen" />
+    <node name="dialogue_manager" pkg="dialogue" type="dialogue.py" output="screen">
+        <rosparam name="rasa_host" type="string" value="localhost" />
+        <rosparam name="rasa_port" type="string" value="5005" />
+    </node>
+    <node name="robot_gui" pkg="robot_gui" type="robot_gui.py" output="screen">
+        <rosparam name="gui_host" type="string" value="localhost" />
+        <rosparam name="gui_port" type="string" value="8080" />
+    </node>
 
-    <param name="gui.host" type="string" value="localhost" />
-    <param name="gui.port" type="string" value="8080" />
-    <param name="rasa.host" type="string" value="localhost" />
-    <param name="rasa.port" type="string" value="5005" />
     <param name="user" type="string" value="42" />
 </launch>
