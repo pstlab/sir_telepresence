@@ -13,5 +13,6 @@
   <build_depend>roscpp</build_depend>
   <exec_depend>roscpp</exec_depend>
   <build_depend>roslaunch</build_depend>
+  <depend>roslib</depend>
   <depend>msgs</depend>
 </package>

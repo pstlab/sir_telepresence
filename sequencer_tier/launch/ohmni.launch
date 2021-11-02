@@ -8,12 +8,12 @@
     <node name="speech_to_text" pkg="dialogue" type="stt.py" output="screen" />
     <node name="text_to_speech" pkg="dialogue" type="tts.py" output="screen" />
     <node name="dialogue_manager" pkg="dialogue" type="dialogue.py" output="screen">
-        <rosparam name="host" type="string" value="localhost" />
-        <rosparam name="port" type="string" value="5005" />
+        <rosparam param="host">localhost</rosparam>
+        <rosparam param="port">5005</rosparam>
     </node>
     <node name="robot_gui" pkg="robot_gui" type="robot_gui.py" output="screen">
-        <rosparam name="host" type="string" value="localhost" />
-        <rosparam name="port" type="string" value="8080" />
+        <rosparam param="host">localhost</rosparam>
+        <rosparam param="port">8080</rosparam>
     </node>
 
     <param name="user" type="string" value="42" />
