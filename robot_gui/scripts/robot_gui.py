@@ -2,8 +2,8 @@
 import rospy
 import rospkg
 import traceback
-from flask import Flask, request, render_template, json
-from flask_socketio import SocketIO, emit
+from flask import Flask, render_template
+from flask_socketio import SocketIO
 from msgs.msg import timelines, dialogue_state
 from msgs.srv import set_string, set_stringResponse
 from std_srvs.srv import Empty
@@ -68,8 +68,8 @@ if __name__ == '__main__':
     show_eys_service = rospy.Service(
         'set_face', set_string, emit_face)
 
-    gui_host = rospy.get_param('gui.host')
-    gui_port = int(rospy.get_param('gui.port'))
+    gui_host = rospy.get_param('~host', 'localhost')
+    gui_port = int(rospy.get_param('~port', '8080'))
     socketio.run(app, host=gui_host, port=gui_port)
 
     try:

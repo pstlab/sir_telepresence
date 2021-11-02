@@ -10,6 +10,7 @@ from std_srvs.srv import Empty, EmptyResponse
 nobkg_idle = 'nobkg_idle'
 nobkg_listening = 'nobkg_ascolto'
 
+
 class dialogue_manager:
 
     def __init__(self):
@@ -233,8 +234,8 @@ if __name__ == '__main__':
     rospy.init_node('dialogue_manager', anonymous=True, log_level=rospy.DEBUG)
     rospy.loginfo('Starting Dialogue Manager..')
 
-    host = rospy.get_param('rasa.host')
-    port = rospy.get_param('rasa.port')
+    host = rospy.get_param('~host', 'localhost')
+    port = rospy.get_param('~port', '5005')
     user = rospy.get_param('user')
 
     dm = dialogue_manager()
