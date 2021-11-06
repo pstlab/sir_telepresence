@@ -27,6 +27,16 @@ namespace sir
         }
 
         slv.read(domain_files);
+
+        std::vector<std::string> ntfy_start;
+        ros::param::get("~notify_start", ntfy_start);
+        for (const auto &p_name : ntfy_start)
+            notify_start.insert(&executor::get_predicate(slv, p_name));
+
+        std::unordered_set<const predicate *> relevant_predicates;
+        relevant_predicates.insert(notify_start.begin(), notify_start.end());
+        exec.set_relevant_predicates(relevant_predicates);
+
         set_state(Idle);
     }
     deliberative_executor::~deliberative_executor() {}

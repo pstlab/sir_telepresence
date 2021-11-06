@@ -1,6 +1,7 @@
 #pragma once
 
 #include "executor_listener.h"
+#include <unordered_set>
 
 namespace sir
 {
@@ -90,6 +91,7 @@ namespace sir
     uint64_t reasoner_id;
     ratio::solver slv;
     ratio::executor exec;
+    std::unordered_set<ratio::predicate *> notify_start;
     deliberative_core_listener dcl;
     deliberative_executor_listener del;
     executor_state state = Idle;
