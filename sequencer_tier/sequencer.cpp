@@ -37,21 +37,20 @@ namespace sir
         switch (system_state)
         {
         case msgs::system_state::unconfigured:
-            set_state(msgs::system_state::configuring);
-            {
-                msgs::create_reasoner new_reasoner;
-                new_reasoner.request.reasoner_id = 0;
-                create_reasoner.call(new_reasoner);
+        {
+            msgs::create_reasoner new_reasoner;
+            new_reasoner.request.reasoner_id = 0;
+            create_reasoner.call(new_reasoner);
 
-                msgs::new_requirement new_req;
-                new_req.request.reasoner_id = new_reasoner.request.reasoner_id;
+            msgs::new_requirement new_req;
+            new_req.request.reasoner_id = new_reasoner.request.reasoner_id;
 
-                std::string config_goal;
-                ros::param::get("~config_goal", config_goal);
-                new_req.request.requirement = config_goal;
-                new_requirement.call(new_req);
-            }
-            break;
+            std::string config_goal;
+            ros::param::get("~config_goal", config_goal);
+            new_req.request.requirement = config_goal;
+            new_requirement.call(new_req);
+        }
+        break;
         default:
             break;
         }
@@ -59,7 +58,11 @@ namespace sir
 
     bool sequencer::can_start(msgs::can_start::Request &req, msgs::can_start::Response &res)
     {
-        if (req.task_name == "Configuring")
+        ROS_ASSERT(req.par_names.size() == req.par_values.size());
+        ROS_DEBUG("checking whether task \'%s\' can start..", req.task_name.c_str());
+        if (req.task_name == "Configure")
+            res.can_start = system_state == msgs::system_state::unconfigured;
+        else if (req.task_name == "GatherProfile" || req.task_name == "Interact")
             res.can_start = dialogue_state == msgs::dialogue_state::idle;
         else
         {
@@ -68,16 +71,29 @@ namespace sir
         }
         return true;
     }
+
     bool sequencer::start_task(msgs::start_task::Request &req, msgs::start_task::Response &res)
     {
-        if (req.task_name == "Configuring")
+        ROS_ASSERT(req.par_names.size() == req.par_values.size());
+        ROS_INFO("starting task \'%s\'..", req.task_name.c_str());
+        if (req.task_name == "Configure")
+            set_state(msgs::system_state::configuring);
+        else if (req.task_name == "GatherProfile")
+        {
+        }
+        else if (req.task_name == "Interact")
         {
             msgs::start_task sd_srv;
             sd_srv.request.reasoner_id = req.reasoner_id;
             sd_srv.request.task_id = req.task_id;
-            sd_srv.request.task_name = "welcome_president";
-            sd_srv.request.par_names = req.par_names;
-            sd_srv.request.par_values = req.par_values;
+            for (size_t i = 0; i < req.par_names.size(); i++)
+                if (req.par_names.at(i) == "intent")
+                    sd_srv.request.task_name = req.par_values.at(i);
+                else
+                {
+                    sd_srv.request.par_names.push_back(req.par_names.at(i));
+                    sd_srv.request.par_values.push_back(req.par_values.at(i));
+                }
             res.started = start_dialogue.call(sd_srv);
         }
         else

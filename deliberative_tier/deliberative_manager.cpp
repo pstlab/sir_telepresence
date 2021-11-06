@@ -52,7 +52,7 @@ namespace sir
     bool deliberative_manager::new_requirement(msgs::new_requirement::Request &req, msgs::new_requirement::Response &res)
     {
         ROS_DEBUG("Adding new requirement to reasoner %lu..", req.reasoner_id);
-        if (pending_requirements.find(req.reasoner_id) == pending_requirements.end())
+        if (executors.find(req.reasoner_id) == executors.end())
         {
             ROS_WARN("Reasoner %lu does not exist..", req.reasoner_id);
             res.consistent = false;

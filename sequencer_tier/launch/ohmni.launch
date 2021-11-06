@@ -3,7 +3,7 @@
         <rosparam param="config_goal">goal cnf = new Configure();</rosparam>
     </node>
     <node name="deliberative_tier" pkg="deliberative_tier" type="deliberative_tier" output="screen">
-        <rosparam param="config_files">["domains/ohmni.rddl"]</rosparam>
+        <rosparam param="domain_files">["domains/ohmni.rddl"]</rosparam>
     </node>
     <node name="speech_to_text" pkg="dialogue" type="stt.py" output="screen" />
     <node name="text_to_speech" pkg="dialogue" type="tts.py" output="screen" />

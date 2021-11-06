@@ -18,17 +18,15 @@ namespace sir
         ROS_DEBUG("[%lu] Reading domain..", reasoner_id);
 
         std::string package_path = ros::package::getPath("deliberative_tier") + '/';
-        ROS_DEBUG("[%lu] Package path: %s", reasoner_id, package_path.c_str());
-        std::vector<std::string> config_files;
-        ros::param::get("~config_files", config_files);
-        for (auto it = config_files.begin(); it != config_files.end(); ++it)
+        std::vector<std::string> domain_files;
+        ros::param::get("~domain_files", domain_files);
+        for (auto it = domain_files.begin(); it != domain_files.end(); ++it)
         {
-            ROS_DEBUG("[%lu] Package path: %s", reasoner_id, (*it).c_str());
             it->insert(0, package_path);
-            ROS_DEBUG("[%lu] Package path: %s", reasoner_id, (*it).c_str());
+            ROS_DEBUG("[%lu] %s", reasoner_id, (*it).c_str());
         }
 
-        slv.read(config_files);
+        slv.read(domain_files);
         set_state(Idle);
     }
     deliberative_executor::~deliberative_executor() {}
