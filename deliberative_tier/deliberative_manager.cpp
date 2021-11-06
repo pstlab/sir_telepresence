@@ -36,24 +36,48 @@ namespace sir
     bool deliberative_manager::create_reasoner(msgs::create_reasoner::Request &req, msgs::create_reasoner::Response &res)
     {
         ROS_DEBUG("Creating new reasoner %lu..", req.reasoner_id);
-        executors[req.reasoner_id] = new deliberative_executor(*this, req.reasoner_id);
-        res.created = true;
+        if (executors.find(req.reasoner_id) != executors.end())
+        {
+            ROS_WARN("Reasoner %lu already exists..", req.reasoner_id);
+            res.created = false;
+        }
+        else
+        {
+            executors[req.reasoner_id] = new deliberative_executor(*this, req.reasoner_id);
+            res.created = true;
+        }
         return true;
     }
 
     bool deliberative_manager::new_requirement(msgs::new_requirement::Request &req, msgs::new_requirement::Response &res)
     {
         ROS_DEBUG("Adding new requirement to reasoner %lu..", req.reasoner_id);
-        pending_requirements[req.reasoner_id].push(req.requirement);
-        res.consistent = true;
+        if (pending_requirements.find(req.reasoner_id) == pending_requirements.end())
+        {
+            ROS_WARN("Reasoner %lu does not exist..", req.reasoner_id);
+            res.consistent = false;
+        }
+        else
+        {
+            pending_requirements[req.reasoner_id].push(req.requirement);
+            res.consistent = true;
+        }
         return true;
     }
 
     bool deliberative_manager::task_finished(msgs::task_finished::Request &req, msgs::task_finished::Response &res)
     {
         ROS_DEBUG("Ending task %lu for reasoner %lu..", req.reasoner_id, req.task_id);
-        executors.at(req.reasoner_id)->finish_task(req.task_id, req.success);
-        res.ended = true;
+        if (executors.find(req.reasoner_id) == executors.end())
+        {
+            ROS_WARN("Reasoner %lu does not exist..", req.reasoner_id);
+            res.ended = false;
+        }
+        else
+        {
+            executors.at(req.reasoner_id)->finish_task(req.task_id, req.success);
+            res.ended = true;
+        }
         return true;
     }
 } // namespace sir
