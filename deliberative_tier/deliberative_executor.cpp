@@ -137,7 +137,7 @@ namespace sir
         std::vector<std::string> par_names;
         std::vector<std::string> par_values;
         for (const auto &xpr : atm.get_exprs())
-            if (!xpr.first.compare(START) && !xpr.first.compare(END) && !xpr.first.compare(AT) && !xpr.first.compare(TAU))
+            if (xpr.first != START && xpr.first != END && xpr.first != AT && xpr.first != TAU)
             {
                 par_names.push_back(xpr.first);
                 if (bool_item *bi = dynamic_cast<bool_item *>(&*xpr.second))
