@@ -234,9 +234,9 @@ if __name__ == '__main__':
     rospy.init_node('dialogue_manager', anonymous=True, log_level=rospy.DEBUG)
     rospy.loginfo('Starting Dialogue Manager..')
 
-    host = rospy.get_param('~host', 'localhost')
-    port = rospy.get_param('~port', '5005')
     user = rospy.get_param('user')
+    host = rospy.get_param('~host', 'localhost')
+    port = str(rospy.get_param('~port', 5005))
 
     dm = dialogue_manager()
     dm.start()
