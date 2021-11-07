@@ -49,10 +49,10 @@ responses:
 
   utter_help_proposal_name:
     - text: Hey! Posso esserti utile?
-    - text: Hey {PER}! Posso esserti utile?
-    - text: Hey {PER}! Come posso aiutarti?
-    - text: Ciao {PER}! Posso esserti utile?
-    - text: Ciao {PER}! Come posso aiutarti?
+    - text: Hey {user_name}! Posso esserti utile?
+    - text: Hey {user_name}! Come posso aiutarti?
+    - text: Ciao {user_name}! Posso esserti utile?
+    - text: Ciao {user_name}! Come posso aiutarti?
 
   utter_ask_confirm:
     - text: Ok?
@@ -68,11 +68,13 @@ responses:
   utter_start_profile_gathering:
     - text: Ti farò alcune domande per capire meglio come interagire con te.
     - text: Ora ti farò alcune domande per capire meglio come interagire con te.
-    - text: Ti va di rispondere ad alcune domande su di te?
+    - text: Ti farò alcune domande su di te per personalizzare la mia interazione con te.
+    - text: Ora ti farò alcune domande su di te per personalizzare la mia interazione con te.
 
   utter_ask_user_name:
     - text: Come ti chiami?
     - text: Quale è il tuo nome?
+    - text: Come posso chiamarti?
 
   utter_ask_user_extraversion:
     - text: Ti senti più una persona estroversa oppure introversa?
@@ -88,6 +90,8 @@ responses:
 
   utter_ask_what_I_do:
     - text: Vuoi sapere cosa faccio?
+    - text: Vuoi sapere cosa so fare?
+    - text: Vuoi sapere come posso aiutarti?
 
   utter_present_capabilities:
     - text: Il mio compito è di cercare di aiutare le persone anziane a mantenersi sane e in forma. Se vuoi ulteriori informazioni chiedile pure a chi mi ha costruito.

@@ -17,6 +17,7 @@ nlu:
   - intent: affirm
     examples: |
       - Sì
+      - Ok
       - Certamente
       - Sicuro
       - Infatti
