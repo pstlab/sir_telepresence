@@ -31,6 +31,8 @@ slots:
 
 forms:
   profile_form:
+    ignored_intents:
+      - affirm
     required_slots:
       user_name:
         - type: from_entity
