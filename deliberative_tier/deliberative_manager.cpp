@@ -43,7 +43,13 @@ namespace sir
         }
         else
         {
-            executors[req.reasoner_id] = new deliberative_executor(*this, req.reasoner_id);
+            std::vector<std::string> notify_start;
+            ros::param::get("~notify_start", notify_start);
+
+            std::unordered_set<std::string> relevant_predicates;
+            relevant_predicates.insert(notify_start.begin(), notify_start.end());
+
+            executors[req.reasoner_id] = new deliberative_executor(*this, req.reasoner_id, relevant_predicates);
             res.created = true;
         }
         return true;

@@ -19,7 +19,7 @@ namespace sir
   class deliberative_executor
   {
   public:
-    deliberative_executor(deliberative_manager &d_mngr, const uint64_t &id);
+    deliberative_executor(deliberative_manager &d_mngr, const uint64_t &id, const std::unordered_set<std::string> &relevant_predicates = {});
     ~deliberative_executor();
 
     ratio::solver &get_solver() { return slv; }
@@ -91,7 +91,6 @@ namespace sir
     uint64_t reasoner_id;
     ratio::solver slv;
     ratio::executor exec;
-    std::unordered_set<ratio::predicate *> notify_start;
     deliberative_core_listener dcl;
     deliberative_executor_listener del;
     executor_state state = Idle;

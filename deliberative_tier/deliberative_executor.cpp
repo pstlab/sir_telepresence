@@ -12,7 +12,7 @@ using namespace ratio;
 
 namespace sir
 {
-    deliberative_executor::deliberative_executor(deliberative_manager &d_mngr, const uint64_t &id) : d_mngr(d_mngr), reasoner_id(id), slv(), exec(slv), dcl(*this), del(*this)
+    deliberative_executor::deliberative_executor(deliberative_manager &d_mngr, const uint64_t &id, const std::unordered_set<std::string>& relevant_predicates) : d_mngr(d_mngr), reasoner_id(id), slv(), exec(slv), dcl(*this), del(*this)
     {
         // we read the domain files..
         ROS_DEBUG("[%lu] Reading domain..", reasoner_id);
@@ -27,15 +27,6 @@ namespace sir
         }
 
         slv.read(domain_files);
-
-        std::vector<std::string> ntfy_start;
-        ros::param::get("~notify_start", ntfy_start);
-        for (const auto &p_name : ntfy_start)
-            notify_start.insert(&executor::get_predicate(slv, p_name));
-
-        std::unordered_set<const predicate *> relevant_predicates;
-        relevant_predicates.insert(notify_start.begin(), notify_start.end());
-        exec.set_relevant_predicates(relevant_predicates);
 
         set_state(Idle);
     }
