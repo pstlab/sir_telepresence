@@ -18,7 +18,6 @@ stories:
       - intent: introduce_yourself
       - action: utter_presentation
       - action: utter_ask_what_I_do
-      - action: utter_ask_confirm
       - intent: affirm
       - action: utter_present_capabilities
 
