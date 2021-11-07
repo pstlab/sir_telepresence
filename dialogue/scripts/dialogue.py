@@ -63,6 +63,7 @@ class dialogue_manager:
         self.set_face(nobkg_idle)
 
     def start_dialogue(self, req):
+        rospy.logdebug('Start task "%s" request..', req.task_name)
         # we store the informations about the starting dialogue task..
         self.task = True
         self.reasoner_id = req.reasoner_id
@@ -108,12 +109,12 @@ class dialogue_manager:
 
                 # we make the request..
                 rospy.logdebug(
-                    'generating responses for "%s"..', self.task_name)
+                    'Generating responses for task "%s"..', self.task_name)
                 try:
                     r = requests.post('http://' + host + ':' + port + '/conversations/' + user +
                                       '/trigger_intent', params={'include_events': 'NONE'}, json=payload)
                 except requests.exceptions.RequestException as e:
-                    rospy.logerr('Rasa call failed\n' +
+                    rospy.logerr('Rasa server call failed\n' +
                                  ''.join(traceback.format_stack()))
                     raise SystemExit(e)
 
@@ -165,12 +166,12 @@ class dialogue_manager:
             rospy.logerr('Emotions detection service call failed\n' +
                          ''.join(traceback.format_stack()))
         except requests.exceptions.RequestException as e:
-            rospy.logerr('Rasa call failed\n' +
+            rospy.logerr('Rasa server call failed\n' +
                          ''.join(traceback.format_stack()))
             raise SystemExit(e)
 
         # we make the request..
-        rospy.logdebug('generating responses for "%s"..', stt.text)
+        rospy.logdebug('Generating responses for utterance "%s"..', stt.text)
         r = requests.post('http://' + host + ':' + port + '/webhooks/rest/webhook', params={
             'include_events': 'NONE'}, json={'sender': user, 'message': stt.text})
         if(r.status_code == requests.codes.ok):
@@ -193,7 +194,7 @@ class dialogue_manager:
                 r = requests.get('http://' + host + ':' + port + '/conversations/' + user +
                                  '/tracker', params={'include_events': 'NONE'})
             except requests.exceptions.RequestException as e:
-                rospy.logerr('Rasa call failed\n' +
+                rospy.logerr('Rasa server call failed\n' +
                              ''.join(traceback.format_stack()))
                 raise SystemExit(e)
 
