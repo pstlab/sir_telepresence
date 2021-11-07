@@ -8,19 +8,29 @@ intents:
   - ask_capabilities
   - introduce_yourself
   - start_profile_gathering
+  - set_name
   - set_extraversion
+  - set_gender
 
 entities:
   - PER
   - extraversion
+  - gender
 
 slots:
   user_name:
     type: text
     influence_conversation: true
+  user_gender:
+    type: categorical
+    values:
+      - male
+      - female
   user_extraversion:
-    type: any
-    influence_conversation: false
+    type: categorical
+    values:
+      - extroverted
+      - introverted
   command_state:
     type: categorical
     influence_conversation: false
@@ -37,6 +47,9 @@ forms:
       user_name:
         - type: from_entity
           entity: PER
+      user_gender:
+        - type: from_entity
+          entity: gender
       user_extraversion:
         - type: from_entity
           entity: extraversion
@@ -81,6 +94,10 @@ responses:
   utter_ask_user_extraversion:
     - text: Ti senti più una persona estroversa oppure introversa?
     - text: Secondo te sei più una persona estroversa oppure introversa?
+
+  utter_ask_user_gender:
+    - text: Vuoi che mi riferisca a te usando il maschile o il femminile?
+    - text: Preferisci che con te io usi il maschile oppure il femminile?
 
   utter_profile_gathered:
     - text: Molto bene. Ora so tutto quello di cui avevo bisogno.

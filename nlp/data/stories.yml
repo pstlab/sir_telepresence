@@ -4,11 +4,22 @@ stories:
   - story: Happy path
     steps:
       - intent: greet
+      - action: action_command_start
       - action: utter_help_proposal
+      - action: action_command_done
 
   - story: Happy path name
     steps:
       - intent: greet
+      - action: action_command_start
+      - slot_was_set:
+          - user_name
+      - action: utter_help_proposal_name
+
+  - story: Set name intent
+    steps:
+      - intent: set_name
+      - action: action_command_start
       - slot_was_set:
           - user_name
       - action: utter_help_proposal_name
@@ -16,17 +27,19 @@ stories:
   - story: Presentation
     steps:
       - intent: introduce_yourself
+      - action: action_command_start
       - action: utter_presentation
       - action: utter_ask_what_I_do
       - intent: affirm
       - action: utter_present_capabilities
+      - action: action_command_done
 
   - story: Profile gathering
     steps:
       - intent: start_profile_gathering
+      - action: action_command_start
       - action: utter_start_profile_gathering
       - action: utter_ask_confirm
       - intent: affirm
-      - action: action_command_start
       - action: profile_form
       - active_loop: profile_form

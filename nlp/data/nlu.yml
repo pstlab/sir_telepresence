@@ -53,18 +53,37 @@ nlu:
       - Voglio raccontarti alcune cose di me
       - Voglio descrivermi
 
+  - intent: set_name
+    examples: |
+      - Mi chiamo [Nome](PER)
+      - Mi chiamo [Cognome](PER)
+      - Mi chiamo [Soprannome](PER)
+      - Sono [Nome](PER)
+      - Sono [Cognome](PER)
+      - Sono [Soprannome](PER)
+      - Puoi chiamarmi [Nome](PER)
+      - Puoi chiamarmi [Cognome](PER)
+      - Puoi chiamarmi [Soprannome](PER)
+
   - intent: set_extraversion
     examples: |
-      - Sono [estroverso](extraversion)
-      - Sono [estroversa](extraversion)
+      - [introversa](extraversion)
+      - [estroverso](extraversion)
       - Sono [introverso](extraversion)
-      - Sono [introversa](extraversion)
-      - Mi sento più [estroverso](extraversion)
-      - Mi sento più [estroversa](extraversion)
+      - Sono [estroversa](extraversion)
       - Mi sento più [introverso](extraversion)
-      - Mi sento più [introversa](extraversion)
-      - Mi sento una persona [estroversa](extraversion)
-      - Mi sento una persona [introversa](extraversion)
+      - Mi sento più [estroversa](extraversion)
+
+  - intent: set_gender
+    examples: |
+      - [maschile](gender)
+      - [femminile](gender)
+      - Sono [uomo](gender)
+      - Sono [donna](gender)
+      - Mi sento più [maschio](gender)
+      - Mi sento più [femmina](gender)
+      - Preferisco il [maschile](gender)
+      - Preferisco il [femminile](gender)
 
   - intent: out_of_scope
     examples: |
@@ -72,3 +91,25 @@ nlu:
       - Posso ordinare del cibo?
       - Quanto fa 2 + 2?
       - Chi è il presidente del consiglio?
+
+  - synonym: extroverted
+    examples: |
+      - estroverso
+      - estroversa
+
+  - synonym: introverted
+    examples: |
+      - introverso
+      - introversa
+
+  - synonym: male
+    examples: |
+      - maschio
+      - maschile
+      - uomo
+
+  - synonym: female
+    examples: |
+      - femmina
+      - femminile
+      - donna
