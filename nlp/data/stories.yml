@@ -43,3 +43,13 @@ stories:
       - intent: affirm
       - action: profile_form
       - active_loop: profile_form
+
+  - story: Profile gathering
+    steps:
+      - action: profile_form
+      - slot_was_set:
+          - user_name: Riccardo
+          - user_gender: male
+          - user_extraversion: extroverted
+      - action: utter_profile_gathered
+      - action: action_command_done
