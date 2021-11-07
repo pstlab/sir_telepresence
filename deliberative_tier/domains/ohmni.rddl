@@ -1,7 +1,7 @@
 class DialogueStateVariable : StateVariable {
 
     predicate Interact(string intent) {
-        duration >= 10.0;
+        duration >= 20.0;
     }
 }
 

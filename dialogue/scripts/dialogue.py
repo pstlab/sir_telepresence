@@ -153,7 +153,16 @@ class dialogue_manager:
         self.state_pub.publish(dialogue_state(dialogue_state.listening))
         self.set_face(nobkg_listening)
         # we listen..
-        stt = self.speech_to_text()
+        while True:
+            stt = self.speech_to_text()
+            if stt.text == '':
+                try:
+                    stt_conf = self.configure_speech_to_text()
+                except rospy.ServiceException:
+                    rospy.logerr('Speech to text configuration service call failed\n' +
+                                 ''.join(traceback.format_stack()))
+            else:
+                break
 
         # we set the current perceived emotions..
         try:
