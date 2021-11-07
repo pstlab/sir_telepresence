@@ -7,4 +7,4 @@ stories:
   - user: |
       Salve!
     intent: greet
-  - action: utter_greet
+  - action: utter_help_proposal

@@ -34,22 +34,36 @@ nlu:
       - Sicuramente no
       - No davvero
 
-  - intent: gather_profile
+  - intent: introduce_yourself
+    examples: |
+      - Chi sei?
+      - Come ti chiami?
+
+  - intent: ask_capabilities
+    examples: |
+      - Cosa sai fare?
+      - Quali sono le tue funzionalità?
+
+  - intent: start_profile_gathering
     examples: |
       - Voglio parlarti di me
       - Voglio descriverti il mio profilo
       - Voglio raccontarti di me
+      - Voglio raccontarti alcune cose di me
       - Voglio descrivermi
 
-  - intent: gather_name
+  - intent: set_extraversion
     examples: |
-      - Mi chiamo Riccardo
-      - Il mio nome è Riccardo
-
-  - intent: welcome_president
-    examples: |
-      - Dammi il benvenuto
-      - Voglio il benvenuto
+      - Sono [estroverso](extraversion)
+      - Sono [estroversa](extraversion)
+      - Sono [introverso](extraversion)
+      - Sono [introversa](extraversion)
+      - Mi sento più [estroverso](extraversion)
+      - Mi sento più [estroversa](extraversion)
+      - Mi sento più [introverso](extraversion)
+      - Mi sento più [introversa](extraversion)
+      - Mi sento una persona [estroversa](extraversion)
+      - Mi sento una persona [introversa](extraversion)
 
   - intent: out_of_scope
     examples: |

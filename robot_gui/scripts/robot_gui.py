@@ -7,6 +7,7 @@ from flask_socketio import SocketIO
 from msgs.msg import timelines, dialogue_state
 from msgs.srv import set_string, set_stringResponse
 from std_srvs.srv import Empty
+import threading
 
 
 rospack = rospkg.RosPack()
@@ -56,7 +57,7 @@ def emit_face(req):
 
 
 if __name__ == '__main__':
-    rospy.init_node('robot_gui', anonymous=True)
+    threading.Thread(target=lambda: rospy.init_node('robot_gui', anonymous=True, disable_signals=True)).start()
     rospy.loginfo('Starting Robot GUI..')
 
     listen = rospy.ServiceProxy('listen', Empty)

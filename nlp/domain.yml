@@ -5,16 +5,21 @@ intents:
   - goodbye
   - affirm
   - deny
-  - gather_profile
-  - gather_name
-  - welcome_president
+  - ask_capabilities
+  - introduce_yourself
+  - start_profile_gathering
+  - set_extraversion
 
 entities:
   - PER
+  - extraversion
 
 slots:
-  PER:
+  user_name:
     type: text
+    influence_conversation: true
+  user_extraversion:
+    type: any
     influence_conversation: false
   command_state:
     type: categorical
@@ -24,154 +29,85 @@ slots:
       - done
       - failure
 
+forms:
+  profile_form:
+    required_slots:
+      user_name:
+        - type: from_entity
+          entity: PER
+      user_extraversion:
+        - type: from_entity
+          entity: extraversion
+
 responses:
-  utter_greet:
-    - custom:
-        text: Hey! Posso esserti utile?
-        face: nobkg_idle
-    - custom:
-        text: Hey, ciao! Posso esserti utile?
-        face: nobkg_idle
-    - custom:
-        text: Hey, ciao! Come posso aiutarti?
-        face: nobkg_idle
-    - custom:
-        text: Ciao! Posso esserti utile?
-        face: nobkg_idle
-    - custom:
-        text: Ciao! Come posso aiutarti?
-        face: nobkg_idle
+  utter_help_proposal:
+    - text: Hey! Posso esserti utile?
+    - text: Hey, ciao! Posso esserti utile?
+    - text: Hey, ciao! Come posso aiutarti?
+    - text: Ciao! Posso esserti utile?
+    - text: Ciao! Come posso aiutarti?
 
-  utter_greet_name:
-    - custom:
-        text: Hey! Posso esserti utile?
-        face: nobkg_idle
-    - custom:
-        text: Hey {PER}! Posso esserti utile?
-        face: nobkg_idle
-    - custom:
-        text: Hey {PER}! Come posso aiutarti?
-        face: nobkg_idle
-    - custom:
-        text: Ciao {PER}! Posso esserti utile?
-        face: nobkg_idle
-    - custom:
-        text: Ciao {PER}! Come posso aiutarti?
-        face: nobkg_idle
+  utter_help_proposal_name:
+    - text: Hey! Posso esserti utile?
+    - text: Hey {PER}! Posso esserti utile?
+    - text: Hey {PER}! Come posso aiutarti?
+    - text: Ciao {PER}! Posso esserti utile?
+    - text: Ciao {PER}! Come posso aiutarti?
 
-  utter_pleased_to_meet:
-    - custom:
-        text: Ciao {PER}! Piacere di conoscerti!
-        face: nobkg_affetto
+  utter_ask_confirm:
+    - text: Ok?
+    - text: Va bene?
+    - text: Cominciamo?
+    - text: Vogliamo cominciare?
 
   utter_goodbye:
-    - custom:
-        text: Ciao!
-        face: nobkg_affetto
-    - custom:
-        text: Arrivederci!
-        face: nobkg_affetto
-    - custom:
-        text: A presto!
-        face: nobkg_affetto
+    - text: Ciao!
+    - text: Arrivederci!
+    - text: A presto!
 
   utter_start_profile_gathering:
-    - custom:
-        text: Ti farò alcune domande per capire meglio come interagire con te. Va bene?
-        face: nobkg_confusione
-    - custom:
-        text: Ora ti farò alcune domande per capire meglio come interagire con te. Va bene?
-        face: nobkg_confusione
-    - custom:
-        text: Ti va di rispondere ad alcune domande su di te?
-        face: nobkg_confusione
+    - text: Ti farò alcune domande per capire meglio come interagire con te.
+    - text: Ora ti farò alcune domande per capire meglio come interagire con te.
+    - text: Ti va di rispondere ad alcune domande su di te?
 
-  utter_ask_name:
-    - custom:
-        text: Come ti chiami?
-        face: nobkg_confusione
-    - custom:
-        text: Quale è il tuo nome?
-        face: nobkg_confusione
+  utter_ask_user_name:
+    - text: Come ti chiami?
+    - text: Quale è il tuo nome?
 
-  utter_end_profile_gathering:
-    - custom:
-        text: Molto bene. Ora so tutto quello di cui avevo bisogno.
-        face: nobkg_affetto
-    - custom:
-        text: Molto bene. Ora conosco tutto quello di cui avevo bisogno.
-        face: nobkg_affetto
-    - custom:
-        text: Molto bene. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
-        face: nobkg_affetto
+  utter_ask_user_extraversion:
+    - text: Ti senti più una persona estroversa oppure introversa?
+    - text: Secondo te sei più una persona estroversa oppure introversa?
 
-  utter_welcome_president:
-    - custom:
-        text: Buongiorno Presidente e benvenuta alla sede di Catania dell'ISTC!
-        face: nobkg_festa
-
-  utter_ask_who_I_am:
-    - custom:
-        text: Lo sa chi sono io?
-        face: nobkg_confusione
-
-  utter_present_as_well:
-    - custom:
-        text: Mi presento comunque!
-        face: nobkg_disappunto
+  utter_profile_gathered:
+    - text: Molto bene. Ora so tutto quello di cui avevo bisogno.
+    - text: Molto bene. Ora conosco tutto quello di cui avevo bisogno.
+    - text: Molto bene. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
 
   utter_presentation:
-    - custom:
-        text: Sono un robot di assistenza domestica che sta sviluppando l'ISTC all'interno del progetto Si-Robotics!
-        face: nobkg_idle
+    - text: Sono un robot di assistenza domestica che sta sviluppando l'ISTC all'interno del progetto Si-Robotics!
 
   utter_ask_what_I_do:
-    - custom:
-        text: Vuoi sapere cosa faccio?
-        face: nobkg_confusione
+    - text: Vuoi sapere cosa faccio?
 
-  utter_present_functionalities:
-    - custom:
-        text: Il mio compito è di cercare di aiutare le persone anziane a mantenersi sane e in forma. Se vuoi ulteriori informazioni chiedile pure a chi mi ha programmato.
+  utter_present_capabilities:
+    - text: Il mio compito è di cercare di aiutare le persone anziane a mantenersi sane e in forma. Se vuoi ulteriori informazioni chiedile pure a chi mi ha costruito.
 
   utter_out_of_scope:
-    - custom:
-        text: Mi spiace! Non so come gestire la tua richiesta.
-        face: nobkg_confusione
-    - custom:
-        text: Spiacente! Non so come risponderti.
-        face: nobkg_confusione
-    - custom:
-        text: Mi spiace! Non so risponderti.
-        face: nobkg_confusione
+    - text: Mi spiace! Non so come gestire la tua richiesta.
+    - text: Spiacente! Non so come risponderti.
+    - text: Mi spiace! Non so risponderti.
 
   utter_please_rephrase:
-    - custom:
-        text:  Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
-        face: nobkg_confusione
-    - custom:
-        text:  Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
-        face: nobkg_confusione
-    - custom:
-        text:  Puoi provare a ripeterlo in un altro modo?
-        face: nobkg_confusione
-    - custom:
-        text:  Puoi provare a ripetere l'ultima cosa che hai detto in un altro modo?
-        face: nobkg_confusione
+    - text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
+    - text: Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
+    - text: Puoi provare a ripeterlo in un altro modo?
+    - text: Puoi provare a ripetere l'ultima cosa che hai detto in un altro modo?
 
   utter_default:
-    - custom:
-        text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
-        face: nobkg_confusione
-    - custom:
-        text: Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
-        face: nobkg_confusione
-    - custom:
-        text: Puoi provare a ripeterlo in un altro modo?
-        face: nobkg_confusione
-    - custom:
-        text: Puoi provare a ripetere l'ultima cosa che hai detto in un altro modo?
-        face: nobkg_confusione
+    - text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
+    - text: Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
+    - text: Puoi provare a ripeterlo in un altro modo?
+    - text: Puoi provare a ripetere l'ultima cosa che hai detto in un altro modo?
 
 actions:
   - action_command_start

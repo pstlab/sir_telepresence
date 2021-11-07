@@ -6,6 +6,22 @@ rules:
       - intent: goodbye
       - action: utter_goodbye
 
+  - rule: Ask capabilities
+    steps:
+      - intent: ask_capabilities
+      - action: utter_present_capabilities
+
+  - rule: profile form
+    condition:
+      - active_loop: profile_form
+    steps:
+      - action: profile_form
+      - active_loop: null
+      - slot_was_set:
+          - requested_slot: null
+      - action: utter_profile_gathered
+      - action: action_command_done
+
   - rule: Out of scope
     steps:
       - intent: out_of_scope

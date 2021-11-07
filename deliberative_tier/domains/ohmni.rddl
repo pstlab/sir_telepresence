@@ -13,7 +13,7 @@ class OhmniRobot {
 }
 
 predicate GatherProfile() : Interval {
-    goal gp = new robot.dialogue.Interact(intent: "gather_profile", start: start, duration: duration, end: end);
+    goal gp = new robot.dialogue.Interact(intent: "start_profile_gathering", start: start, duration: duration, end: end);
 }
 
 predicate Configure() : Interval {
