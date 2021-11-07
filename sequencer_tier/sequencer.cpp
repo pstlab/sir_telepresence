@@ -63,9 +63,7 @@ namespace sir
     {
         ROS_ASSERT(req.par_names.size() == req.par_values.size());
         ROS_DEBUG("checking whether task \'%s\' can start..", req.task_name.c_str());
-        if (req.task_name == "Configure")
-            res.can_start = system_state == msgs::system_state::configuring;
-        else if (req.task_name == "GatherProfile" || req.task_name == "Interact")
+        if (req.task_name == "Interact")
             res.can_start = dialogue_state == msgs::dialogue_state::idle;
         else
         {

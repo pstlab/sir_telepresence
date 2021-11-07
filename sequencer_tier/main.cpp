@@ -8,6 +8,9 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
     ROS_INFO("Starting the Sequencer Tier..");
 
+    if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
+        ros::console::notifyLoggerLevelsChanged();
+
     sequencer seq(nh);
 
     ros::Rate loop_rate(10);

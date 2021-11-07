@@ -12,7 +12,7 @@ using namespace ratio;
 
 namespace sir
 {
-    deliberative_executor::deliberative_executor(deliberative_manager &d_mngr, const uint64_t &id, const std::unordered_set<std::string>& relevant_predicates) : d_mngr(d_mngr), reasoner_id(id), slv(), exec(slv), dcl(*this), del(*this)
+    deliberative_executor::deliberative_executor(deliberative_manager &d_mngr, const uint64_t &id, const std::unordered_set<std::string> &relevant_predicates) : d_mngr(d_mngr), reasoner_id(id), slv(), exec(slv, relevant_predicates), dcl(*this), del(*this)
     {
         // we read the domain files..
         ROS_DEBUG("[%lu] Reading domain..", reasoner_id);
