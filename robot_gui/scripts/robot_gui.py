@@ -67,7 +67,7 @@ if __name__ == '__main__':
     rospy.Subscriber('timelines', timelines, emit_timelines)
     rospy.Subscriber('dialogue_state', dialogue_state, emit_dialogue_state)
 
-    show_eys_service = rospy.Service(
+    set_face_service = rospy.Service(
         'set_face', set_string, emit_face)
 
     gui_host = rospy.get_param('~host', 'localhost')
