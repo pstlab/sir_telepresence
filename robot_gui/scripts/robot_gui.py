@@ -57,7 +57,8 @@ def emit_face(req):
 
 
 if __name__ == '__main__':
-    threading.Thread(target=lambda: rospy.init_node('robot_gui', anonymous=True, disable_signals=True)).start()
+    threading.Thread(target=lambda: rospy.init_node(
+        'robot_gui', anonymous=True, log_level=rospy.DEBUG, disable_signals=True)).start()
     rospy.loginfo('Starting Robot GUI..')
 
     listen = rospy.ServiceProxy('listen', Empty)
