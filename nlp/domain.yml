@@ -69,11 +69,25 @@ responses:
     - text: Ciao {user_name}! Posso esserti utile?
     - text: Ciao {user_name}! Come posso aiutarti?
 
+  utter_help_proposal_male:
+    - text: Ciao bello! Posso fare qualcosa per te?
+    - text: Ciao bello! Come posso aiutarti?
+
+  utter_help_proposal_female:
+    - text: Ciao bella! Posso fare qualcosa per te?
+    - text: Ciao bella! Come posso aiutarti?
+
   utter_ask_confirm:
     - text: Ok?
     - text: Va bene?
     - text: Cominciamo?
     - text: Vogliamo cominciare?
+  
+  utter_I_am_here:
+    - text: Ok! Quando vuoi sono qui!
+    - text: Ok! Resto a disposizione!
+    - text: Ok! Puoi chiamarmi quando vuoi!
+    - text: Ok! Sai dove trovarmi!
 
   utter_goodbye:
     - text: Ciao!

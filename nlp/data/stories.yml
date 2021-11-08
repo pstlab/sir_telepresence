@@ -6,6 +6,8 @@ stories:
       - intent: greet
       - action: action_command_start
       - action: utter_help_proposal
+      - intent: deny
+      - action: utter_I_am_here
       - action: action_command_done
 
   - story: Happy path name
@@ -15,6 +17,31 @@ stories:
       - slot_was_set:
           - user_name
       - action: utter_help_proposal_name
+      - intent: deny
+      - action: utter_I_am_here
+      - action: action_command_done
+
+  - story: Happy path male
+    steps:
+      - intent: greet
+      - action: action_command_start
+      - slot_was_set:
+          - user_gender: male
+      - action: utter_help_proposal_male
+      - intent: deny
+      - action: utter_I_am_here
+      - action: action_command_done
+
+  - story: Happy path female
+    steps:
+      - intent: greet
+      - action: action_command_start
+      - slot_was_set:
+          - user_gender: female
+      - action: utter_help_proposal_female
+      - intent: deny
+      - action: utter_I_am_here
+      - action: action_command_done
 
   - story: Set name intent
     steps:
@@ -23,6 +50,9 @@ stories:
       - slot_was_set:
           - user_name
       - action: utter_help_proposal_name
+      - intent: deny
+      - action: utter_I_am_here
+      - action: action_command_done
 
   - story: Presentation
     steps:
