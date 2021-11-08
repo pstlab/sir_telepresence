@@ -56,9 +56,10 @@ def emit_face(req):
     return set_stringResponse(True)
 
 
-if __name__ == '__main__':
-    threading.Thread(target=lambda: rospy.init_node(
-        'robot_gui', anonymous=True, log_level=rospy.DEBUG, disable_signals=True)).start()
+def init_node():
+    global listen
+    rospy.init_node(
+        'robot_gui', anonymous=True, log_level=rospy.DEBUG, disable_signals=True)
     rospy.loginfo('Starting Robot GUI..')
 
     listen = rospy.ServiceProxy('listen', Empty)
@@ -70,11 +71,15 @@ if __name__ == '__main__':
     set_face_service = rospy.Service(
         'set_face', set_string, emit_face)
 
-    gui_host = rospy.get_param('~host', 'localhost')
-    gui_port = int(rospy.get_param('~port', '8080'))
-    socketio.run(app, host=gui_host, port=gui_port)
-
     try:
         rospy.spin()
     except KeyboardInterrupt:
         print('Shutting down..')
+
+
+if __name__ == '__main__':
+    threading.Thread(target=init_node).start()
+
+    gui_host = rospy.get_param('~host', 'localhost')
+    gui_port = int(rospy.get_param('~port', '8080'))
+    socketio.run(app, host=gui_host, port=gui_port)
