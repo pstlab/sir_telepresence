@@ -10,6 +10,8 @@ find_package(catkin REQUIRED COMPONENTS roscpp roslib msgs)
 ## Declare a catkin package
 catkin_package()
 
+add_subdirectory(oRatio)
+
 include_directories(include ${catkin_INCLUDE_DIRS} /usr/local/include/json /usr/local/include/smt /usr/local/include/core /usr/local/include/riddle /usr/local/include/solver /usr/local/include/executor)
 add_compile_definitions(BUILD_LISTENERS)
 
