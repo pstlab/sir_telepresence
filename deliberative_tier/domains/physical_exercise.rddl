@@ -1,0 +1,49 @@
+class PhysicalExerciseStateVariable : StateVariable {
+
+    OhmniRobot robot;
+
+    PhysicalExerciseStateVariable(OhmniRobot robot) : robot(robot) {}
+
+    predicate ChestPress() {
+        duration >= 20.0;
+        goal cp = new robot.dialogue.Interact(intent: "start_chest_press", start: start, duration: duration, end: end);
+    }
+
+    predicate UprightRow() {
+        duration >= 20.0;
+        goal cs = new robot.dialogue.Interact(intent: "start_upright_row", start: start, duration: duration, end: end);
+    }
+
+    predicate StandingCalfRaises() {
+        duration >= 20.0;
+        goal scr = new robot.dialogue.Interact(intent: "start_standing_calf_raises", start: start, duration: duration, end: end);
+    }
+
+    predicate ChairSquats() {
+        duration >= 20.0;
+        goal cs = new robot.dialogue.Interact(intent: "start_chair_squats", start: start, duration: duration, end: end);
+    }
+}
+
+predicate UpperBody() {
+    {
+        goal cp = new robot.physical_exercise.ChestPress();
+    } or 
+    {
+        goal ur = new robot.physical_exercise.UprightRow();
+    }
+}
+
+predicate LowerBody() {
+    {
+        goal scr = new robot.physical_exercise.StandingCalfRaises();
+    } or 
+    {
+        goal cs = new robot.physical_exercise.ChairSquats();
+    }
+}
+
+predicate KeepHealthy() {
+    goal ub = new UpperBody();
+    goal lb = new LowerBody();
+}

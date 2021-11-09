@@ -21,6 +21,7 @@ add_service_files(
     end_task.srv
     task_finished.srv
     create_reasoner.srv
+    destroy_reasoner.srv
     new_requirement.srv
     state.srv
     set_string.srv

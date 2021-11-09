@@ -54,8 +54,39 @@ namespace sir
             ros::param::get("~config_goal", config_goal);
             new_req.request.requirement = config_goal;
             new_requirement.call(new_req);
+            break;
         }
-        break;
+        case msgs::system_state::configuring:
+        { // we are configuring the system..
+            switch (deliberative_state)
+            {
+            case msgs::deliberative_state::finished:
+                ROS_INFO("System configured..");
+                set_state(msgs::system_state::configured);
+                break;
+            default:
+                break;
+            }
+            break;
+        }
+        case msgs::system_state::configured:
+        { // we start the default plan..
+            ROS_INFO("Starting default plan..");
+            set_state(msgs::system_state::running);
+
+            msgs::create_reasoner new_reasoner;
+            new_reasoner.request.reasoner_id = 0;
+            create_reasoner.call(new_reasoner);
+
+            msgs::new_requirement new_req;
+            new_req.request.reasoner_id = new_reasoner.request.reasoner_id;
+
+            std::string running_goal;
+            ros::param::get("~running_goal", running_goal);
+            new_req.request.requirement = running_goal;
+            new_requirement.call(new_req);
+            break;
+        }
         default:
             break;
         }
@@ -79,12 +110,7 @@ namespace sir
     {
         ROS_ASSERT(req.par_names.size() == req.par_values.size());
         ROS_INFO("starting task \'%s\'..", req.task_name.c_str());
-        if (req.task_name == "Configure")
-            set_state(msgs::system_state::configuring);
-        else if (req.task_name == "GatherProfile")
-        {
-        }
-        else if (req.task_name == "Interact")
+        if (req.task_name == "Interact")
         {
             msgs::start_task sd_srv;
             sd_srv.request.reasoner_id = req.reasoner_id;
@@ -124,6 +150,8 @@ namespace sir
             return "\"Configuring\"";
         case msgs::system_state::configured:
             return "\"Configured\"";
+        case msgs::system_state::running:
+            return "\"Running\"";
         default:
             return "\"-\"";
         }

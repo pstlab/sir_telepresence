@@ -8,6 +8,7 @@ namespace sir
 {
     deliberative_manager::deliberative_manager(ros::NodeHandle &h) : handle(h),
                                                                      create_reasoner_server(h.advertiseService("create_reasoner", &deliberative_manager::create_reasoner, this)),
+                                                                     destroy_reasoner_server(h.advertiseService("destroy_reasoner", &deliberative_manager::destroy_reasoner, this)),
                                                                      new_requirement_server(h.advertiseService("new_requirement", &deliberative_manager::new_requirement, this)),
                                                                      task_finished_server(h.advertiseService("task_finished", &deliberative_manager::task_finished, this)),
                                                                      notify_state(handle.advertise<msgs::deliberative_state>("deliberative_state", 10, true)),
@@ -51,6 +52,22 @@ namespace sir
 
             executors[req.reasoner_id] = new deliberative_executor(*this, req.reasoner_id, relevant_predicates);
             res.created = true;
+        }
+        return true;
+    }
+
+    bool deliberative_manager::destroy_reasoner(msgs::destroy_reasoner::Request &req, msgs::destroy_reasoner::Response &res)
+    {
+        ROS_DEBUG("Destroying reasoner %lu..", req.reasoner_id);
+        if (executors.find(req.reasoner_id) == executors.end())
+        {
+            ROS_WARN("Reasoner %lu does not exists..", req.reasoner_id);
+            res.destroyed = false;
+        }
+        else
+        {
+            executors.erase(req.reasoner_id);
+            res.destroyed = true;
         }
         return true;
     }

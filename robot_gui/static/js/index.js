@@ -74,6 +74,7 @@ function print_system_state(system_state) {
         case 0: return 'unconfigured'
         case 1: return 'configuring'
         case 2: return 'configured'
+        case 3: return 'running'
         default: return '-';
     }
 }
