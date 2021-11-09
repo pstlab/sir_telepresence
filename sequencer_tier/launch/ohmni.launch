@@ -1,4 +1,5 @@
 <launch>
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
     <node name="sequencer_tier" pkg="sequencer_tier" type="sequencer_tier" output="screen">
         <rosparam param="config_goal">goal cnf = new Configure();</rosparam>
     </node>
@@ -11,10 +12,6 @@
     <node name="dialogue_manager" pkg="dialogue" type="dialogue.py" output="screen">
         <rosparam param="host">localhost</rosparam>
         <rosparam param="port">5005</rosparam>
-    </node>
-    <node name="robot_gui" pkg="robot_gui" type="robot_gui.py" output="screen">
-        <rosparam param="host">localhost</rosparam>
-        <rosparam param="port">8080</rosparam>
     </node>
 
     <param name="user" type="string" value="42" />

@@ -7,53 +7,16 @@
     {% include "navbar.html" %}
 
     <div class="d-flex justify-content-center">
-        <img id="eyes" src="{{ url_for('static', filename='nobkg_idle.png') }}" alt="" height="700">
+        <img id="robot_face" src="static/faces/nobkg_idle.png" alt="" height="700">
     </div>
 
-    <!--
-    <div class="d-flex justify-content-center">
-        <img id="mouth" src="{{ url_for('static', filename='mouth_0.png') }}" alt="" height="200">
-    </div>
--->
-
-    <!--
-    <div class="container d-grid gap-2 py-2">
-        <button id="listen-button" type="button" class="btn btn-primary btn-lg" data-bs-toggle="button"
-            onclick="listen()">Ascolta</button>
-    </div>
--->
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
+    <script type="text/javascript"
+        src="http://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+    <script type="text/javascript" src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+    <script src="static/js/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
         crossorigin="anonymous"></script>
-    <script src="https://cdn.socket.io/4.2.0/socket.io.min.js"
-        integrity="sha384-PiBR5S00EtOj2Lto9Uu81cmoyZqR57XcOna1oAuVuIEjzj0wpqDVfD0JA9eXlRsj"
-        crossorigin="anonymous"></script>
-    <script>
-        document.getElementById('home-nav-item').classList.add('active');
-        document.getElementById('timelines-nav-item').classList.remove('active');
-
-        const socket = io();
-
-        socket.on('connect', () => {
-            console.log(socket.id);
-        });
-
-        socket.on('microphone_state', (msg) => {
-            console.log(socket.id);
-            console.log(msg);
-        });
-
-        socket.on('face_state', (msg) => {
-            console.log(socket.id);
-            console.log(msg);
-        });
-
-        function listen() {
-            console.log('listening..');
-            socket.emit('open_microphone', { data: 'I need microphone!' });
-        }
-    </script>
 </body>
 
 </html>

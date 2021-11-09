@@ -1,8 +1,7 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">
-            <img src="{{ url_for('static', filename='si_robotics.png') }}" alt="" height="30"
-                class="d-inline-block align-text-bottom">
+            <img src="static/si_robotics.png" alt="" height="30" class="d-inline-block align-text-bottom">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content"
             aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,6 +16,7 @@
                     <a id="timelines-nav-item" class="nav-link" href="/timelines">Timelines</a>
                 </li>
             </ul>
+            <button class="btn btn-outline-secondary" type="submit" onclick="start_listen()">Parlami</button>
         </div>
     </div>
 </nav>
