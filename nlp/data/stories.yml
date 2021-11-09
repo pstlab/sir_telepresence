@@ -83,3 +83,39 @@ stories:
           - user_extraversion: extroverted
       - action: utter_profile_gathered
       - action: action_command_done
+
+  - story: Start chest press
+    steps:
+      - intent: start_chest_press
+      - action: action_command_start
+      - action: utter_start_chest_press
+      - action: utter_ask_confirm
+      - intent: affirm
+      - action: action_command_done
+
+  - story: Start upright row
+    steps:
+      - intent: start_upright_row
+      - action: action_command_start
+      - action: utter_start_upright_row
+      - action: utter_ask_confirm
+      - intent: affirm
+      - action: action_command_done
+
+  - story: Start standing calf raises
+    steps:
+      - intent: start_standing_calf_raises
+      - action: action_command_start
+      - action: utter_start_standing_calf_raises
+      - action: utter_ask_confirm
+      - intent: affirm
+      - action: action_command_done
+
+  - story: Start chair squats
+    steps:
+      - intent: start_chair_squats
+      - action: action_command_start
+      - action: utter_start_chair_squats
+      - action: utter_ask_confirm
+      - intent: affirm
+      - action: action_command_done

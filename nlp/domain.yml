@@ -11,6 +11,10 @@ intents:
   - set_name
   - set_extraversion
   - set_gender
+  - start_chest_press
+  - start_upright_row
+  - start_standing_calf_raises
+  - start_chair_squats
 
 entities:
   - PER
@@ -128,6 +132,22 @@ responses:
 
   utter_present_capabilities:
     - text: Il mio compito è di cercare di aiutare le persone anziane a mantenersi sane e in forma. Se vuoi ulteriori informazioni chiedile pure a chi mi ha costruito.
+
+  utter_start_chest_press:
+    - text: Cominciamo ora un esercizio di chest press.
+    - text: Faremo un esercizio di chest press.
+
+  utter_start_start_upright_row:
+    - text: Cominciamo ora un esercizio di upright row.
+    - text: Faremo un esercizio di upright row.
+
+  utter_start_start_standing_calf_raises:
+    - text: Cominciamo ora un esercizio di standing calf raises.
+    - text: Faremo un esercizio di standing calf raises.
+
+  utter_start_start_chair_squats:
+    - text: Cominciamo ora un esercizio di chair squat.
+    - text: Faremo un esercizio di chair squat.
 
   utter_out_of_scope:
     - text: Mi spiace! Non so come gestire la tua richiesta.

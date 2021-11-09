@@ -87,6 +87,30 @@ nlu:
       - Preferisco il [maschile](gender)
       - Preferisco il [femminile](gender)
 
+  - intent: start_chest_press
+    examples: |
+      - Cominciamo un esercizio di chest press
+      - Avviamo un esercizio di chest press
+      - Facciamo un esercizio di chest press
+
+  - intent: start_upright_row
+    examples: |
+      - Cominciamo un esercizio di upright row
+      - Avviamo un esercizio di upright row
+      - Facciamo un esercizio di upright row
+
+  - intent: start_standing_calf_raises
+    examples: |
+      - Cominciamo un esercizio di calf raises
+      - Avviamo un esercizio di calf raises
+      - Facciamo un esercizio di calf raises
+
+  - intent: start_chair_squats
+    examples: |
+      - Cominciamo un esercizio di chair squats
+      - Avviamo un esercizio di chair squats
+      - Facciamo un esercizio di chair squats
+
   - intent: out_of_scope
     examples: |
       - A che ora si pranza?
