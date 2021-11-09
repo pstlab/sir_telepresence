@@ -126,7 +126,7 @@ namespace sir
         state = st;
         msgs::deliberative_state state_msg;
         state_msg.reasoner_id = reasoner_id;
-        state_msg.reasoner_state = st;
+        state_msg.deliberative_state = st;
         d_mngr.notify_state.publish(state_msg);
     }
 

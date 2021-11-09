@@ -1,8 +1,9 @@
 #pragma once
 
-#include "msgs/deliberative_state.h"
-#include "msgs/dialogue_state.h"
 #include "msgs/system_state.h"
+#include "msgs/deliberative_state.h"
+#include "msgs/navigation_state.h"
+#include "msgs/dialogue_state.h"
 #include "msgs/can_start.h"
 #include "msgs/start_task.h"
 #include <ros/ros.h>
@@ -22,7 +23,8 @@ namespace sir
     bool start_task(msgs::start_task::Request &req, msgs::start_task::Response &res);
 
     void updated_system_state(const msgs::system_state &msg) { system_state = msg.system_state; }
-    void updated_deliberative_state(const msgs::deliberative_state &msg) { deliberative_state = msg.reasoner_state; }
+    void updated_deliberative_state(const msgs::deliberative_state &msg) { deliberative_state = msg.deliberative_state; }
+    void updated_navigation_state(const msgs::navigation_state &msg) { navigation_state = msg.navigation_state; }
     void updated_dialogue_state(const msgs::dialogue_state &msg) { dialogue_state = msg.dialogue_state; }
 
     void set_state(const unsigned int &state);
@@ -46,6 +48,8 @@ namespace sir
     unsigned int system_state = msgs::system_state::unconfigured;
     ros::Subscriber deliberative_state_sub;
     unsigned int deliberative_state = msgs::deliberative_state::idle;
+    ros::Subscriber navigation_state_sub;
+    unsigned int navigation_state = msgs::navigation_state::idle;
     ros::Subscriber dialogue_state_sub;
     unsigned int dialogue_state = msgs::dialogue_state::idle;
   };

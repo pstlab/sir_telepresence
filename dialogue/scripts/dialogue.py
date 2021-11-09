@@ -5,7 +5,7 @@ import time
 import traceback
 from msgs.msg import dialogue_state
 from msgs.srv import start_task, start_taskResponse, task_finished, state, get_string, set_string
-from std_srvs.srv import Empty, EmptyResponse
+from std_srvs.srv import Trigger, TriggerResponse, Empty, EmptyResponse
 
 nobkg_idle = 'nobkg_idle'
 nobkg_listening = 'nobkg_ascolto'
@@ -30,7 +30,7 @@ class dialogue_manager:
         self.close_task = rospy.ServiceProxy('task_finished', task_finished)
 
         # called by the gui for starting a dialogue by the user..
-        listen_service = rospy.Service('listen', Empty, self.listen)
+        listen_service = rospy.Service('listen', Trigger, self.listen)
 
         # retrieves the current emotions..
         self.perceive_emotions = rospy.ServiceProxy(
@@ -72,8 +72,13 @@ class dialogue_manager:
         return start_taskResponse(True)
 
     def listen(self, req):
-        self.user_dialogue = True
-        return EmptyResponse()
+        if self.user_dialogue:
+            return TriggerResponse(False, 'Already listening..')
+        elif self.task:
+            return TriggerResponse(False, 'Already having a dialogue..')
+        else:
+            self.user_dialogue = True
+            return TriggerResponse(True, 'Opening microphone..')
 
     def start(self):
         rate = rospy.Rate(50)
@@ -128,6 +133,7 @@ class dialogue_manager:
                         for ans in j_res['messages']:
                             # self.set_face(ans['custom']['face'])
                             # self.text_to_speech(ans['custom']['text'])
+                            self.set_face(nobkg_idle)
                             self.text_to_speech(ans['text'])
                     except rospy.ServiceException:
                         rospy.logerr('Text to speech service call failed\n' +
@@ -192,6 +198,7 @@ class dialogue_manager:
                 for ans in j_res:
                     # self.set_face(ans['custom']['face'])
                     # self.text_to_speech(ans['custom']['text'])
+                    self.set_face(nobkg_idle)
                     self.text_to_speech(ans['text'])
             except rospy.ServiceException:
                 rospy.logerr('Text to speech service call failed\n' +

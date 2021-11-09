@@ -7,12 +7,14 @@ namespace sir
 {
     const char *system_to_string(unsigned int &system_state);
     const char *deliberative_to_string(unsigned int &deliberative_state);
+    const char *navigation_to_string(unsigned int &navigation_state);
     const char *dialogue_to_string(unsigned int &dialogue_state);
 
     sequencer::sequencer(ros::NodeHandle &h) : handle(h),
                                                notify_state(h.advertise<msgs::system_state>("system_state", 10, true)),
                                                system_state_sub(h.subscribe("system_state", 100, &sequencer::updated_system_state, this)),
                                                deliberative_state_sub(h.subscribe("deliberative_state", 100, &sequencer::updated_deliberative_state, this)),
+                                               navigation_state_sub(h.subscribe("navigation_state", 100, &sequencer::updated_navigation_state, this)),
                                                dialogue_state_sub(h.subscribe("dialogue_state", 100, &sequencer::updated_dialogue_state, this)),
                                                create_reasoner(h.serviceClient<msgs::create_reasoner>("create_reasoner")),
                                                new_requirement(h.serviceClient<msgs::new_requirement>("new_requirement")),
@@ -32,7 +34,7 @@ namespace sir
 
     void sequencer::tick()
     {
-        ROS_DEBUG("{\"System\": %s, \"Deliberative\": %s, \"Dialogue\": %s}", system_to_string(system_state), deliberative_to_string(deliberative_state), dialogue_to_string(dialogue_state));
+        ROS_DEBUG("{\"System\": %s, \"Deliberative\": %s, \"Navigation\": %s, \"Dialogue\": %s}", system_to_string(system_state), deliberative_to_string(deliberative_state), navigation_to_string(navigation_state), dialogue_to_string(dialogue_state));
 
         switch (system_state)
         {
@@ -141,6 +143,19 @@ namespace sir
             return "\"Finished\"";
         case msgs::deliberative_state::inconsistent:
             return "\"Inconsistent\"";
+        default:
+            return "\"-\"";
+        }
+    }
+
+    const char *navigation_to_string(unsigned int &navigation_state)
+    {
+        switch (navigation_state)
+        {
+        case msgs::navigation_state::idle:
+            return "\"Idle\"";
+        case msgs::navigation_state::navigating:
+            return "\"Navigating\"";
         default:
             return "\"-\"";
         }
