@@ -22,6 +22,10 @@ class speech_to_text:
         with sr.Microphone() as source:
             self.recognizer_instance.adjust_for_ambient_noise(
                 source, duration=2)
+            if self.recognizer_instance.energy_threshold >= 1000:
+                rospy.logwarn('current energy threshold is ' +
+                              str(self.recognizer_instance.energy_threshold))
+                self.recognizer_instance.energy_threshold = 800
             rospy.logdebug('current energy threshold is ' +
                            str(self.recognizer_instance.energy_threshold))
         return EmptyResponse()
@@ -29,7 +33,8 @@ class speech_to_text:
     def stt(self, req):
         rospy.logdebug('activating microphone..')
         with sr.Microphone() as source:
-            audio = self.recognizer_instance.listen(source)
+            audio = self.recognizer_instance.listen(
+                source, phrase_time_limit=5.0)
             try:
                 rospy.logdebug('recognizing..')
                 text = self.recognizer_instance.recognize_google(

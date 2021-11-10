@@ -237,9 +237,8 @@ class dialogue_manager:
                 self.task_name = ''
                 self.par_names.clear()
                 self.par_values.clear()
-            elif self.user_dialogue:
-                # we close the current dialogue..
-                self.user_dialogue = False
+            # we close the current dialogue..
+            self.user_dialogue = False
             # we update the state..
             self.state_pub.publish(dialogue_state(dialogue_state.idle))
             self.set_face(nobkg_idle)

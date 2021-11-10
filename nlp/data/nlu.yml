@@ -139,3 +139,9 @@ nlu:
       - femmina
       - femminile
       - donna
+
+  - intent: restart
+    examples: |
+      - Voglio cancellare tutte le informazioni
+      - Voglio cancellare tutto
+      - Voglio reimpostare il sistema

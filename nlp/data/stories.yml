@@ -155,3 +155,12 @@ stories:
       - action: utter_ask_confirm
       - intent: deny
       - action: action_command_failure
+
+  - story: Restart
+    steps:
+      - intent: restart
+      - action: action_command_start
+      - action: utter_ask_confirm
+      - intent: affirm
+      - action: action_restart
+      - action: action_command_done
