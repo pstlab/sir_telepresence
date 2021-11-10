@@ -1,5 +1,6 @@
 #include "sequencer.h"
 #include "msgs/create_reasoner.h"
+#include "msgs/destroy_reasoner.h"
 #include "msgs/new_requirement.h"
 #include "msgs/task_finished.h"
 
@@ -17,6 +18,7 @@ namespace sir
                                                navigation_state_sub(h.subscribe("navigation_state", 100, &sequencer::updated_navigation_state, this)),
                                                dialogue_state_sub(h.subscribe("dialogue_state", 100, &sequencer::updated_dialogue_state, this)),
                                                create_reasoner(h.serviceClient<msgs::create_reasoner>("create_reasoner")),
+                                               destroy_reasoner(h.serviceClient<msgs::destroy_reasoner>("destroy_reasoner")),
                                                new_requirement(h.serviceClient<msgs::new_requirement>("new_requirement")),
                                                task_finished(h.serviceClient<msgs::task_finished>("task_finished")),
                                                can_start_server(h.advertiseService("can_start", &sequencer::can_start, this)),
@@ -56,9 +58,14 @@ namespace sir
             switch (deliberative_state)
             {
             case msgs::deliberative_state::finished:
+            {
                 ROS_INFO("System configured..");
+                msgs::destroy_reasoner dest_reasoner;
+                dest_reasoner.request.reasoner_id = 0;
+                destroy_reasoner.call(dest_reasoner);
                 set_state(msgs::system_state::configured);
                 break;
+            }
             default:
                 break;
             }
@@ -71,15 +78,10 @@ namespace sir
 
             msgs::create_reasoner new_reasoner;
             new_reasoner.request.reasoner_id = 0;
-            create_reasoner.call(new_reasoner);
-
-            msgs::new_requirement new_req;
-            new_req.request.reasoner_id = new_reasoner.request.reasoner_id;
-
             std::string running_goal;
             ros::param::get("~running_goal", running_goal);
-            new_req.request.requirement = running_goal;
-            new_requirement.call(new_req);
+            new_reasoner.request.requirement = running_goal;
+            create_reasoner.call(new_reasoner);
             break;
         }
         default:

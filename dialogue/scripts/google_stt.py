@@ -8,10 +8,6 @@ from std_srvs.srv import Empty, EmptyResponse
 class speech_to_text:
 
     def __init__(self):
-        self.recognizer_instance = sr.Recognizer()
-        self.recognizer_instance.dynamic_energy_threshold = False
-        self.adjusting = False
-
         configure_service = rospy.Service('configure_speech_to_text',
                                           Empty, self.configure_stt)
         mic_service = rospy.Service('speech_to_text',
@@ -19,25 +15,27 @@ class speech_to_text:
 
     def configure_stt(self, req):
         rospy.logdebug('adjusting for ambient noise..')
+        rec = sr.Recognizer()
         with sr.Microphone() as source:
-            self.recognizer_instance.adjust_for_ambient_noise(
-                source, duration=2)
-            if self.recognizer_instance.energy_threshold >= 1000:
+            rec.adjust_for_ambient_noise(source, duration=1.0)
+            if rec.energy_threshold >= 1000:
                 rospy.logwarn('current energy threshold is ' +
-                              str(self.recognizer_instance.energy_threshold))
-                self.recognizer_instance.energy_threshold = 800
+                              str(rec.energy_threshold))
+                rec.energy_threshold = 800
+            self.energy_threshold = rec.energy_threshold
             rospy.logdebug('current energy threshold is ' +
-                           str(self.recognizer_instance.energy_threshold))
+                           str(self.energy_threshold))
         return EmptyResponse()
 
     def stt(self, req):
         rospy.logdebug('activating microphone..')
+        rec = sr.Recognizer()
+        rec.energy_threshold = self.energy_threshold
         with sr.Microphone() as source:
-            audio = self.recognizer_instance.listen(
-                source, phrase_time_limit=5.0)
+            audio = rec.listen(source, phrase_time_limit=10.0)
             try:
                 rospy.logdebug('recognizing..')
-                text = self.recognizer_instance.recognize_google(
+                text = rec.recognize_google(
                     audio, language="it-IT")
                 rospy.logdebug('recognized speech: %s', text)
                 return get_stringResponse(True, text)
@@ -47,8 +45,8 @@ class speech_to_text:
 
 
 if __name__ == '__main__':
-    rospy.init_node('text_to_speech', anonymous=True, log_level=rospy.DEBUG)
-    rospy.loginfo('Starting Text to Speech Manager..')
+    rospy.init_node('speech_to_text', anonymous=True, log_level=rospy.DEBUG)
+    rospy.loginfo('Starting Speech to Text Manager..')
 
     stt = speech_to_text()
     rospy.spin()

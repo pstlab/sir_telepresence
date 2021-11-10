@@ -15,7 +15,6 @@ intents:
   - start_upright_row
   - start_standing_calf_raises
   - start_chair_squats
-  - dialogue_restart
 
 entities:
   - PER
@@ -87,7 +86,7 @@ responses:
     - text: Va bene?
     - text: Cominciamo?
     - text: Vogliamo cominciare?
-  
+
   utter_I_am_here:
     - text: Ok! Quando vuoi sono qui!
     - text: Ok! Resto a disposizione!

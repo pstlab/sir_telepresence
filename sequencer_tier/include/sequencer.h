@@ -34,6 +34,7 @@ namespace sir
     ros::Publisher notify_state;
     // Connection with the deliberative tier..
     ros::ServiceClient create_reasoner;
+    ros::ServiceClient destroy_reasoner;
     ros::ServiceClient new_requirement;
     ros::ServiceClient task_finished;
     ros::ServiceServer can_start_server;

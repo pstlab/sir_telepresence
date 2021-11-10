@@ -110,12 +110,13 @@ namespace sir
     { // these atoms are now ended..
         for (const auto &atm : atms)
         {
-            ROS_DEBUG("[%lu] Ending task %s..", reasoner_id, atm->get_type().get_name().c_str());
+            ROS_DEBUG("[%lu] Ended task %s..", reasoner_id, atm->get_type().get_name().c_str());
         }
     }
 
     void deliberative_executor::finish_task(const smt::var &id, const bool &success)
     {
+        ROS_DEBUG("[%lu] Ending task %s..", reasoner_id, current_tasks.at(id)->get_type().get_name().c_str());
         if (!success) // the task failed..
             exec.failure({current_tasks.at(id)});
         current_tasks.erase(id);

@@ -81,6 +81,12 @@ class dialogue_manager:
             return TriggerResponse(True, 'Opening microphone..')
 
     def start(self):
+        rospy.loginfo('Restarting the dialogue engine..')
+        r = requests.post('http://' + host + ':' + port + '/webhooks/rest/webhook', params={
+            'include_events': 'NONE'}, json={'sender': user, 'message': '/restart'})
+        if(r.status_code != requests.codes.ok):
+            rospy.logerr('Cannot connect to the dialogue engine..')
+
         rate = rospy.Rate(50)
         while not rospy.is_shutdown():
             if self.task_name:
@@ -162,6 +168,7 @@ class dialogue_manager:
         while True:
             stt = self.speech_to_text()
             if stt.text == '':
+                rospy.logwarn('Recognized empty string..')
                 try:
                     stt_conf = self.configure_speech_to_text()
                 except rospy.ServiceException:
@@ -176,8 +183,8 @@ class dialogue_manager:
             for i in range(len(perceived_emotions.par_names)):
                 r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
                     'include_events': 'NONE'}, json={'event': 'slot', 'name': perceived_emotions.par_names[i], 'value': perceived_emotions.par_values[i], 'timestamp': time.time()})
-            if(r.status_code == requests.codes.ok):
-                j_res = r.json()
+                if(r.status_code == requests.codes.ok):
+                    j_res = r.json()
         except rospy.ServiceException:
             rospy.logerr('Emotions detection service call failed\n' +
                          ''.join(traceback.format_stack()))
@@ -226,10 +233,14 @@ class dialogue_manager:
                 # we close the current task..
                 if self.state['command_state'] == 'done':
                     # the task is closed with a success..
+                    rospy.logdebug(
+                        'Closing task "%s" with a success..', self.task_name)
                     self.close_task(
                         self.reasoner_id, self.task_id, True)
                 elif self.state['command_state'] == 'failure':
                     # the task is closed with a failure..
+                    rospy.logdebug(
+                        'Closing task "%s" with a failure..', self.task_name)
                     self.close_task(
                         self.reasoner_id, self.task_id, False)
                 self.reasoner_id = -1
