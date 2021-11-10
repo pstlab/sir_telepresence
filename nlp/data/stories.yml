@@ -156,11 +156,11 @@ stories:
       - intent: deny
       - action: action_command_failure
 
-  - story: Restart
+  - story: Dialogue restart
     steps:
-      - intent: restart
+      - intent: dialogue_restart
       - action: action_command_start
       - action: utter_ask_confirm
       - intent: affirm
-      - action: action_restart
       - action: action_command_done
+      - action: action_restart

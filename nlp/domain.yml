@@ -15,6 +15,7 @@ intents:
   - start_upright_row
   - start_standing_calf_raises
   - start_chair_squats
+  - dialogue_restart
 
 entities:
   - PER

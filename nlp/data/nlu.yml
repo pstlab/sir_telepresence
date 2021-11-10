@@ -140,7 +140,7 @@ nlu:
       - femminile
       - donna
 
-  - intent: restart
+  - intent: dialogue_restart
     examples: |
       - Voglio cancellare tutte le informazioni
       - Voglio cancellare tutto
