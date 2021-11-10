@@ -52,7 +52,7 @@ namespace sir
     {
         ROS_DEBUG("Current time: %s", to_string(time).c_str());
         arith_expr horizon = slv.get("horizon");
-        if (slv.arith_value(horizon) <= exec.get_current_time() && !current_tasks.empty())
+        if (slv.arith_value(horizon) <= exec.get_current_time() && current_tasks.empty())
         {
             ROS_DEBUG("[%lu] Exhausted plan..", reasoner_id);
             state = Finished;

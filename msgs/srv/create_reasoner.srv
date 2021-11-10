@@ -1,4 +1,5 @@
 # creates a new reasoner with the given reasoner id
 uint64 reasoner_id
+string requirement
 ---
 bool created

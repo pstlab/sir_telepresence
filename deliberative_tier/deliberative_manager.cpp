@@ -51,6 +51,7 @@ namespace sir
             relevant_predicates.insert(notify_start.begin(), notify_start.end());
 
             executors[req.reasoner_id] = new deliberative_executor(*this, req.reasoner_id, relevant_predicates);
+            pending_requirements[req.reasoner_id].push(req.requirement);
             res.created = true;
         }
         return true;

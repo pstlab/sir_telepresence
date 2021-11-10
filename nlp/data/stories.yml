@@ -84,7 +84,7 @@ stories:
       - action: utter_profile_gathered
       - action: action_command_done
 
-  - story: Start chest press
+  - story: Start chest press yes
     steps:
       - intent: start_chest_press
       - action: action_command_start
@@ -93,7 +93,16 @@ stories:
       - intent: affirm
       - action: action_command_done
 
-  - story: Start upright row
+  - story: Start chest press no
+    steps:
+      - intent: start_chest_press
+      - action: action_command_start
+      - action: utter_start_chest_press
+      - action: utter_ask_confirm
+      - intent: deny
+      - action: action_command_failure
+
+  - story: Start upright row yes
     steps:
       - intent: start_upright_row
       - action: action_command_start
@@ -102,7 +111,16 @@ stories:
       - intent: affirm
       - action: action_command_done
 
-  - story: Start standing calf raises
+  - story: Start upright row no
+    steps:
+      - intent: start_upright_row
+      - action: action_command_start
+      - action: utter_start_upright_row
+      - action: utter_ask_confirm
+      - intent: deny
+      - action: action_command_failure
+
+  - story: Start standing calf raises yes
     steps:
       - intent: start_standing_calf_raises
       - action: action_command_start
@@ -111,7 +129,16 @@ stories:
       - intent: affirm
       - action: action_command_done
 
-  - story: Start chair squats
+  - story: Start standing calf raises no
+    steps:
+      - intent: start_standing_calf_raises
+      - action: action_command_start
+      - action: utter_start_standing_calf_raises
+      - action: utter_ask_confirm
+      - intent: deny
+      - action: action_command_failure
+
+  - story: Start chair squats yes
     steps:
       - intent: start_chair_squats
       - action: action_command_start
@@ -119,3 +146,12 @@ stories:
       - action: utter_ask_confirm
       - intent: affirm
       - action: action_command_done
+
+  - story: Start chair squats no
+    steps:
+      - intent: start_chair_squats
+      - action: action_command_start
+      - action: utter_start_chair_squats
+      - action: utter_ask_confirm
+      - intent: deny
+      - action: action_command_failure

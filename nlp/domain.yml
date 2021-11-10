@@ -137,15 +137,15 @@ responses:
     - text: Cominciamo ora un esercizio di chest press.
     - text: Faremo un esercizio di chest press.
 
-  utter_start_start_upright_row:
+  utter_start_upright_row:
     - text: Cominciamo ora un esercizio di upright row.
     - text: Faremo un esercizio di upright row.
 
-  utter_start_start_standing_calf_raises:
+  utter_start_standing_calf_raises:
     - text: Cominciamo ora un esercizio di standing calf raises.
     - text: Faremo un esercizio di standing calf raises.
 
-  utter_start_start_chair_squats:
+  utter_start_chair_squats:
     - text: Cominciamo ora un esercizio di chair squat.
     - text: Faremo un esercizio di chair squat.
 

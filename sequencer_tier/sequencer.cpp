@@ -45,15 +45,10 @@ namespace sir
 
             msgs::create_reasoner new_reasoner;
             new_reasoner.request.reasoner_id = 0;
-            create_reasoner.call(new_reasoner);
-
-            msgs::new_requirement new_req;
-            new_req.request.reasoner_id = new_reasoner.request.reasoner_id;
-
             std::string config_goal;
             ros::param::get("~config_goal", config_goal);
-            new_req.request.requirement = config_goal;
-            new_requirement.call(new_req);
+            new_reasoner.request.requirement = config_goal;
+            create_reasoner.call(new_reasoner);
             break;
         }
         case msgs::system_state::configuring:
