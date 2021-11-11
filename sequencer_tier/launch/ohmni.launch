@@ -11,7 +11,7 @@
     <node name="deliberative_tier" pkg="deliberative_tier" type="deliberative_tier" output="screen" />
 
     <!-- Dialogue service to run on the robot -->
-    <include unless="$(arg on_the_robot)" file="$(find dialogue)/launch/diaogue_services.launch">
+    <include unless="$(arg on_the_robot)" file="$(find dialogue)/launch/dialogue_services.launch">
         <arg name="host" value="localhost" />
         <arg name="port" value="5005" />
     </include>
