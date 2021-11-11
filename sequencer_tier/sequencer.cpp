@@ -54,20 +54,21 @@ namespace sir
         }
         case msgs::system_state::configuring:
         { // we are configuring the system..
-            switch (deliberative_state.at(0))
-            {
-            case msgs::deliberative_state::finished:
-            {
-                ROS_INFO("System configured..");
-                msgs::destroy_reasoner dest_reasoner;
-                dest_reasoner.request.reasoner_id = 0;
-                destroy_reasoner.call(dest_reasoner);
-                set_state(msgs::system_state::configured);
-                break;
-            }
-            default:
-                break;
-            }
+            if (deliberative_state.count(0))
+                switch (deliberative_state.at(0))
+                {
+                case msgs::deliberative_state::finished:
+                {
+                    ROS_INFO("System configured..");
+                    msgs::destroy_reasoner dest_reasoner;
+                    dest_reasoner.request.reasoner_id = 0;
+                    destroy_reasoner.call(dest_reasoner);
+                    set_state(msgs::system_state::configured);
+                    break;
+                }
+                default:
+                    break;
+                }
             break;
         }
         case msgs::system_state::configured:
