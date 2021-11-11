@@ -40,4 +40,5 @@ sir_telepresence/nlu$ rasa run actions
 git clone --recurse-submodules https://github.com/pstlab/sir_telepresence
 git checkout v1.1
 git submodule update --init --recursive
+git pull --recurse-submodules
 ```
