@@ -12,8 +12,6 @@
 
     <!-- Dialogue service to run on the robot -->
     <include unless="$(arg on_the_robot)" file="$(find dialogue)/launch/dialogue_services.launch">
-        <arg name="host" value="localhost" />
-        <arg name="port" value="5005" />
     </include>
 
     <param name="user" type="string" value="42" />
