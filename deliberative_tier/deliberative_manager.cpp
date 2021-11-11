@@ -22,14 +22,20 @@ namespace sir
 
     void deliberative_manager::tick()
     {
-        for (auto &req : pending_requirements)
-            while (!req.second.empty())
-            {
-                const std::string c_req = req.second.front();
-                executors.at(req.first)->get_solver().read(c_req);
-                executors.at(req.first)->get_solver().solve();
-                req.second.pop();
-            }
+        if (!pending_requirements.empty())
+        {
+            ROS_DEBUG("Disposing pending requirements..");
+            for (auto &req : pending_requirements)
+                while (!req.second.empty())
+                {
+                    const std::string c_req = req.second.front();
+                    ROS_DEBUG("[%lu] %s", req.first, c_req.c_str());
+                    executors.at(req.first)->get_solver().read(c_req);
+                    executors.at(req.first)->get_solver().solve();
+                    req.second.pop();
+                }
+            pending_requirements.clear();
+        }
         for (auto &exec : executors)
             exec.second->get_executor().tick();
     }

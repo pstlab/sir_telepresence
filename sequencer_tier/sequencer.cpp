@@ -7,10 +7,10 @@
 
 namespace sir
 {
-    const char *system_to_string(unsigned int &system_state);
-    const char *deliberative_to_string(const std::map<uint64_t, unsigned int> &deliberative_state);
-    const char *navigation_to_string(unsigned int &navigation_state);
-    const char *dialogue_to_string(unsigned int &dialogue_state);
+    std::string system_to_string(unsigned int &system_state);
+    std::string deliberative_to_string(const std::map<uint64_t, unsigned int> &deliberative_state);
+    std::string navigation_to_string(unsigned int &navigation_state);
+    std::string dialogue_to_string(unsigned int &dialogue_state);
 
     sequencer::sequencer(ros::NodeHandle &h) : handle(h),
                                                notify_state(h.advertise<msgs::system_state>("system_state", 10, true)),
@@ -36,7 +36,7 @@ namespace sir
 
     void sequencer::tick()
     {
-        ROS_DEBUG("{\"System\": %s, \"Deliberative\": %s, \"Navigation\": %s, \"Dialogue\": %s}", system_to_string(system_state), deliberative_to_string(deliberative_state), navigation_to_string(navigation_state), dialogue_to_string(dialogue_state));
+        ROS_DEBUG("{\"System\": %s, \"Deliberative\": %s, \"Navigation\": %s, \"Dialogue\": %s}", system_to_string(system_state).c_str(), deliberative_to_string(deliberative_state).c_str(), navigation_to_string(navigation_state).c_str(), dialogue_to_string(dialogue_state).c_str());
 
         switch (system_state)
         {
@@ -162,7 +162,7 @@ namespace sir
         notify_state.publish(state_msg);
     }
 
-    const char *system_to_string(unsigned int &system_state)
+    std::string system_to_string(unsigned int &system_state)
     {
         switch (system_state)
         {
@@ -179,12 +179,14 @@ namespace sir
         }
     }
 
-    const char *deliberative_to_string(const std::map<uint64_t, unsigned int> &deliberative_state)
+    std::string deliberative_to_string(const std::map<uint64_t, unsigned int> &deliberative_state)
     {
-        std::string delib_state = "(";
+        std::string delib_state;
         for (const auto &r : deliberative_state)
         {
-            delib_state.append(std::to_string(r.first));
+            if (r.first != deliberative_state.begin()->first)
+                delib_state.append(" ");
+            delib_state.append("(").append(std::to_string(r.first)).append(") ");
             switch (r.second)
             {
             case msgs::deliberative_state::idle:
@@ -207,10 +209,10 @@ namespace sir
                 break;
             }
         }
-        return delib_state.c_str();
+        return delib_state;
     }
 
-    const char *navigation_to_string(unsigned int &navigation_state)
+    std::string navigation_to_string(unsigned int &navigation_state)
     {
         switch (navigation_state)
         {
@@ -223,7 +225,7 @@ namespace sir
         }
     }
 
-    const char *dialogue_to_string(unsigned int &dialogue_state)
+    std::string dialogue_to_string(unsigned int &dialogue_state)
     {
         switch (dialogue_state)
         {

@@ -22,7 +22,7 @@ namespace sir
     bool can_start(msgs::can_start::Request &req, msgs::can_start::Response &res);
     bool start_task(msgs::start_task::Request &req, msgs::start_task::Response &res);
 
-    void updated_deliberative_state(const msgs::deliberative_state &msg) { deliberative_state.emplace(msg.reasoner_id, msg.deliberative_state); }
+    void updated_deliberative_state(const msgs::deliberative_state &msg) { deliberative_state[msg.reasoner_id] = msg.deliberative_state; }
     void updated_navigation_state(const msgs::navigation_state &msg) { navigation_state = msg.navigation_state; }
     void updated_dialogue_state(const msgs::dialogue_state &msg) { dialogue_state = msg.dialogue_state; }
 

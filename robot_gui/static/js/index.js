@@ -40,7 +40,7 @@ system_state_listener.subscribe(function (message) {
 
 var deliberative_state_listener = new ROSLIB.Topic({ ros: ros, name: '/deliberative_state', messageType: 'msgs/deliberative_state' });
 deliberative_state_listener.subscribe(function (message) {
-    state.deliberative_state = message.deliberative_state;
+    state.deliberative_state = { reasoner: message.reasoner_id, state: message.deliberative_state };
     print_state();
 });
 
@@ -80,14 +80,16 @@ function print_system_state(system_state) {
 }
 
 function print_deliberative_state(deliberative_state) {
-    switch (deliberative_state) {
-        case 0: return 'idle'
-        case 1: return 'reasoning'
-        case 2: return 'executing'
-        case 3: return 'finished'
-        case 4: return 'inconsistent'
-        default: return '-';
-    }
+    if (deliberative_state)
+        switch (deliberative_state.state) {
+            case 0: return '(' + deliberative_state.reasoner + ') idle'
+            case 1: return '(' + deliberative_state.reasoner + ') reasoning'
+            case 2: return '(' + deliberative_state.reasoner + ') executing'
+            case 3: return '(' + deliberative_state.reasoner + ') finished'
+            case 4: return '(' + deliberative_state.reasoner + ') inconsistent'
+            default: return '(' + deliberative_state.reasoner + ') -';
+        }
+    else return '-';
 }
 
 function print_navigation_state(navigation_state) {
