@@ -1,4 +1,0 @@
-[submodule "deliberative_tier/oRatio"]
-	path = deliberative_tier/oRatio
-	url = https://github.com/pstlab/oRatio
-	branch = v3.0
