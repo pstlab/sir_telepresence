@@ -44,14 +44,13 @@ namespace sir
         }
         else
         {
-            std::vector<std::string> notify_start;
-            ros::param::get("~notify_start", notify_start);
+            std::vector<std::string> relevant_predicates;
+            relevant_predicates.insert(relevant_predicates.end(), req.notify_start.begin(), req.notify_start.end());
 
-            std::unordered_set<std::string> relevant_predicates;
-            relevant_predicates.insert(notify_start.begin(), notify_start.end());
+            executors[req.reasoner_id] = new deliberative_executor(*this, req.reasoner_id, req.domain_files, relevant_predicates);
+            for (const auto &r : req.requirements)
+                pending_requirements[req.reasoner_id].push(r);
 
-            executors[req.reasoner_id] = new deliberative_executor(*this, req.reasoner_id, relevant_predicates);
-            pending_requirements[req.reasoner_id].push(req.requirement);
             res.created = true;
         }
         return true;

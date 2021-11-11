@@ -1,7 +1,6 @@
 #pragma once
 
 #include "executor_listener.h"
-#include <unordered_set>
 
 namespace sir
 {
@@ -19,7 +18,7 @@ namespace sir
   class deliberative_executor
   {
   public:
-    deliberative_executor(deliberative_manager &d_mngr, const uint64_t &id, const std::unordered_set<std::string> &relevant_predicates = {});
+    deliberative_executor(deliberative_manager &d_mngr, const uint64_t &id, const std::vector<std::string> &domain_files, const std::vector<std::string> &relevant_predicates = {});
     ~deliberative_executor();
 
     ratio::solver &get_solver() { return slv; }

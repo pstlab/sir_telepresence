@@ -6,24 +6,18 @@
 #include "msgs/can_start.h"
 #include "msgs/start_task.h"
 #include <ros/ros.h>
-#include <ros/package.h>
 
 using namespace ratio;
 
 namespace sir
 {
-    deliberative_executor::deliberative_executor(deliberative_manager &d_mngr, const uint64_t &id, const std::unordered_set<std::string> &relevant_predicates) : d_mngr(d_mngr), reasoner_id(id), slv(), exec(slv, relevant_predicates), dcl(*this), del(*this)
+    deliberative_executor::deliberative_executor(deliberative_manager &d_mngr, const uint64_t &id, const std::vector<std::string> &domain_files, const std::vector<std::string> &relevant_predicates) : d_mngr(d_mngr), reasoner_id(id), slv(), exec(slv, relevant_predicates), dcl(*this), del(*this)
     {
         // we read the domain files..
         ROS_DEBUG("[%lu] Reading domain..", reasoner_id);
-
-        std::string package_path = ros::package::getPath("deliberative_tier") + '/';
-        std::vector<std::string> domain_files;
-        ros::param::get("~domain_files", domain_files);
-        for (auto it = domain_files.begin(); it != domain_files.end(); ++it)
+        for (const auto &domain_file : domain_files)
         {
-            it->insert(0, package_path);
-            ROS_DEBUG("[%lu] %s", reasoner_id, (*it).c_str());
+            ROS_DEBUG("[%lu] %s", reasoner_id, domain_file.c_str());
         }
 
         slv.read(domain_files);

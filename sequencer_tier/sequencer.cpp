@@ -3,6 +3,7 @@
 #include "msgs/destroy_reasoner.h"
 #include "msgs/new_requirement.h"
 #include "msgs/task_finished.h"
+#include <ros/package.h>
 
 namespace sir
 {
@@ -48,9 +49,18 @@ namespace sir
             deliberative_state[reasoner_id] = msgs::deliberative_state::idle;
             msgs::create_reasoner new_reasoner;
             new_reasoner.request.reasoner_id = reasoner_id;
+
+            std::vector<std::string> domain_files;
+            ros::param::get("~domain_files", domain_files);
+            std::string package_path = ros::package::getPath("sequencer_tier") + '/';
+            for (const auto &file : domain_files)
+                new_reasoner.request.domain_files.push_back(package_path + file);
             std::string config_goal;
             ros::param::get("~config_goal", config_goal);
-            new_reasoner.request.requirement = config_goal;
+            new_reasoner.request.requirements.push_back(config_goal);
+            std::vector<std::string> notify_start;
+            ros::param::get("~notify_start", new_reasoner.request.notify_start);
+
             create_reasoner.call(new_reasoner);
             break;
         }
@@ -83,9 +93,18 @@ namespace sir
             deliberative_state[reasoner_id] = msgs::deliberative_state::idle;
             msgs::create_reasoner new_reasoner;
             new_reasoner.request.reasoner_id = reasoner_id;
+
+            std::vector<std::string> domain_files;
+            ros::param::get("~domain_files", domain_files);
+            std::string package_path = ros::package::getPath("sequencer_tier") + '/';
+            for (const auto &file : domain_files)
+                new_reasoner.request.domain_files.push_back(package_path + file);
             std::string running_goal;
             ros::param::get("~running_goal", running_goal);
-            new_reasoner.request.requirement = running_goal;
+            new_reasoner.request.requirements.push_back(running_goal);
+            std::vector<std::string> notify_start;
+            ros::param::get("~notify_start", new_reasoner.request.notify_start);
+
             create_reasoner.call(new_reasoner);
             break;
         }
