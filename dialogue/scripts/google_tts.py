@@ -3,7 +3,8 @@ import rospy
 import gtts
 from playsound import playsound
 from msgs.srv import set_string, set_stringResponse
-import os #adding alternatively to playsound 
+import os  # adding alternatively to playsound
+
 
 class text_to_speech:
 
@@ -15,7 +16,7 @@ class text_to_speech:
         rospy.logdebug('synthesizing "%s"..', req.text)
         tts = gtts.gTTS(req.text, lang='it')
         tts.save('utterance.mp3')
-        #playsound('utterance.mp3')
+        # playsound('utterance.mp3')
         os.system("mpg123 " + "utterance.mp3")
         return set_stringResponse(True)
 
@@ -26,4 +27,3 @@ if __name__ == '__main__':
 
     tts = text_to_speech()
     rospy.spin()
-~                

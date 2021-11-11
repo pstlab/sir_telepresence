@@ -7,13 +7,12 @@
 namespace sir
 {
     const char *system_to_string(unsigned int &system_state);
-    const char *deliberative_to_string(unsigned int &deliberative_state);
+    const char *deliberative_to_string(const std::map<uint64_t, unsigned int> &deliberative_state);
     const char *navigation_to_string(unsigned int &navigation_state);
     const char *dialogue_to_string(unsigned int &dialogue_state);
 
     sequencer::sequencer(ros::NodeHandle &h) : handle(h),
                                                notify_state(h.advertise<msgs::system_state>("system_state", 10, true)),
-                                               system_state_sub(h.subscribe("system_state", 100, &sequencer::updated_system_state, this)),
                                                deliberative_state_sub(h.subscribe("deliberative_state", 100, &sequencer::updated_deliberative_state, this)),
                                                navigation_state_sub(h.subscribe("navigation_state", 100, &sequencer::updated_navigation_state, this)),
                                                dialogue_state_sub(h.subscribe("dialogue_state", 100, &sequencer::updated_dialogue_state, this)),
@@ -55,7 +54,7 @@ namespace sir
         }
         case msgs::system_state::configuring:
         { // we are configuring the system..
-            switch (deliberative_state)
+            switch (deliberative_state.at(0))
             {
             case msgs::deliberative_state::finished:
             {
@@ -132,6 +131,7 @@ namespace sir
 
     void sequencer::set_state(const unsigned int &state)
     {
+        system_state = state;
         msgs::system_state state_msg;
         state_msg.system_state = state;
         notify_state.publish(state_msg);
@@ -154,23 +154,35 @@ namespace sir
         }
     }
 
-    const char *deliberative_to_string(unsigned int &deliberative_state)
+    const char *deliberative_to_string(const std::map<uint64_t, unsigned int> &deliberative_state)
     {
-        switch (deliberative_state)
+        std::string delib_state = "(";
+        for (const auto &r : deliberative_state)
         {
-        case msgs::deliberative_state::idle:
-            return "\"Idle\"";
-        case msgs::deliberative_state::reasoning:
-            return "\"Reasoning\"";
-        case msgs::deliberative_state::executing:
-            return "\"Executing\"";
-        case msgs::deliberative_state::finished:
-            return "\"Finished\"";
-        case msgs::deliberative_state::inconsistent:
-            return "\"Inconsistent\"";
-        default:
-            return "\"-\"";
+            delib_state.append(std::to_string(r.first));
+            switch (r.second)
+            {
+            case msgs::deliberative_state::idle:
+                delib_state.append("\"Idle\"");
+                break;
+            case msgs::deliberative_state::reasoning:
+                delib_state.append("\"Reasoning\"");
+                break;
+            case msgs::deliberative_state::executing:
+                delib_state.append("\"Executing\"");
+                break;
+            case msgs::deliberative_state::finished:
+                delib_state.append("\"Finished\"");
+                break;
+            case msgs::deliberative_state::inconsistent:
+                delib_state.append("\"Inconsistent\"");
+                break;
+            default:
+                delib_state.append("\"-\"");
+                break;
+            }
         }
+        return delib_state.c_str();
     }
 
     const char *navigation_to_string(unsigned int &navigation_state)

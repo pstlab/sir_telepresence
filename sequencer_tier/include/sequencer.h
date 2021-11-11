@@ -22,8 +22,7 @@ namespace sir
     bool can_start(msgs::can_start::Request &req, msgs::can_start::Response &res);
     bool start_task(msgs::start_task::Request &req, msgs::start_task::Response &res);
 
-    void updated_system_state(const msgs::system_state &msg) { system_state = msg.system_state; }
-    void updated_deliberative_state(const msgs::deliberative_state &msg) { deliberative_state = msg.deliberative_state; }
+    void updated_deliberative_state(const msgs::deliberative_state &msg) { deliberative_state[msg.reasoner_id] = msg.deliberative_state; }
     void updated_navigation_state(const msgs::navigation_state &msg) { navigation_state = msg.navigation_state; }
     void updated_dialogue_state(const msgs::dialogue_state &msg) { dialogue_state = msg.dialogue_state; }
 
@@ -45,10 +44,9 @@ namespace sir
     /*
      * The sequencer state
      */
-    ros::Subscriber system_state_sub;
     unsigned int system_state = msgs::system_state::unconfigured;
     ros::Subscriber deliberative_state_sub;
-    unsigned int deliberative_state = msgs::deliberative_state::idle;
+    std::map<uint64_t, unsigned int> deliberative_state;
     ros::Subscriber navigation_state_sub;
     unsigned int navigation_state = msgs::navigation_state::idle;
     ros::Subscriber dialogue_state_sub;
