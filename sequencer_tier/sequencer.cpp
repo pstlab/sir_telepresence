@@ -44,8 +44,10 @@ namespace sir
             ROS_INFO("Starting system configuration..");
             set_state(msgs::system_state::configuring);
 
+            const uint64_t reasoner_id = 0;
+            deliberative_state[reasoner_id] = msgs::deliberative_state::idle;
             msgs::create_reasoner new_reasoner;
-            new_reasoner.request.reasoner_id = 0;
+            new_reasoner.request.reasoner_id = reasoner_id;
             std::string config_goal;
             ros::param::get("~config_goal", config_goal);
             new_reasoner.request.requirement = config_goal;
@@ -54,21 +56,22 @@ namespace sir
         }
         case msgs::system_state::configuring:
         { // we are configuring the system..
-            if (deliberative_state.count(0))
-                switch (deliberative_state.at(0))
-                {
-                case msgs::deliberative_state::finished:
-                {
-                    ROS_INFO("System configured..");
-                    msgs::destroy_reasoner dest_reasoner;
-                    dest_reasoner.request.reasoner_id = 0;
-                    destroy_reasoner.call(dest_reasoner);
-                    set_state(msgs::system_state::configured);
-                    break;
-                }
-                default:
-                    break;
-                }
+            const uint64_t configure_reasoner_id = 0;
+            switch (deliberative_state.at(configure_reasoner_id))
+            {
+            case msgs::deliberative_state::finished:
+            {
+                ROS_INFO("System configured..");
+                msgs::destroy_reasoner dest_reasoner;
+                dest_reasoner.request.reasoner_id = configure_reasoner_id;
+                destroy_reasoner.call(dest_reasoner);
+                set_state(msgs::system_state::configured);
+                deliberative_state.erase(configure_reasoner_id);
+                break;
+            }
+            default:
+                break;
+            }
             break;
         }
         case msgs::system_state::configured:
@@ -76,8 +79,10 @@ namespace sir
             ROS_INFO("Starting default plan..");
             set_state(msgs::system_state::running);
 
+            const uint64_t reasoner_id = 0;
+            deliberative_state[reasoner_id] = msgs::deliberative_state::idle;
             msgs::create_reasoner new_reasoner;
-            new_reasoner.request.reasoner_id = 0;
+            new_reasoner.request.reasoner_id = reasoner_id;
             std::string running_goal;
             ros::param::get("~running_goal", running_goal);
             new_reasoner.request.requirement = running_goal;
