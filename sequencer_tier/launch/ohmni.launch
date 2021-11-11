@@ -1,18 +1,31 @@
 <launch>
+
+    <arg name="on_the_robot" default="false"/>
     <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
     <node name="sequencer_tier" pkg="sequencer_tier" type="sequencer_tier" output="screen">
-        <rosparam param="domain_files">["domains/configure.rddl", "domains/physical_exercise.rddl", "domains/ohmni.rddl"]</rosparam>
-        <rosparam param="notify_start">["DialogueStateVariable.Interact"]</rosparam>
         <rosparam param="config_goal">goal cnf = new Configure();</rosparam>
         <rosparam param="running_goal">goal kh = new KeepHealthy();</rosparam>
     </node>
-    <node name="deliberative_tier" pkg="deliberative_tier" type="deliberative_tier" output="screen" />
-    <node name="speech_to_text" pkg="dialogue" type="google_stt.py" output="screen" />
+    <node name="deliberative_tier" pkg="deliberative_tier" type="deliberative_tier" output="screen">
+        <rosparam param="domain_files">["domains/configure.rddl", "domains/physical_exercise.rddl", "domains/ohmni.rddl"]</rosparam>
+        <rosparam param="notify_start">["DialogueStateVariable.Interact"]</rosparam>
+    </node>
+  
+
+    <!-- <node name="speech_to_text" pkg="dialogue" type="google_stt.py" output="screen" />
     <node name="text_to_speech" pkg="dialogue" type="google_tts.py" output="screen" />
     <node name="dialogue_manager" pkg="dialogue" type="dialogue.py" output="screen">
         <rosparam param="host">localhost</rosparam>
         <rosparam param="port">5005</rosparam>
-    </node>
+    </node> -->
+
+    <!-- Dialogue service to run on the robot -->
+	<include unless="$(arg on_the_robot)" file="$(find diaogue)/launch/diaogue_services.launch">
+		<arg name="host" value="localhost"/>
+		<arg name="port" value="5005" />
+    </include>
+
+
 
     <param name="user" type="string" value="42" />
 </launch>
