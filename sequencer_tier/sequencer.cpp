@@ -117,7 +117,7 @@ namespace sir
     {
         ROS_ASSERT(req.par_names.size() == req.par_values.size());
         ROS_DEBUG("checking whether task \'%s\' can start..", req.task_name.c_str());
-        if (req.task_name == "Interact")
+        if (req.task_name == "Interacting")
             res.can_start = dialogue_state == msgs::dialogue_state::idle;
         else
         {
@@ -131,7 +131,7 @@ namespace sir
     {
         ROS_ASSERT(req.par_names.size() == req.par_values.size());
         ROS_INFO("starting task \'%s\'..", req.task_name.c_str());
-        if (req.task_name == "Interact")
+        if (req.task_name == "Interacting")
         {
             msgs::start_task sd_srv;
             sd_srv.request.reasoner_id = req.reasoner_id;

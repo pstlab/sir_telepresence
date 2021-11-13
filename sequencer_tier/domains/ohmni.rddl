@@ -1,6 +1,9 @@
 class DialogueStateVariable : StateVariable {
 
-    predicate Interact(string intent) {
+    predicate Busy() {
+    }
+
+    predicate Interacting(string intent) {
         duration >= 5.0;
     }
 }
@@ -11,6 +14,12 @@ class OhmniRobot {
     PhysicalExerciseStateVariable physical_exercise;
 
     OhmniRobot() : dialogue(new DialogueStateVariable()), physical_exercise(new PhysicalExerciseStateVariable(this)) {}
+}
+
+predicate KeepHealthy() {
+    goal ub = new UpperBodyPhysicalExercise();
+    goal lb = new LowerBodyPhysicalExercise();
+    goal pg = new robot.dialogue.Interacting(intent: "start_blood_pressure_gathering");
 }
 
 OhmniRobot robot = new OhmniRobot();

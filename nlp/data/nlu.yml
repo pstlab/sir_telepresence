@@ -87,6 +87,13 @@ nlu:
       - Preferisco il [maschile](gender)
       - Preferisco il [femminile](gender)
 
+  - intent: set_reps
+    examples: |
+      - Il numero di ripetizioni è [cinque](NUMBER)
+      - Ho fatto [sei](NUMBER) ripetizioni
+      - Il numero di ripetizioni è [due](NUMBER)
+      - Ho fatto [una](NUMBER) ripetizione
+
   - intent: start_chest_press
     examples: |
       - Cominciamo un esercizio di chest press

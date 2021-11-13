@@ -11,6 +11,8 @@ intents:
   - set_name
   - set_extraversion
   - set_gender
+  - set_reps
+  - start_blood_pressure_gathering
   - start_chest_press
   - start_upright_row
   - start_standing_calf_raises
@@ -18,6 +20,7 @@ intents:
 
 entities:
   - PER
+  - NUMBER
   - extraversion
   - gender
 
@@ -35,6 +38,18 @@ slots:
     values:
       - extroverted
       - introverted
+  reps:
+    type: text
+    influence_conversation: false
+  systolic_blood_pressure:
+    type: text
+    influence_conversation: false
+  diastolic_blood_pressure:
+    type: text
+    influence_conversation: false
+  heart_beat:
+    type: text
+    influence_conversation: false
   command_state:
     type: categorical
     influence_conversation: false
@@ -57,6 +72,20 @@ forms:
       user_extraversion:
         - type: from_entity
           entity: extraversion
+  blood_pressure_measurement_form:
+    required_slots:
+      systolic_blood_pressure:
+        - type: from_entity
+          entity: NUMBER
+          role: systolic_blood_pressure
+      diastolic_blood_pressure:
+        - type: from_entity
+          entity: NUMBER
+          role: diastolic_blood_pressure
+      heart_beat:
+        - type: from_entity
+          entity: NUMBER
+          role: heart_beat
 
 responses:
   utter_help_proposal:
@@ -132,6 +161,52 @@ responses:
 
   utter_present_capabilities:
     - text: Il mio compito è di cercare di aiutare le persone anziane a mantenersi sane e in forma. Se vuoi ulteriori informazioni chiedile pure a chi mi ha costruito.
+
+  utter_well_done:
+    - text: Ben fatto!
+    - text: Molto bene!
+    - text: Continua così!
+    - text: Grande!
+
+  utter_wrong_introverse:
+    - text: Uhm, non proprio... ma non ti scoraggiare! Stai comunque andando bene.
+    - text: Non esattamente, ma ci siamo quasi!
+
+  utter_wrong_extroverse:
+    - text: No no!
+    - text: Ma cosa stai facendo? No no!
+    - text: Non così!
+  
+  utter_start_blood_pressure_gathering:
+    - text: Sono le 9! Hai già misurato la pressione oggi?
+    - text: Ciao {user_name}! Hai già misurato la pressione oggi?
+    - text: Ciao {user_name}! Vuoi indicarmi i tuoi attuali valori pressori?
+
+  utter_ask_systolic_blood_pressure:
+    - text: Quale è la tua pressione sistolica?
+    - text: Puoi dirmi, per cortesia, la tua pressione sistolica?
+    - text: Mi dici, per favore, la tua pressione sistolica?
+
+  utter_ask_diastolic_blood_pressure:
+    - text: Quale è la tua pressione diastolica?
+    - text: Puoi dirmi, per cortesia, la tua pressione diastolica?
+    - text: Mi dici, per favore, la tua pressione diastolica?
+
+  utter_ask_heart_beat:
+    - text: Quale è la tua frequenza cardiaca?
+    - text: Puoi dirmi, per cortesia, il numero di pulsazioni?
+    - text: Mi dici, per favore, le tue pulsazioni attuali?
+    - text: Mi dici, per favore, la tua attuale frequenza cardiaca?
+
+  utter_blood_pressure_ok:
+    - text: Bene! Direi che la tua pressione oggi è ottima!
+
+  utter_blood_pressure_bad:
+    - text: La tua pressione è un pochino sopra la soglia raccomandata.
+    - text: La tua pressione oggi supera la soglia raccomandata.
+
+  utter_count_reps:
+    - text: "{reps}"
 
   utter_start_chest_press:
     - text: Cominciamo ora un esercizio di chest press.

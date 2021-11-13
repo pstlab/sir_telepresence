@@ -84,6 +84,16 @@ stories:
       - action: utter_profile_gathered
       - action: action_command_done
 
+  - story: Blood pressure gathering
+    steps:
+      - intent: start_blood_pressure_gathering
+      - action: action_command_start
+      - action: utter_start_blood_pressure_gathering
+      - action: utter_ask_confirm
+      - intent: affirm
+      - action: blood_pressure_measurement_form
+      - active_loop: blood_pressure_measurement_form
+
   - story: Start chest press yes
     steps:
       - intent: start_chest_press
