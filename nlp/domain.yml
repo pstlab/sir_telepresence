@@ -198,12 +198,25 @@ responses:
     - text: Mi dici, per favore, le tue pulsazioni attuali?
     - text: Mi dici, per favore, la tua attuale frequenza cardiaca?
 
+  utter_blood_pressure_recap:
+    - text: La tua attuale pressione è di {systolic_blood_pressure} su {diastolic_blood_pressure}.
+    - text: La tua attuale pressione sistolica è di {systolic_blood_pressure}, mentre la diastolica è di {diastolic_blood_pressure}.
+    - text: La tua attuale pressione massima è di {systolic_blood_pressure}, mentre la minima è di {diastolic_blood_pressure}.
+
   utter_blood_pressure_ok:
     - text: Bene! Direi che la tua pressione oggi è ottima!
+    - text: Molto bene! Direi che la tua pressione oggi è ottima!
+    - text: Molto bene! La tua attuale pressione è ottima!
 
-  utter_blood_pressure_bad:
-    - text: La tua pressione è un pochino sopra la soglia raccomandata.
+  utter_high_systolic_blood_pressure:
+    - text: La tua pressione sistolica, di {systolic_blood_pressure}, è un pochino sopra la soglia raccomandata.
     - text: La tua pressione oggi supera la soglia raccomandata.
+    - text: La tua attuale pressione sistolica, di {systolic_blood_pressure}, supera la soglia raccomandata.
+
+  utter_high_diastolic_blood_pressure:
+    - text: La tua pressione diastolica, di {diastolic_blood_pressure}, è un pochino sopra la soglia raccomandata.
+    - text: La tua pressione oggi supera la soglia raccomandata.
+    - text: La tua attuale pressione diastolica, di {diastolic_blood_pressure}, supera la soglia raccomandata.
 
   utter_count_reps:
     - text: "{reps}"
@@ -245,6 +258,7 @@ actions:
   - action_command_start
   - action_command_done
   - action_command_failure
+  - action_blood_pressure_analysis
 
 session_config:
   session_expiration_time: 60

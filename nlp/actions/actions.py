@@ -39,3 +39,28 @@ class ActionCommandFailure(Action):
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
 
         return [SlotSet('command_state', 'failure')]
+
+
+class BloodPressureAnalysis(Action):
+
+    def name(self) -> Text:
+        return "action_blood_pressure_analysis"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        dispatcher.utter_message(
+            response='utter_blood_pressure_recap')
+        systolic_blood_pressure = tracker.get_slot('systolic_blood_pressure')
+        diastolic_blood_pressure = tracker.get_slot('diastolic_blood_pressure')
+        if systolic_blood_pressure < 140 and diastolic_blood_pressure < 85:
+            dispatcher.utter_message(
+                response='utter_blood_pressure_ok')
+        if systolic_blood_pressure > 140:
+            dispatcher.utter_message(
+                response='utter_high_systolic_blood_pressure')
+        if diastolic_blood_pressure > 140:
+            dispatcher.utter_message(
+                response='utter_high_diastolic_blood_pressure')
+        return [SlotSet('command_state', 'failure')]

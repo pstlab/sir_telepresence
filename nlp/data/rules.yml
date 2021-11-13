@@ -30,7 +30,7 @@ rules:
       - active_loop: null
       - slot_was_set:
           - requested_slot: null
-      - action: utter_blood_pressure_ok
+      - action: action_blood_pressure_analysis
       - action: action_command_done
 
   - rule: Out of scope
