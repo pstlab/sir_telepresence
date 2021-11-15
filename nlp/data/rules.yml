@@ -37,6 +37,7 @@ rules:
     steps:
       - intent: set_reps
       - action: utter_count_reps
+      - action: action_command_done
 
   - rule: Out of scope
     steps:
