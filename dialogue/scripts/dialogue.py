@@ -15,12 +15,16 @@ class dialogue_manager:
 
     def __init__(self):
         self.state = {}
-        self.reasoner_id = -1
-        self.task_id = -1
+        self.reasoner_id = None
+        self.task_id = None
         self.task_name = ''
         self.par_names = []
         self.par_values = []
         self.user_dialogue = False
+
+        # called by the deliberative tier..
+        start_dialogue_task_service = rospy.Service(
+            'start_dialogue_task', start_task, self.start_dialogue_task)
 
         # called by the deliberative tier..
         start_dialogue_service = rospy.Service(
@@ -62,10 +66,15 @@ class dialogue_manager:
         self.state_pub.publish(dialogue_state(dialogue_state.idle))
         self.set_face(nobkg_idle)
 
-    def start_dialogue(self, req):
+    def start_dialogue_task(self, req):
         rospy.logdebug('Start task "%s" request..', req.task_name)
         # we store the informations about the starting dialogue task..
         self.task = True
+        return self.start_dialogue(req)
+
+    def start_dialogue(self, req):
+        rospy.logdebug('Start task "%s" request..', req.task_name)
+        # we store the informations about the starting dialogue..
         self.reasoner_id = req.reasoner_id
         self.task_id = req.task_id
         self.task_name = req.task_name

@@ -23,12 +23,12 @@ namespace sir
                                                task_finished(h.serviceClient<msgs::task_finished>("task_finished")),
                                                can_start_server(h.advertiseService("can_start", &sequencer::can_start, this)),
                                                start_task_server(h.advertiseService("start_task", &sequencer::start_task, this)),
-                                               start_dialogue(h.serviceClient<msgs::start_task>("start_dialogue"))
+                                               start_dialogue_task(h.serviceClient<msgs::start_task>("start_dialogue_task"))
     {
         create_reasoner.waitForExistence();
         new_requirement.waitForExistence();
         task_finished.waitForExistence();
-        start_dialogue.waitForExistence();
+        start_dialogue_task.waitForExistence();
 
         ros::service::waitForService("set_face");
     }
@@ -144,7 +144,7 @@ namespace sir
                     sd_srv.request.par_names.push_back(req.par_names.at(i));
                     sd_srv.request.par_values.push_back(req.par_values.at(i));
                 }
-            res.started = start_dialogue.call(sd_srv);
+            res.started = start_dialogue_task.call(sd_srv);
         }
         else
         {

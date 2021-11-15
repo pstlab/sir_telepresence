@@ -39,7 +39,7 @@ namespace sir
     ros::ServiceServer can_start_server;
     ros::ServiceServer start_task_server;
     // Connection with the dialogue manager..
-    ros::ServiceClient start_dialogue;
+    ros::ServiceClient start_dialogue_task;
 
     /*
      * The sequencer state
