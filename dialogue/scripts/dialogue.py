@@ -7,8 +7,9 @@ from msgs.msg import dialogue_state
 from msgs.srv import start_task, start_taskResponse, task_finished, state, get_string, set_string
 from std_srvs.srv import Trigger, TriggerResponse, Empty, EmptyResponse
 
-nobkg_idle = 'nobkg_idle'
-nobkg_listening = 'nobkg_ascolto'
+face_idle = 'idle'
+face_talking = 'talking'
+face_listening = 'listening'
 
 
 class dialogue_manager:
@@ -64,7 +65,7 @@ class dialogue_manager:
         self.state_pub = rospy.Publisher(
             'dialogue_state', dialogue_state, queue_size=10, latch=True)
         self.state_pub.publish(dialogue_state(dialogue_state.idle))
-        self.set_face(nobkg_idle)
+        self.set_face(face_idle)
 
     def start_dialogue_task(self, req):
         rospy.logdebug('Start task "%s" request..', req.task_name)
@@ -102,7 +103,7 @@ class dialogue_manager:
                 # we update the state..
                 self.state_pub.publish(
                     dialogue_state(dialogue_state.configuring))
-                self.set_face(nobkg_listening)
+                self.set_face(face_listening)
                 # we configure the speech to text..
                 try:
                     stt_conf = self.configure_speech_to_text()
@@ -148,7 +149,7 @@ class dialogue_manager:
                         for ans in j_res['messages']:
                             # self.set_face(ans['custom']['face'])
                             # self.text_to_speech(ans['custom']['text'])
-                            self.set_face(nobkg_idle)
+                            self.set_face(face_talking)
                             self.text_to_speech(ans['text'])
                     except rospy.ServiceException:
                         rospy.logerr('Text to speech service call failed\n' +
@@ -156,7 +157,7 @@ class dialogue_manager:
                         # we update the state..
                         self.state_pub.publish(
                             dialogue_state(dialogue_state.idle))
-                        self.set_face(nobkg_idle)
+                        self.set_face(face_idle)
                     self.dialogue()
 
             elif self.user_dialogue:
@@ -172,7 +173,7 @@ class dialogue_manager:
     def interact(self):
         # we update the state..
         self.state_pub.publish(dialogue_state(dialogue_state.listening))
-        self.set_face(nobkg_listening)
+        self.set_face(face_listening)
         # we listen..
         while True:
             stt = self.speech_to_text()
@@ -214,7 +215,7 @@ class dialogue_manager:
                 for ans in j_res:
                     # self.set_face(ans['custom']['face'])
                     # self.text_to_speech(ans['custom']['text'])
-                    self.set_face(nobkg_idle)
+                    self.set_face(face_talking)
                     self.text_to_speech(ans['text'])
             except rospy.ServiceException:
                 rospy.logerr('Text to speech service call failed\n' +
@@ -222,7 +223,7 @@ class dialogue_manager:
                 # we update the state..
                 self.state_pub.publish(
                     dialogue_state(dialogue_state.idle))
-                self.set_face(nobkg_idle)
+                self.set_face(face_idle)
 
             try:
                 r = requests.get('http://' + host + ':' + port + '/conversations/' + user +
@@ -261,7 +262,7 @@ class dialogue_manager:
             self.user_dialogue = False
             # we update the state..
             self.state_pub.publish(dialogue_state(dialogue_state.idle))
-            self.set_face(nobkg_idle)
+            self.set_face(face_idle)
             return True
         else:
             # we are still talking..
