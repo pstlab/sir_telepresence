@@ -33,6 +33,11 @@ rules:
       - action: action_blood_pressure_analysis
       - action: action_command_done
 
+  - rule: Reps feedback
+    steps:
+      - intent: set_reps
+      - action: utter_count_reps
+
   - rule: Out of scope
     steps:
       - intent: out_of_scope
