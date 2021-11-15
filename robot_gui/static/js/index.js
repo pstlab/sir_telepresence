@@ -18,7 +18,7 @@ ros.on('close', function () {
 var set_face_service = new ROSLIB.Service({ ros: ros, name: '/set_face', serviceType: 'msgs/set_string' });
 set_face_service.advertise(function (request, response) {
     console.log('Setting robot face:' + request.text);
-    document.getElementById('robot_face').src = 'static/faces/' + request.text + '.png';
+    document.getElementById('robot_face').src = 'static/faces/' + request.text + '.gif';
     response['success'] = true;
     return true;
 });
