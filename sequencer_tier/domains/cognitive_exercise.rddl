@@ -1,0 +1,14 @@
+class CognitiveExerciseStateVariable : StateVariable {
+
+    OhmniRobot robot;
+
+    CognitiveExerciseStateVariable(OhmniRobot robot) : robot(robot) {}
+
+    predicate Idle() {
+        duration >= 20.0;
+    }
+
+    predicate CountTheWord(string word_sequence, string word) {
+        duration >= 20.0;
+    }
+}

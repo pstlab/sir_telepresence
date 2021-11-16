@@ -7,9 +7,9 @@ predicate TestBicepsCurlPhysicalExercise() {
 }
 
 predicate TestEasyCountTheWordCognitiveExercise() {
-
+    goal ce = new robot.cognitive_exercise.CountTheWord(word_sequence: "MOLLA PELLE PALLA POLLO SOLE ALBERO RANA PALLA PINO PALLA PELATI PALLA BELLA ZOLLA", word: "PALLA");
 }
 
 predicate TestHardCountTheWordCognitiveExercise() {
-
+    goal ce = new robot.cognitive_exercise.CountTheWord(word_sequence: "ASSASSI TASSASSI ASSASSI RETASSI ASSASSI MENANASSI MARASSI ASSASSI ANANASSI ASSASSI PARASSI ASSASSI FASSASSI SANSASSI RAGAGASSI", word: "ASSASSI");
 }

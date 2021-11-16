@@ -12,8 +12,9 @@ class OhmniRobot {
 
     DialogueStateVariable dialogue;
     PhysicalExerciseStateVariable physical_exercise;
+    CognitiveExerciseStateVariable cognitive_exercise;
 
-    OhmniRobot() : dialogue(new DialogueStateVariable()), physical_exercise(new PhysicalExerciseStateVariable(this)) {}
+    OhmniRobot() : dialogue(new DialogueStateVariable()), physical_exercise(new PhysicalExerciseStateVariable(this)), cognitive_exercise(new CognitiveExerciseStateVariable(this)) {}
 }
 
 predicate KeepHealthy() {

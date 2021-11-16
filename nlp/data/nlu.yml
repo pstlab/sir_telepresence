@@ -116,6 +116,12 @@ nlu:
       - Chiudiamo un esercizio di [upright row](physical_exercise_name)
       - Finiamo un esercizio di [chest press](physical_exercise_name)
 
+  - intent: start_count_the_word_cognitive_exercise
+    examples: |
+      - Cominciamo un esercizio di conta le parole
+      - Avviamo un esercizio di conta le parole
+      - Facciamo un esercizio di conta le parole
+
   - intent: out_of_scope
     examples: |
       - A che ora si pranza?

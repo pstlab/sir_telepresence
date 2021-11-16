@@ -17,6 +17,7 @@ intents:
   - positive_feedback
   - negative_feedback
   - end_physical_exercise
+  - start_count_the_word_cognitive_exercise
 
 entities:
   - PER
@@ -39,6 +40,12 @@ slots:
       - extroverted
       - introverted
   reps:
+    type: text
+    influence_conversation: false
+  word_sequence:
+    type: text
+    influence_conversation: false
+  word:
     type: text
     influence_conversation: false
   systolic_blood_pressure:
@@ -86,6 +93,11 @@ forms:
         - type: from_entity
           entity: NUMBER
           role: heart_beat
+  count_the_word_form:
+    required_slots:
+      num_words:
+        - type: from_entity
+          entity: number
 
 responses:
   utter_help_proposal:
@@ -225,21 +237,20 @@ responses:
   utter_count_reps:
     - text: "{reps}"
 
-  utter_start_chest_press:
-    - text: Cominciamo ora un esercizio di chest press.
-    - text: Faremo un esercizio di chest press.
+  utter_start_cognitive_exercise:
+    - text: Ciao {PER}! Cominceremo ora la nostra sessione giornaliera di esercizi! Oggi ti proporrò alcuni giochi.
 
-  utter_start_upright_row:
-    - text: Cominciamo ora un esercizio di upright row.
-    - text: Faremo un esercizio di upright row.
+  utter_describe_count_the_ball_words:
+    - text: Ora ti dirò una lista di parole e, alla fine, mi dirai quante volte ho detto la parola {word}.
+    - text: Ora, ti dirò una lista di parole e alla fine vorrei che mi dicessi quante volte ho detto la parola {word}.
 
-  utter_start_standing_calf_raises:
-    - text: Cominciamo ora un esercizio di standing calf raises.
-    - text: Faremo un esercizio di standing calf raises.
+  utter_start_count_the_word:
+    - text: Andiamo! {word_sequence}.
+    - text: Cominciamo! {word_sequence}.
 
-  utter_start_chair_squats:
-    - text: Cominciamo ora un esercizio di chair squat.
-    - text: Faremo un esercizio di chair squat.
+  utter_ask_num_words:
+    - text: Quante volte ho detto la parola {word}?
+    - text: Quante volte è stata detta la parola {word}?
 
   utter_out_of_scope:
     - text: Mi spiace! Non so come gestire la tua richiesta.
@@ -263,6 +274,7 @@ actions:
   - action_command_done
   - action_command_failure
   - action_blood_pressure_analysis
+  - validate_count_the_word_form
 
 session_config:
   session_expiration_time: 60
