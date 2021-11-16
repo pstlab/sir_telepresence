@@ -23,11 +23,13 @@ namespace sir
                                                task_finished(h.serviceClient<msgs::task_finished>("task_finished")),
                                                can_start_server(h.advertiseService("can_start", &sequencer::can_start, this)),
                                                start_task_server(h.advertiseService("start_task", &sequencer::start_task, this)),
+                                               start_physical_exercise_task(h.serviceClient<msgs::start_task>("start_physical_exercise")),
                                                start_dialogue_task(h.serviceClient<msgs::start_task>("start_dialogue_task"))
     {
         create_reasoner.waitForExistence();
         new_requirement.waitForExistence();
         task_finished.waitForExistence();
+        start_physical_exercise_task.waitForExistence();
         start_dialogue_task.waitForExistence();
 
         ros::service::waitForService("set_face");
@@ -148,29 +150,29 @@ namespace sir
         }
         else if (req.task_name == "BicepsCurl")
         { // starts a count the biceps curl physical exercise with the user..
-            msgs::start_task sd_srv;
-            sd_srv.request.reasoner_id = req.reasoner_id;
-            sd_srv.request.task_id = req.task_id;
-            sd_srv.request.task_name = "BICEPS CURL";
+            msgs::start_task bc_srv;
+            bc_srv.request.reasoner_id = req.reasoner_id;
+            bc_srv.request.task_id = req.task_id;
+            bc_srv.request.task_name = "BICEPS CURL";
             for (size_t i = 0; i < req.par_names.size(); i++)
             {
-                sd_srv.request.par_names.push_back(req.par_names.at(i));
-                sd_srv.request.par_values.push_back(req.par_values.at(i));
+                bc_srv.request.par_names.push_back(req.par_names.at(i));
+                bc_srv.request.par_values.push_back(req.par_values.at(i));
             }
-            res.started = start_dialogue_task.call(sd_srv);
+            res.started = start_physical_exercise_task.call(bc_srv);
         }
         else if (req.task_name == "CountTheWord")
         { // starts a count the word cognitive exercise with the user..
-            msgs::start_task sd_srv;
-            sd_srv.request.reasoner_id = req.reasoner_id;
-            sd_srv.request.task_id = req.task_id;
-            sd_srv.request.task_name = "start_count_the_word_cognitive_exercise";
+            msgs::start_task ctw_srv;
+            ctw_srv.request.reasoner_id = req.reasoner_id;
+            ctw_srv.request.task_id = req.task_id;
+            ctw_srv.request.task_name = "start_count_the_word_cognitive_exercise";
             for (size_t i = 0; i < req.par_names.size(); i++)
             {
-                sd_srv.request.par_names.push_back(req.par_names.at(i));
-                sd_srv.request.par_values.push_back(req.par_values.at(i));
+                ctw_srv.request.par_names.push_back(req.par_names.at(i));
+                ctw_srv.request.par_values.push_back(req.par_values.at(i));
             }
-            res.started = start_dialogue_task.call(sd_srv);
+            res.started = start_dialogue_task.call(ctw_srv);
         }
         else
         {

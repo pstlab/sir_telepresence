@@ -38,6 +38,8 @@ namespace sir
     ros::ServiceClient task_finished;
     ros::ServiceServer can_start_server;
     ros::ServiceServer start_task_server;
+    // Connection with the physical exercises manager..
+    ros::ServiceClient start_physical_exercise_task;
     // Connection with the dialogue manager..
     ros::ServiceClient start_dialogue_task;
 
