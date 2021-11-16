@@ -15,6 +15,7 @@ face_listening = 'listening'
 class dialogue_manager:
 
     def __init__(self):
+        self.task = False
         self.state = {}
         self.reasoner_id = None
         self.task_id = None
