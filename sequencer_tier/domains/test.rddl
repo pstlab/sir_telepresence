@@ -3,7 +3,7 @@ predicate TestBloodPressureGathering() {
 }
 
 predicate TestBicepsCurlPhysicalExercise() {
-    goal bc = new robot.physical_exercise.BicepsCurl();
+    goal bc = new robot.physical_exercise.BicepsCurl(repetitions: 10.0);
 }
 
 predicate TestEasyCountTheWordCognitiveExercise() {

@@ -26,7 +26,7 @@ class PhysicalExerciseStateVariable : StateVariable {
         goal cp = new robot.dialogue.Busy(start: start, duration: duration, end: end);
     }
 
-    predicate BicepsCurl() {
+    predicate BicepsCurl(real repetitions) {
         duration >= 20.0;
         goal idle = new Idle(end:start);
         goal cp = new robot.dialogue.Busy(start: start, duration: duration, end: end);
