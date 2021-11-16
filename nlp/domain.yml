@@ -12,6 +12,7 @@ intents:
   - set_extraversion
   - set_gender
   - start_blood_pressure_gathering
+  - set_blood_pressure
   - start_physical_exercise
   - set_reps
   - positive_feedback
@@ -49,13 +50,13 @@ slots:
     type: text
     influence_conversation: false
   systolic_blood_pressure:
-    type: text
+    type: float
     influence_conversation: false
   diastolic_blood_pressure:
-    type: text
+    type: float
     influence_conversation: false
   heart_beat:
-    type: text
+    type: float
     influence_conversation: false
   command_state:
     type: categorical
@@ -84,15 +85,12 @@ forms:
       systolic_blood_pressure:
         - type: from_entity
           entity: number
-          role: systolic_blood_pressure
       diastolic_blood_pressure:
         - type: from_entity
           entity: number
-          role: diastolic_blood_pressure
       heart_beat:
         - type: from_entity
           entity: number
-          role: heart_beat
   count_the_word_form:
     required_slots:
       num_words:
@@ -238,7 +236,7 @@ responses:
     - text: "{reps}"
 
   utter_start_cognitive_exercise:
-    - text: Ciao {PER}! Cominceremo ora la nostra sessione giornaliera di esercizi! Oggi ti proporrò alcuni giochi.
+    - text: Ciao {user_name}! Cominceremo ora la nostra sessione giornaliera di esercizi! Oggi ti proporrò alcuni giochi.
 
   utter_describe_count_the_words:
     - text: Ora ti dirò una lista di parole e, alla fine, mi dirai quante volte ho detto la parola {word}.

@@ -128,6 +128,12 @@ nlu:
       - Ti dico la mia pressione corrente
       - Ti comunico la mia attuale pressione
 
+  - intent: set_blood_pressure
+    examples: |
+      - La mia attuale pressione sistolica è di [dieci](number)
+      - La mia attuale pressione diastolica è di [quindici](number)
+      - Le mie attuali pulsazioni sono di [undici](number)
+
   - intent: out_of_scope
     examples: |
       - A che ora si pranza?
