@@ -21,7 +21,7 @@ intents:
 
 entities:
   - PER
-  - NUMBER
+  - number
   - extraversion
   - gender
 
@@ -83,15 +83,15 @@ forms:
     required_slots:
       systolic_blood_pressure:
         - type: from_entity
-          entity: NUMBER
+          entity: number
           role: systolic_blood_pressure
       diastolic_blood_pressure:
         - type: from_entity
-          entity: NUMBER
+          entity: number
           role: diastolic_blood_pressure
       heart_beat:
         - type: from_entity
-          entity: NUMBER
+          entity: number
           role: heart_beat
   count_the_word_form:
     required_slots:

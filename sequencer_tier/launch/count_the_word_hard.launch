@@ -4,7 +4,7 @@
     <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
     <node name="sequencer_tier" pkg="sequencer_tier" type="sequencer_tier" output="screen">
         <rosparam param="domain_files">["domains/configure.rddl", "domains/physical_exercise.rddl", "domains/cognitive_exercise.rddl", "domains/ohmni.rddl", "domains/test.rddl"]</rosparam>
-        <rosparam param="notify_start">["DialogueStateVariable.Interacting", "PhysicalExerciseStateVariable.BicepsCurl"]</rosparam>
+        <rosparam param="notify_start">["DialogueStateVariable.Interacting", "CognitiveExerciseStateVariable.CountTheWord"]</rosparam>
         <rosparam param="config_goal">goal cnf = new TestHardCountTheWordCognitiveExercise();</rosparam>
         <rosparam param="running_goal"></rosparam>
     </node>

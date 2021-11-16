@@ -89,10 +89,10 @@ nlu:
 
   - intent: set_reps
     examples: |
-      - Il numero di ripetizioni è [cinque](NUMBER)
-      - Ho fatto [sei](NUMBER) ripetizioni
-      - Il numero di ripetizioni è [due](NUMBER)
-      - Ho fatto [una](NUMBER) ripetizione
+      - Il numero di ripetizioni è [cinque](number)
+      - Ho fatto [sei](number) ripetizioni
+      - Il numero di ripetizioni è [due](number)
+      - Ho fatto [una](number) ripetizione
 
   - intent: positive_feedback
     examples: |
@@ -121,6 +121,12 @@ nlu:
       - Cominciamo un esercizio di conta le parole
       - Avviamo un esercizio di conta le parole
       - Facciamo un esercizio di conta le parole
+
+  - intent: start_blood_pressure_gathering
+    examples: |
+      - Voglio comunicarti la mia pressione cardiaca
+      - Ti dico la mia pressione corrente
+      - Ti comunico la mia attuale pressione
 
   - intent: out_of_scope
     examples: |
