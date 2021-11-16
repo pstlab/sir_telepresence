@@ -146,6 +146,19 @@ namespace sir
                 }
             res.started = start_dialogue_task.call(sd_srv);
         }
+        else if (req.task_name == "BicepsCurl")
+        { // starts a count the biceps curl physical exercise with the user..
+            msgs::start_task sd_srv;
+            sd_srv.request.reasoner_id = req.reasoner_id;
+            sd_srv.request.task_id = req.task_id;
+            sd_srv.request.task_name = "BICEPS CURL";
+            for (size_t i = 0; i < req.par_names.size(); i++)
+            {
+                sd_srv.request.par_names.push_back(req.par_names.at(i));
+                sd_srv.request.par_values.push_back(req.par_values.at(i));
+            }
+            res.started = start_dialogue_task.call(sd_srv);
+        }
         else if (req.task_name == "CountTheWord")
         { // starts a count the word cognitive exercise with the user..
             msgs::start_task sd_srv;
