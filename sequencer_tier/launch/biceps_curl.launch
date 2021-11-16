@@ -3,10 +3,10 @@
     <arg name="on_the_robot" default="false" />
     <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
     <node name="sequencer_tier" pkg="sequencer_tier" type="sequencer_tier" output="screen">
-        <rosparam param="domain_files">["domains/configure.rddl", "domains/physical_exercise.rddl", "domains/ohmni.rddl"]</rosparam>
+        <rosparam param="domain_files">["domains/configure.rddl", "domains/physical_exercise.rddl", "domains/ohmni.rddl", "domains/test.rddl"]</rosparam>
         <rosparam param="notify_start">["DialogueStateVariable.Interacting", "PhysicalExerciseStateVariable.BicepsCurl"]</rosparam>
-        <rosparam param="config_goal">goal cnf = new Configure();</rosparam>
-        <rosparam param="running_goal">goal kh = new KeepHealthy();</rosparam>
+        <rosparam param="config_goal">goal cnf = new TestBicepsCurlPhysicalExercise();</rosparam>
+        <rosparam param="running_goal"></rosparam>
     </node>
     <node name="deliberative_tier" pkg="deliberative_tier" type="deliberative_tier" output="screen" />
 

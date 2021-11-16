@@ -11,12 +11,12 @@ intents:
   - set_name
   - set_extraversion
   - set_gender
-  - set_reps
   - start_blood_pressure_gathering
-  - start_chest_press
-  - start_upright_row
-  - start_standing_calf_raises
-  - start_chair_squats
+  - start_physical_exercise
+  - set_reps
+  - positive_feedback
+  - negative_feedback
+  - end_physical_exercise
 
 entities:
   - PER
@@ -162,21 +162,25 @@ responses:
   utter_present_capabilities:
     - text: Il mio compito è di cercare di aiutare le persone anziane a mantenersi sane e in forma. Se vuoi ulteriori informazioni chiedile pure a chi mi ha costruito.
 
-  utter_well_done:
+  utter_positive_feedback:
     - text: Ben fatto!
     - text: Molto bene!
     - text: Continua così!
     - text: Grande!
 
-  utter_wrong_introverse:
+  utter_start_physical_exercise:
+    - text: Cominceremo ora un esercizio di {physical_exercise_name}
+    - text: Faremo ora un esercizio di {physical_exercise_name}
+
+  utter_negative_feedback_introverse:
     - text: Uhm, non proprio... ma non ti scoraggiare! Stai comunque andando bene.
     - text: Non esattamente, ma ci siamo quasi!
 
-  utter_wrong_extroverse:
+  utter_negative_feedback_estroverse:
     - text: No no!
     - text: Ma cosa stai facendo? No no!
     - text: Non così!
-  
+
   utter_start_blood_pressure_gathering:
     - text: Sono le 9! Hai già misurato la pressione oggi?
     - text: Ciao {user_name}! Hai già misurato la pressione oggi?

@@ -94,29 +94,27 @@ nlu:
       - Il numero di ripetizioni è [due](NUMBER)
       - Ho fatto [una](NUMBER) ripetizione
 
-  - intent: start_chest_press
+  - intent: positive_feedback
     examples: |
-      - Cominciamo un esercizio di chest press
-      - Avviamo un esercizio di chest press
-      - Facciamo un esercizio di chest press
+      - Dammi un feedback positivo
+      - Voglio un feedback positivo
 
-  - intent: start_upright_row
+  - intent: negative_feedback
     examples: |
-      - Cominciamo un esercizio di upright row
-      - Avviamo un esercizio di upright row
-      - Facciamo un esercizio di upright row
+      - Dammi un feedback negativo
+      - Voglio un feedback negativo
 
-  - intent: start_standing_calf_raises
+  - intent: start_physical_exercise
     examples: |
-      - Cominciamo un esercizio di calf raises
-      - Avviamo un esercizio di calf raises
-      - Facciamo un esercizio di calf raises
+      - Cominciamo un esercizio di [biceps curl](physical_exercise_name)
+      - Avviamo un esercizio di [chest press](physical_exercise_name)
+      - Facciamo un esercizio di [standing calf raises](physical_exercise_name)
 
-  - intent: start_chair_squats
+  - intent: end_physical_exercise
     examples: |
-      - Cominciamo un esercizio di chair squats
-      - Avviamo un esercizio di chair squats
-      - Facciamo un esercizio di chair squats
+      - Terminiamo un esercizio di [chair squats](physical_exercise_name)
+      - Chiudiamo un esercizio di [upright row](physical_exercise_name)
+      - Finiamo un esercizio di [chest press](physical_exercise_name)
 
   - intent: out_of_scope
     examples: |

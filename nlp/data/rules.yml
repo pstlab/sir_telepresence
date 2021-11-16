@@ -36,6 +36,7 @@ rules:
   - rule: Reps feedback
     steps:
       - intent: set_reps
+      - action: action_command_start
       - action: utter_count_reps
       - action: action_command_done
 

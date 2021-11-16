@@ -19,7 +19,7 @@ class OhmniRobot {
 predicate KeepHealthy() {
     goal ub = new UpperBodyPhysicalExercise();
     goal lb = new LowerBodyPhysicalExercise();
-    goal pg = new robot.dialogue.Interacting(intent: "start_blood_pressure_gathering");
+    goal bpg = new robot.dialogue.Interacting(intent: "start_blood_pressure_gathering");
 }
 
 OhmniRobot robot = new OhmniRobot();
