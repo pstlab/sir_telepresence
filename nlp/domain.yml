@@ -240,7 +240,7 @@ responses:
   utter_start_cognitive_exercise:
     - text: Ciao {PER}! Cominceremo ora la nostra sessione giornaliera di esercizi! Oggi ti proporrò alcuni giochi.
 
-  utter_describe_count_the_ball_words:
+  utter_describe_count_the_words:
     - text: Ora ti dirò una lista di parole e, alla fine, mi dirai quante volte ho detto la parola {word}.
     - text: Ora, ti dirò una lista di parole e alla fine vorrei che mi dicessi quante volte ho detto la parola {word}.
 

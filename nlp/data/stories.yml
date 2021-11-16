@@ -110,8 +110,8 @@ stories:
       - action: utter_start_cognitive_exercise
       - action: utter_ask_confirm
       - intent: affirm
-      - action: utter_describe_count_the_ball_words
+      - action: utter_describe_count_the_words
       - action: utter_ask_confirm
       - intent: affirm
       - action: utter_start_count_the_word
-      - action: utter_ask_num_ball_words
+      - action: utter_ask_num_words
