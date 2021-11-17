@@ -55,13 +55,13 @@ class ActionBloodPressureAnalysis(Action):
             response='utter_blood_pressure_recap')
         systolic_blood_pressure = tracker.get_slot('systolic_blood_pressure')
         diastolic_blood_pressure = tracker.get_slot('diastolic_blood_pressure')
-        if systolic_blood_pressure < 140 and diastolic_blood_pressure < 85:
+        if systolic_blood_pressure < 130 and diastolic_blood_pressure < 85:
             dispatcher.utter_message(
                 response='utter_blood_pressure_ok')
-        if systolic_blood_pressure > 140:
+        if systolic_blood_pressure > 130:
             dispatcher.utter_message(
                 response='utter_high_systolic_blood_pressure')
-        if diastolic_blood_pressure > 140:
+        if diastolic_blood_pressure > 130:
             dispatcher.utter_message(
                 response='utter_high_diastolic_blood_pressure')
         return [SlotSet('command_state', 'failure')]
