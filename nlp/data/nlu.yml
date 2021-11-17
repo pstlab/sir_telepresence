@@ -132,6 +132,9 @@ nlu:
     examples: |
       - La mia attuale pressione sistolica è di [dieci](number)
       - La mia attuale pressione diastolica è di [quindici](number)
+      - La mia attuale pressione sistolica è di [dieci](number) mentre la diastolica è di [quindici](number)
+      - La mia attuale pressione è di [dieci](number) su [quindici](number)
+      - La mia pressione è di [dieci](number) su [quindici](number)
       - Le mie attuali pulsazioni sono di [undici](number)
 
   - intent: out_of_scope

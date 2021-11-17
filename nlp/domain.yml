@@ -49,6 +49,9 @@ slots:
   word:
     type: text
     influence_conversation: false
+  num_words:
+    type: float
+    influence_conversation: false
   systolic_blood_pressure:
     type: float
     influence_conversation: false
