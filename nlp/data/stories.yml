@@ -99,6 +99,7 @@ stories:
       - action: action_command_start
       - action: utter_start_blood_pressure_gathering
       - intent: deny
+      - action: utter_measure_pressure
       - action: action_sleep
       - action: blood_pressure_measurement_form
       - active_loop: blood_pressure_measurement_form

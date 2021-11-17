@@ -30,16 +30,19 @@ slots:
   user_name:
     type: text
     influence_conversation: true
+    initial_value: Rosa
   user_gender:
     type: categorical
     values:
       - male
       - female
+    initial_value: female
   user_extraversion:
     type: categorical
     values:
       - extroverted
       - introverted
+    initial_value: extroverted
   reps:
     type: text
     influence_conversation: false
@@ -202,6 +205,10 @@ responses:
     - text: Sono le 9! Hai già misurato la pressione oggi?
     - text: Ciao {user_name}! Hai già misurato la pressione oggi?
     - text: Ciao {user_name}! Vuoi indicarmi i tuoi attuali valori pressori?
+
+  utter_measure_pressure:
+    - text: Misurala ora e comunicami i valori.
+    - text: Misurala ora e, quando hai fatto, comunicami i valori.
 
   utter_ask_systolic_blood_pressure:
     - text: Quale è la tua pressione sistolica?
