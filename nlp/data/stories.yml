@@ -93,6 +93,16 @@ stories:
       - action: blood_pressure_measurement_form
       - active_loop: blood_pressure_measurement_form
 
+  - story: Blood pressure gathering waiting
+    steps:
+      - intent: start_blood_pressure_gathering
+      - action: action_command_start
+      - action: utter_start_blood_pressure_gathering
+      - intent: deny
+      - action: action_sleep
+      - action: blood_pressure_measurement_form
+      - active_loop: blood_pressure_measurement_form
+
   - story: Start physical exercise
     steps:
       - intent: start_physical_exercise

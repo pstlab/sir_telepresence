@@ -58,6 +58,10 @@ slots:
   heart_beat:
     type: float
     influence_conversation: false
+  sleep_time:
+    type: float
+    influence_conversation: false
+    initial_value: 120
   command_state:
     type: categorical
     influence_conversation: false
@@ -272,6 +276,7 @@ actions:
   - action_command_done
   - action_command_failure
   - action_blood_pressure_analysis
+  - action_sleep
   - validate_count_the_word_form
 
 session_config:

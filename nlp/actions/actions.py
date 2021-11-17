@@ -3,6 +3,7 @@ from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.events import SlotSet
 from rasa_sdk.executor import CollectingDispatcher
+import time
 
 
 class ActionCommandStart(Action):
@@ -41,7 +42,7 @@ class ActionCommandFailure(Action):
         return [SlotSet('command_state', 'failure')]
 
 
-class BloodPressureAnalysis(Action):
+class ActionBloodPressureAnalysis(Action):
 
     def name(self) -> Text:
         return "action_blood_pressure_analysis"
@@ -64,3 +65,17 @@ class BloodPressureAnalysis(Action):
             dispatcher.utter_message(
                 response='utter_high_diastolic_blood_pressure')
         return [SlotSet('command_state', 'failure')]
+
+
+class ActionSleep(Action):
+
+    def name(self) -> Text:
+        return "action_sleep"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        sleep_time = tracker.get_slot('sleep_time')
+        time.sleep(sleep_time)
+        return []
