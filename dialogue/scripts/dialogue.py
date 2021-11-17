@@ -146,6 +146,7 @@ class dialogue_manager:
                         dialogue_state(dialogue_state.speaking))
                     j_res = r.json()
                     self.state = j_res['tracker']['slots']
+                    self.print_state()
                     try:
                         for ans in j_res['messages']:
                             # self.set_face(ans['custom']['face'])
@@ -239,6 +240,7 @@ class dialogue_manager:
             if(r.status_code == requests.codes.ok):
                 j_res = r.json()
                 self.state = j_res['slots']
+                self.print_state()
 
     def close_dialogue(self):
         if self.state['command_state'] == 'done' or self.state['command_state'] == 'failure':
@@ -270,6 +272,10 @@ class dialogue_manager:
         else:
             # we are still talking..
             return False
+
+    def print_state(self):
+        for s in self.state:
+            print(s, ':', self.state[s])
 
 
 if __name__ == '__main__':
