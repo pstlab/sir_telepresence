@@ -99,10 +99,30 @@ stories:
       - action: action_command_start
       - action: utter_start_blood_pressure_gathering
       - intent: deny
-      - action: utter_measure_pressure
+      - action: utter_measure_blood_pressure
       - action: action_sleep
       - action: blood_pressure_measurement_form
       - active_loop: blood_pressure_measurement_form
+
+  - story: Blood saturation gathering
+    steps:
+      - intent: start_blood_saturation_gathering
+      - action: action_command_start
+      - action: utter_start_blood_saturation_gathering
+      - intent: affirm
+      - action: blood_saturation_measurement_form
+      - active_loop: blood_saturation_measurement_form
+
+  - story: Blood saturation gathering waiting
+    steps:
+      - intent: start_blood_saturation_gathering
+      - action: action_command_start
+      - action: utter_start_blood_saturation_gathering
+      - intent: deny
+      - action: utter_measure_blood_saturation
+      - action: action_sleep
+      - action: blood_saturation_measurement_form
+      - active_loop: blood_saturation_measurement_form
 
   - story: Start physical exercise
     steps:

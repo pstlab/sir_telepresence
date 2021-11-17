@@ -13,6 +13,8 @@ intents:
   - set_gender
   - start_blood_pressure_gathering
   - set_blood_pressure
+  - start_blood_saturation_gathering
+  - set_blood_saturation
   - start_physical_exercise
   - set_reps
   - positive_feedback
@@ -64,6 +66,9 @@ slots:
   heart_beat:
     type: float
     influence_conversation: false
+  blood_saturation:
+    type: float
+    influence_conversation: false
   sleep_time:
     type: float
     influence_conversation: false
@@ -99,6 +104,11 @@ forms:
         - type: from_entity
           entity: number
       heart_beat:
+        - type: from_entity
+          entity: number
+  blood_saturation_measurement_form:
+    required_slots:
+      blood_saturation:
         - type: from_entity
           entity: number
   count_the_word_form:
@@ -206,7 +216,7 @@ responses:
     - text: Ciao {user_name}! Hai già misurato la pressione oggi?
     - text: Ciao {user_name}! Vuoi indicarmi i tuoi attuali valori pressori?
 
-  utter_measure_pressure:
+  utter_measure_blood_pressure:
     - text: Misurala ora e comunicami i valori.
     - text: Misurala ora e, quando hai fatto, comunicami i valori.
 
@@ -245,6 +255,33 @@ responses:
     - text: La tua pressione diastolica, di {diastolic_blood_pressure}, è un pochino sopra la soglia raccomandata.
     - text: La tua pressione oggi supera la soglia raccomandata.
     - text: La tua attuale pressione diastolica, di {diastolic_blood_pressure}, supera la soglia raccomandata.
+
+  utter_start_blood_saturation_gathering:
+    - text: Sono le 9! Hai già misurato la saturazione di ossigeno oggi?
+    - text: Ciao {user_name}! Hai già misurato la saturazione di ossigeno oggi?
+    - text: Ciao {user_name}! Vuoi indicarmi i tuoi attuali valori di saturazione dell'ossigeno?
+
+  utter_measure_blood_saturation:
+    - text: Misurala ora e comunicami il valore di saturazione.
+    - text: Misurala ora e, quando hai fatto, comunicami il valore di saturazione.
+    - text: Misurala ora e, per favore, comunicami il valore di saturazione.
+
+  utter_ask_blood_saturation:
+    - text: Quale è la tua saturazione di ossigeno?
+    - text: Puoi dirmi, per cortesia, la tua saturazione di ossigeno?
+
+  utter_blood_saturation_recap:
+    - text: La tua attuale saturazione di ossigeno è di {blood_saturation}.
+
+  utter_blood_saturation_ok:
+    - text: Bene! Direi che la tua saturazione di ossigeno oggi è ottima!
+    - text: Molto bene! Direi che la tua saturazione di ossigeno oggi è ottima!
+    - text: Molto bene! La tua attuale saturazione di ossigeno è ottima!
+
+  utter_low_blood_saturation:
+    - text: La tua saturazione di ossigeno, di {blood_saturation}, è un pochino sotto la soglia raccomandata.
+    - text: La tua saturazione di ossigeno oggi supera la soglia raccomandata.
+    - text: La tua attuale saturazione di ossigeno, di {blood_saturation}, è inferiore la soglia raccomandata.
 
   utter_count_reps:
     - text: "{reps}"
@@ -286,6 +323,7 @@ actions:
   - action_command_done
   - action_command_failure
   - action_blood_pressure_analysis
+  - action_blood_saturation_analysis
   - action_sleep
   - validate_count_the_word_form
 

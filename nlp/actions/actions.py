@@ -64,7 +64,28 @@ class ActionBloodPressureAnalysis(Action):
         if diastolic_blood_pressure > 130:
             dispatcher.utter_message(
                 response='utter_high_diastolic_blood_pressure')
-        return [SlotSet('command_state', 'failure')]
+        return []
+
+
+class ActionBloodSaturationAnalysis(Action):
+
+    def name(self) -> Text:
+        return "action_blood_saturation_analysis"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        dispatcher.utter_message(
+            response='utter_blood_saturation_recap')
+        blood_saturation = tracker.get_slot('blood_saturation')
+        if blood_saturation > 90:
+            dispatcher.utter_message(
+                response='utter_blood_saturation_ok')
+        else:
+            dispatcher.utter_message(
+                response='utter_low_blood_saturation')
+        return []
 
 
 class ActionSleep(Action):

@@ -2,6 +2,10 @@ predicate TestBloodPressureGathering() {
     goal bpg = new robot.dialogue.Interacting(intent: "start_blood_pressure_gathering");
 }
 
+predicate TestBloodSaturationGathering() {
+    goal bpg = new robot.dialogue.Interacting(intent: "start_blood_saturation_gathering");
+}
+
 predicate TestBicepsCurlPhysicalExercise() {
     goal bc = new robot.physical_exercise.BicepsCurl(repetitions: 10.0);
 }

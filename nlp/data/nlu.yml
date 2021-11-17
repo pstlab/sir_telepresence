@@ -137,6 +137,19 @@ nlu:
       - La mia pressione è di [dieci](number) su [quindici](number)
       - Le mie attuali pulsazioni sono di [undici](number)
 
+  - intent: start_blood_saturation_gathering
+    examples: |
+      - Voglio comunicarti la mia saturazione dell'ossigeno
+      - Ti dico la mia saturazione corrente
+      - Ti comunico la mia attuale saturazione sanguigna
+
+  - intent: set_blood_saturation
+    examples: |
+      - La mia attuale saturazione dell'ossigeno è di [dieci](number)
+      - La mia attuale saturazione diastolica è di [quindici](number)
+      - La mia attuale saturazione è di [dieci](number) su [quindici](number)
+      - La mia saturazione sanguigna è di [dieci](number) su [quindici](number)
+
   - intent: out_of_scope
     examples: |
       - A che ora si pranza?
