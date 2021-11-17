@@ -29,7 +29,7 @@ namespace sir
         create_reasoner.waitForExistence();
         new_requirement.waitForExistence();
         task_finished.waitForExistence();
-        start_physical_exercise_task.waitForExistence();
+        // start_physical_exercise_task.waitForExistence();
         start_dialogue_task.waitForExistence();
 
         ros::service::waitForService("set_face");
@@ -120,6 +120,10 @@ namespace sir
         ROS_ASSERT(req.par_names.size() == req.par_values.size());
         ROS_DEBUG("checking whether task \'%s\' can start..", req.task_name.c_str());
         if (req.task_name == "Interacting")
+            res.can_start = dialogue_state == msgs::dialogue_state::idle;
+        else if (req.task_name == "BicepsCurl")
+            res.can_start = dialogue_state == msgs::dialogue_state::idle;
+        else if (req.task_name == "CountTheWord")
             res.can_start = dialogue_state == msgs::dialogue_state::idle;
         else
         {
