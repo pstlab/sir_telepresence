@@ -98,6 +98,6 @@ class ActionSleep(Action):
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
 
         sleep_time = tracker.get_slot('sleep_time')
-        print('sleeping for ' + str(sleep_time))
+        print('sleeping for ' + str(sleep_time) + ' seconds')
         time.sleep(sleep_time)
         return []
