@@ -111,6 +111,7 @@ class dialogue_manager:
                 except rospy.ServiceException:
                     rospy.logerr('Speech to text configuration service call failed\n' +
                                  ''.join(traceback.format_stack()))
+                self.set_face(face_idle)
 
                 # we add the current perceived emotions..
                 try:
