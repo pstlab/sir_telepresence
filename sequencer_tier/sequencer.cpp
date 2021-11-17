@@ -136,7 +136,11 @@ namespace sir
     bool sequencer::start_task(msgs::start_task::Request &req, msgs::start_task::Response &res)
     {
         ROS_ASSERT(req.par_names.size() == req.par_values.size());
-        ROS_INFO("starting task \'%s\'..", req.task_name.c_str());
+        ROS_INFO("Starting task \'%s\'..", req.task_name.c_str());
+        for (size_t i = 0; i < req.par_names.size(); i++)
+        {
+            ROS_INFO((req.par_names.at(i) + ": %s").c_str(), req.par_values.at(i).c_str());
+        }
         if (req.task_name == "Interacting")
         { // starts an interaction with the user..
             msgs::start_task sd_srv;

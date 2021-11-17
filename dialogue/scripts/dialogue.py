@@ -69,17 +69,21 @@ class dialogue_manager:
         self.set_face(face_idle)
 
     def start_dialogue_task(self, req):
-        rospy.logdebug('Start task "%s" request..', req.task_name)
+        rospy.logdebug('Start dialogue task "%s" request..', req.task_name)
         # we store the informations about the starting dialogue task..
         self.task = True
         return self.start_dialogue(req)
 
     def start_dialogue(self, req):
-        rospy.logdebug('Start task "%s" request..', req.task_name)
+        rospy.logdebug('Start dialogue "%s" request..', req.task_name)
+        for i in range(len(req.par_names)):
+            rospy.logdebug(req.par_names[i] + ': %s', req.par_values[i])
         # we store the informations about the starting dialogue..
         self.reasoner_id = req.reasoner_id
         self.task_id = req.task_id
         self.task_name = req.task_name
+        self.par_names = req.par_names
+        self.par_values = req.par_values
         return start_taskResponse(True)
 
     def listen(self, req):
