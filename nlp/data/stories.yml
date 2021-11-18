@@ -144,4 +144,22 @@ stories:
       - action: utter_ask_confirm
       - intent: affirm
       - action: utter_start_count_the_word
-      - action: utter_ask_num_words
+      - action: count_the_word_form
+      - active_loop: count_the_word_form
+
+  - story: Start count the word cognitive exercise uncertain
+    steps:
+      - intent: start_count_the_word_cognitive_exercise
+      - action: action_command_start
+      - action: utter_start_cognitive_exercise
+      - action: utter_ask_confirm
+      - intent: uncertain
+      - action: utter_reassure
+      - action: utter_ask_confirm
+      - intent: affirm
+      - action: utter_describe_count_the_words
+      - action: utter_ask_confirm
+      - intent: affirm
+      - action: utter_start_count_the_word
+      - action: count_the_word_form
+      - active_loop: count_the_word_form
