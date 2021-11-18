@@ -23,6 +23,13 @@ set_face_service.advertise(function (request, response) {
     return true;
 });
 
+var wait_for_input_service = new ROSLIB.Service({ ros: ros, name: '/wait_for_input', serviceType: 'msgs/set_string' });
+wait_for_input_service.advertise(function (request, response) {
+    console.log('Waiting for input:' + request.text);
+    response['success'] = true;
+    return true;
+});
+
 var listen = new ROSLIB.Service({ ros: ros, name: '/listen', serviceType: 'std_srvs/Trigger' });
 
 var state = {
