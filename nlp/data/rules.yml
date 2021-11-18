@@ -33,6 +33,17 @@ rules:
       - action: action_blood_pressure_analysis
       - action: action_command_done
 
+  - rule: blood saturation form
+    condition:
+      - active_loop: blood_saturation_measurement_form
+    steps:
+      - action: blood_saturation_measurement_form
+      - active_loop: null
+      - slot_was_set:
+          - requested_slot: null
+      - action: action_blood_saturation_analysis
+      - action: action_command_done
+
   - rule: Reps feedback
     steps:
       - intent: set_reps
