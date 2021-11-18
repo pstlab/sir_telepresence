@@ -303,6 +303,10 @@ responses:
     - text: Quante volte ho detto la parola {word}?
     - text: Quante volte è stata detta la parola {word}?
 
+  utter_count_the_words_done:
+    - text: Lo sapevo che ce l'avresti fatta!
+    - text: Sapevo che ce l'avresti fatta!
+
   utter_out_of_scope:
     - text: Mi spiace! Non so come gestire la tua richiesta.
     - text: Spiacente! Non so come risponderti.
