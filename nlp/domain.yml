@@ -491,6 +491,11 @@ responses:
         text: Ciao {user_name}! Cominceremo ora la nostra sessione giornaliera di esercizi! Oggi ti proporrò alcuni giochi.
         face: talking
 
+  utter_reassure:
+    - custom:
+        text: Non ti preoccupare, partiamo da qualcosa di facile.
+        face: talking
+
   utter_describe_count_the_words:
     - custom:
         text: Ora ti dirò una lista di parole. Alla fine, mi dirai quante volte ho detto la parola {word}.
