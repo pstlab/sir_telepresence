@@ -154,10 +154,8 @@ class dialogue_manager:
                     self.print_state()
                     try:
                         for ans in j_res['messages']:
-                            # self.set_face(ans['custom']['face'])
-                            # self.text_to_speech(ans['custom']['text'])
-                            self.set_face(face_talking)
-                            self.text_to_speech(ans['text'])
+                            self.set_face(ans['custom']['face'])
+                            self.text_to_speech(ans['custom']['text'])
                             self.set_face(face_idle)
                     except rospy.ServiceException:
                         rospy.logerr('Text to speech service call failed\n' +
@@ -221,10 +219,8 @@ class dialogue_manager:
             j_res = r.json()
             try:
                 for ans in j_res:
-                    # self.set_face(ans['custom']['face'])
-                    # self.text_to_speech(ans['custom']['text'])
-                    self.set_face(face_talking)
-                    self.text_to_speech(ans['text'])
+                    self.set_face(ans['custom']['face'])
+                    self.text_to_speech(ans['custom']['text'])
                     self.set_face(face_idle)
             except rospy.ServiceException:
                 rospy.logerr('Text to speech service call failed\n' +
