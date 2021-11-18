@@ -301,6 +301,9 @@ responses:
   utter_start_count_the_word:
     - text: Andiamo! {word_sequence}.
     - text: Cominciamo! {word_sequence}.
+    
+  utter_count_the_word:
+    - text: "{word_sequence}."
 
   utter_ask_num_words:
     - text: Quante volte ho detto la parola {word}?

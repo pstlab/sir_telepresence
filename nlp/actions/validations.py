@@ -26,4 +26,5 @@ class ValidateCountTheWordForm(FormValidationAction):
                 dispatcher.utter_message(response='utter_negative_feedback_estroverse')
             else:
                 dispatcher.utter_message(response='utter_negative_feedback_introverse')
+            dispatcher.utter_message(response='utter_count_the_word')
             return {'num_words': None}
