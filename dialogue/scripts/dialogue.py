@@ -158,9 +158,9 @@ class dialogue_manager:
                             # self.text_to_speech(ans['custom']['text'])
                             self.set_face(face_talking)
                             self.text_to_speech(ans['text'])
+                            self.set_face(face_idle)
                             if ans['text'] == 'Misurala ora e comunicami il valore di saturazione.' or ans['text'] == 'Misurala ora e, quando hai fatto, comunicami il valore di saturazione.' or ans['text'] == 'Misurala ora e, per favore, comunicami il valore di saturazione.':
                                 time.sleep(120)
-                            self.set_face(face_idle)
                     except rospy.ServiceException:
                         rospy.logerr('Text to speech service call failed\n' +
                                      ''.join(traceback.format_stack()))
@@ -227,9 +227,9 @@ class dialogue_manager:
                     # self.text_to_speech(ans['custom']['text'])
                     self.set_face(face_talking)
                     self.text_to_speech(ans['text'])
+                    self.set_face(face_idle)
                     if ans['text'] == 'Misurala ora e comunicami il valore di saturazione.' or ans['text'] == 'Misurala ora e, quando hai fatto, comunicami il valore di saturazione.' or ans['text'] == 'Misurala ora e, per favore, comunicami il valore di saturazione.':
                         time.sleep(120)
-                    self.set_face(face_idle)
             except rospy.ServiceException:
                 rospy.logerr('Text to speech service call failed\n' +
                              ''.join(traceback.format_stack()))
