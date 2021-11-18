@@ -513,6 +513,11 @@ responses:
         text: "Le parole sono: {word_sequence}."
         face: talking
 
+  utter_reassure:
+    - custom:
+        text: Non ti preoccupare, partiamo da qualcosa di facile.
+        face: talking
+
   utter_count_the_word:
     - custom:
         text: "{word_sequence}."
