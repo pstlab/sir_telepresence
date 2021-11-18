@@ -15,5 +15,5 @@ predicate TestEasyCountTheWordCognitiveExercise() {
 }
 
 predicate TestHardCountTheWordCognitiveExercise() {
-    goal ce = new robot.cognitive_exercise.CountTheWord(word_sequence: "ASSASSI TASSASSI ASSASSI RETASSI ASSASSI MENANASSI MARASSI ASSASSI ANANASSI ASSASSI PARASSI ASSASSI FASSASSI SANSASSI RAGAGASSI", word: "ASSASSI");
+    goal ce = new robot.cognitive_exercise.CountTheWord(word_sequence: "IMBACUCCATO ACCUCCIATO ASSONNATO IMPACCIATO IMBACUCCATO IMBAMBOLATO IMPICCATO INSTRADATO IMBACUCCATO IMBRANATO IMBACUCCATO ANNOIATO", word: "IMBACUCCATO");
 }
