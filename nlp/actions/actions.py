@@ -86,18 +86,3 @@ class ActionBloodSaturationAnalysis(Action):
             dispatcher.utter_message(
                 response='utter_low_blood_saturation')
         return []
-
-
-class ActionSleep(Action):
-
-    def name(self) -> Text:
-        return "action_sleep"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-
-        sleep_time = tracker.get_slot('sleep_time')
-        print('sleeping for ' + str(sleep_time) + ' seconds')
-        time.sleep(sleep_time)
-        return []

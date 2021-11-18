@@ -100,7 +100,6 @@ stories:
       - action: utter_start_blood_pressure_gathering
       - intent: deny
       - action: utter_measure_blood_pressure
-      - action: action_sleep
       - action: blood_pressure_measurement_form
       - active_loop: blood_pressure_measurement_form
 
@@ -120,7 +119,6 @@ stories:
       - action: utter_start_blood_saturation_gathering
       - intent: deny
       - action: utter_measure_blood_saturation
-      - action: action_sleep
       - action: blood_saturation_measurement_form
       - active_loop: blood_saturation_measurement_form
 
