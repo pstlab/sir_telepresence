@@ -157,7 +157,7 @@ class dialogue_manager:
                             self.set_face(ans['custom']['face'])
                             self.text_to_speech(ans['custom']['text'])
                             self.set_face(face_idle)
-                            if ans['text'] == 'Misurala ora e comunicami il valore di saturazione.' or ans['text'] == 'Misurala ora e, quando hai fatto, comunicami il valore di saturazione.' or ans['text'] == 'Misurala ora e, per favore, comunicami il valore di saturazione.':
+                            if ans['custom']['text'] == 'Misurala ora e comunicami il valore di saturazione.' or ans['custom']['text'] == 'Misurala ora e, quando hai fatto, comunicami il valore di saturazione.' or ans['custom']['text'] == 'Misurala ora e, per favore, comunicami il valore di saturazione.':
                                 input("Press Enter to continue...")
                     except rospy.ServiceException:
                         rospy.logerr('Text to speech service call failed\n' +
@@ -224,7 +224,7 @@ class dialogue_manager:
                     self.set_face(ans['custom']['face'])
                     self.text_to_speech(ans['custom']['text'])
                     self.set_face(face_idle)
-                    if ans['text'] == 'Misurala ora e comunicami il valore di saturazione.' or ans['text'] == 'Misurala ora e, quando hai fatto, comunicami il valore di saturazione.' or ans['text'] == 'Misurala ora e, per favore, comunicami il valore di saturazione.':
+                    if ans['custom']['text'] == 'Misurala ora e comunicami il valore di saturazione.' or ans['custom']['text'] == 'Misurala ora e, quando hai fatto, comunicami il valore di saturazione.' or ans['custom']['text'] == 'Misurala ora e, per favore, comunicami il valore di saturazione.':
                         input("Press Enter to continue...")
             except rospy.ServiceException:
                 rospy.logerr('Text to speech service call failed\n' +
