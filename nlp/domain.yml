@@ -294,8 +294,8 @@ responses:
     - text: Non ti preoccupare, partiamo da qualcosa di facile.
 
   utter_describe_count_the_words:
-    - text: Ora ti dirò una lista di parole e, alla fine, mi dirai quante volte ho detto la parola {word}.
-    - text: Ora, ti dirò una lista di parole e alla fine vorrei che mi dicessi quante volte ho detto la parola {word}.
+    - text: Ora ti dirò una lista di parole. Alla fine, mi dirai quante volte ho detto la parola {word}.
+    - text: Ora, ti dirò una lista di parole. Alla fine vorrei che mi dicessi quante volte ho detto la parola {word}.
     - text: Adesso ti elencherò una serie di parole. Fai attenzione, perchè alla fine dovrai dirmi quante volte ho detto la parola {word}.
 
   utter_start_count_the_word:
