@@ -76,8 +76,6 @@ class ActionBloodSaturationAnalysis(Action):
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
 
-        dispatcher.utter_message(
-            response='utter_blood_saturation_recap')
         blood_saturation = tracker.get_slot('blood_saturation')
         if blood_saturation > 90:
             dispatcher.utter_message(
