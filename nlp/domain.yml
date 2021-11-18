@@ -5,6 +5,7 @@ intents:
   - goodbye
   - affirm
   - deny
+  - uncertain
   - ask_capabilities
   - introduce_yourself
   - start_profile_gathering
