@@ -37,6 +37,13 @@ nlu:
       - Sicuramente no
       - No davvero
 
+  - intent: uncertain
+    examples: |
+      - Non so, ieri non sono andato tanto bene
+      - Non saprei
+      - Non ne sono sicuro
+      - Non ne sono sicura
+
   - intent: introduce_yourself
     examples: |
       - Chi sei?
