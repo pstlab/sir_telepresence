@@ -154,10 +154,8 @@ class dialogue_manager:
                     self.print_state()
                     try:
                         for ans in j_res['messages']:
-                            # self.set_face(ans['custom']['face'])
-                            # self.text_to_speech(ans['custom']['text'])
-                            self.set_face(face_talking)
-                            self.text_to_speech(ans['text'])
+                            self.set_face(ans['custom']['face'])
+                            self.text_to_speech(ans['custom']['text'])
                             self.set_face(face_idle)
                             if ans['text'] == 'Misurala ora e comunicami il valore di saturazione.' or ans['text'] == 'Misurala ora e, quando hai fatto, comunicami il valore di saturazione.' or ans['text'] == 'Misurala ora e, per favore, comunicami il valore di saturazione.':
                                 input("Press Enter to continue...")
@@ -223,10 +221,8 @@ class dialogue_manager:
             j_res = r.json()
             try:
                 for ans in j_res:
-                    # self.set_face(ans['custom']['face'])
-                    # self.text_to_speech(ans['custom']['text'])
-                    self.set_face(face_talking)
-                    self.text_to_speech(ans['text'])
+                    self.set_face(ans['custom']['face'])
+                    self.text_to_speech(ans['custom']['text'])
                     self.set_face(face_idle)
                     if ans['text'] == 'Misurala ora e comunicami il valore di saturazione.' or ans['text'] == 'Misurala ora e, quando hai fatto, comunicami il valore di saturazione.' or ans['text'] == 'Misurala ora e, per favore, comunicami il valore di saturazione.':
                         input("Press Enter to continue...")

@@ -120,215 +120,458 @@ forms:
 
 responses:
   utter_help_proposal:
-    - text: Hey! Posso esserti utile?
-    - text: Hey, ciao! Posso esserti utile?
-    - text: Hey, ciao! Come posso aiutarti?
-    - text: Ciao! Posso esserti utile?
-    - text: Ciao! Come posso aiutarti?
+    - custom:
+        text: Hey! Posso esserti utile?
+        face: talking
+    - custom:
+        text: Hey! Posso esserti utile?
+        face: talking
+    - custom:
+        text: Hey, ciao! Posso esserti utile?
+        face: talking
+    - custom:
+        text: Hey, ciao! Come posso aiutarti?
+        face: talking
+    - custom:
+        text: Ciao! Posso esserti utile?
+        face: talking
+    - custom:
+        text: Ciao! Come posso aiutarti?
+        face: talking
 
   utter_help_proposal_name:
-    - text: Hey! Posso esserti utile?
-    - text: Hey {user_name}! Posso esserti utile?
-    - text: Hey {user_name}! Come posso aiutarti?
-    - text: Ciao {user_name}! Posso esserti utile?
-    - text: Ciao {user_name}! Come posso aiutarti?
+    - custom:
+        text: Hey! Posso esserti utile?
+        face: talking
+    - custom:
+        text: Hey {user_name}! Posso esserti utile?
+        face: talking
+    - custom:
+        text: Hey {user_name}! Come posso aiutarti?
+        face: talking
+    - custom:
+        text: Ciao {user_name}! Posso esserti utile?
+        face: talking
+    - custom:
+        text: Ciao {user_name}! Come posso aiutarti?
+        face: talking
 
   utter_help_proposal_male:
-    - text: Ciao bello! Posso fare qualcosa per te?
-    - text: Ciao bello! Come posso aiutarti?
+    - custom:
+        text: Ciao bello! Posso fare qualcosa per te?
+        face: talking
+    - custom:
+        text: Ciao bello! Come posso aiutarti?
+        face: talking
 
   utter_help_proposal_female:
-    - text: Ciao bella! Posso fare qualcosa per te?
-    - text: Ciao bella! Come posso aiutarti?
+    - custom:
+        text: Ciao bella! Posso fare qualcosa per te?
+        face: talking
+    - custom:
+        text: Ciao bella! Come posso aiutarti?
+        face: talking
 
   utter_ask_confirm:
-    - text: Ok?
-    - text: Va bene?
-    - text: Cominciamo?
-    - text: Vogliamo cominciare?
+    - custom:
+        text: Ok?
+        face: talking
+    - custom:
+        text: Va bene?
+        face: talking
+    - custom:
+        text: Cominciamo?
+        face: talking
+    - custom:
+        text: Vogliamo cominciare?
+        face: talking
 
   utter_I_am_here:
-    - text: Ok! Quando vuoi sono qui!
-    - text: Ok! Resto a disposizione!
-    - text: Ok! Puoi chiamarmi quando vuoi!
-    - text: Ok! Sai dove trovarmi!
+    - custom:
+        text: Ok! Quando vuoi sono qui!
+        face: talking
+    - custom:
+        text: Ok! Resto a disposizione!
+        face: talking
+    - custom:
+        text: Ok! Puoi chiamarmi quando vuoi!
+        face: talking
+    - custom:
+        text: Ok! Sai dove trovarmi!
+        face: talking
 
   utter_goodbye:
-    - text: Ciao!
-    - text: Arrivederci!
-    - text: A presto!
+    - custom:
+        text: Ciao!
+        face: talking
+    - custom:
+        text: Arrivederci!
+        face: talking
+    - custom:
+        text: A presto!
+        face: talking
 
   utter_start_profile_gathering:
-    - text: Ti farò alcune domande per capire meglio come interagire con te.
-    - text: Ora ti farò alcune domande per capire meglio come interagire con te.
-    - text: Ti farò alcune domande su di te per personalizzare la mia interazione con te.
-    - text: Ora ti farò alcune domande su di te per personalizzare la mia interazione con te.
+    - custom:
+        text: Ti farò alcune domande per capire meglio come interagire con te.
+        face: talking
+    - custom:
+        text: Ora ti farò alcune domande per capire meglio come interagire con te.
+        face: talking
+    - custom:
+        text: Ti farò alcune domande su di te per personalizzare la mia interazione con te.
+        face: talking
+    - custom:
+        text: Ora ti farò alcune domande su di te per personalizzare la mia interazione con te.
+        face: talking
 
   utter_ask_user_name:
-    - text: Come ti chiami?
-    - text: Quale è il tuo nome?
-    - text: Come posso chiamarti?
+    - custom:
+        text: Come ti chiami?
+        face: talking
+    - custom:
+        text: Quale è il tuo nome?
+        face: talking
+    - custom:
+        text: Come posso chiamarti?
+        face: talking
 
   utter_ask_user_extraversion:
-    - text: Ti senti più una persona estroversa oppure introversa?
-    - text: Secondo te sei più una persona estroversa oppure introversa?
+    - custom:
+        text: Ti senti più una persona estroversa oppure introversa?
+        face: talking
+    - custom:
+        text: Secondo te sei più una persona estroversa oppure introversa?
+        face: talking
 
   utter_ask_user_gender:
-    - text: Vuoi che mi riferisca a te usando il maschile o il femminile?
-    - text: Preferisci che con te io usi il maschile oppure il femminile?
+    - custom:
+        text: Vuoi che mi riferisca a te usando il maschile o il femminile?
+        face: talking
+    - custom:
+        text: Preferisci che con te io usi il maschile oppure il femminile?
+        face: talking
 
   utter_profile_gathered:
-    - text: Molto bene. Ora so tutto quello di cui avevo bisogno.
-    - text: Molto bene. Ora conosco tutto quello di cui avevo bisogno.
-    - text: Molto bene. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
+    - custom:
+        text: Molto bene. Ora so tutto quello di cui avevo bisogno.
+        face: talking
+    - custom:
+        text: Molto bene. Ora conosco tutto quello di cui avevo bisogno.
+        face: talking
+    - custom:
+        text: Molto bene. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
+        face: talking
 
   utter_presentation:
-    - text: Sono un robot di assistenza domestica che sta sviluppando l'ISTC all'interno del progetto Si-Robotics!
+    - custom:
+        text: Sono un robot di assistenza domestica che sta sviluppando l'ISTC all'interno del progetto Si-Robotics!
+        face: talking
 
   utter_ask_what_I_do:
-    - text: Vuoi sapere cosa faccio?
-    - text: Vuoi sapere cosa so fare?
-    - text: Vuoi sapere come posso aiutarti?
+    - custom:
+        text: Vuoi sapere cosa faccio?
+        face: talking
+    - custom:
+        text: Vuoi sapere cosa so fare?
+        face: talking
+    - custom:
+        text: Vuoi sapere come posso aiutarti?
+        face: talking
 
   utter_present_capabilities:
-    - text: Il mio compito è di cercare di aiutare le persone anziane a mantenersi sane e in forma. Se vuoi ulteriori informazioni chiedile pure a chi mi ha costruito.
+    - custom:
+        text: Il mio compito è di cercare di aiutare le persone anziane a mantenersi sane e in forma. Se vuoi ulteriori informazioni chiedile pure a chi mi ha costruito.
+        face: talking
 
   utter_positive_feedback:
-    - text: Ben fatto!
-    - text: Molto bene!
-    - text: Continua così!
-    - text: Grande!
+    - custom:
+        text: Ben fatto!
+        face: talking
+    - custom:
+        text: Molto bene!
+        face: talking
+    - custom:
+        text: Continua così!
+        face: talking
+    - custom:
+        text: Grande!
+        face: talking
 
   utter_start_physical_exercise:
-    - text: Cominceremo ora un esercizio di {physical_exercise_name}
-    - text: Faremo ora un esercizio di {physical_exercise_name}
+    - custom:
+        text: Cominceremo ora un esercizio di {physical_exercise_name}
+        face: talking
+    - custom:
+        text: Faremo ora un esercizio di {physical_exercise_name}
+        face: talking
 
   utter_negative_feedback_introverse:
-    - text: Uhm, non proprio... ma non ti scoraggiare! Stai comunque andando bene.
-    - text: Non esattamente, ma ci siamo quasi!
+    - custom:
+        text: Uhm, non proprio... ma non ti scoraggiare! Stai comunque andando bene.
+        face: talking
+    - custom:
+        text: Non esattamente, ma ci siamo quasi!
+        face: talking
 
   utter_negative_feedback_estroverse:
-    - text: No no!
-    - text: Ma cosa stai facendo? No no!
-    - text: Non così!
+    - custom:
+        text: No no!
+        face: talking
+    - custom:
+        text: Ma cosa stai facendo? No no!
+        face: talking
+    - custom:
+        text: Non così!
+        face: talking
 
   utter_start_blood_pressure_gathering:
-    - text: Sono le 9! Hai già misurato la pressione oggi?
-    - text: Ciao {user_name}! Hai già misurato la pressione oggi?
-    - text: Ciao {user_name}! Vuoi indicarmi i tuoi attuali valori pressori?
+    - custom:
+        text: Sono le 9! Hai già misurato la pressione oggi?
+        face: talking
+    - custom:
+        text: Ciao {user_name}! Hai già misurato la pressione oggi?
+        face: talking
+    - custom:
+        text: Ciao {user_name}! Vuoi indicarmi i tuoi attuali valori pressori?
+        face: talking
 
   utter_measure_blood_pressure:
-    - text: Misurala ora e comunicami i valori.
-    - text: Misurala ora e, quando hai fatto, comunicami i valori.
+    - custom:
+        text: Misurala ora e comunicami i valori.
+        face: talking
+    - custom:
+        text: Misurala ora e, quando hai fatto, comunicami i valori.
+        face: talking
 
   utter_ask_systolic_blood_pressure:
-    - text: Quale è la tua pressione sistolica?
-    - text: Puoi dirmi, per cortesia, la tua pressione sistolica?
-    - text: Mi dici, per favore, la tua pressione sistolica?
+    - custom:
+        text: Quale è la tua pressione sistolica?
+        face: talking
+    - custom:
+        text: Puoi dirmi, per cortesia, la tua pressione sistolica?
+        face: talking
+    - custom:
+        text: Mi dici, per favore, la tua pressione sistolica?
+        face: talking
 
   utter_ask_diastolic_blood_pressure:
-    - text: Quale è la tua pressione diastolica?
-    - text: Puoi dirmi, per cortesia, la tua pressione diastolica?
-    - text: Mi dici, per favore, la tua pressione diastolica?
+    - custom:
+        text: Quale è la tua pressione diastolica?
+        face: talking
+    - custom:
+        text: Puoi dirmi, per cortesia, la tua pressione diastolica?
+        face: talking
+    - custom:
+        text: Mi dici, per favore, la tua pressione diastolica?
+        face: talking
 
   utter_ask_heart_beat:
-    - text: Quale è la tua frequenza cardiaca?
-    - text: Puoi dirmi, per cortesia, il numero di pulsazioni?
-    - text: Mi dici, per favore, le tue pulsazioni attuali?
-    - text: Mi dici, per favore, la tua attuale frequenza cardiaca?
+    - custom:
+        text: Quale è la tua frequenza cardiaca?
+        face: talking
+    - custom:
+        text: Puoi dirmi, per cortesia, il numero di pulsazioni?
+        face: talking
+    - custom:
+        text: Mi dici, per favore, le tue pulsazioni attuali?
+        face: talking
+    - custom:
+        text: Mi dici, per favore, la tua attuale frequenza cardiaca?
+        face: talking
 
   utter_blood_pressure_recap:
-    - text: La tua attuale pressione è di {systolic_blood_pressure} su {diastolic_blood_pressure}.
-    - text: La tua attuale pressione sistolica è di {systolic_blood_pressure}, mentre la diastolica è di {diastolic_blood_pressure}.
-    - text: La tua attuale pressione massima è di {systolic_blood_pressure}, mentre la minima è di {diastolic_blood_pressure}.
+    - custom:
+        text: La tua attuale pressione è di {systolic_blood_pressure} su {diastolic_blood_pressure}.
+        face: talking
+    - custom:
+        text: La tua attuale pressione sistolica è di {systolic_blood_pressure}, mentre la diastolica è di {diastolic_blood_pressure}.
+        face: talking
+    - custom:
+        text: La tua attuale pressione massima è di {systolic_blood_pressure}, mentre la minima è di {diastolic_blood_pressure}.
+        face: talking
 
   utter_blood_pressure_ok:
-    - text: Bene! Direi che la tua pressione oggi è ottima!
-    - text: Molto bene! Direi che la tua pressione oggi è ottima!
-    - text: Molto bene! La tua attuale pressione è ottima!
+    - custom:
+        text: Bene! Direi che la tua pressione oggi è ottima!
+        face: talking
+    - custom:
+        text: Molto bene! Direi che la tua pressione oggi è ottima!
+        face: talking
+    - custom:
+        text: Molto bene! La tua attuale pressione è ottima!
+        face: talking
 
   utter_high_systolic_blood_pressure:
-    - text: La tua pressione sistolica, di {systolic_blood_pressure}, è un pochino sopra la soglia raccomandata.
-    - text: La tua pressione oggi supera la soglia raccomandata.
-    - text: La tua attuale pressione sistolica, di {systolic_blood_pressure}, supera la soglia raccomandata.
+    - custom:
+        text: La tua pressione sistolica, di {systolic_blood_pressure}, è un pochino sopra la soglia raccomandata.
+        face: talking
+    - custom:
+        text: La tua pressione oggi supera la soglia raccomandata.
+        face: talking
+    - custom:
+        text: La tua attuale pressione sistolica, di {systolic_blood_pressure}, supera la soglia raccomandata.
+        face: talking
 
   utter_high_diastolic_blood_pressure:
-    - text: La tua pressione diastolica, di {diastolic_blood_pressure}, è un pochino sopra la soglia raccomandata.
-    - text: La tua pressione oggi supera la soglia raccomandata.
-    - text: La tua attuale pressione diastolica, di {diastolic_blood_pressure}, supera la soglia raccomandata.
+    - custom:
+        text: La tua pressione diastolica, di {diastolic_blood_pressure}, è un pochino sopra la soglia raccomandata.
+        face: talking
+    - custom:
+        text: La tua pressione oggi supera la soglia raccomandata.
+        face: talking
+    - custom:
+        text: La tua attuale pressione diastolica, di {diastolic_blood_pressure}, supera la soglia raccomandata.
+        face: talking
 
   utter_start_blood_saturation_gathering:
-    - text: Sono le 9! Hai già misurato la saturazione di ossigeno oggi?
-    - text: Ciao {user_name}! Hai già misurato la saturazione di ossigeno oggi?
-    - text: Ciao {user_name}! Vuoi indicarmi i tuoi attuali valori di saturazione dell'ossigeno?
+    - custom:
+        text: Sono le 9! Hai già misurato la saturazione di ossigeno oggi?
+        face: talking
+    - custom:
+        text: Ciao {user_name}! Hai già misurato la saturazione di ossigeno oggi?
+        face: talking
+    - custom:
+        text: Ciao {user_name}! Vuoi indicarmi i tuoi attuali valori di saturazione dell'ossigeno?
+        face: talking
 
   utter_measure_blood_saturation:
-    - text: Misurala ora e comunicami il valore di saturazione.
-    - text: Misurala ora e, quando hai fatto, comunicami il valore di saturazione.
-    - text: Misurala ora e, per favore, comunicami il valore di saturazione.
+    - custom:
+        text: Misurala ora e comunicami il valore di saturazione.
+        face: talking
+    - custom:
+        text: Misurala ora e, quando hai fatto, comunicami il valore di saturazione.
+        face: talking
+    - custom:
+        text: Misurala ora e, per favore, comunicami il valore di saturazione.
+        face: talking
 
   utter_ask_blood_saturation:
-    - text: Quale è la tua saturazione di ossigeno?
-    - text: Puoi dirmi, per cortesia, la tua saturazione di ossigeno?
+    - custom:
+        text: Quale è la tua saturazione di ossigeno?
+        face: talking
+    - custom:
+        text: Puoi dirmi, per cortesia, la tua saturazione di ossigeno?
+        face: talking
 
   utter_blood_saturation_recap:
-    - text: La tua attuale saturazione di ossigeno è di {blood_saturation}.
+    - custom:
+        text: La tua attuale saturazione di ossigeno è di {blood_saturation}.
+        face: talking
 
   utter_blood_saturation_ok:
-    - text: Bene! Direi che la tua saturazione di ossigeno oggi è ottima!
-    - text: Molto bene! Direi che la tua saturazione di ossigeno oggi è ottima!
-    - text: Molto bene! La tua attuale saturazione di ossigeno è ottima!
+    - custom:
+        text: Bene! Direi che la tua saturazione di ossigeno oggi è ottima!
+        face: talking
+    - custom:
+        text: Molto bene! Direi che la tua saturazione di ossigeno oggi è ottima!
+        face: talking
+    - custom:
+        text: Molto bene! La tua attuale saturazione di ossigeno è ottima!
+        face: talking
 
   utter_low_blood_saturation:
-    - text: La tua saturazione di ossigeno, di {blood_saturation}, è un pochino sotto la soglia raccomandata.
-    - text: La tua saturazione di ossigeno oggi supera la soglia raccomandata.
-    - text: La tua attuale saturazione di ossigeno, di {blood_saturation}, è inferiore la soglia raccomandata.
+    - custom:
+        text: La tua saturazione di ossigeno, di {blood_saturation}, è un pochino sotto la soglia raccomandata.
+        face: talking
+    - custom:
+        text: La tua saturazione di ossigeno oggi supera la soglia raccomandata.
+        face: talking
+    - custom:
+        text: La tua attuale saturazione di ossigeno, di {blood_saturation}, è inferiore la soglia raccomandata.
+        face: talking
 
   utter_count_reps:
-    - text: "{reps}"
+    - custom:
+        text: "{reps}"
+        face: talking
 
   utter_start_cognitive_exercise:
-    - text: Ciao {user_name}! Cominceremo ora la nostra sessione giornaliera di esercizi! Oggi ti proporrò alcuni giochi.
-
-  utter_reassure:
-    - text: Non ti preoccupare, partiamo da qualcosa di facile.
+    - custom:
+        text: Ciao {user_name}! Cominceremo ora la nostra sessione giornaliera di esercizi! Oggi ti proporrò alcuni giochi.
+        face: talking
 
   utter_describe_count_the_words:
-    - text: Ora ti dirò una lista di parole. Alla fine, mi dirai quante volte ho detto la parola {word}.
-    - text: Ora, ti dirò una lista di parole. Alla fine vorrei che mi dicessi quante volte ho detto la parola {word}.
-    - text: Adesso ti elencherò una serie di parole. Fai attenzione, perchè alla fine dovrai dirmi quante volte ho detto la parola {word}.
+    - custom:
+        text: Ora ti dirò una lista di parole. Alla fine, mi dirai quante volte ho detto la parola {word}.
+        face: talking
+    - custom:
+        text: Ora, ti dirò una lista di parole. Alla fine vorrei che mi dicessi quante volte ho detto la parola {word}.
+        face: talking
+    - custom:
+        text: Adesso ti elencherò una serie di parole. Fai attenzione, perchè alla fine dovrai dirmi quante volte ho detto la parola {word}.
+        face: talking
 
   utter_start_count_the_word:
-    - text: Andiamo! {word_sequence}.
-    - text: Cominciamo! {word_sequence}.
-    
+    - custom:
+        text: Andiamo! {word_sequence}.
+        face: talking
+    - custom:
+        text: Cominciamo! {word_sequence}.
+        face: talking
+    - custom:
+        text: "Le parole sono: {word_sequence}."
+        face: talking
+
   utter_count_the_word:
-    - text: "{word_sequence}."
+    - custom:
+        text: "{word_sequence}."
+        face: talking
 
   utter_ask_num_words:
-    - text: Quante volte ho detto la parola {word}?
-    - text: Quante volte è stata detta la parola {word}?
+    - custom:
+        text: Quante volte ho detto la parola {word}?
+        face: talking
+    - custom:
+        text: Quante volte è stata detta la parola {word}?
+        face: talking
 
-  utter_count_the_words_ok:
-    - text: Lo sapevo che ce l'avresti fatta!
-    - text: Sapevo che ce l'avresti fatta!
+  utter_count_the_words_done:
+    - custom:
+        text: Lo sapevo che ce l'avresti fatta!
+        face: talking
+    - custom:
+        text: Sapevo che ce l'avresti fatta!
+        face: talking
 
   utter_out_of_scope:
-    - text: Mi spiace! Non so come gestire la tua richiesta.
-    - text: Spiacente! Non so come risponderti.
-    - text: Mi spiace! Non so risponderti.
+    - custom:
+        text: Mi spiace! Non so come gestire la tua richiesta.
+        face: talking
+    - custom:
+        text: Spiacente! Non so come risponderti.
+        face: talking
+    - custom:
+        text: Mi spiace! Non so risponderti.
+        face: talking
 
   utter_please_rephrase:
-    - text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
-    - text: Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
-    - text: Puoi provare a ripeterlo in un altro modo?
-    - text: Puoi provare a ripetere l'ultima cosa che hai detto in un altro modo?
+    - custom:
+        text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
+        face: talking
+    - custom:
+        text: Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
+        face: talking
+    - custom:
+        text: Puoi provare a ripeterlo in un altro modo?
+        face: talking
+    - custom:
+        text: Puoi provare a ripetere l'ultima cosa che hai detto in un altro modo?
+        face: talking
 
   utter_default:
-    - text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
-    - text: Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
-    - text: Puoi provare a ripeterlo in un altro modo?
-    - text: Puoi provare a ripetere l'ultima cosa che hai detto in un altro modo?
+    - custom:
+        text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
+        face: talking
+    - custom:
+        text: Mi spiace, non ho capito cosa hai detto. Puoi ripeterlo in un altro modo?
+        face: talking
+    - custom:
+        text: Puoi provare a ripeterlo in un altro modo?
+        face: talking
+    - custom:
+        text: Puoi provare a ripetere l'ultima cosa che hai detto in un altro modo?
+        face: talking
 
 actions:
   - action_command_start
