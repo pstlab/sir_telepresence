@@ -26,6 +26,7 @@ set_face_service.advertise(function (request, response) {
 var wait_for_input_service = new ROSLIB.Service({ ros: ros, name: '/wait_for_input', serviceType: 'msgs/set_string' });
 wait_for_input_service.advertise(function (request, response) {
     console.log('Waiting for input:' + request.text);
+    await new Promise(r => setTimeout(r, 2000));
     response['success'] = true;
     return true;
 });
