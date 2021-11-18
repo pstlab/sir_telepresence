@@ -42,7 +42,7 @@ rules:
       - slot_was_set:
           - requested_slot: null
       - action: action_blood_saturation_analysis
-      - action: 
+      - action: action_command_done
 
   - rule: count the word form
     condition:
