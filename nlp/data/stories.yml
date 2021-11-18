@@ -145,4 +145,5 @@ stories:
       - action: utter_ask_confirm
       - intent: affirm
       - action: utter_start_count_the_word
-      - action: utter_ask_num_words
+      - action: count_the_word_form
+      - active_loop: count_the_word_form

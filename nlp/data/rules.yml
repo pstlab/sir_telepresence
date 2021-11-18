@@ -42,6 +42,17 @@ rules:
       - slot_was_set:
           - requested_slot: null
       - action: action_blood_saturation_analysis
+      - action: 
+
+  - rule: count the word form
+    condition:
+      - active_loop: count_the_word_form
+    steps:
+      - action: count_the_word_form
+      - active_loop: null
+      - slot_was_set:
+          - requested_slot: null
+      - action: utter_count_the_words_ok
       - action: action_command_done
 
   - rule: Reps feedback
