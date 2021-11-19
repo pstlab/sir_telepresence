@@ -23,6 +23,17 @@ set_face_service.advertise(function (request, response) {
     return true;
 });
 
+/*
+Ohmni.setSpeechLanguage('it-IT');
+var text_to_speech_service = new ROSLIB.Service({ ros: ros, name: '/text_to_speech', serviceType: 'msgs/set_string' });
+text_to_speech_service.advertise(function (request, response) {
+    console.log('Synthesizing:' + request.text);
+    Ohmni.say(request.text);
+    response['success'] = true;
+    return true;
+});
+*/
+
 var listen = new ROSLIB.Service({ ros: ros, name: '/listen', serviceType: 'std_srvs/Trigger' });
 
 var state = {
