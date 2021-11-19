@@ -23,10 +23,20 @@ set_face_service.advertise(function (request, response) {
     return true;
 });
 
+/*
+Ohmni.setSpeechLanguage('it-IT');
+var text_to_speech_service = new ROSLIB.Service({ ros: ros, name: '/text_to_speech', serviceType: 'msgs/set_string' });
+text_to_speech_service.advertise(function (request, response) {
+    console.log('Synthesizing:' + request.text);
+    Ohmni.say(request.text);
+    response['success'] = true;
+    return true;
+});
+*/
+
 var wait_for_input_service = new ROSLIB.Service({ ros: ros, name: '/wait_for_input', serviceType: 'msgs/set_string' });
 wait_for_input_service.advertise(function (request, response) {
     console.log('Waiting for input:' + request.text);
-    await new Promise(r => setTimeout(r, 2000));
     response['success'] = true;
     return true;
 });
