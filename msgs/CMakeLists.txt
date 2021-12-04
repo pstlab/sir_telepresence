@@ -11,18 +11,10 @@ add_message_files(
     deliberative_state.msg
     navigation_state.msg
     dialogue_state.msg
-    timelines.msg
 )
 
 add_service_files(
     FILES
-    can_start.srv
-    start_task.srv
-    end_task.srv
-    task_finished.srv
-    create_reasoner.srv
-    destroy_reasoner.srv
-    new_requirement.srv
     state.srv
     set_string.srv
     get_string.srv
