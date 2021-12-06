@@ -4,9 +4,9 @@ import requests
 import time
 import traceback
 from dialogue.msg import dialogue_state
-from 
-from msgs.srv import start_task, start_taskResponse, task_finished, state, get_string, set_string
-from std_srvs.srv import Trigger, TriggerResponse, Empty, EmptyResponse
+from std_srvs.srv import Trigger, TriggerResponse, Empty
+from deliberative_tier.srv import start_task, start_taskResponse, task_finished
+from msgs.srv import get_state, get_string, set_string
 
 face_idle = 'idle'
 face_talking = 'talking'
@@ -29,19 +29,19 @@ class dialogue_manager:
         start_dialogue_task_service = rospy.Service(
             'start_dialogue_task', start_task, self.start_dialogue_task)
 
-        # called by the deliberative tier..
-        start_dialogue_service = rospy.Service(
-            'start_dialogue', start_task, self.start_dialogue)
-
         # notifies the deliberative tier that a dialogue task has finished..
         self.close_task = rospy.ServiceProxy('task_finished', task_finished)
 
         # called by the gui for starting a dialogue by the user..
         listen_service = rospy.Service('listen', Trigger, self.listen)
 
+        # called by any component that requires to start a dialogue..
+        start_dialogue_service = rospy.Service(
+            'start_dialogue', start_task, self.start_dialogue)
+
         # retrieves the current emotions..
         self.perceive_emotions = rospy.ServiceProxy(
-            'perceive_emotions', state)
+            'perceive_emotions', get_state)
 
         # activates the text to speech..
         self.text_to_speech = rospy.ServiceProxy(
@@ -124,8 +124,8 @@ class dialogue_manager:
                     self.par_names.extend(perceived_emotions.par_names)
                     self.par_values.extend(perceived_emotions.par_values)
                 except rospy.ServiceException:
-                    rospy.logerr('Emotions detection service call failed\n' +
-                                 ''.join(traceback.format_stack()))
+                    rospy.logwarn('Emotions detection service call failed\n' +
+                                  ''.join(traceback.format_stack()))
 
                 # we prepare the request..
                 payload = {'name': self.task_name}
@@ -155,8 +155,12 @@ class dialogue_manager:
                     self.print_state()
                     try:
                         for ans in j_res['messages']:
-                            self.set_face(ans['custom']['face'])
-                            self.text_to_speech(ans['custom']['text'])
+                            if 'custom' in ans:
+                                self.set_face(ans['custom']['face'])
+                                self.text_to_speech(ans['custom']['text'])
+                            else:
+                                self.set_face(face_talking)
+                                self.text_to_speech(ans['text'])
                             self.set_face(face_idle)
                     except rospy.ServiceException:
                         rospy.logerr('Text to speech service call failed\n' +
@@ -203,8 +207,8 @@ class dialogue_manager:
                 if(r.status_code == requests.codes.ok):
                     j_res = r.json()
         except rospy.ServiceException:
-            rospy.logerr('Emotions detection service call failed\n' +
-                         ''.join(traceback.format_stack()))
+            rospy.logwarn('Emotions detection service call failed\n' +
+                          ''.join(traceback.format_stack()))
         except requests.exceptions.RequestException as e:
             rospy.logerr('Rasa server call failed\n' +
                          ''.join(traceback.format_stack()))
@@ -220,8 +224,12 @@ class dialogue_manager:
             j_res = r.json()
             try:
                 for ans in j_res:
-                    self.set_face(ans['custom']['face'])
-                    self.text_to_speech(ans['custom']['text'])
+                    if 'custom' in ans:
+                        self.set_face(ans['custom']['face'])
+                        self.text_to_speech(ans['custom']['text'])
+                    else:
+                        self.set_face(face_talking)
+                        self.text_to_speech(ans['text'])
                     self.set_face(face_idle)
             except rospy.ServiceException:
                 rospy.logerr('Text to speech service call failed\n' +

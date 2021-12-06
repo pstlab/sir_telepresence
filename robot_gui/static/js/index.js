@@ -44,19 +44,19 @@ wait_for_input_service.advertise(function (request, response) {
 var listen = new ROSLIB.Service({ ros: ros, name: '/listen', serviceType: 'std_srvs/Trigger' });
 
 var state = {
-    system_state: null,
+    sequencer_state: null,
     deliberative_state: null,
     navigation_state: null,
     dialogue_state: null
 };
 
-var system_state_listener = new ROSLIB.Topic({ ros: ros, name: '/system_state', messageType: 'msgs/system_state' });
-system_state_listener.subscribe(function (message) {
-    state.system_state = message.system_state;
+var sequencer_state_listener = new ROSLIB.Topic({ ros: ros, name: '/sequencer_state', messageType: 'sequencer_tier/sequencer_state' });
+sequencer_state_listener.subscribe(function (message) {
+    state.sequencer_state = message.sequencer_state;
     print_state();
 });
 
-var deliberative_state_listener = new ROSLIB.Topic({ ros: ros, name: '/deliberative_state', messageType: 'msgs/deliberative_state' });
+var deliberative_state_listener = new ROSLIB.Topic({ ros: ros, name: '/deliberative_state', messageType: 'deliberative_tier/deliberative_state' });
 deliberative_state_listener.subscribe(function (message) {
     state.deliberative_state = { reasoner: message.reasoner_id, state: message.deliberative_state };
     print_state();
@@ -68,7 +68,7 @@ navigation_state_listener.subscribe(function (message) {
     print_state();
 });
 
-var dialogue_state_listener = new ROSLIB.Topic({ ros: ros, name: '/dialogue_state', messageType: 'msgs/dialogue_state' });
+var dialogue_state_listener = new ROSLIB.Topic({ ros: ros, name: '/dialogue_state', messageType: 'dialogue/dialogue_state' });
 dialogue_state_listener.subscribe(function (message) {
     state.dialogue_state = message.dialogue_state;
     print_state();
@@ -84,11 +84,11 @@ function start_listen() {
 }
 
 function print_state() {
-    console.log('System: ' + print_system_state(state.system_state) + ', Deliberative: ' + print_deliberative_state(state.deliberative_state) + ', Navigation: ' + print_navigation_state(state.navigation_state) + ', Dialogue:' + print_dialogue_state(state.dialogue_state));
+    console.log('System: ' + print_sequencer_state(state.sequencer_state) + ', Deliberative: ' + print_deliberative_state(state.deliberative_state) + ', Navigation: ' + print_navigation_state(state.navigation_state) + ', Dialogue:' + print_dialogue_state(state.dialogue_state));
 }
 
-function print_system_state(system_state) {
-    switch (system_state) {
+function print_sequencer_state(sequencer_state) {
+    switch (sequencer_state) {
         case 0: return 'unconfigured'
         case 1: return 'configuring'
         case 2: return 'configured'

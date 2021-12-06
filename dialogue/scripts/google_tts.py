@@ -2,8 +2,8 @@
 import rospy
 import gtts
 #from playsound import playsound
-from msgs.srv import set_string, set_stringResponse
 import os  # adding alternatively to playsound
+from msgs.srv import set_string, set_stringResponse
 
 
 class text_to_speech:

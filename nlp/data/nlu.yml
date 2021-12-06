@@ -131,6 +131,7 @@ nlu:
 
   - intent: start_blood_pressure_gathering
     examples: |
+      - Voglio dirti la mia pressione
       - Voglio comunicarti la mia pressione cardiaca
       - Ti dico la mia pressione corrente
       - Ti comunico la mia attuale pressione
@@ -146,6 +147,7 @@ nlu:
 
   - intent: start_blood_saturation_gathering
     examples: |
+      - Voglio dirti la mia saturazione
       - Voglio comunicarti la mia saturazione dell'ossigeno
       - Ti dico la mia saturazione corrente
       - Ti comunico la mia attuale saturazione sanguigna

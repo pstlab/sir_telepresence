@@ -4,12 +4,16 @@ rules:
   - rule: Say goodbye anytime the user says goodbye
     steps:
       - intent: goodbye
+      - action: action_command_start
       - action: utter_goodbye
+      - action: action_command_done
 
   - rule: Ask capabilities
     steps:
       - intent: ask_capabilities
+      - action: action_command_start
       - action: utter_present_capabilities
+      - action: action_command_done
 
   - rule: profile form
     condition:

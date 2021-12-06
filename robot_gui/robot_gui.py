@@ -17,4 +17,5 @@ def timelines_view():
 
 
 if __name__ == '__main__':
+    print('Starting robot GUI..')
     serve(app, host="0.0.0.0", port=8080)
