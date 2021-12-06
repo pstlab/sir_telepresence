@@ -120,11 +120,11 @@ namespace sir
         ROS_ASSERT(req.par_names.size() == req.par_values.size());
         ROS_DEBUG("checking whether task \'%s\' can start..", req.task_name.c_str());
         if (req.task_name == "Interacting")
-            res.can_start = dialogue_state == dialogue::dialogue_state::idle;
+            res.can_start = dialogue_state == dialogue_manager::dialogue_state::idle;
         else if (req.task_name == "BicepsCurl")
-            res.can_start = dialogue_state == dialogue::dialogue_state::idle;
+            res.can_start = dialogue_state == dialogue_manager::dialogue_state::idle;
         else if (req.task_name == "CountTheWord")
-            res.can_start = dialogue_state == dialogue::dialogue_state::idle;
+            res.can_start = dialogue_state == dialogue_manager::dialogue_state::idle;
         else
         {
             ROS_WARN("Unknown task name: %s", req.task_name.c_str());
@@ -265,11 +265,11 @@ namespace sir
     {
         switch (dialogue_state)
         {
-        case dialogue::dialogue_state::idle:
+        case dialogue_manager::dialogue_state::idle:
             return "\"Idle\"";
-        case dialogue::dialogue_state::listening:
+        case dialogue_manager::dialogue_state::listening:
             return "\"Listening\"";
-        case dialogue::dialogue_state::speaking:
+        case dialogue_manager::dialogue_state::speaking:
             return "\"Speaking\"";
         default:
             return "\"-\"";

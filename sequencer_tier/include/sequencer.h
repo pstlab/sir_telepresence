@@ -3,7 +3,7 @@
 #include "sequencer_tier/sequencer_state.h"
 #include "deliberative_tier/deliberative_state.h"
 #include "msgs/navigation_state.h"
-#include "dialogue/dialogue_state.h"
+#include "dialogue_manager/dialogue_state.h"
 #include "deliberative_tier/can_start.h"
 #include "deliberative_tier/start_task.h"
 #include <ros/ros.h>
@@ -24,7 +24,7 @@ namespace sir
 
     void updated_deliberative_state(const deliberative_tier::deliberative_state &msg) { deliberative_state[msg.reasoner_id] = msg.deliberative_state; }
     void updated_navigation_state(const msgs::navigation_state &msg) { navigation_state = msg.navigation_state; }
-    void updated_dialogue_state(const dialogue::dialogue_state &msg) { dialogue_state = msg.dialogue_state; }
+    void updated_dialogue_state(const dialogue_manager::dialogue_state &msg) { dialogue_state = msg.dialogue_state; }
 
     void set_state(const unsigned int &state);
 
@@ -52,6 +52,6 @@ namespace sir
     ros::Subscriber navigation_state_sub;
     unsigned int navigation_state = msgs::navigation_state::idle;
     ros::Subscriber dialogue_state_sub;
-    unsigned int dialogue_state = dialogue::dialogue_state::idle;
+    unsigned int dialogue_state = dialogue_manager::dialogue_state::idle;
   };
 } // namespace sir

@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(dialogue)
+project(dialogue_manager)
 
 ## Find catkin and any catkin packages
-find_package(catkin REQUIRED COMPONENTS rospy msgs std_msgs message_generation)
+find_package(catkin REQUIRED COMPONENTS rospy deliberative_tier msgs std_msgs message_generation)
 
 ## Declare ROS messages and services
 add_message_files(

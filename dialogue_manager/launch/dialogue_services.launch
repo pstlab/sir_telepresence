@@ -1,0 +1,9 @@
+<launch>
+    <param name="user" type="string" value="42" />
+    <node name="speech_to_text" pkg="dialogue_manager" type="google_stt.py" output="screen" />
+    <node name="text_to_speech" pkg="dialogue_manager" type="google_tts.py" output="screen" />
+    <node name="dialogue_manager" pkg="dialogue_manager" type="dialogue.py" output="screen">
+        <rosparam param="host">localhost</rosparam>
+        <rosparam param="port">5005</rosparam>
+    </node>
+</launch>

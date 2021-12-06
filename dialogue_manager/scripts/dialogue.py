@@ -3,8 +3,8 @@ import rospy
 import requests
 import time
 import traceback
-from dialogue.msg import dialogue_state
 from std_srvs.srv import Trigger, TriggerResponse, Empty
+from dialogue_manager.msg import dialogue_state
 from deliberative_tier.srv import start_task, start_taskResponse, task_finished
 from msgs.srv import get_state, get_string, set_string
 
