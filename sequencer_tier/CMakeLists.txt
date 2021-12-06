@@ -22,6 +22,6 @@ catkin_package()
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-add_executable(sequencer_tier main.cpp sequencer.cpp)
-target_link_libraries(sequencer_tier ${catkin_LIBRARIES})
-add_dependencies(sequencer_tier ${catkin_EXPORTED_TARGETS})
+add_executable(${PROJECT_NAME} main.cpp sequencer.cpp)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
