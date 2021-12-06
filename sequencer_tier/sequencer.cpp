@@ -1,30 +1,30 @@
 #include "sequencer.h"
-#include "msgs/create_reasoner.h"
-#include "msgs/destroy_reasoner.h"
-#include "msgs/new_requirement.h"
-#include "msgs/task_finished.h"
+#include "deliberative_tier/create_reasoner.h"
+#include "deliberative_tier/destroy_reasoner.h"
+#include "deliberative_tier/new_requirement.h"
+#include "deliberative_tier/task_finished.h"
 #include <ros/package.h>
 
 namespace sir
 {
-    std::string system_to_string(unsigned int &system_state);
+    std::string sequencer_to_string(unsigned int &sequencer_state);
     std::string deliberative_to_string(const std::map<uint64_t, unsigned int> &deliberative_state);
     std::string navigation_to_string(unsigned int &navigation_state);
     std::string dialogue_to_string(unsigned int &dialogue_state);
 
     sequencer::sequencer(ros::NodeHandle &h) : handle(h),
-                                               notify_state(h.advertise<msgs::system_state>("system_state", 10, true)),
+                                               notify_state(h.advertise<sequencer_tier::sequencer_state>("sequencer_state", 10, true)),
                                                deliberative_state_sub(h.subscribe("deliberative_state", 100, &sequencer::updated_deliberative_state, this)),
                                                navigation_state_sub(h.subscribe("navigation_state", 100, &sequencer::updated_navigation_state, this)),
                                                dialogue_state_sub(h.subscribe("dialogue_state", 100, &sequencer::updated_dialogue_state, this)),
-                                               create_reasoner(h.serviceClient<msgs::create_reasoner>("create_reasoner")),
-                                               destroy_reasoner(h.serviceClient<msgs::destroy_reasoner>("destroy_reasoner")),
-                                               new_requirement(h.serviceClient<msgs::new_requirement>("new_requirement")),
-                                               task_finished(h.serviceClient<msgs::task_finished>("task_finished")),
+                                               create_reasoner(h.serviceClient<deliberative_tier::create_reasoner>("create_reasoner")),
+                                               destroy_reasoner(h.serviceClient<deliberative_tier::destroy_reasoner>("destroy_reasoner")),
+                                               new_requirement(h.serviceClient<deliberative_tier::new_requirement>("new_requirement")),
+                                               task_finished(h.serviceClient<deliberative_tier::task_finished>("task_finished")),
                                                can_start_server(h.advertiseService("can_start", &sequencer::can_start, this)),
                                                start_task_server(h.advertiseService("start_task", &sequencer::start_task, this)),
-                                               start_physical_exercise_task(h.serviceClient<msgs::start_task>("start_physical_exercise")),
-                                               start_dialogue_task(h.serviceClient<msgs::start_task>("start_dialogue_task"))
+                                               start_physical_exercise_task(h.serviceClient<deliberative_tier::start_task>("start_physical_exercise")),
+                                               start_dialogue_task(h.serviceClient<deliberative_tier::start_task>("start_dialogue_task"))
     {
         create_reasoner.waitForExistence();
         new_requirement.waitForExistence();
@@ -38,18 +38,18 @@ namespace sir
 
     void sequencer::tick()
     {
-        ROS_DEBUG("{\"System\": %s, \"Deliberative\": %s, \"Navigation\": %s, \"Dialogue\": %s}", system_to_string(system_state).c_str(), deliberative_to_string(deliberative_state).c_str(), navigation_to_string(navigation_state).c_str(), dialogue_to_string(dialogue_state).c_str());
+        ROS_DEBUG("{\"System\": %s, \"Deliberative\": %s, \"Navigation\": %s, \"Dialogue\": %s}", sequencer_to_string(sequencer_state).c_str(), deliberative_to_string(deliberative_state).c_str(), navigation_to_string(navigation_state).c_str(), dialogue_to_string(dialogue_state).c_str());
 
-        switch (system_state)
+        switch (sequencer_state)
         {
-        case msgs::system_state::unconfigured:
+        case sequencer_tier::sequencer_state::unconfigured:
         { // we start a configuration plan..
             ROS_INFO("Starting system configuration..");
-            set_state(msgs::system_state::configuring);
+            set_state(sequencer_tier::sequencer_state::configuring);
 
             const uint64_t reasoner_id = 0;
-            deliberative_state[reasoner_id] = msgs::deliberative_state::idle;
-            msgs::create_reasoner new_reasoner;
+            deliberative_state[reasoner_id] = deliberative_tier::deliberative_state::idle;
+            deliberative_tier::create_reasoner new_reasoner;
             new_reasoner.request.reasoner_id = reasoner_id;
 
             std::vector<std::string> domain_files;
@@ -66,18 +66,18 @@ namespace sir
             create_reasoner.call(new_reasoner);
             break;
         }
-        case msgs::system_state::configuring:
+        case sequencer_tier::sequencer_state::configuring:
         { // we are configuring the system..
             const uint64_t configure_reasoner_id = 0;
             switch (deliberative_state.at(configure_reasoner_id))
             {
-            case msgs::deliberative_state::finished:
+            case deliberative_tier::deliberative_state::finished:
             {
                 ROS_INFO("System configured..");
-                msgs::destroy_reasoner dest_reasoner;
+                deliberative_tier::destroy_reasoner dest_reasoner;
                 dest_reasoner.request.reasoner_id = configure_reasoner_id;
                 destroy_reasoner.call(dest_reasoner);
-                set_state(msgs::system_state::configured);
+                set_state(sequencer_tier::sequencer_state::configured);
                 deliberative_state.erase(configure_reasoner_id);
                 break;
             }
@@ -86,14 +86,14 @@ namespace sir
             }
             break;
         }
-        case msgs::system_state::configured:
+        case sequencer_tier::sequencer_state::configured:
         { // we start the default plan..
             ROS_INFO("Starting default plan..");
-            set_state(msgs::system_state::running);
+            set_state(sequencer_tier::sequencer_state::running);
 
             const uint64_t reasoner_id = 0;
-            deliberative_state[reasoner_id] = msgs::deliberative_state::idle;
-            msgs::create_reasoner new_reasoner;
+            deliberative_state[reasoner_id] = deliberative_tier::deliberative_state::idle;
+            deliberative_tier::create_reasoner new_reasoner;
             new_reasoner.request.reasoner_id = reasoner_id;
 
             std::vector<std::string> domain_files;
@@ -115,16 +115,16 @@ namespace sir
         }
     }
 
-    bool sequencer::can_start(msgs::can_start::Request &req, msgs::can_start::Response &res)
+    bool sequencer::can_start(deliberative_tier::can_start::Request &req, deliberative_tier::can_start::Response &res)
     {
         ROS_ASSERT(req.par_names.size() == req.par_values.size());
         ROS_DEBUG("checking whether task \'%s\' can start..", req.task_name.c_str());
         if (req.task_name == "Interacting")
-            res.can_start = dialogue_state == msgs::dialogue_state::idle;
+            res.can_start = dialogue_state == dialogue::dialogue_state::idle;
         else if (req.task_name == "BicepsCurl")
-            res.can_start = dialogue_state == msgs::dialogue_state::idle;
+            res.can_start = dialogue_state == dialogue::dialogue_state::idle;
         else if (req.task_name == "CountTheWord")
-            res.can_start = dialogue_state == msgs::dialogue_state::idle;
+            res.can_start = dialogue_state == dialogue::dialogue_state::idle;
         else
         {
             ROS_WARN("Unknown task name: %s", req.task_name.c_str());
@@ -133,7 +133,7 @@ namespace sir
         return true;
     }
 
-    bool sequencer::start_task(msgs::start_task::Request &req, msgs::start_task::Response &res)
+    bool sequencer::start_task(deliberative_tier::start_task::Request &req, deliberative_tier::start_task::Response &res)
     {
         ROS_ASSERT(req.par_names.size() == req.par_values.size());
         ROS_INFO("Starting task \'%s\'..", req.task_name.c_str());
@@ -143,7 +143,7 @@ namespace sir
         }
         if (req.task_name == "Interacting")
         { // starts an interaction with the user..
-            msgs::start_task sd_srv;
+            deliberative_tier::start_task sd_srv;
             sd_srv.request.reasoner_id = req.reasoner_id;
             sd_srv.request.task_id = req.task_id;
             for (size_t i = 0; i < req.par_names.size(); i++)
@@ -158,7 +158,7 @@ namespace sir
         }
         else if (req.task_name == "BicepsCurl")
         { // starts a count the biceps curl physical exercise with the user..
-            msgs::start_task bc_srv;
+            deliberative_tier::start_task bc_srv;
             bc_srv.request.reasoner_id = req.reasoner_id;
             bc_srv.request.task_id = req.task_id;
             bc_srv.request.task_name = "BICEPS CURL";
@@ -171,7 +171,7 @@ namespace sir
         }
         else if (req.task_name == "CountTheWord")
         { // starts a count the word cognitive exercise with the user..
-            msgs::start_task ctw_srv;
+            deliberative_tier::start_task ctw_srv;
             ctw_srv.request.reasoner_id = req.reasoner_id;
             ctw_srv.request.task_id = req.task_id;
             ctw_srv.request.task_name = "start_count_the_word_cognitive_exercise";
@@ -192,23 +192,23 @@ namespace sir
 
     void sequencer::set_state(const unsigned int &state)
     {
-        system_state = state;
-        msgs::system_state state_msg;
+        sequencer_state = state;
+        sequencer_tier::sequencer_state state_msg;
         state_msg.system_state = state;
         notify_state.publish(state_msg);
     }
 
-    std::string system_to_string(unsigned int &system_state)
+    std::string sequencer_to_string(unsigned int &sequencer_state)
     {
-        switch (system_state)
+        switch (sequencer_state)
         {
-        case msgs::system_state::unconfigured:
+        case sequencer_tier::sequencer_state::unconfigured:
             return "\"Unconfigured\"";
-        case msgs::system_state::configuring:
+        case sequencer_tier::sequencer_state::configuring:
             return "\"Configuring\"";
-        case msgs::system_state::configured:
+        case sequencer_tier::sequencer_state::configured:
             return "\"Configured\"";
-        case msgs::system_state::running:
+        case sequencer_tier::sequencer_state::running:
             return "\"Running\"";
         default:
             return "\"-\"";
@@ -225,19 +225,19 @@ namespace sir
             delib_state.append("(").append(std::to_string(r.first)).append(") ");
             switch (r.second)
             {
-            case msgs::deliberative_state::idle:
+            case deliberative_tier::deliberative_state::idle:
                 delib_state.append("\"Idle\"");
                 break;
-            case msgs::deliberative_state::reasoning:
+            case deliberative_tier::deliberative_state::reasoning:
                 delib_state.append("\"Reasoning\"");
                 break;
-            case msgs::deliberative_state::executing:
+            case deliberative_tier::deliberative_state::executing:
                 delib_state.append("\"Executing\"");
                 break;
-            case msgs::deliberative_state::finished:
+            case deliberative_tier::deliberative_state::finished:
                 delib_state.append("\"Finished\"");
                 break;
-            case msgs::deliberative_state::inconsistent:
+            case deliberative_tier::deliberative_state::inconsistent:
                 delib_state.append("\"Inconsistent\"");
                 break;
             default:
@@ -265,11 +265,11 @@ namespace sir
     {
         switch (dialogue_state)
         {
-        case msgs::dialogue_state::idle:
+        case dialogue::dialogue_state::idle:
             return "\"Idle\"";
-        case msgs::dialogue_state::listening:
+        case dialogue::dialogue_state::listening:
             return "\"Listening\"";
-        case msgs::dialogue_state::speaking:
+        case dialogue::dialogue_state::speaking:
             return "\"Speaking\"";
         default:
             return "\"-\"";

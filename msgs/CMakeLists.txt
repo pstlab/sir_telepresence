@@ -7,17 +7,14 @@ find_package(catkin REQUIRED COMPONENTS std_msgs message_generation)
 ## Declare ROS messages and services
 add_message_files(
     FILES
-    system_state.msg
-    deliberative_state.msg
     navigation_state.msg
-    dialogue_state.msg
 )
 
 add_service_files(
     FILES
-    state.srv
     set_string.srv
     get_string.srv
+    get_state.srv
 )
 
 ## Generate added messages and services

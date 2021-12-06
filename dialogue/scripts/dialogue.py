@@ -3,7 +3,8 @@ import rospy
 import requests
 import time
 import traceback
-from msgs.msg import dialogue_state
+from dialogue.msg import dialogue_state
+from 
 from msgs.srv import start_task, start_taskResponse, task_finished, state, get_string, set_string
 from std_srvs.srv import Trigger, TriggerResponse, Empty, EmptyResponse
 

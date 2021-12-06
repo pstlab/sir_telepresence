@@ -1,11 +1,11 @@
 #pragma once
 
-#include "msgs/system_state.h"
-#include "msgs/deliberative_state.h"
+#include "sequencer_tier/sequencer_state.h"
+#include "deliberative_tier/deliberative_state.h"
 #include "msgs/navigation_state.h"
-#include "msgs/dialogue_state.h"
-#include "msgs/can_start.h"
-#include "msgs/start_task.h"
+#include "dialogue/dialogue_state.h"
+#include "deliberative_tier/can_start.h"
+#include "deliberative_tier/start_task.h"
 #include <ros/ros.h>
 
 namespace sir
@@ -19,12 +19,12 @@ namespace sir
     void tick();
 
   private:
-    bool can_start(msgs::can_start::Request &req, msgs::can_start::Response &res);
-    bool start_task(msgs::start_task::Request &req, msgs::start_task::Response &res);
+    bool can_start(deliberative_tier::can_start::Request &req, deliberative_tier::can_start::Response &res);
+    bool start_task(deliberative_tier::start_task::Request &req, deliberative_tier::start_task::Response &res);
 
-    void updated_deliberative_state(const msgs::deliberative_state &msg) { deliberative_state[msg.reasoner_id] = msg.deliberative_state; }
+    void updated_deliberative_state(const deliberative_tier::deliberative_state &msg) { deliberative_state[msg.reasoner_id] = msg.deliberative_state; }
     void updated_navigation_state(const msgs::navigation_state &msg) { navigation_state = msg.navigation_state; }
-    void updated_dialogue_state(const msgs::dialogue_state &msg) { dialogue_state = msg.dialogue_state; }
+    void updated_dialogue_state(const dialogue::dialogue_state &msg) { dialogue_state = msg.dialogue_state; }
 
     void set_state(const unsigned int &state);
 
@@ -46,12 +46,12 @@ namespace sir
     /*
      * The sequencer state
      */
-    unsigned int system_state = msgs::system_state::unconfigured;
+    unsigned int sequencer_state = sequencer_tier::sequencer_state::unconfigured;
     ros::Subscriber deliberative_state_sub;
     std::map<uint64_t, unsigned int> deliberative_state;
     ros::Subscriber navigation_state_sub;
     unsigned int navigation_state = msgs::navigation_state::idle;
     ros::Subscriber dialogue_state_sub;
-    unsigned int dialogue_state = msgs::dialogue_state::idle;
+    unsigned int dialogue_state = dialogue::dialogue_state::idle;
   };
 } // namespace sir

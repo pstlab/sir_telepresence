@@ -2,7 +2,16 @@ cmake_minimum_required(VERSION 3.0.2)
 project(dialogue)
 
 ## Find catkin and any catkin packages
-find_package(catkin REQUIRED COMPONENTS rospy msgs)
+find_package(catkin REQUIRED COMPONENTS rospy msgs std_msgs message_generation)
+
+## Declare ROS messages and services
+add_message_files(
+    FILES
+    dialogue_state.msg
+)
+
+## Generate added messages and services
+generate_messages(DEPENDENCIES std_msgs)
 
 ## Declare a catkin package
 catkin_package()
