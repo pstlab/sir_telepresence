@@ -1,4 +1,5 @@
 .vscode
+.rasa
 build
 __pycache__
 models

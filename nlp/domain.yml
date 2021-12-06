@@ -1,4 +1,4 @@
-version: "2.0"
+version: "3.0"
 
 intents:
   - greet
@@ -33,47 +33,100 @@ slots:
   user_name:
     type: text
     influence_conversation: true
-    initial_value: Rosa
+    mappings:
+      - type: from_entity
+        entity: PER
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_name
   user_gender:
     type: categorical
     values:
       - male
       - female
-    initial_value: female
+    mappings:
+      - type: from_entity
+        entity: gender
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_gender
   user_extraversion:
     type: categorical
     values:
       - extroverted
       - introverted
-    initial_value: extroverted
+    mappings:
+      - type: from_entity
+        entity: extraversion
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_extraversion
   reps:
     type: text
     influence_conversation: false
+    mappings:
+      - type: custom
   word_sequence:
     type: text
     influence_conversation: false
+    mappings:
+      - type: custom
   word:
     type: text
     influence_conversation: false
+    mappings:
+      - type: custom
   num_words:
     type: float
     influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: number
+        conditions:
+          - active_loop: count_the_word_form
+            requested_slot: num_words
   systolic_blood_pressure:
     type: float
     influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: number
+        conditions:
+          - active_loop: blood_pressure_measurement_form
+            requested_slot: systolic_blood_pressure
   diastolic_blood_pressure:
     type: float
     influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: number
+        conditions:
+          - active_loop: blood_pressure_measurement_form
+            requested_slot: diastolic_blood_pressure
   heart_beat:
     type: float
     influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: number
+        conditions:
+          - active_loop: blood_pressure_measurement_form
+            requested_slot: heart_beat
   blood_saturation:
     type: float
     influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: number
+        conditions:
+          - active_loop: blood_saturation_measurement_form
+            requested_slot: blood_saturation
   sleep_time:
     type: float
     influence_conversation: false
     initial_value: 120
+    mappings:
+      - type: custom
   command_state:
     type: categorical
     influence_conversation: false
@@ -81,42 +134,28 @@ slots:
       - executing
       - done
       - failure
+    mappings:
+      - type: custom
 
 forms:
   profile_form:
     ignored_intents:
       - affirm
     required_slots:
-      user_name:
-        - type: from_entity
-          entity: PER
-      user_gender:
-        - type: from_entity
-          entity: gender
-      user_extraversion:
-        - type: from_entity
-          entity: extraversion
-  blood_pressure_measurement_form:
-    required_slots:
-      systolic_blood_pressure:
-        - type: from_entity
-          entity: number
-      diastolic_blood_pressure:
-        - type: from_entity
-          entity: number
-      heart_beat:
-        - type: from_entity
-          entity: number
-  blood_saturation_measurement_form:
-    required_slots:
-      blood_saturation:
-        - type: from_entity
-          entity: number
+      - user_name
+      - user_gender
+      - user_extraversion
   count_the_word_form:
     required_slots:
-      num_words:
-        - type: from_entity
-          entity: number
+      - num_words
+  blood_pressure_measurement_form:
+    required_slots:
+      - systolic_blood_pressure
+      - diastolic_blood_pressure
+      - heart_beat
+  blood_saturation_measurement_form:
+    required_slots:
+      - blood_saturation
 
 responses:
   utter_help_proposal:
