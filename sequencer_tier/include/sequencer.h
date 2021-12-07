@@ -6,6 +6,7 @@
 #include "dialogue_manager/dialogue_state.h"
 #include "deliberative_tier/can_start.h"
 #include "deliberative_tier/start_task.h"
+#include "deliberative_tier/task_finished.h"
 #include <ros/ros.h>
 
 namespace sir
@@ -21,6 +22,8 @@ namespace sir
   private:
     bool can_start(deliberative_tier::can_start::Request &req, deliberative_tier::can_start::Response &res);
     bool start_task(deliberative_tier::start_task::Request &req, deliberative_tier::start_task::Response &res);
+
+    bool dialogue_task_finished(deliberative_tier::task_finished::Request &req, deliberative_tier::task_finished::Response &res);
 
     void updated_deliberative_state(const deliberative_tier::deliberative_state &msg) { deliberative_state[msg.reasoner_id] = msg.deliberative_state; }
     void updated_navigation_state(const msgs::navigation_state &msg) { navigation_state = msg.navigation_state; }
@@ -42,6 +45,7 @@ namespace sir
     ros::ServiceClient start_physical_exercise_task;
     // Connection with the dialogue manager..
     ros::ServiceClient start_dialogue_task;
+    ros::ServiceServer dialogue_task_finished_server;
 
     /*
      * The sequencer state

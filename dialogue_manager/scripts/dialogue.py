@@ -30,7 +30,8 @@ class dialogue_manager:
             'start_dialogue_task', start_task, self.start_dialogue_task)
 
         # notifies the deliberative tier that a dialogue task has finished..
-        self.close_task = rospy.ServiceProxy('task_finished', task_finished)
+        self.dialogue_task_finished = rospy.ServiceProxy(
+            'dialogue_task_finished', task_finished)
 
         # called by the gui for starting a dialogue by the user..
         listen_service = rospy.Service('listen', Trigger, self.listen)
@@ -260,13 +261,13 @@ class dialogue_manager:
                     # the task is closed with a success..
                     rospy.logdebug(
                         'Closing task "%s" with a success..', self.task_name)
-                    self.close_task(
+                    self.dialogue_task_finished(
                         self.reasoner_id, self.task_id, True)
                 elif self.state['command_state'] == 'failure':
                     # the task is closed with a failure..
                     rospy.logdebug(
                         'Closing task "%s" with a failure..', self.task_name)
-                    self.close_task(
+                    self.dialogue_task_finished(
                         self.reasoner_id, self.task_id, False)
                 self.reasoner_id = -1
                 self.task_id = -1

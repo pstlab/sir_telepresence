@@ -2,7 +2,6 @@
 #include "deliberative_tier/create_reasoner.h"
 #include "deliberative_tier/destroy_reasoner.h"
 #include "deliberative_tier/new_requirement.h"
-#include "deliberative_tier/task_finished.h"
 #include <ros/package.h>
 
 namespace sir
@@ -24,7 +23,8 @@ namespace sir
                                                can_start_server(h.advertiseService("can_start", &sequencer::can_start, this)),
                                                start_task_server(h.advertiseService("start_task", &sequencer::start_task, this)),
                                                start_physical_exercise_task(h.serviceClient<deliberative_tier::start_task>("start_physical_exercise")),
-                                               start_dialogue_task(h.serviceClient<deliberative_tier::start_task>("start_dialogue_task"))
+                                               start_dialogue_task(h.serviceClient<deliberative_tier::start_task>("start_dialogue_task")),
+                                               dialogue_task_finished_server(h.advertiseService("dialogue_task_finished", &sequencer::dialogue_task_finished, this))
     {
         create_reasoner.waitForExistence();
         new_requirement.waitForExistence();
@@ -187,6 +187,18 @@ namespace sir
             ROS_ERROR("Unknown task name: %s", req.task_name.c_str());
             res.started = false;
         }
+        return true;
+    }
+
+    bool sequencer::dialogue_task_finished(deliberative_tier::task_finished::Request &req, deliberative_tier::task_finished::Response &res)
+    {
+        deliberative_tier::task_finished dtf_srv;
+        dtf_srv.request.reasoner_id = req.reasoner_id;
+        dtf_srv.request.task_id = req.task_id;
+        dtf_srv.request.success = req.success;
+        task_finished.call(dtf_srv);
+
+        res.ended = true;
         return true;
     }
 
