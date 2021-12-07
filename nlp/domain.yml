@@ -28,6 +28,7 @@ entities:
   - number
   - extraversion
   - gender
+  - physical_exercise_name
 
 slots:
   user_name:

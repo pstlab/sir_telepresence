@@ -36,6 +36,7 @@ nlu:
       - Certo che no
       - Sicuramente no
       - No davvero
+      - Per ora, non mi serve nulla!
 
   - intent: uncertain
     examples: |

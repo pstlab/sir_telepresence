@@ -10,20 +10,34 @@ stories:
       - action: action_command_start
       - action: utter_help_proposal
       - user: |
-          Per ora, non mi serve nulla!
-      - intent: deny
+          Certo che no!
+        intent: deny
       - action: utter_I_am_here
       - action: action_command_done
 
-  - story: Happy path name
+  - story: Set name intent
     steps:
       - user: |
-          Ciao! Io chiamo Riccardo!
-        intent: greet
+          Mi chiamo Riccardo!
+        intent: set_name
       - action: action_command_start
-      - slot_was_set:
-          - user_name
       - action: utter_help_proposal_name
-      - intent: deny
+      - user: |
+          No!
+        intent: deny
       - action: utter_I_am_here
       - action: action_command_done
+
+  - story: Profile gathering
+    steps:
+      - user: |
+          Ciao! Voglio parlarti di me!
+        intent: start_profile_gathering
+      - action: action_command_start
+      - action: utter_start_profile_gathering
+      - action: utter_ask_confirm
+      - user: |
+          Va bene!
+        intent: affirm
+      - action: profile_form
+      - active_loop: profile_form
