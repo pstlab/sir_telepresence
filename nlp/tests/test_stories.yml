@@ -2,9 +2,28 @@
 #### If you want to learn more, please see the docs: https://rasa.com/docs/rasa/testing-your-assistant
 
 stories:
-- story: happy path 1
-  steps:
-  - user: |
-      Salve!
-    intent: greet
-  - action: utter_help_proposal
+  - story: happy path
+    steps:
+      - user: |
+          Salve!
+        intent: greet
+      - action: action_command_start
+      - action: utter_help_proposal
+      - user: |
+          Per ora, non mi serve nulla!
+      - intent: deny
+      - action: utter_I_am_here
+      - action: action_command_done
+
+  - story: Happy path name
+    steps:
+      - user: |
+          Ciao! Io chiamo Riccardo!
+        intent: greet
+      - action: action_command_start
+      - slot_was_set:
+          - user_name
+      - action: utter_help_proposal_name
+      - intent: deny
+      - action: utter_I_am_here
+      - action: action_command_done

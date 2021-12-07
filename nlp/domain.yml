@@ -124,7 +124,9 @@ slots:
   sleep_time:
     type: float
     influence_conversation: false
-    initial_value: 120
+    min_value: 0.0
+    max_value: 1000.0
+    initial_value: 120.0
     mappings:
       - type: custom
   command_state:
@@ -239,6 +241,27 @@ responses:
         text: Ok! Sai dove trovarmi!
         face: talking
 
+  utter_presentation:
+    - custom:
+        text: Sono un robot di assistenza domestica che sta sviluppando l'ISTC all'interno del progetto Si-Robotics!
+        face: talking
+
+  utter_ask_what_I_do:
+    - custom:
+        text: Vuoi sapere cosa faccio?
+        face: talking
+    - custom:
+        text: Vuoi sapere cosa so fare?
+        face: talking
+    - custom:
+        text: Vuoi sapere come posso aiutarti?
+        face: talking
+
+  utter_present_capabilities:
+    - custom:
+        text: Il mio compito è di cercare di aiutare le persone anziane a mantenersi sane e in forma. Se vuoi ulteriori informazioni chiedile pure a chi mi ha costruito.
+        face: talking
+
   utter_goodbye:
     - custom:
         text: Ciao!
@@ -250,6 +273,44 @@ responses:
         text: A presto!
         face: talking
 
+  utter_positive_feedback:
+    - custom:
+        text: Ben fatto!
+        face: talking
+    - custom:
+        text: Molto bene!
+        face: talking
+    - custom:
+        text: Continua così!
+        face: talking
+    - custom:
+        text: Grande!
+        face: talking
+
+  utter_negative_feedback_introverse:
+    - custom:
+        text: Uhm, non proprio... ma non ti scoraggiare! Stai comunque andando bene.
+        face: talking
+    - custom:
+        text: Non esattamente, ma ci siamo quasi!
+        face: talking
+
+  utter_negative_feedback_estroverse:
+    - custom:
+        text: No no!
+        face: talking
+    - custom:
+        text: Ma cosa stai facendo? No no!
+        face: talking
+    - custom:
+        text: Non così!
+        face: talking
+
+  utter_reassure:
+    - custom:
+        text: Non ti preoccupare, partiamo da qualcosa di facile.
+        face: talking
+
   utter_start_profile_gathering:
     - custom:
         text: Ti farò alcune domande per capire meglio come interagire con te.
@@ -258,10 +319,10 @@ responses:
         text: Ora ti farò alcune domande per capire meglio come interagire con te.
         face: talking
     - custom:
-        text: Ti farò alcune domande su di te per personalizzare la mia interazione con te.
+        text: Ti farò alcune domande per personalizzare la mia interazione con te.
         face: talking
     - custom:
-        text: Ora ti farò alcune domande su di te per personalizzare la mia interazione con te.
+        text: Ora ti farò alcune domande per personalizzare la mia interazione con te.
         face: talking
 
   utter_ask_user_name:
@@ -302,71 +363,9 @@ responses:
         text: Molto bene. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
         face: talking
 
-  utter_presentation:
-    - custom:
-        text: Sono un robot di assistenza domestica che sta sviluppando l'ISTC all'interno del progetto Si-Robotics!
-        face: talking
-
-  utter_ask_what_I_do:
-    - custom:
-        text: Vuoi sapere cosa faccio?
-        face: talking
-    - custom:
-        text: Vuoi sapere cosa so fare?
-        face: talking
-    - custom:
-        text: Vuoi sapere come posso aiutarti?
-        face: talking
-
-  utter_present_capabilities:
-    - custom:
-        text: Il mio compito è di cercare di aiutare le persone anziane a mantenersi sane e in forma. Se vuoi ulteriori informazioni chiedile pure a chi mi ha costruito.
-        face: talking
-
-  utter_positive_feedback:
-    - custom:
-        text: Ben fatto!
-        face: talking
-    - custom:
-        text: Molto bene!
-        face: talking
-    - custom:
-        text: Continua così!
-        face: talking
-    - custom:
-        text: Grande!
-        face: talking
-
-  utter_start_physical_exercise:
-    - custom:
-        text: Cominceremo ora un esercizio di {physical_exercise_name}
-        face: talking
-    - custom:
-        text: Faremo ora un esercizio di {physical_exercise_name}
-        face: talking
-
-  utter_negative_feedback_introverse:
-    - custom:
-        text: Uhm, non proprio... ma non ti scoraggiare! Stai comunque andando bene.
-        face: talking
-    - custom:
-        text: Non esattamente, ma ci siamo quasi!
-        face: talking
-
-  utter_negative_feedback_estroverse:
-    - custom:
-        text: No no!
-        face: talking
-    - custom:
-        text: Ma cosa stai facendo? No no!
-        face: talking
-    - custom:
-        text: Non così!
-        face: talking
-
   utter_start_blood_pressure_gathering:
     - custom:
-        text: Sono le 9! Hai già misurato la pressione oggi?
+        text: Hai già misurato la pressione oggi?
         face: talking
     - custom:
         text: Ciao {user_name}! Hai già misurato la pressione oggi?
@@ -465,7 +464,7 @@ responses:
 
   utter_start_blood_saturation_gathering:
     - custom:
-        text: Sono le 9! Hai già misurato la saturazione di ossigeno oggi?
+        text: Hai già misurato la saturazione di ossigeno oggi?
         face: talking
     - custom:
         text: Ciao {user_name}! Hai già misurato la saturazione di ossigeno oggi?
@@ -520,6 +519,14 @@ responses:
         text: La tua attuale saturazione di ossigeno, di {blood_saturation}, è inferiore la soglia raccomandata.
         face: talking
 
+  utter_start_physical_exercise:
+    - custom:
+        text: Cominceremo ora un esercizio di {physical_exercise_name}
+        face: talking
+    - custom:
+        text: Faremo ora un esercizio di {physical_exercise_name}
+        face: talking
+
   utter_count_reps:
     - custom:
         text: "{reps}"
@@ -550,11 +557,6 @@ responses:
         face: talking
     - custom:
         text: "Le parole sono: {word_sequence}."
-        face: talking
-
-  utter_reassure:
-    - custom:
-        text: Non ti preoccupare, partiamo da qualcosa di facile.
         face: talking
 
   utter_count_the_word:
