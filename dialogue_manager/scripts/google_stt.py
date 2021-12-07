@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import rospy
 import speech_recognition as sr
-from msgs.srv import get_string, get_stringResponse
+from dialogue_manager.srv import get_string, get_stringResponse
 from std_srvs.srv import Empty, EmptyResponse
 
 

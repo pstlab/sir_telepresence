@@ -17,5 +17,5 @@
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>message_runtime</exec_depend>
   <depend>deliberative_tier</depend>
-  <depend>msgs</depend>
+  <depend>persistence_manager</depend>
 </package>

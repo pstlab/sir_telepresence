@@ -15,7 +15,7 @@ ros.on('close', function () {
     console.log('Connection to websocket server closed..');
 });
 
-var set_face_service = new ROSLIB.Service({ ros: ros, name: '/set_face', serviceType: 'msgs/set_string' });
+var set_face_service = new ROSLIB.Service({ ros: ros, name: '/set_face', serviceType: 'dialogue_manager/set_string' });
 set_face_service.advertise(function (request, response) {
     console.log('Setting robot face:' + request.text);
     response['success'] = true;

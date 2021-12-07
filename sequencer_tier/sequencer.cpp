@@ -8,13 +8,11 @@ namespace sir
 {
     std::string sequencer_to_string(unsigned int &sequencer_state);
     std::string deliberative_to_string(const std::map<uint64_t, unsigned int> &deliberative_state);
-    std::string navigation_to_string(unsigned int &navigation_state);
     std::string dialogue_to_string(unsigned int &dialogue_state);
 
     sequencer::sequencer(ros::NodeHandle &h) : handle(h),
                                                notify_state(h.advertise<sequencer_tier::sequencer_state>("sequencer_state", 10, true)),
                                                deliberative_state_sub(h.subscribe("deliberative_state", 100, &sequencer::updated_deliberative_state, this)),
-                                               navigation_state_sub(h.subscribe("navigation_state", 100, &sequencer::updated_navigation_state, this)),
                                                dialogue_state_sub(h.subscribe("dialogue_state", 100, &sequencer::updated_dialogue_state, this)),
                                                create_reasoner(h.serviceClient<deliberative_tier::create_reasoner>("create_reasoner")),
                                                destroy_reasoner(h.serviceClient<deliberative_tier::destroy_reasoner>("destroy_reasoner")),
@@ -38,7 +36,7 @@ namespace sir
 
     void sequencer::tick()
     {
-        ROS_DEBUG("{\"System\": %s, \"Deliberative\": %s, \"Navigation\": %s, \"Dialogue\": %s}", sequencer_to_string(sequencer_state).c_str(), deliberative_to_string(deliberative_state).c_str(), navigation_to_string(navigation_state).c_str(), dialogue_to_string(dialogue_state).c_str());
+        ROS_DEBUG("{\"System\": %s, \"Deliberative\": %s, \"Dialogue\": %s}", sequencer_to_string(sequencer_state).c_str(), deliberative_to_string(deliberative_state).c_str(), dialogue_to_string(dialogue_state).c_str());
 
         switch (sequencer_state)
         {
@@ -258,19 +256,6 @@ namespace sir
             }
         }
         return delib_state;
-    }
-
-    std::string navigation_to_string(unsigned int &navigation_state)
-    {
-        switch (navigation_state)
-        {
-        case msgs::navigation_state::idle:
-            return "\"Idle\"";
-        case msgs::navigation_state::navigating:
-            return "\"Navigating\"";
-        default:
-            return "\"-\"";
-        }
     }
 
     std::string dialogue_to_string(unsigned int &dialogue_state)

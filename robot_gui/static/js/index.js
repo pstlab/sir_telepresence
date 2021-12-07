@@ -15,7 +15,7 @@ ros.on('close', function () {
     console.log('Connection to websocket server closed..');
 });
 
-var set_face_service = new ROSLIB.Service({ ros: ros, name: '/set_face', serviceType: 'msgs/set_string' });
+var set_face_service = new ROSLIB.Service({ ros: ros, name: '/set_face', serviceType: 'dialogue_manager/set_string' });
 set_face_service.advertise(function (request, response) {
     console.log('Setting robot face:' + request.text);
     document.getElementById('robot_face').src = 'static/faces/' + request.text + '.gif';
@@ -25,7 +25,7 @@ set_face_service.advertise(function (request, response) {
 
 /*
 Ohmni.setSpeechLanguage('it-IT');
-var text_to_speech_service = new ROSLIB.Service({ ros: ros, name: '/text_to_speech', serviceType: 'msgs/set_string' });
+var text_to_speech_service = new ROSLIB.Service({ ros: ros, name: '/text_to_speech', serviceType: 'dialogue_manager/set_string' });
 text_to_speech_service.advertise(function (request, response) {
     console.log('Synthesizing:' + request.text);
     Ohmni.say(request.text);
@@ -34,7 +34,7 @@ text_to_speech_service.advertise(function (request, response) {
 });
 */
 
-var wait_for_input_service = new ROSLIB.Service({ ros: ros, name: '/wait_for_input', serviceType: 'msgs/set_string' });
+var wait_for_input_service = new ROSLIB.Service({ ros: ros, name: '/wait_for_input', serviceType: 'dialogue_manager/set_string' });
 wait_for_input_service.advertise(function (request, response) {
     console.log('Waiting for input:' + request.text);
     response['success'] = true;
@@ -62,13 +62,13 @@ deliberative_state_listener.subscribe(function (message) {
     print_state();
 });
 
-var navigation_state_listener = new ROSLIB.Topic({ ros: ros, name: '/navigation_state', messageType: 'msgs/navigation_state' });
+var navigation_state_listener = new ROSLIB.Topic({ ros: ros, name: '/navigation_state', messageType: 'dialogue_manager/navigation_state' });
 navigation_state_listener.subscribe(function (message) {
     state.navigation_state = message.navigation_state;
     print_state();
 });
 
-var dialogue_state_listener = new ROSLIB.Topic({ ros: ros, name: '/dialogue_state', messageType: 'dialogue/dialogue_state' });
+var dialogue_state_listener = new ROSLIB.Topic({ ros: ros, name: '/dialogue_state', messageType: 'dialogue_manager/dialogue_state' });
 dialogue_state_listener.subscribe(function (message) {
     state.dialogue_state = message.dialogue_state;
     print_state();

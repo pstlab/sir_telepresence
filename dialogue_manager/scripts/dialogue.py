@@ -5,8 +5,9 @@ import time
 import traceback
 from std_srvs.srv import Trigger, TriggerResponse, Empty
 from dialogue_manager.msg import dialogue_state
+from dialogue_manager.srv import get_string, set_string
 from deliberative_tier.srv import start_task, start_taskResponse, task_finished
-from msgs.srv import get_state, get_string, set_string
+from persistence_manager.srv import get_state
 
 face_idle = 'idle'
 face_talking = 'talking'
@@ -286,7 +287,7 @@ class dialogue_manager:
 
     def print_state(self):
         for s in self.state:
-            print(s, ':', self.state[s])
+            rospy.logdebug('"%s": "%s"', s, self.state[s])
 
 
 if __name__ == '__main__':
