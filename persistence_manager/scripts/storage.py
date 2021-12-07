@@ -20,6 +20,7 @@ class storage:
         rospy.logdebug('Loading "%s"..', req.name)
 
         if os.path.isfile(req.name):
+            rospy.logdebug('File "%s" exists..', req.name)
             par_names = []
             par_values = []
             with open(req.name) as json_file:
@@ -30,6 +31,7 @@ class storage:
                     par_values.append(data[s])
             return get_stateResponse(par_names, par_values, True)
         else:
+            rospy.logdebug('File "%s" does not exist..', req.name)
             return get_stateResponse([], [], False)
 
     def dump(self, req):
@@ -41,8 +43,16 @@ class storage:
         with open(req.name, 'w') as outfile:
             json.dump(data, outfile)
 
+    def start(self):
+        rate = rospy.Rate(50)
+        while not rospy.is_shutdown():
+            rate.sleep()
+
 
 if __name__ == '__main__':
     rospy.init_node('persistence_manager',
                     anonymous=True, log_level=rospy.DEBUG)
     rospy.loginfo('Starting Persistence Manager..')
+
+    pm = storage()
+    pm.start()

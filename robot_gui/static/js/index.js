@@ -46,7 +46,6 @@ var listen = new ROSLIB.Service({ ros: ros, name: '/listen', serviceType: 'std_s
 var state = {
     sequencer_state: null,
     deliberative_state: null,
-    navigation_state: null,
     dialogue_state: null
 };
 
@@ -59,12 +58,6 @@ sequencer_state_listener.subscribe(function (message) {
 var deliberative_state_listener = new ROSLIB.Topic({ ros: ros, name: '/deliberative_state', messageType: 'deliberative_tier/deliberative_state' });
 deliberative_state_listener.subscribe(function (message) {
     state.deliberative_state = { reasoner: message.reasoner_id, state: message.deliberative_state };
-    print_state();
-});
-
-var navigation_state_listener = new ROSLIB.Topic({ ros: ros, name: '/navigation_state', messageType: 'dialogue_manager/navigation_state' });
-navigation_state_listener.subscribe(function (message) {
-    state.navigation_state = message.navigation_state;
     print_state();
 });
 
@@ -84,7 +77,7 @@ function start_listen() {
 }
 
 function print_state() {
-    console.log('System: ' + print_sequencer_state(state.sequencer_state) + ', Deliberative: ' + print_deliberative_state(state.deliberative_state) + ', Navigation: ' + print_navigation_state(state.navigation_state) + ', Dialogue:' + print_dialogue_state(state.dialogue_state));
+    console.log('System: ' + print_sequencer_state(state.sequencer_state) + ', Deliberative: ' + print_deliberative_state(state.deliberative_state) + ', Dialogue:' + print_dialogue_state(state.dialogue_state));
 }
 
 function print_sequencer_state(sequencer_state) {
@@ -108,14 +101,6 @@ function print_deliberative_state(deliberative_state) {
             default: return '(' + deliberative_state.reasoner + ') -';
         }
     else return '-';
-}
-
-function print_navigation_state(navigation_state) {
-    switch (navigation_state) {
-        case 0: return 'idle'
-        case 1: return 'navigating'
-        default: return '-';
-    }
 }
 
 function print_dialogue_state(dialogue_state) {

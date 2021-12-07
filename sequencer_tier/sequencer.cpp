@@ -34,6 +34,8 @@ namespace sir
         task_finished.waitForExistence();
         // start_physical_exercise_task.waitForExistence();
         start_dialogue_task.waitForExistence();
+        load.waitForExistence();
+        dump.waitForExistence();
 
         ros::service::waitForService("set_face");
     }
@@ -167,18 +169,19 @@ namespace sir
                     sdp_srv.request.name = l_srv.request.name;
                     sdp_srv.request.par_names = l_srv.response.par_names;
                     sdp_srv.request.par_values = l_srv.response.par_values;
-                    set_dialogue_parameters.call(sdp_srv);
 
-                    // we close the task to the deliberative tier..
+                    // .. and close the task to the deliberative tier..
                     deliberative_tier::task_finished dtf_srv;
                     dtf_srv.request.reasoner_id = req.reasoner_id;
                     dtf_srv.request.task_id = req.task_id;
                     dtf_srv.request.success = sdp_srv.response.success;
-                    task_finished.call(dtf_srv);
+
+                    res.started = set_dialogue_parameters.call(sdp_srv) && task_finished.call(dtf_srv);
+                    return true;
                 }
             }
-            else // we start the dialogue task..
-                res.started = start_dialogue_task.call(sd_srv);
+            // we start the dialogue task..
+            res.started = start_dialogue_task.call(sd_srv);
         }
         else if (req.task_name == "BicepsCurl")
         { // starts a count the biceps curl physical exercise with the user..

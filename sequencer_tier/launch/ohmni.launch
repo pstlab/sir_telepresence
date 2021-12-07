@@ -9,6 +9,7 @@
         <rosparam param="running_goal">goal kh = new KeepHealthy();</rosparam>
     </node>
     <node name="deliberative_tier" pkg="deliberative_tier" type="deliberative_tier" output="screen" />
+    <node name="persistence_manager" pkg="persistence_manager" type="storage.py" output="screen" />
 
     <!-- Dialogue service to run on the robot -->
     <include unless="$(arg on_the_robot)" file="$(find dialogue_manager)/launch/dialogue_services.launch">
