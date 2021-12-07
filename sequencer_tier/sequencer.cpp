@@ -2,6 +2,8 @@
 #include "deliberative_tier/create_reasoner.h"
 #include "deliberative_tier/destroy_reasoner.h"
 #include "deliberative_tier/new_requirement.h"
+#include "persistence_manager/get_state.h"
+#include "persistence_manager/set_state.h"
 #include <ros/package.h>
 
 namespace sir
@@ -22,7 +24,10 @@ namespace sir
                                                start_task_server(h.advertiseService("start_task", &sequencer::start_task, this)),
                                                start_physical_exercise_task(h.serviceClient<deliberative_tier::start_task>("start_physical_exercise")),
                                                start_dialogue_task(h.serviceClient<deliberative_tier::start_task>("start_dialogue_task")),
-                                               dialogue_task_finished_server(h.advertiseService("dialogue_task_finished", &sequencer::dialogue_task_finished, this))
+                                               set_dialogue_parameters(h.serviceClient<persistence_manager::set_state>("set_dialogue_parameters")),
+                                               dialogue_task_finished_server(h.advertiseService("dialogue_task_finished", &sequencer::dialogue_task_finished, this)),
+                                               load(h.serviceClient<persistence_manager::get_state>("load")),
+                                               dump(h.serviceClient<persistence_manager::set_state>("dump"))
     {
         create_reasoner.waitForExistence();
         new_requirement.waitForExistence();
@@ -152,7 +157,28 @@ namespace sir
                     sd_srv.request.par_names.push_back(req.par_names.at(i));
                     sd_srv.request.par_values.push_back(req.par_values.at(i));
                 }
-            res.started = start_dialogue_task.call(sd_srv);
+            if (sd_srv.request.task_name == "start_profile_gathering")
+            { // we check whether a profile already exist..
+                persistence_manager::get_state l_srv;
+                l_srv.request.name = "profile.json";
+                if (load.call(l_srv) && l_srv.response.success)
+                { // we set the profile on the dialogue manager..
+                    persistence_manager::set_state sdp_srv;
+                    sdp_srv.request.name = l_srv.request.name;
+                    sdp_srv.request.par_names = l_srv.response.par_names;
+                    sdp_srv.request.par_values = l_srv.response.par_values;
+                    set_dialogue_parameters.call(sdp_srv);
+
+                    // we close the task to the deliberative tier..
+                    deliberative_tier::task_finished dtf_srv;
+                    dtf_srv.request.reasoner_id = req.reasoner_id;
+                    dtf_srv.request.task_id = req.task_id;
+                    dtf_srv.request.success = sdp_srv.response.success;
+                    task_finished.call(dtf_srv);
+                }
+            }
+            else // we start the dialogue task..
+                res.started = start_dialogue_task.call(sd_srv);
         }
         else if (req.task_name == "BicepsCurl")
         { // starts a count the biceps curl physical exercise with the user..
@@ -190,6 +216,16 @@ namespace sir
 
     bool sequencer::dialogue_task_finished(deliberative_tier::task_finished::Request &req, deliberative_tier::task_finished::Response &res)
     {
+        if (req.task_name == "start_profile_gathering" && req.success)
+        { // we store the gathered profile..
+            persistence_manager::set_state d_srv;
+            d_srv.request.name = "profile.json";
+            d_srv.request.par_names = req.par_names;
+            d_srv.request.par_values = req.par_values;
+            dump.call(d_srv);
+        }
+
+        // we close the task to the deliberative tier..
         deliberative_tier::task_finished dtf_srv;
         dtf_srv.request.reasoner_id = req.reasoner_id;
         dtf_srv.request.task_id = req.task_id;

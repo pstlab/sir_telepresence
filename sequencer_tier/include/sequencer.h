@@ -43,7 +43,10 @@ namespace sir
     ros::ServiceClient start_physical_exercise_task;
     // Connection with the dialogue manager..
     ros::ServiceClient start_dialogue_task;
+    ros::ServiceClient set_dialogue_parameters;
     ros::ServiceServer dialogue_task_finished_server;
+    // Connection with the persistence manager..
+    ros::ServiceClient load, dump;
 
     /*
      * The sequencer state

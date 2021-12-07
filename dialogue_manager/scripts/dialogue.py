@@ -7,7 +7,7 @@ from std_srvs.srv import Trigger, TriggerResponse, Empty
 from dialogue_manager.msg import dialogue_state
 from dialogue_manager.srv import get_string, set_string
 from deliberative_tier.srv import start_task, start_taskResponse, task_finished
-from persistence_manager.srv import get_state
+from persistence_manager.srv import get_state, set_state, set_stateResponse
 
 face_idle = 'idle'
 face_talking = 'talking'
@@ -40,6 +40,10 @@ class dialogue_manager:
         # called by any component that requires to start a dialogue..
         start_dialogue_service = rospy.Service(
             'start_dialogue', start_task, self.start_dialogue)
+
+        # retrieves the current emotions..
+        set_dialogue_parameters_service = rospy.Service(
+            'set_dialogue_parameters', set_state, self.set_dialogue_parameters)
 
         # retrieves the current emotions..
         self.perceive_emotions = rospy.ServiceProxy(
@@ -88,6 +92,18 @@ class dialogue_manager:
         self.par_names = req.par_names
         self.par_values = req.par_values
         return start_taskResponse(True)
+
+    def set_dialogue_parameters(self, req):
+        rospy.logdebug('Setting "%s" dialogue parameters..', req.name)
+        for i in range(len(req.par_names)):
+            rospy.logdebug(req.par_names[i] + ': %s', req.par_values[i])
+            r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
+                'include_events': 'NONE'}, json={'event': 'slot', 'name': req.par_names[i], 'value': req.par_values[i], 'timestamp': time.time()})
+            if(r.status_code == requests.codes.ok):
+                j_res = r.json()
+            else:
+                return set_stateResponse(False)
+        return set_stateResponse(True)
 
     def listen(self, req):
         if self.user_dialogue:
