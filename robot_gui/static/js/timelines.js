@@ -34,6 +34,7 @@ reasoner_destroyed_listener.subscribe(function (message) {
 
 var flaw_created_listener = new ROSLIB.Topic({ ros: ros, name: '/flaw_created', messageType: 'deliberative_tier/flaw_created' });
 flaw_created_listener.subscribe(function (message) {
+    console.log('flaw_created: ' + message);
 });
 
 var flaw_state_changed_listener = new ROSLIB.Topic({ ros: ros, name: '/flaw_state_changed', messageType: 'deliberative_tier/flaw_state_changed' });
