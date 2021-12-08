@@ -279,13 +279,13 @@ class dialogue_manager:
                     rospy.logdebug(
                         'Closing task "%s" with a success..', self.task_name)
                     self.dialogue_task_finished(
-                        self.reasoner_id, self.task_id, True)
+                        self.reasoner_id, self.task_id, self.task_name, self.par_names, self.par_values, True)
                 elif self.state['command_state'] == 'failure':
                     # the task is closed with a failure..
                     rospy.logdebug(
                         'Closing task "%s" with a failure..', self.task_name)
                     self.dialogue_task_finished(
-                        self.reasoner_id, self.task_id, False)
+                        self.reasoner_id, self.task_id, self.task_name, self.par_names, self.par_values, False)
                 self.reasoner_id = -1
                 self.task_id = -1
                 self.task_name = ''
