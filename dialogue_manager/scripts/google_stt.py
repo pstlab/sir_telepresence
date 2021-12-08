@@ -28,6 +28,8 @@ class speech_to_text:
         return EmptyResponse()
 
     def stt(self, req):
+        if not hasattr(self, 'energy_threshold'):
+            self.configure_stt(req)
         rospy.logdebug('activating microphone..')
         rec = sr.Recognizer()
         rec.energy_threshold = self.energy_threshold
