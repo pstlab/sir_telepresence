@@ -1,2 +1,2 @@
-const ros_host = 'localhost'
-const ros_port = '9090'
+export const ros_host = 'localhost'
+export const ros_port = '9090'

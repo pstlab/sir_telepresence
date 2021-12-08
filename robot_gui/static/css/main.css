@@ -2,3 +2,11 @@
     --bs-bg-opacity: 1;
     background-color: rgba(var(--bs-black-rgb),var(--bs-bg-opacity))!important;
 }
+
+.nav-link {
+    color: #6c757d;
+}
+
+.nav-link:hover {
+    color: #6c757d;
+}
