@@ -14,7 +14,7 @@ pipeline:
     epochs: 100
     constrain_similarities: true
   - name: "SpacyNLP"
-    model: "it_core_news_sm"
+    model: "it_core_news_lg"
   - name: "SpacyEntityExtractor"
     dimensions: ["PER", "LOC", "ORG", "PRODUCT"]
   - name: "DucklingEntityExtractor"

@@ -38,9 +38,7 @@ slots:
     mappings:
       - type: from_entity
         entity: PER
-        conditions:
-          - active_loop: profile_form
-            requested_slot: user_name
+        intent: set_name
   user_gender:
     type: categorical
     values:
@@ -49,9 +47,7 @@ slots:
     mappings:
       - type: from_entity
         entity: gender
-        conditions:
-          - active_loop: profile_form
-            requested_slot: user_gender
+        intent: set_gender
   user_extraversion:
     type: categorical
     values:
@@ -60,9 +56,7 @@ slots:
     mappings:
       - type: from_entity
         entity: extraversion
-        conditions:
-          - active_loop: profile_form
-            requested_slot: user_extraversion
+        intent: set_extraversion
   reps:
     type: text
     influence_conversation: false

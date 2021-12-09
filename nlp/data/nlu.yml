@@ -73,9 +73,11 @@ nlu:
   - intent: set_name
     examples: |
       - Mi chiamo [Nome](PER)
+      - Mi chiamo [Gloria](PER)
       - Mi chiamo [Cognome](PER)
       - Mi chiamo [Soprannome](PER)
       - Sono [Nome](PER)
+      - Sono [Francesca](PER)
       - Sono [Cognome](PER)
       - Sono [Soprannome](PER)
       - Puoi chiamarmi [Nome](PER)

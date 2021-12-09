@@ -8,6 +8,7 @@ stories:
           Salve!
         intent: greet
       - action: action_command_start
+      - action: utter_greet
       - action: utter_help_proposal
       - user: |
           Certo che no!
@@ -21,7 +22,8 @@ stories:
           Mi chiamo Riccardo!
         intent: set_name
       - action: action_command_start
-      - action: utter_help_proposal_name
+      - action: utter_greet_name
+      - action: utter_help_proposal
       - user: |
           No!
         intent: deny
@@ -41,3 +43,20 @@ stories:
         intent: affirm
       - action: profile_form
       - active_loop: profile_form
+      - user: |
+          Mi chiamo [Riccardo](PER)
+        intent: set_name
+      - action: profile_form
+      - active_loop: profile_form
+      - user: |
+          il [maschile](gender)
+        intent: set_gender
+      - action: profile_form
+      - active_loop: profile_form
+      - user: |
+          una persona [introversa](extraversion)
+        intent: set_extraversion
+      - action: profile_form
+      - active_loop: null
+      - action: utter_profile_gathered
+      - action: action_command_done
