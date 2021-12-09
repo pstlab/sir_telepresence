@@ -2,7 +2,7 @@
 #### If you want to learn more, please see the docs: https://rasa.com/docs/rasa/testing-your-assistant
 
 stories:
-  - story: happy path
+  - story: happy path 1
     steps:
       - user: |
           Salve!
@@ -15,11 +15,30 @@ stories:
         intent: deny
       - action: utter_I_am_here
       - action: action_command_done
+      
+  - story: happy path 2
+    steps:
+      - user: |
+          Salve!
+        intent: greet
+      - action: action_command_start
+      - action: utter_greet
+      - action: utter_help_proposal
+      - user: |
+          Cosa sai fare?
+        intent: ask_capabilities
+      - action: utter_present_capabilities
+      - action: utter_help_proposal
+      - user: |
+          No!
+        intent: deny
+      - action: utter_I_am_here
+      - action: action_command_done
 
   - story: Set name intent
     steps:
       - user: |
-          Mi chiamo Riccardo!
+          Mi chiamo [Riccardo]{"entity": "PER"}
         intent: set_name
       - action: action_command_start
       - action: utter_greet_name
@@ -44,17 +63,17 @@ stories:
       - action: profile_form
       - active_loop: profile_form
       - user: |
-          Mi chiamo [Riccardo](PER)
+          Mi chiamo [Riccardo]{"entity": "PER"}
         intent: set_name
       - action: profile_form
       - active_loop: profile_form
       - user: |
-          il [maschile](gender)
+          il [maschile]{"entity": "gender"}
         intent: set_gender
       - action: profile_form
       - active_loop: profile_form
       - user: |
-          una persona [introversa](extraversion)
+          una persona [introversa]{"entity": "extraversion"}
         intent: set_extraversion
       - action: profile_form
       - active_loop: null
