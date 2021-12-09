@@ -8,6 +8,7 @@ intents:
   - uncertain
   - ask_capabilities
   - introduce_yourself
+  - start_interaction
   - start_profile_gathering
   - set_name
   - set_extraversion
@@ -161,57 +162,64 @@ forms:
       - blood_saturation
 
 responses:
+  utter_greet:
+    - custom:
+        text: Ciao!
+        face: talking
+    - custom:
+        text: Hey!
+        face: talking
+
+  utter_greet_name:
+    - custom:
+        text: Ciao {user_name}!
+        face: talking
+    - custom:
+        text: Hey {user_name}!
+        face: talking
+
+  utter_greet_male:
+    - custom:
+        text: Ciao bello!
+        face: talking
+    - custom:
+        text: Hey bello!
+        face: talking
+
+  utter_greet_female:
+    - custom:
+        text: Ciao bella!
+        face: talking
+    - custom:
+        text: Hey bella!
+        face: talking
+
   utter_help_proposal:
     - custom:
-        text: Hey! Posso esserti utile?
+        text: Posso esserti utile?
         face: talking
     - custom:
-        text: Hey! Posso esserti utile?
+        text: Posso fare qualcosa per te?
         face: talking
     - custom:
-        text: Hey, ciao! Posso esserti utile?
+        text: Posso esserti utile?
         face: talking
     - custom:
-        text: Hey, ciao! Come posso aiutarti?
-        face: talking
-    - custom:
-        text: Ciao! Posso esserti utile?
-        face: talking
-    - custom:
-        text: Ciao! Come posso aiutarti?
+        text: Come posso aiutarti?
         face: talking
 
-  utter_help_proposal_name:
+  utter_help_further_proposal:
     - custom:
-        text: Hey! Posso esserti utile?
+        text: Posso fare qualcos'altro per te?
         face: talking
     - custom:
-        text: Hey {user_name}! Posso esserti utile?
+        text: Posso fare altro per te?
         face: talking
     - custom:
-        text: Hey {user_name}! Come posso aiutarti?
+        text: Ti serve qualche altra cosa?
         face: talking
     - custom:
-        text: Ciao {user_name}! Posso esserti utile?
-        face: talking
-    - custom:
-        text: Ciao {user_name}! Come posso aiutarti?
-        face: talking
-
-  utter_help_proposal_male:
-    - custom:
-        text: Ciao bello! Posso fare qualcosa per te?
-        face: talking
-    - custom:
-        text: Ciao bello! Come posso aiutarti?
-        face: talking
-
-  utter_help_proposal_female:
-    - custom:
-        text: Ciao bella! Posso fare qualcosa per te?
-        face: talking
-    - custom:
-        text: Ciao bella! Come posso aiutarti?
+        text: Ti serve altro?
         face: talking
 
   utter_ask_confirm:

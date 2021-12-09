@@ -13,6 +13,13 @@ nlu:
       - Ci vediamo
       - Arrivederci
       - A presto
+      - Va bene così
+      - Va bene così, grazie
+      - Non mi serve niente
+      - Non mi serve nient'altro
+      - Per ora non mi serve niente
+      - Se mi serve qualcosa te lo faccio sapere
+      - Se mi serve qualcosa ti chiamo dopo
 
   - intent: affirm
     examples: |
@@ -94,6 +101,12 @@ nlu:
       - Mi sento più [femmina](gender)
       - Preferisco il [maschile](gender)
       - Preferisco il [femminile](gender)
+
+  - intent: start_interaction
+    examples: |
+      - Voglio parlare con te
+      - Voglio dirti qualcosa
+      - Voglio dirti una cosa
 
   - intent: set_reps
     examples: |

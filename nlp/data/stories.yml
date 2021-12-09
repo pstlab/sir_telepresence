@@ -5,6 +5,7 @@ stories:
     steps:
       - intent: greet
       - action: action_command_start
+      - action: utter_greet
       - action: utter_help_proposal
       - intent: deny
       - action: utter_I_am_here
@@ -16,7 +17,8 @@ stories:
       - action: action_command_start
       - slot_was_set:
           - user_name
-      - action: utter_help_proposal_name
+      - action: utter_greet_name
+      - action: utter_help_proposal
       - intent: deny
       - action: utter_I_am_here
       - action: action_command_done
@@ -27,7 +29,8 @@ stories:
       - action: action_command_start
       - slot_was_set:
           - user_gender: male
-      - action: utter_help_proposal_male
+      - action: utter_greet_male
+      - action: utter_help_proposal
       - intent: deny
       - action: utter_I_am_here
       - action: action_command_done
@@ -38,7 +41,18 @@ stories:
       - action: action_command_start
       - slot_was_set:
           - user_gender: female
-      - action: utter_help_proposal_female
+      - action: utter_greet_female
+      - action: utter_help_proposal
+      - intent: deny
+      - action: utter_I_am_here
+      - action: action_command_done
+
+  - story: Ask capabilities
+    steps:
+      - intent: ask_capabilities
+      - action: action_command_start
+      - action: utter_present_capabilities
+      - action: utter_help_proposal
       - intent: deny
       - action: utter_I_am_here
       - action: action_command_done
@@ -49,7 +63,8 @@ stories:
       - action: action_command_start
       - slot_was_set:
           - user_name
-      - action: utter_help_proposal_name
+      - action: utter_greet_name
+      - action: utter_help_proposal
       - intent: deny
       - action: utter_I_am_here
       - action: action_command_done
@@ -63,6 +78,39 @@ stories:
       - intent: affirm
       - action: utter_present_capabilities
       - action: action_command_done
+
+  - story: Start interaction no name
+    steps:
+      - intent: start_interaction
+      - action: action_command_start
+      - action: utter_help_proposal
+
+  - story: Start interaction name
+    steps:
+      - intent: start_interaction
+      - action: action_command_start
+      - slot_was_set:
+          - user_name
+      - action: utter_greet_name
+      - action: utter_help_proposal
+
+  - story: Start interaction male
+    steps:
+      - intent: start_interaction
+      - action: action_command_start
+      - slot_was_set:
+          - user_gender: male
+      - action: utter_greet_male
+      - action: utter_help_proposal
+
+  - story: Start interaction female
+    steps:
+      - intent: start_interaction
+      - action: action_command_start
+      - slot_was_set:
+          - user_gender: female
+      - action: utter_greet_female
+      - action: utter_help_proposal
 
   - story: Profile gathering
     steps:

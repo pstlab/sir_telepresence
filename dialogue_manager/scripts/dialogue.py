@@ -24,7 +24,6 @@ class dialogue_manager:
         self.task_name = ''
         self.par_names = []
         self.par_values = []
-        self.user_dialogue = False
 
         # called by the deliberative tier..
         start_dialogue_task_service = rospy.Service(
@@ -106,12 +105,10 @@ class dialogue_manager:
         return set_stateResponse(True)
 
     def listen(self, req):
-        if self.user_dialogue:
-            return TriggerResponse(False, 'Already listening..')
-        elif self.task:
+        if self.task or self.task_name:
             return TriggerResponse(False, 'Already having a dialogue..')
         else:
-            self.user_dialogue = True
+            self.task_name = 'start_interaction'
             return TriggerResponse(True, 'Opening microphone..')
 
     def start(self):
@@ -188,10 +185,6 @@ class dialogue_manager:
                             dialogue_state(dialogue_state.idle))
                         self.set_face(face_idle)
                     self.dialogue()
-
-            elif self.user_dialogue:
-                self.interact()
-                self.dialogue()
 
             rate.sleep()
 
@@ -273,26 +266,30 @@ class dialogue_manager:
     def close_dialogue(self):
         if self.state['command_state'] == 'done' or self.state['command_state'] == 'failure':
             if self.task:
+                par_names = []
+                par_values = []
+                for s in self.state:
+                    par_names.append(s)
+                    par_values.append(self.state[s])
                 # we close the current task..
                 if self.state['command_state'] == 'done':
                     # the task is closed with a success..
                     rospy.logdebug(
                         'Closing task "%s" with a success..', self.task_name)
                     self.dialogue_task_finished(
-                        self.reasoner_id, self.task_id, self.task_name, self.par_names, self.par_values, True)
+                        self.reasoner_id, self.task_id, self.task_name, par_names, par_values, True)
                 elif self.state['command_state'] == 'failure':
                     # the task is closed with a failure..
                     rospy.logdebug(
                         'Closing task "%s" with a failure..', self.task_name)
                     self.dialogue_task_finished(
-                        self.reasoner_id, self.task_id, self.task_name, self.par_names, self.par_values, False)
+                        self.reasoner_id, self.task_id, self.task_name, par_names, par_values, False)
                 self.reasoner_id = -1
                 self.task_id = -1
                 self.task_name = ''
                 self.par_names.clear()
                 self.par_values.clear()
-            # we close the current dialogue..
-            self.user_dialogue = False
+
             # we update the state..
             self.state_pub.publish(dialogue_state(dialogue_state.idle))
             self.set_face(face_idle)

@@ -4,15 +4,7 @@ rules:
   - rule: Say goodbye anytime the user says goodbye
     steps:
       - intent: goodbye
-      - action: action_command_start
       - action: utter_goodbye
-      - action: action_command_done
-
-  - rule: Ask capabilities
-    steps:
-      - intent: ask_capabilities
-      - action: action_command_start
-      - action: utter_present_capabilities
       - action: action_command_done
 
   - rule: profile form
@@ -25,6 +17,15 @@ rules:
           - requested_slot: null
       - action: utter_profile_gathered
       - action: action_command_done
+
+  - rule: profile form unhappy path
+    condition:
+      - active_loop: profile_form
+    steps:
+      - intent: ask_capabilities
+      - action: utter_present_capabilities
+      - action: profile_form
+      - active_loop: profile_form
 
   - rule: blood pressure form
     condition:
