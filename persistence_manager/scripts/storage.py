@@ -42,6 +42,7 @@ class storage:
             data[req.par_names[i]] = req.par_values[i]
         with open(req.name, 'w') as outfile:
             json.dump(data, outfile)
+        return set_stateResponse(True)
 
     def start(self):
         rate = rospy.Rate(50)

@@ -270,7 +270,7 @@ class dialogue_manager:
                 par_values = []
                 for s in self.state:
                     par_names.append(s)
-                    par_values.append(self.state[s])
+                    par_values.append(str(self.state[s]))
                 # we close the current task..
                 if self.state['command_state'] == 'done':
                     # the task is closed with a success..
