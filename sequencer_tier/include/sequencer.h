@@ -7,11 +7,17 @@
 #include "deliberative_tier/start_task.h"
 #include "deliberative_tier/task_finished.h"
 #include <ros/ros.h>
+#include <queue>
 
 namespace sir
 {
+  class service_call;
+  class task_finished_service_call;
+
   class sequencer
   {
+    friend class task_finished_service_call;
+
   public:
     sequencer(ros::NodeHandle &handle);
     ~sequencer();
@@ -56,5 +62,6 @@ namespace sir
     std::map<uint64_t, unsigned int> deliberative_state;
     ros::Subscriber dialogue_state_sub;
     unsigned int dialogue_state = dialogue_manager::dialogue_state::idle;
+    std::queue<service_call *> pending_calls;
   };
 } // namespace sir

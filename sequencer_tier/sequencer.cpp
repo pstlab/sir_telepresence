@@ -4,6 +4,7 @@
 #include "deliberative_tier/new_requirement.h"
 #include "persistence_manager/get_state.h"
 #include "persistence_manager/set_state.h"
+#include "service_call.h"
 #include <ros/package.h>
 
 namespace sir
@@ -44,6 +45,15 @@ namespace sir
     void sequencer::tick()
     {
         ROS_DEBUG("{\"System\": %s, \"Deliberative\": %s, \"Dialogue\": %s}", sequencer_to_string(sequencer_state).c_str(), deliberative_to_string(deliberative_state).c_str(), dialogue_to_string(dialogue_state).c_str());
+
+        while (!pending_calls.empty())
+        {
+            auto pc = pending_calls.front();
+            auto cr = pc->call();
+            ROS_WARN_COND(!cr, "Call failed..");
+            delete pc;
+            pending_calls.pop();
+        }
 
         switch (sequencer_state)
         {
@@ -170,13 +180,12 @@ namespace sir
                     sdp_srv.request.par_names = l_srv.response.par_names;
                     sdp_srv.request.par_values = l_srv.response.par_values;
 
-                    // .. and close the task to the deliberative tier..
-                    deliberative_tier::task_finished dtf_srv;
-                    dtf_srv.request.reasoner_id = req.reasoner_id;
-                    dtf_srv.request.task_id = req.task_id;
-                    dtf_srv.request.success = sdp_srv.response.success;
+                    res.started = set_dialogue_parameters.call(sdp_srv);
 
-                    res.started = set_dialogue_parameters.call(sdp_srv) && task_finished.call(dtf_srv);
+                    // .. and append (direct call causes deadlock!) the closing of the task to the deliberative tier..
+                    pending_calls.push(new task_finished_service_call(*this, req.reasoner_id, req.task_id, req.task_name, {}, {}, true));
+
+                    res.started = true;
                     return true;
                 }
             }
