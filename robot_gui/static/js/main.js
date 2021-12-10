@@ -66,10 +66,11 @@ reasoner_created_listener.subscribe(function (message) {
     const reasoners_tabs = document.getElementById('reasoners-tabs');
     const reasoner_tab_template = document.getElementById('reasoner-tab-template');
     const reasoner_tab = reasoner_tab_template.content.cloneNode(true).querySelector('li');
+    reasoner_tab.setAttribute('id', 'r' + message.data + '-tab');
     const reasoner_button = reasoner_tab.querySelector('button');
     if (!reasoners_tabs.hasChildNodes())
         reasoner_button.classList.add('active');
-    reasoner_button.setAttribute('id', 'r' + message.data + '-tab');
+    reasoner_button.setAttribute('id', 'r' + message.data + '-but');
     reasoner_button.setAttribute('data-bs-target', '#r' + message.data);
     reasoner_button.setAttribute('aria-controls', 'r' + message.data);
     reasoner_button.append('Reasoner (' + message.data + ')');
@@ -81,7 +82,7 @@ reasoner_created_listener.subscribe(function (message) {
     if (!reasoners_content.hasChildNodes())
         reasoner.classList.add('show', 'active');
     reasoner.setAttribute('id', 'r' + message.data);
-    reasoner.setAttribute('aria-labelledby', 'r' + message.data + '-tab');
+    reasoner.setAttribute('aria-labelledby', 'r' + message.data + '-but');
     reasoners_content.append(reasoner);
 });
 
