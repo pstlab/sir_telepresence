@@ -62,6 +62,13 @@ nlu:
       - Cosa sai fare?
       - Quali sono le tue funzionalità?
 
+  - intent: done
+    examples: |
+      - Ho fatto
+      - Ora posso comunicarti i valori
+      - Posso comunicarti i valori
+      - Ho fatto quello che dovevo fare
+
   - intent: start_profile_gathering
     examples: |
       - Voglio parlarti di me

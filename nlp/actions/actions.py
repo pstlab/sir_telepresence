@@ -18,6 +18,18 @@ class ActionCommandStart(Action):
         return [SlotSet('command_state', 'executing')]
 
 
+class ActionCommandPending(Action):
+
+    def name(self) -> Text:
+        return "action_command_pending"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        return [SlotSet('command_state', 'pending')]
+
+
 class ActionCommandDone(Action):
 
     def name(self) -> Text:
@@ -90,10 +102,8 @@ class ActionProfileAnalysis(Action):
             if profile_confident:
                 extraversion += 1
 
-        print('profile pars set ' + str(n_profile_pars_set))
         if n_profile_pars_set > 0:
             extraversion /= n_profile_pars_set
-            print('extraversion ' + str(extraversion))
 
         if extraversion <= 0.4:
             SlotSet('extraversion', 'extroverted')
@@ -115,8 +125,10 @@ class ActionBloodPressureAnalysis(Action):
 
         dispatcher.utter_message(
             response='utter_blood_pressure_recap')
-        systolic_blood_pressure = tracker.get_slot('systolic_blood_pressure')
-        diastolic_blood_pressure = tracker.get_slot('diastolic_blood_pressure')
+        systolic_blood_pressure = int(
+            tracker.get_slot('systolic_blood_pressure'))
+        diastolic_blood_pressure = int(
+            tracker.get_slot('diastolic_blood_pressure'))
         if systolic_blood_pressure < 130 and diastolic_blood_pressure < 85:
             dispatcher.utter_message(
                 response='utter_blood_pressure_ok')
@@ -140,26 +152,11 @@ class ActionBloodSaturationAnalysis(Action):
 
         dispatcher.utter_message(
             response='utter_blood_saturation_recap')
-        blood_saturation = tracker.get_slot('blood_saturation')
+        blood_saturation = int(tracker.get_slot('blood_saturation'))
         if blood_saturation > 90:
             dispatcher.utter_message(
                 response='utter_blood_saturation_ok')
         else:
             dispatcher.utter_message(
                 response='utter_low_blood_saturation')
-        return []
-
-
-class ActionSleep(Action):
-
-    def name(self) -> Text:
-        return "action_sleep"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-
-        sleep_time = tracker.get_slot('sleep_time')
-        print('sleeping for ' + str(sleep_time) + ' seconds')
-        time.sleep(sleep_time)
         return []

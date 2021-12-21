@@ -788,7 +788,6 @@ actions:
   - action_profile_analysis
   - action_blood_pressure_analysis
   - action_blood_saturation_analysis
-  - action_sleep
   - validate_count_the_word_form
 
 session_config:

@@ -17,7 +17,8 @@ face_listening = 'listening'
 class dialogue_manager:
 
     def __init__(self):
-        self.task = False
+        self.deliberative_task = False
+        self.pending = False
         self.state = {}
         self.reasoner_id = None
         self.task_id = None
@@ -77,7 +78,7 @@ class dialogue_manager:
     def start_dialogue_task(self, req):
         rospy.logdebug('Start dialogue task "%s" request..', req.task_name)
         # we store the informations about the starting dialogue task..
-        self.task = True
+        self.deliberative_task = True
         return self.start_dialogue(req)
 
     def start_dialogue(self, req):
@@ -105,11 +106,14 @@ class dialogue_manager:
         return set_stateResponse(True)
 
     def listen(self, req):
-        if self.task or self.task_name:
+        if self.pending:
+            self.pending = False
+            return TriggerResponse(True, 'Reopening the microphone..')
+        elif self.task_name:
             return TriggerResponse(False, 'Already having a dialogue..')
         else:
             self.task_name = 'start_interaction'
-            return TriggerResponse(True, 'Opening microphone..')
+            return TriggerResponse(True, 'Opening the microphone..')
 
     def start(self):
         rospy.loginfo('Restarting the dialogue engine..')
@@ -120,7 +124,9 @@ class dialogue_manager:
 
         rate = rospy.Rate(50)
         while not rospy.is_shutdown():
-            if self.task_name:
+            if self.pending:
+                rate.sleep()
+            elif self.task_name:
                 # we update the state..
                 self.state_pub.publish(
                     dialogue_state(dialogue_state.configuring))
@@ -184,13 +190,11 @@ class dialogue_manager:
                         self.state_pub.publish(
                             dialogue_state(dialogue_state.idle))
                         self.set_face(face_idle)
-                    self.dialogue()
 
-            rate.sleep()
-
-    def dialogue(self):
-        while not self.close_dialogue():
-            self.interact()
+                    # we start a dialogue..
+                    while not self.close_dialogue():
+                        self.interact()
+                rate.sleep()
 
     def interact(self):
         # we update the state..
@@ -265,7 +269,7 @@ class dialogue_manager:
 
     def close_dialogue(self):
         if self.state['command_state'] == 'done' or self.state['command_state'] == 'failure':
-            if self.task:
+            if self.deliberative_task:
                 par_names = []
                 par_values = []
                 for s in self.state:
@@ -284,6 +288,7 @@ class dialogue_manager:
                         'Closing task "%s" with a failure..', self.task_name)
                     self.dialogue_task_finished(
                         self.reasoner_id, self.task_id, self.task_name, par_names, par_values, False)
+                self.deliberative_task = False
                 self.reasoner_id = -1
                 self.task_id = -1
                 self.task_name = ''
@@ -292,6 +297,12 @@ class dialogue_manager:
 
             # we update the state..
             self.state_pub.publish(dialogue_state(dialogue_state.idle))
+            self.set_face(face_idle)
+            return True
+        elif self.state['command_state'] == 'pending':
+            self.pending = True
+            # we update the state..
+            self.state_pub.publish(dialogue_state(dialogue_state.pending))
             self.set_face(face_idle)
             return True
         else:
