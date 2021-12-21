@@ -2,29 +2,28 @@ export class TimelinesData {
 
     constructor() {
         this.timelines = [];
+        this.origin = 0;
         this.horizon = 1;
     }
 
     reset(tls) {
-        if (tls.timelines) {
-            this.timelines.splice(0, this.timelines.length - tls.timelines.length);
-            tls.timelines.forEach((tl, i) => {
-                this.timelines[i] = tl;
-                this.timelines[i].id = i;
-                this.timelines[i].values.forEach((v, j) => v.id = j);
-                if (this.timelines[i].type === 'ReusableResource' && this.timelines[i].values.length) this.timelines[i].values.push({ usage: 0, from: this.timelines[i].values[this.timelines[i].values.length - 1].to, id: this.timelines[i].values.length });
-                if (this.timelines[i].type === 'Agent') {
-                    const ends = [0];
-                    this.timelines[i].values.forEach(v => v.y = values_y(v.from, v.from === v.to ? v.from + 0.1 : v.to, ends));
-                }
-            });
-        }
-        if (this.timelines.length)
-            this.horizon = Math.max(d3.max(this.timelines, d => d.horizon), 1);
+        this.timelines.splice(0, this.timelines.length - tls.timelines.length);
+        tls.timelines.forEach((tl, i) => {
+            this.timelines[i] = tl;
+            this.timelines[i].id = i;
+            this.timelines[i].values.forEach((v, j) => v.id = j);
+            if (this.timelines[i].type === 'ReusableResource' && this.timelines[i].values.length) this.timelines[i].values.push({ usage: 0, from: this.timelines[i].values[this.timelines[i].values.length - 1].to, id: this.timelines[i].values.length });
+            if (this.timelines[i].type === 'Agent') {
+                const ends = [0];
+                this.timelines[i].values.forEach(v => v.y = values_y(v.from, v.from === v.to ? v.from + 0.1 : v.to, ends));
+            }
+        });
+        this.origin = tls.origin.num / tls.origin.den;
+        this.horizon = tls.horizon.num / tls.horizon.den;
     }
 
     tick(time) {
-        this.current_time = time.current_time.num / time.current_time.den;
+        this.current_time = time.num / time.den;
     }
 
     starting_atoms(atoms) {

@@ -15,8 +15,6 @@ export class GraphData {
 
         graph.flaws.forEach(f => {
             f.type = 'flaw';
-            f.id = f.flaw_id;
-            f.label = JSON.parse(f.label);
             if (f.cost)
                 f.cost = (f.cost.num / f.cost.den);
             else
@@ -28,8 +26,6 @@ export class GraphData {
         });
         graph.resolvers.forEach(r => {
             r.type = 'resolver';
-            r.id = r.resolver_id;
-            r.label = JSON.parse(r.label);
             r.intrinsic_cost = r.cost.num / r.cost.den;
             r.cost = r.intrinsic_cost;
             r.graph = this;
@@ -49,8 +45,6 @@ export class GraphData {
 
     flaw_created(flaw) {
         flaw.type = 'flaw';
-        flaw.id = flaw.flaw_id;
-        flaw.label = JSON.parse(flaw.label);
         if (flaw.cost)
             flaw.cost = (flaw.cost.num / flaw.cost.den);
         else
@@ -63,33 +57,31 @@ export class GraphData {
     }
 
     flaw_state_changed(change) {
-        this.node_map.get(change.flaw_id).state = change.state;
-        this.links.filter(l => l.source.id === change.flaw_id).forEach(l => l.state = change.state);
+        this.node_map.get(change.id).state = change.state;
+        this.links.filter(l => l.source.id === change.id).forEach(l => l.state = change.state);
     }
 
     flaw_cost_changed(change) {
         change.cost = change.cost.num / change.cost.den;
-        const f_node = this.node_map.get(change.flaw_id);
+        const f_node = this.node_map.get(change.id);
         f_node.cost = change.cost;
         this.links.filter(l => l.source.id == f_node.id).forEach(out_link => this.update_resolver_cost(out_link.target));
     }
 
     flaw_position_changed(change) {
-        this.node_map.get(change.flaw_id).pos = change.pos;
+        this.node_map.get(change.id).position = change.position;
     }
 
     current_flaw(current) {
         if (this.c_flaw) this.c_flaw.current = false;
         if (this.c_resolver) { this.c_resolver.current = false; this.c_resolver = undefined; }
-        const f_node = this.node_map.get(current.flaw_id);
+        const f_node = this.node_map.get(current.flaw);
         f_node.current = true;
         this.c_flaw = f_node;
     }
 
     resolver_created(resolver) {
         resolver.type = 'resolver';
-        resolver.id = resolver.resolver_id;
-        resolver.label = JSON.parse(resolver.label);
         resolver.intrinsic_cost = resolver.cost.num / resolver.cost.den;
         resolver.cost = resolver.intrinsic_cost;
         resolver.graph = this;
@@ -99,13 +91,13 @@ export class GraphData {
     }
 
     resolver_state_changed(change) {
-        this.node_map.get(change.resolver_id).state = change.state;
-        this.links.filter(l => l.source.id === change.resolver_id || l.target.id === change.resolver_id).forEach(l => l.state = change.state);
+        this.node_map.get(change.id).state = change.state;
+        this.links.filter(l => l.source.id === change.id || l.target.id === change.id).forEach(l => l.state = change.state);
     }
 
     current_resolver(current) {
         if (this.c_resolver) this.c_resolver.current = false;
-        const r_node = this.node_map.get(current.resolver_id);
+        const r_node = this.node_map.get(current.resolver);
         r_node.current = true;
         this.c_resolver = r_node;
     }
@@ -117,7 +109,7 @@ export class GraphData {
 
     update_resolver_cost(resolver) {
         let c_cost = Number.NEGATIVE_INFINITY;
-        this.links.filter(l => l.target.id == resolver.resolver_id).forEach(in_link => {
+        this.links.filter(l => l.target.id == resolver.id).forEach(in_link => {
             if (c_cost < in_link.source.cost)
                 c_cost = in_link.source.cost;
         });
@@ -329,9 +321,9 @@ function flaw_tooltip(flaw) {
     switch (flaw.label.phi) {
         case 'b0':
         case '\u00ACb0':
-            return 'cost: ' + flaw.cost + ', pos: ' + flaw.pos.lb;
+            return 'cost: ' + flaw.cost + ', pos: ' + flaw.position.lb;
         default:
-            return flaw.label.phi.replace('b', '\u03C6') + ', cost: ' + flaw.cost + ', pos: ' + flaw.pos.lb;
+            return flaw.label.phi.replace('b', '\u03C6') + ', cost: ' + flaw.cost + ', pos: ' + flaw.position.lb;
     }
 }
 
