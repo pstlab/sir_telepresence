@@ -222,8 +222,8 @@ function sv_value_fill(sv_value) {
 function sv_value_name(sv_value) {
     switch (sv_value.atoms.length) {
         case 0: return '';
-        case 1: return sv_value.atoms[0].predicate;
-        default: return Array.from(sv_value.atoms, atm => atm.predicate).join();
+        case 1: return predicate_to_string(sv_value.atoms[0].predicate);
+        default: return Array.from(sv_value.atoms, atm => predicate_to_string(atm.predicate)).join();
     }
 }
 
@@ -237,7 +237,7 @@ function sv_value_tooltip(sv_value) {
 
 function rr_value_tooltip(rr_value) { return rr_value.usage; }
 
-function ag_value_name(ag_value) { return ag_value.atom.predicate; }
+function ag_value_name(ag_value) { return predicate_to_string(ag_value.atom.predicate); }
 
 function ag_value_tooltip(ag_value) { return atom_to_string(ag_value.atom); }
 
@@ -252,10 +252,28 @@ function values_y(start, end, ends) {
 }
 
 function atom_to_string(atom) {
-    let txt = '\u03C3' + atom.sigma + ' ' + atom.predicate;
+    let txt = '\u03C3' + atom.sigma + ' ' + predicate_to_string(atom.predicate);
     const xprs = [];
-    Object.keys(atom).filter(n => n != 'sigma' && n != 'predicate').sort().forEach(xpr => xprs.push(xpr + ':' + atom[xpr]));
+    atom.pars.forEach(xpr => xprs.push(xpr_to_string(xpr)));
     return txt + '(' + xprs.join(', ') + ')';
+}
+
+function predicate_to_string(predicate) {
+    const types = predicate.split(':');
+    return types[types.length - 1];
+}
+
+function xpr_to_string(par) {
+    let txt = par.name + ': ';
+    switch (par.type) {
+        case 'real':
+            txt += par.value.val.num / par.value.val.den;
+            break;
+        default:
+            txt += par.type;
+            break;
+    }
+    return txt;
 }
 
 function getFontSize(d) {
