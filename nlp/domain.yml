@@ -50,13 +50,126 @@ slots:
         intent: set_gender
   user_extraversion:
     type: categorical
+    influence_conversation: true
     values:
       - extroverted
+      - neutral
       - introverted
+    initial_value: neutral
     mappings:
-      - type: from_entity
-        entity: extraversion
-        intent: set_extraversion
+      - type: custom
+  profile_hobbies:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: from_intent
+        value: true
+        intent: affirm
+        conditions:
+          - active_loop: profile_form
+            requested_slot: profile_hobbies
+      - type: from_intent
+        value: false
+        intent: deny
+        conditions:
+          - active_loop: profile_form
+            requested_slot: profile_hobbies
+  profile_talkative:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: from_intent
+        value: true
+        intent: affirm
+        conditions:
+          - active_loop: profile_form
+            requested_slot: profile_talkative
+      - type: from_intent
+        value: false
+        intent: deny
+        conditions:
+          - active_loop: profile_form
+            requested_slot: profile_talkative
+  profile_midst:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: from_intent
+        value: true
+        intent: affirm
+        conditions:
+          - active_loop: profile_form
+            requested_slot: profile_midst
+      - type: from_intent
+        value: false
+        intent: deny
+        conditions:
+          - active_loop: profile_form
+            requested_slot: profile_midst
+  profile_meet:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: from_intent
+        value: true
+        intent: affirm
+        conditions:
+          - active_loop: profile_form
+            requested_slot: profile_meet
+      - type: from_intent
+        value: false
+        intent: deny
+        conditions:
+          - active_loop: profile_form
+            requested_slot: profile_meet
+  profile_aloof:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: from_intent
+        value: true
+        intent: affirm
+        conditions:
+          - active_loop: profile_form
+            requested_slot: profile_aloof
+      - type: from_intent
+        value: false
+        intent: deny
+        conditions:
+          - active_loop: profile_form
+            requested_slot: profile_aloof
+  profile_revive:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: from_intent
+        value: true
+        intent: affirm
+        conditions:
+          - active_loop: profile_form
+            requested_slot: profile_revive
+      - type: from_intent
+        value: false
+        intent: deny
+        conditions:
+          - active_loop: profile_form
+            requested_slot: profile_revive
+  profile_confident:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: from_intent
+        value: true
+        intent: affirm
+        conditions:
+          - active_loop: profile_form
+            requested_slot: profile_confident
+      - type: from_intent
+        value: false
+        intent: deny
+        conditions:
+          - active_loop: profile_form
+            requested_slot: profile_confident
   reps:
     type: text
     influence_conversation: false
@@ -142,7 +255,13 @@ forms:
     required_slots:
       - user_name
       - user_gender
-      - user_extraversion
+      - profile_hobbies
+      - profile_talkative
+      - profile_midst
+      - profile_meet
+      - profile_aloof
+      - profile_revive
+      - profile_confident
   count_the_word_form:
     required_slots:
       - num_words
@@ -353,6 +472,46 @@ responses:
         face: talking
     - custom:
         text: Preferisci che con te io usi il maschile oppure il femminile?
+        face: talking
+
+  utter_ask_profile_hobbies:
+    - custom:
+        text: Hai molti hobby o passatempi?
+        face: talking
+
+  utter_ask_profile_talkative:
+    - custom:
+        text: Sei una persona che parla molto?
+        face: talking
+
+  utter_ask_profile_midst:
+    - custom:
+        text: Ti piace stare in mezzo alla gente?
+        face: talking
+
+  utter_ask_profile_meet:
+    - custom:
+        text: Ti piace incontrare gente nuova?
+        face: talking
+
+  utter_ask_profile_aloof:
+    - custom:
+        text: Quando stai con la gente, tendi a startene in disparte?
+        face: talking
+
+  utter_ask_profile_revive:
+    - custom:
+        text: Di solito, ti  riesce facile rianimare una festa noiosa?
+        face: talking
+
+  utter_ask_profile_confident:
+    - custom:
+        text: Ti consideri una persona fiduciosa e spensierata?
+        face: talking
+
+  utter_ask_profile_vitality:
+    - custom:
+        text: I tuoi amici ti considerano una persona piena di vitalità?
         face: talking
 
   utter_profile_gathered:
@@ -626,6 +785,7 @@ actions:
   - action_command_start
   - action_command_done
   - action_command_failure
+  - action_profile_analysis
   - action_blood_pressure_analysis
   - action_blood_saturation_analysis
   - action_sleep

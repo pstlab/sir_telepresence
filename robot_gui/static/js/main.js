@@ -1,4 +1,15 @@
+import { Graph, GraphData } from './modules/graph.js';
+import { Timelines, TimelinesData } from './modules/timelines.js';
 import * as options from './options.js'
+
+const navbar_height = document.getElementById('nav-bar').offsetHeight;
+const reasoners_tab_height = 42;
+const c_height = (window.innerHeight - navbar_height - reasoners_tab_height) / 2;
+
+const timelines_data = new Map();
+const timelines_chart = new Map();
+const graph_data = new Map();
+const graph = new Map();
 
 var ros = new ROSLIB.Ros({ url: 'ws://' + options.ros_host + ':' + options.ros_port });
 
@@ -84,6 +95,18 @@ reasoner_created_listener.subscribe(function (message) {
     reasoner.setAttribute('id', 'r' + message.data);
     reasoner.setAttribute('aria-labelledby', 'r' + message.data + '-but');
     reasoners_content.append(reasoner);
+
+    const timelines_div = document.createElement("div");
+    timelines_div.setAttribute('id', 'r' + message.data + '-timelines');
+    reasoner.appendChild(timelines_div);
+    timelines_data.set(message.data, new TimelinesData());
+    timelines_chart.set(message.data, new Timelines('r' + message.data + '-timelines', window.innerWidth, c_height));
+
+    const graph_div = document.createElement("div");
+    graph_div.setAttribute('id', 'r' + message.data + '-graph');
+    reasoner.appendChild(graph_div);
+    graph_data.set(message.data, new GraphData());
+    graph.set(message.data, new Graph('r' + message.data + '-graph', window.innerWidth, c_height));
 });
 
 var reasoner_destroyed_listener = new ROSLIB.Topic({ ros: ros, name: '/reasoner_destroyed', messageType: 'std_msgs/UInt64' });
@@ -92,51 +115,65 @@ reasoner_destroyed_listener.subscribe(function (message) {
 
     document.getElementById('r' + message.data + '-tab').remove();
     document.getElementById('r' + message.data).remove();
+
+    timelines_data.delete(message.data);
+    timelines_chart.delete(message.data);
+    graph_data.delete(message.data);
+    graph.delete(message.data);
 });
 
 var flaw_created_listener = new ROSLIB.Topic({ ros: ros, name: '/flaw_created', messageType: 'deliberative_tier/flaw_created' });
 flaw_created_listener.subscribe(function (message) {
-    console.log('flaw_created: ' + message);
+    graph_data.get(message.reasoner_id).flaw_created(message);
+    graph.get(message.reasoner_id).update(graph_data.get(message.reasoner_id));
 });
 
 var flaw_state_changed_listener = new ROSLIB.Topic({ ros: ros, name: '/flaw_state_changed', messageType: 'deliberative_tier/flaw_state_changed' });
 flaw_state_changed_listener.subscribe(function (message) {
-    console.log('flaw_state_changed: ' + message);
+    graph_data.get(message.reasoner_id).flaw_state_changed(message);
+    graph.get(message.reasoner_id).update(graph_data.get(message.reasoner_id));
 });
 
 var flaw_cost_changed_listener = new ROSLIB.Topic({ ros: ros, name: '/flaw_cost_changed', messageType: 'deliberative_tier/flaw_cost_changed' });
 flaw_cost_changed_listener.subscribe(function (message) {
-    console.log('flaw_cost_changed: ' + message);
+    graph_data.get(message.reasoner_id).flaw_cost_changed(message);
+    graph.get(message.reasoner_id).update(graph_data.get(message.reasoner_id));
 });
 
 var flaw_position_changed_listener = new ROSLIB.Topic({ ros: ros, name: '/flaw_position_changed', messageType: 'deliberative_tier/flaw_position_changed' });
 flaw_position_changed_listener.subscribe(function (message) {
-    console.log('flaw_position_changed: ' + message);
+    graph_data.get(message.reasoner_id).flaw_position_changed(message);
+    graph.get(message.reasoner_id).update(graph_data.get(message.reasoner_id));
 });
 
 var current_flaw_listener = new ROSLIB.Topic({ ros: ros, name: '/current_flaw', messageType: 'deliberative_tier/current_flaw' });
 current_flaw_listener.subscribe(function (message) {
-    console.log('current_flaw: ' + message);
+    graph_data.get(message.reasoner_id).current_flaw(message);
+    graph.get(message.reasoner_id).update(graph_data.get(message.reasoner_id));
 });
 
 var resolver_created_listener = new ROSLIB.Topic({ ros: ros, name: '/resolver_created', messageType: 'deliberative_tier/resolver_created' });
 resolver_created_listener.subscribe(function (message) {
-    console.log('resolver_created: ' + message);
+    graph_data.get(message.reasoner_id).resolver_created(message);
+    graph.get(message.reasoner_id).update(graph_data.get(message.reasoner_id));
 });
 
 var resolver_state_changed_listener = new ROSLIB.Topic({ ros: ros, name: '/resolver_state_changed', messageType: 'deliberative_tier/resolver_state_changed' });
 resolver_state_changed_listener.subscribe(function (message) {
-    console.log('resolver_state_changed: ' + message);
+    graph_data.get(message.reasoner_id).resolver_state_changed(message);
+    graph.get(message.reasoner_id).update(graph_data.get(message.reasoner_id));
 });
 
 var current_resolver_listener = new ROSLIB.Topic({ ros: ros, name: '/current_resolver', messageType: 'deliberative_tier/current_resolver' });
 current_resolver_listener.subscribe(function (message) {
-    console.log('current_resolver: ' + message);
+    graph_data.get(message.reasoner_id).current_resolver(message);
+    graph.get(message.reasoner_id).update(graph_data.get(message.reasoner_id));
 });
 
 var causal_link_added_listener = new ROSLIB.Topic({ ros: ros, name: '/causal_link_added', messageType: 'deliberative_tier/causal_link_added' });
 causal_link_added_listener.subscribe(function (message) {
-    console.log('causal_link_added: ' + message);
+    graph_data.get(message.reasoner_id).causal_link_added(message);
+    graph.get(message.reasoner_id).update(graph_data.get(message.reasoner_id));
 });
 
 export function start_listen() {

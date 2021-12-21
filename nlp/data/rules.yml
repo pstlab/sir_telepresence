@@ -15,6 +15,7 @@ rules:
       - active_loop: null
       - slot_was_set:
           - requested_slot: null
+      - action: action_profile_analysis
       - action: utter_profile_gathered
       - action: action_command_done
 
