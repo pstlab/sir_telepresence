@@ -179,23 +179,20 @@ timelines_listener.subscribe(function (message) {
     console.log(message);
     switch (message.update) {
         case 0: // timelines_time_changed
-            timelines_data.get(message.reasoner_id).tick(message.time);
-            message.timelines.forEach((tl, i) => {
-                message.timelines[i] = JSON.parse(tl);
-            });
+            message.timelines.forEach((tl, i) => message.timelines[i] = JSON.parse(tl));
             timelines_data.get(message.reasoner_id).reset(message);
+            timelines_data.get(message.reasoner_id).tick(message.time);
             timelines_chart.get(message.reasoner_id).update(timelines_data.get(message.reasoner_id));
+            timelines_chart.get(message.reasoner_id).updateTime(timelines_data.get(message.reasoner_id));
             break;
         case 1: // timelines_changed
-            message.timelines.forEach((tl, i) => {
-                message.timelines[i] = JSON.parse(tl);
-            });
+            message.timelines.forEach((tl, i) => message.timelines[i] = JSON.parse(tl));
             timelines_data.get(message.reasoner_id).reset(message);
             timelines_chart.get(message.reasoner_id).update(timelines_data.get(message.reasoner_id));
             break;
         case 2: // time_changed
             timelines_data.get(message.reasoner_id).tick(message.time);
-            timelines_chart.get(message.reasoner_id).update(timelines_data.get(message.reasoner_id));
+            timelines_chart.get(message.reasoner_id).updateTime(timelines_data.get(message.reasoner_id));
             break;
         default:
             break;

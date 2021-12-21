@@ -11,7 +11,11 @@ export class TimelinesData {
         tls.timelines.forEach((tl, i) => {
             this.timelines[i] = tl;
             this.timelines[i].id = i;
-            this.timelines[i].values.forEach((v, j) => v.id = j);
+            this.timelines[i].values.forEach((v, j) => {
+                v.id = j;
+                if (v.at) v.at = v.at.num / v.at.den;
+                else { v.from = v.from.num / v.from.den; v.to = v.to.num / v.to.den; }
+            });
             if (this.timelines[i].type === 'ReusableResource' && this.timelines[i].values.length) this.timelines[i].values.push({ usage: 0, from: this.timelines[i].values[this.timelines[i].values.length - 1].to, id: this.timelines[i].values.length });
             if (this.timelines[i].type === 'Agent') {
                 const ends = [0];
