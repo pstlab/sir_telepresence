@@ -8,8 +8,6 @@ from persistence_manager.srv import get_state, get_stateResponse, set_state, set
 class storage:
 
     def __init__(self):
-        self.task = False
-
         load_service = rospy.Service(
             'load', get_state, self.load)
 
