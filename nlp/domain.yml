@@ -171,6 +171,11 @@ slots:
         conditions:
           - active_loop: profile_form
             requested_slot: profile_confident
+  physical_exercise_name:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
   reps:
     type: text
     influence_conversation: false
