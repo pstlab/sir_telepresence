@@ -785,6 +785,7 @@ actions:
   - action_command_start
   - action_command_done
   - action_command_failure
+  - action_command_pending
   - action_profile_analysis
   - action_blood_pressure_analysis
   - action_blood_saturation_analysis
