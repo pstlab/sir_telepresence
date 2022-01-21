@@ -7,6 +7,7 @@ intents:
   - deny
   - uncertain
   - ask_capabilities
+  - done
   - introduce_yourself
   - start_interaction
   - start_profile_gathering
