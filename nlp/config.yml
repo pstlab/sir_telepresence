@@ -16,7 +16,7 @@ pipeline:
   - name: "SpacyNLP"
     model: "it_core_news_lg"
   - name: "SpacyEntityExtractor"
-    dimensions: ["PER", "LOC", "ORG", "PRODUCT"]
+    dimensions: ["PER", "LOC"]
   - name: "DucklingEntityExtractor"
     url: "http://localhost:8000"
     dimensions: ["time", "number"]

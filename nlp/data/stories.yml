@@ -132,6 +132,13 @@ stories:
       - action: utter_profile_gathered
       - action: action_command_done
 
+  - story: Ask weather
+    steps:
+      - intent: ask_weather
+      - action: action_command_start
+      - action: action_weather_analysis
+      - action: action_command_done
+
   - story: Blood pressure gathering
     steps:
       - intent: start_blood_pressure_gathering

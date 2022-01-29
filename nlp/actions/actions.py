@@ -4,12 +4,13 @@ from rasa_sdk import Action, Tracker
 from rasa_sdk.events import SlotSet
 from rasa_sdk.executor import CollectingDispatcher
 import time
+import requests
 
 
 class ActionCommandStart(Action):
 
     def name(self) -> Text:
-        return "action_command_start"
+        return 'action_command_start'
 
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
@@ -21,7 +22,7 @@ class ActionCommandStart(Action):
 class ActionCommandPending(Action):
 
     def name(self) -> Text:
-        return "action_command_pending"
+        return 'action_command_pending'
 
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
@@ -33,7 +34,7 @@ class ActionCommandPending(Action):
 class ActionCommandDone(Action):
 
     def name(self) -> Text:
-        return "action_command_done"
+        return 'action_command_done'
 
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
@@ -45,7 +46,7 @@ class ActionCommandDone(Action):
 class ActionCommandFailure(Action):
 
     def name(self) -> Text:
-        return "action_command_failure"
+        return 'action_command_failure'
 
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
@@ -117,7 +118,7 @@ class ActionProfileAnalysis(Action):
 class ActionBloodPressureAnalysis(Action):
 
     def name(self) -> Text:
-        return "action_blood_pressure_analysis"
+        return 'action_blood_pressure_analysis'
 
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
@@ -144,7 +145,7 @@ class ActionBloodPressureAnalysis(Action):
 class ActionBloodSaturationAnalysis(Action):
 
     def name(self) -> Text:
-        return "action_blood_saturation_analysis"
+        return 'action_blood_saturation_analysis'
 
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
@@ -159,4 +160,33 @@ class ActionBloodSaturationAnalysis(Action):
         else:
             dispatcher.utter_message(
                 response='utter_low_blood_saturation')
+        return []
+
+
+class ActionWeatherAnalysis(Action):
+
+    def name(self) -> Text:
+        return 'action_weather_analysis'
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        api = '510caddbf2d17028e6d14ac57d9fe6b9'
+        url = 'http://api.openweathermap.org/data/2.5/weather?appid=' + api + '&units=metric'
+
+        city = tracker.get_slot('location')
+        if city is not None:
+            url + '&q=' + city
+
+        weather_data = requests.get(url).json()
+
+        tracker.get_latest_entity_values('weather_field')
+        if 'temperature' in listOfStrings:
+            dispatcher.utter_message(
+                response='utter_temperature', temperature=weather_data['temp'])
+        if 'humidity' in listOfStrings:
+            dispatcher.utter_message(
+                response='utter_humidity', humidity=weather_data['humidity'])
+
         return []

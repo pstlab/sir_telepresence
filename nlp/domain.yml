@@ -27,7 +27,9 @@ intents:
 
 entities:
   - PER
+  - LOC
   - number
+  - weather_field
   - extraversion
   - gender
   - physical_exercise_name
@@ -49,6 +51,13 @@ slots:
       - type: from_entity
         entity: gender
         intent: set_gender
+  location:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: LOC
+        intent: set_location
   user_extraversion:
     type: categorical
     influence_conversation: true
@@ -748,6 +757,28 @@ responses:
         text: Sapevo che ce l'avresti fatta!
         face: talking
 
+  utter_temperature:
+    - custom:
+        text: La temperatura attuale è di {temperature} gradi centigradi
+        face: talking
+    - custom:
+        text: La temperatura corrente è di {temperature} gradi centigradi
+        face: talking
+    - custom:
+        text: La temperatura è di {temperature} gradi centigradi
+        face: talking
+
+  utter_humidity:
+    - custom:
+        text: L'umidità attuale è di {humidity} gradi centigradi
+        face: talking
+    - custom:
+        text: L'umidità corrente è di {humidity} gradi centigradi
+        face: talking
+    - custom:
+        text: L'umidità è di {humidity} gradi centigradi
+        face: talking
+
   utter_out_of_scope:
     - custom:
         text: Mi spiace! Non so come gestire la tua richiesta.
@@ -792,6 +823,7 @@ actions:
   - action_command_done
   - action_command_failure
   - action_command_pending
+  - action_weather_analysis
   - action_profile_analysis
   - action_blood_pressure_analysis
   - action_blood_saturation_analysis
