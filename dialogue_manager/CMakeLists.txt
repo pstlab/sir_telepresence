@@ -8,12 +8,15 @@ find_package(catkin REQUIRED COMPONENTS rospy deliberative_tier persistence_mana
 add_message_files(
     FILES
     dialogue_state.msg
+    button.msg
 )
 
 add_service_files(
     FILES
-    get_string.srv
-    set_string.srv
+    utterance_to_pronounce.srv
+    face_to_show.srv
+    question_to_ask.srv
+    utterance_to_recognize.srv
 )
 
 ## Generate added messages and services

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import rospy
 import speech_recognition as sr
-from dialogue_manager.srv import get_string, get_stringResponse
+from dialogue_manager.srv import utterance_to_recognize, utterance_to_recognizeResponse
 from std_srvs.srv import Empty, EmptyResponse
 
 
@@ -11,7 +11,7 @@ class speech_to_text:
         configure_service = rospy.Service('configure_speech_to_text',
                                           Empty, self.configure_stt)
         mic_service = rospy.Service('speech_to_text',
-                                    get_string, self.stt)
+                                    utterance_to_recognize, self.stt)
 
     def configure_stt(self, req):
         rospy.logdebug('adjusting for ambient noise..')
@@ -40,10 +40,10 @@ class speech_to_text:
                 text = rec.recognize_google(
                     audio, language="it-IT")
                 rospy.logdebug('recognized speech: %s', text)
-                return get_stringResponse(True, text)
+                return utterance_to_recognizeResponse(True, text)
             except Exception as e:
                 print(e)
-        return get_stringResponse(False, '')
+        return utterance_to_recognizeResponse(False, '')
 
 
 if __name__ == '__main__':

@@ -31,20 +31,43 @@ ros.on('close', function () {
     console.log('Connection to websocket server closed..');
 });
 
-const set_face_service = new ROSLIB.Service({ ros: ros, name: '/set_face', serviceType: 'dialogue_manager/set_string' });
+const set_face_service = new ROSLIB.Service({ ros: ros, name: '/set_face', serviceType: 'dialogue_manager/face_to_show' });
 set_face_service.advertise(function (request, response) {
-    console.log('Setting robot face:' + request.text);
-    document.getElementById('robot_face').src = 'static/faces/' + request.text + '.gif';
+    console.log('Setting robot face:' + request.facial_expression);
+    document.getElementById('robot_face').src = 'static/faces/' + request.facial_expression + '.gif';
+    document.getElementById('robot_face').height = 700
+    document.getElementById('question').classList.add('d-none');
+    response['success'] = true;
+    return true;
+});
+
+const ask_question_service = new ROSLIB.Service({ ros: ros, name: '/ask_question', serviceType: 'dialogue_manager/question_to_ask' });
+ask_question_service.advertise(function (request, response) {
+    console.log('Asking question:' + request.text);
+    document.getElementById('robot_face').src = 'static/faces/' + request.facial_expression + '.gif';
+    document.getElementById('robot_face').height = 300
+    document.getElementById('question').classList.remove('d-none');
+    document.getElementById('question_text').innerText = request.text
+    let buttons = [];
+    request.buttons.forEach(button => {
+        let btn = document.createElement('button');
+        btn.classList.add('btn', 'btn-primary', 'btn-lg');
+        btn.type = 'button';
+        btn.innerHTML = button.text;
+        buttons.push(btn);
+    });
+    document.getElementById('question_buttons').replaceChildren(buttons);
+
     response['success'] = true;
     return true;
 });
 
 /*
 Ohmni.setSpeechLanguage('it-IT');
-const text_to_speech_service = new ROSLIB.Service({ ros: ros, name: '/text_to_speech', serviceType: 'dialogue_manager/set_string' });
+const text_to_speech_service = new ROSLIB.Service({ ros: ros, name: '/text_to_speech', serviceType: 'dialogue_manager/utterance_to_pronounce' });
 text_to_speech_service.advertise(function (request, response) {
-    console.log('Synthesizing:' + request.text);
-    Ohmni.say(request.text);
+    console.log('Synthesizing:' + request.utterance);
+    Ohmni.say(request.utterance);
     response['success'] = true;
     return true;
 });
@@ -96,14 +119,14 @@ reasoner_created_listener.subscribe(function (message) {
     reasoner.setAttribute('aria-labelledby', 'r' + message.data + '-but');
     reasoners_content.append(reasoner);
 
-    const timelines_div = document.createElement("div");
+    const timelines_div = document.createElement('div');
     timelines_div.setAttribute('id', 'r' + message.data + '-timelines');
     timelines_div.style.backgroundColor = 'white';
     reasoner.appendChild(timelines_div);
     timelines_data.set(message.data, new TimelinesData());
     timelines_chart.set(message.data, new Timelines('r' + message.data + '-timelines', window.innerWidth, c_height));
 
-    const graph_div = document.createElement("div");
+    const graph_div = document.createElement('div');
     graph_div.setAttribute('id', 'r' + message.data + '-graph');
     graph_div.style.backgroundColor = 'white';
     reasoner.appendChild(graph_div);
