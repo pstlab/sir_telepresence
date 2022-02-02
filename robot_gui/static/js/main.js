@@ -73,6 +73,7 @@ play_audio_service.advertise(function (request, response) {
     document.getElementById('html_div').classList.add('d-none');
     document.getElementById('question_div').classList.add('d-none');
 
+    const audio = document.getElementById('audio');
     let sources = [];
     request.videos.forEach(src => {
         let source = document.createElement('source');
@@ -80,7 +81,9 @@ play_audio_service.advertise(function (request, response) {
         source.type = src.type;
         sources.push(source);
     });
-    document.getElementById('audio').replaceChildren(sources);
+    audio.replaceChildren(sources);
+
+    audio.play();
     response['success'] = true;
     return true;
 });
@@ -95,6 +98,7 @@ play_video_service.advertise(function (request, response) {
     document.getElementById('html_div').classList.add('d-none');
     document.getElementById('question_div').classList.add('d-none');
 
+    const video = document.getElementById('video');
     let sources = [];
     request.videos.forEach(src => {
         let source = document.createElement('source');
@@ -102,7 +106,9 @@ play_video_service.advertise(function (request, response) {
         source.type = src.type;
         sources.push(source);
     });
-    document.getElementById('video').replaceChildren(sources);
+    video.replaceChildren(sources);
+
+    video.play();
     response['success'] = true;
     return true;
 });
