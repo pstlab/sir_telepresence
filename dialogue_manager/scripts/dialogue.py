@@ -4,7 +4,7 @@ import requests
 import time
 import traceback
 from std_srvs.srv import Trigger, TriggerResponse, Empty
-from dialogue_manager.msg import dialogue_state
+from dialogue_manager.msg import dialogue_state, audio, video, button
 from dialogue_manager.srv import utterance_to_pronounce, face_to_show, image_to_show, audio_to_play, video_to_play, page_to_show, question_to_ask, utterance_to_recognize
 from deliberative_tier.srv import start_task, start_taskResponse, task_finished
 from persistence_manager.srv import get_state, set_state, set_stateResponse
@@ -202,8 +202,35 @@ class dialogue_manager:
                     try:
                         for ans in j_res['messages']:
                             if 'custom' in ans:
-                                self.set_face(ans['custom']['face'])
-                                self.text_to_speech(ans['custom']['text'])
+                                if 'face' in ans['custom']:
+                                    self.set_face(ans['custom']['face'])
+                                if 'image' in ans['custom']:
+                                    self.show_image(
+                                        ans['custom']['image']['src'], ans['custom']['image']['alt'])
+                                if 'audio' in ans['custom']:
+                                    srcs = []
+                                    for src in ans['custom']['audio']:
+                                        srcs.append(
+                                            audio(src['src'], src['type']))
+                                    self.play_audio(srcs)
+                                if 'video' in ans['custom']:
+                                    srcs = []
+                                    for src in ans['custom']['video']:
+                                        srcs.append(
+                                            video(src['src'], src['type']))
+                                    self.play_video(srcs)
+                                if 'page' in ans['custom']:
+                                    self.show_page(
+                                        ans['custom']['page']['src'], ans['custom']['page']['title'])
+                                if 'question' in ans['custom']:
+                                    btns = []
+                                    for btn in ans['custom']['question']:
+                                        btns.append(
+                                            button(btn['text'], btn['intent']))
+                                    self.ask_question(
+                                        ans['custom']['question']['facial_expression'], ans['custom']['question']['text'], btns)
+                                if 'text' in ans['custom']:
+                                    self.text_to_speech(ans['custom']['text'])
                             else:
                                 self.set_face(face_talking)
                                 self.text_to_speech(ans['text'])
@@ -265,8 +292,35 @@ class dialogue_manager:
             try:
                 for ans in j_res:
                     if 'custom' in ans:
-                        self.set_face(ans['custom']['face'])
-                        self.text_to_speech(ans['custom']['text'])
+                        if 'face' in ans['custom']:
+                            self.set_face(ans['custom']['face'])
+                        if 'image' in ans['custom']:
+                            self.show_image(
+                                ans['custom']['image']['src'], ans['custom']['image']['alt'])
+                        if 'audio' in ans['custom']:
+                            srcs = []
+                            for src in ans['custom']['audio']:
+                                srcs.append(
+                                    audio(src['src'], src['type']))
+                            self.play_audio(srcs)
+                        if 'video' in ans['custom']:
+                            srcs = []
+                            for src in ans['custom']['video']:
+                                srcs.append(
+                                    video(src['src'], src['type']))
+                            self.play_video(srcs)
+                        if 'page' in ans['custom']:
+                            self.show_page(
+                                ans['custom']['page']['src'], ans['custom']['page']['title'])
+                        if 'question' in ans['custom']:
+                            btns = []
+                            for btn in ans['custom']['question']:
+                                btns.append(
+                                    button(btn['text'], btn['intent']))
+                            self.ask_question(
+                                ans['custom']['question']['facial_expression'], ans['custom']['question']['text'], btns)
+                        if 'text' in ans['custom']:
+                            self.text_to_speech(ans['custom']['text'])
                     else:
                         self.set_face(face_talking)
                         self.text_to_speech(ans['text'])
