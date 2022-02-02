@@ -8,6 +8,8 @@ find_package(catkin REQUIRED COMPONENTS rospy deliberative_tier persistence_mana
 add_message_files(
     FILES
     dialogue_state.msg
+    audio.msg
+    video.msg
     button.msg
 )
 
@@ -15,6 +17,10 @@ add_service_files(
     FILES
     utterance_to_pronounce.srv
     face_to_show.srv
+    image_to_show.srv
+    audio_to_play.srv
+    video_to_play.srv
+    page_to_show.srv
     question_to_ask.srv
     utterance_to_recognize.srv
 )

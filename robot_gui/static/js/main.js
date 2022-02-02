@@ -34,9 +34,91 @@ ros.on('close', function () {
 const set_face_service = new ROSLIB.Service({ ros: ros, name: '/set_face', serviceType: 'dialogue_manager/face_to_show' });
 set_face_service.advertise(function (request, response) {
     console.log('Setting robot face:' + request.facial_expression);
+    document.getElementById('face_div').classList.remove('d-none');
+    document.getElementById('image_div').classList.add('d-none');
+    document.getElementById('audio_div').classList.add('d-none');
+    document.getElementById('video_div').classList.add('d-none');
+    document.getElementById('html_div').classList.add('d-none');
+    document.getElementById('question_div').classList.add('d-none');
+
     document.getElementById('robot_face').src = 'static/faces/' + request.facial_expression + '.gif';
     document.getElementById('robot_face').height = 700
-    document.getElementById('question').classList.add('d-none');
+    response['success'] = true;
+    return true;
+});
+
+const show_image_service = new ROSLIB.Service({ ros: ros, name: '/show_image', serviceType: 'dialogue_manager/image_to_show' });
+show_image_service.advertise(function (request, response) {
+    console.log('Showing image:' + request.src);
+    document.getElementById('face_div').classList.add('d-none');
+    document.getElementById('image_div').classList.remove('d-none');
+    document.getElementById('audio_div').classList.add('d-none');
+    document.getElementById('video_div').classList.add('d-none');
+    document.getElementById('html_div').classList.add('d-none');
+    document.getElementById('question_div').classList.add('d-none');
+
+    document.getElementById('image').src = request.src;
+    document.getElementById('image').alt = request.alt;
+    response['success'] = true;
+    return true;
+});
+
+const play_audio_service = new ROSLIB.Service({ ros: ros, name: '/play_audio', serviceType: 'dialogue_manager/audio_to_play' });
+play_audio_service.advertise(function (request, response) {
+    console.log('Playing audio:' + request.src);
+    document.getElementById('face_div').classList.add('d-none');
+    document.getElementById('image_div').classList.add('d-none');
+    document.getElementById('audio_div').classList.remove('d-none');
+    document.getElementById('video_div').classList.add('d-none');
+    document.getElementById('html_div').classList.add('d-none');
+    document.getElementById('question_div').classList.add('d-none');
+
+    let sources = [];
+    request.videos.forEach(src => {
+        let source = document.createElement('source');
+        source.src = src.src;
+        source.type = src.type;
+        sources.push(source);
+    });
+    document.getElementById('audio').replaceChildren(sources);
+    response['success'] = true;
+    return true;
+});
+
+const play_video_service = new ROSLIB.Service({ ros: ros, name: '/play_video', serviceType: 'dialogue_manager/video_to_play' });
+play_video_service.advertise(function (request, response) {
+    console.log('Playing video:' + request.src);
+    document.getElementById('face_div').classList.add('d-none');
+    document.getElementById('image_div').classList.add('d-none');
+    document.getElementById('audio_div').classList.add('d-none');
+    document.getElementById('video_div').classList.remove('d-none');
+    document.getElementById('html_div').classList.add('d-none');
+    document.getElementById('question_div').classList.add('d-none');
+
+    let sources = [];
+    request.videos.forEach(src => {
+        let source = document.createElement('source');
+        source.src = src.src;
+        source.type = src.type;
+        sources.push(source);
+    });
+    document.getElementById('video').replaceChildren(sources);
+    response['success'] = true;
+    return true;
+});
+
+const show_page_service = new ROSLIB.Service({ ros: ros, name: '/show_page', serviceType: 'dialogue_manager/page_to_show' });
+show_page_service.advertise(function (request, response) {
+    console.log('Showing page:' + request.src);
+    document.getElementById('face_div').classList.add('d-none');
+    document.getElementById('image_div').classList.add('d-none');
+    document.getElementById('audio_div').classList.add('d-none');
+    document.getElementById('video_div').classList.add('d-none');
+    document.getElementById('html_div').classList.remove('d-none');
+    document.getElementById('question_div').classList.add('d-none');
+
+    document.getElementById('html').src = request.src;
+    document.getElementById('html').title = request.title;
     response['success'] = true;
     return true;
 });
@@ -44,9 +126,15 @@ set_face_service.advertise(function (request, response) {
 const ask_question_service = new ROSLIB.Service({ ros: ros, name: '/ask_question', serviceType: 'dialogue_manager/question_to_ask' });
 ask_question_service.advertise(function (request, response) {
     console.log('Asking question:' + request.text);
+    document.getElementById('face_div').classList.remove('d-none');
+    document.getElementById('image_div').classList.add('d-none');
+    document.getElementById('audio_div').classList.add('d-none');
+    document.getElementById('video_div').classList.add('d-none');
+    document.getElementById('html_div').classList.add('d-none');
+    document.getElementById('question_div').classList.remove('d-none');
+
     document.getElementById('robot_face').src = 'static/faces/' + request.facial_expression + '.gif';
     document.getElementById('robot_face').height = 300
-    document.getElementById('question').classList.remove('d-none');
     document.getElementById('question_text').innerText = request.text
     let buttons = [];
     request.buttons.forEach(button => {

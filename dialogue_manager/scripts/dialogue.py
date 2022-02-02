@@ -5,7 +5,7 @@ import time
 import traceback
 from std_srvs.srv import Trigger, TriggerResponse, Empty
 from dialogue_manager.msg import dialogue_state
-from dialogue_manager.srv import utterance_to_pronounce, face_to_show, question_to_ask, utterance_to_recognize
+from dialogue_manager.srv import utterance_to_pronounce, face_to_show, image_to_show, audio_to_play, video_to_play, page_to_show, question_to_ask, utterance_to_recognize
 from deliberative_tier.srv import start_task, start_taskResponse, task_finished
 from persistence_manager.srv import get_state, set_state, set_stateResponse
 
@@ -49,27 +49,47 @@ class dialogue_manager:
         self.perceive_emotions = rospy.ServiceProxy(
             'perceive_emotions', get_state)
 
-        # activates the text to speech..
+        # waits for the text to speech..
         self.text_to_speech = rospy.ServiceProxy(
             'text_to_speech', utterance_to_pronounce)
         self.text_to_speech.wait_for_service()
 
-        # activates the configuration of the speech to text..
+        # waits for the configuration of the speech to text..
         self.configure_speech_to_text = rospy.ServiceProxy(
             'configure_speech_to_text', Empty)
         self.configure_speech_to_text.wait_for_service()
 
-        # activates the speech to text..
+        # waits for the speech to text..
         self.speech_to_text = rospy.ServiceProxy(
             'speech_to_text', utterance_to_recognize)
         self.speech_to_text.wait_for_service()
 
-        # activates the face manager..
+        # waits for the face manager..
         self.set_face = rospy.ServiceProxy(
             'set_face', face_to_show)
         self.set_face.wait_for_service()
 
-        # activates the question manager..
+        # waits for the image manager..
+        self.show_image = rospy.ServiceProxy(
+            'show_image', image_to_show)
+        self.show_image.wait_for_service()
+
+        # waits for the audio manager..
+        self.play_audio = rospy.ServiceProxy(
+            'play_audio', audio_to_play)
+        self.play_audio.wait_for_service()
+
+        # waits for the video manager..
+        self.play_video = rospy.ServiceProxy(
+            'play_video', video_to_play)
+        self.play_video.wait_for_service()
+
+        # waits for the page manager..
+        self.show_page = rospy.ServiceProxy(
+            'show_page', page_to_show)
+        self.show_page.wait_for_service()
+
+        # waits for the question manager..
         self.ask_question = rospy.ServiceProxy(
             'ask_question', question_to_ask)
         self.ask_question.wait_for_service()

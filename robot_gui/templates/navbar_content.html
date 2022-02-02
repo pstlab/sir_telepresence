@@ -1,9 +1,21 @@
 <div class="tab-content" id="main-content">
     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-        <div class="d-flex justify-content-center">
+        <div id="face_div" class="d-flex justify-content-center">
             <img id="robot_face" src="static/faces/idle.gif" alt="" height="700">
         </div>
-        <div id="question" class="d-grid justify-content-center d-none">
+        <div id="image_div" class="d-grid justify-content-center d-none">
+            <img id="image" src="" alt="" height="700">
+        </div>
+        <div id="audio_div" class="d-grid justify-content-center d-none">
+            <audio id="audio" controls>Your browser does not support the audio element.</audio>
+        </div>
+        <div id="video_div" class="d-grid justify-content-center d-none">
+            <video id="video" height="700" controls>Your browser does not support the video tag.</video>
+        </div>
+        <div id="html_div" class="d-grid justify-content-center d-none">
+            <iframe id="html" src="" title=""></iframe>
+        </div>
+        <div id="question_div" class="d-grid justify-content-center d-none">
             <div class="d-grid justify-content-center">
                 <h2 id="question_text" style="color:white;"></h2>
             </div>
