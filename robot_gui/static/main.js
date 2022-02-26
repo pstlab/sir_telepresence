@@ -317,11 +317,13 @@ function create_reasoner(r_id) {
 
     const timelines_div = document.createElement('div');
     timelines_div.setAttribute('id', 'r' + r_id + '-timelines');
+    timelines_div.classList.add('h-50');
     timelines_div.style.backgroundColor = 'white';
     reasoner.appendChild(timelines_div);
 
     const graph_div = document.createElement('div');
     graph_div.setAttribute('id', 'r' + r_id + '-graph');
+    graph_div.classList.add('h-50');
     graph_div.style.backgroundColor = 'white';
     reasoner.appendChild(graph_div);
 
