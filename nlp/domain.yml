@@ -266,12 +266,22 @@ responses:
     - text: Quale è il tuo nome?
 
   utter_ask_user_location:
-    - text: Dove ci troviamo in questo momento?
-    - text: Dove siamo ora?
-    - text: In che città ci troviamo ora?
+    - text: "{user_name}, dove ci troviamo in questo momento?"
+    - text: "{user_name}, dove siamo ora?"
+    - text: "{user_name}, in che città ci troviamo ora?"
 
   utter_location_comment:
     - text: Ah, conosco {user_location}. Ci sono stato da piccolo.
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "male"
+      text: Lo sapevo! Era per vedere se eri attento!
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "female"
+      text: Lo sapevo! Era per vedere se eri attenta!
 
   utter_nice_to_meet:
     - text: Ciao {user_name}! Piacere di conoscerti!
@@ -403,9 +413,9 @@ responses:
       text: Sai, io sono uno che parla molto, non mi capita mai di rimanere senza qualcosa da dire. Tu invece, resti mai senza parole?
 
   utter_profile_gathered:
-    - text: Molto bene. Ora so tutto quello di cui avevo bisogno.
-    - text: Molto bene. Ora conosco tutto quello di cui avevo bisogno.
-    - text: Molto bene. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
+    - text: Molto bene {user_name}. Ora so tutto quello di cui avevo bisogno.
+    - text: Molto bene {user_name}. Ora conosco tutto quello di cui avevo bisogno.
+    - text: Molto bene {user_name}. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
 
   utter_intro_cognitive_exercise:
     - text: Ciao {user_name}! Cominceremo ora la nostra sessione giornaliera di esercizi cognitivi! Oggi ti proporrò alcuni giochi.
@@ -445,18 +455,20 @@ responses:
     - text: Cominciamo l'esercizio.
 
   utter_exercise_done:
-    - text: L'esercizio è terminato.
-    - text: Hai terminato l'esercizio.
-    - text: Hai finito l'esercizio.
+    - text: "Bene {user_name}, l'esercizio è terminato."
+    - text: "Complimenti {user_name}, hai terminato l'esercizio."
+    - text: "Ben fatto {user_name}, hai finito l'esercizio."
 
   utter_temperature:
     - text: La temperatura attuale è di {temperature} gradi centigradi
+    - text: L'attuale temperatura è di {temperature} gradi centigradi
     - text: La temperatura corrente è di {temperature} gradi centigradi
     - text: La temperatura è di {temperature} gradi centigradi
   utter_humidity:
-    - text: L'umidità attuale è di {humidity} gradi centigradi
-    - text: L'umidità corrente è di {humidity} gradi centigradi
-    - text: L'umidità è di {humidity} gradi centigradi
+    - text: L'umidità attuale è del {humidity}%
+    - text: L'umidità corrente è del {humidity}%
+    - text: L'attuale umidità è del {humidity}%
+    - text: L'umidità è del {humidity}%
 
 actions:
   - validate_profile_form

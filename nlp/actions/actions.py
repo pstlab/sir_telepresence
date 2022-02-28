@@ -324,6 +324,8 @@ class ValidateCountTheWordForm(FormValidationAction):
                 slots = next_count_the_word(tracker)
                 dispatcher.utter_message(
                     response='utter_describe_count_the_word', count_the_word_word=slots['count_the_word_word'])
+                dispatcher.utter_message(
+                    response='utter_start_count_the_word', count_the_word_word_sequence=slots['count_the_word_word_sequence'])
                 slots['count_the_word_num_word'] = None
                 return slots
             else:
