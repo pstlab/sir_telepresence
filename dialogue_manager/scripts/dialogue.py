@@ -12,6 +12,7 @@ from persistence_manager.srv import get_state, set_state, set_stateResponse
 face_idle = 'idle'
 face_talking = 'talking'
 face_listening = 'listening'
+coherent = True
 
 
 class dialogue_manager:
@@ -110,6 +111,10 @@ class dialogue_manager:
         rospy.logdebug('Start dialogue "%s" request..', req.task_name)
         for i in range(len(req.par_names)):
             rospy.logdebug(req.par_names[i] + ': %s', req.par_values[i])
+        r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
+                          'include_events': 'NONE'}, json={'event': 'slot', 'name': 'command_state', 'value': 'executing', 'timestamp': time.time()})
+        if(r.status_code != requests.codes.ok):
+            rospy.logerr('Cannot connect to the dialogue engine..')
         # we store the informations about the starting dialogue..
         self.reasoner_id = req.reasoner_id
         self.task_id = req.task_id
@@ -144,6 +149,10 @@ class dialogue_manager:
         rospy.loginfo('Restarting the dialogue engine..')
         r = requests.post('http://' + host + ':' + port + '/webhooks/rest/webhook', params={
             'include_events': 'NONE'}, json={'sender': user, 'message': '/restart'})
+        if(r.status_code != requests.codes.ok):
+            rospy.logerr('Cannot connect to the dialogue engine..')
+        r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
+                          'include_events': 'NONE'}, json={'event': 'slot', 'name': 'coherent', 'value': coherent, 'timestamp': time.time()})
         if(r.status_code != requests.codes.ok):
             rospy.logerr('Cannot connect to the dialogue engine..')
 

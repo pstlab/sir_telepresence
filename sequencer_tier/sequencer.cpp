@@ -201,7 +201,9 @@ namespace sir
             deliberative_tier::start_task bc_srv;
             bc_srv.request.reasoner_id = req.reasoner_id;
             bc_srv.request.task_id = req.task_id;
-            bc_srv.request.task_name = "BICEPS CURL";
+            bc_srv.request.task_name = "start_physical_exercise";
+            bc_srv.request.par_names.push_back("physical_exercise_type");
+            bc_srv.request.par_values.push_back("biceps_curl");
             for (size_t i = 0; i < req.par_names.size(); i++)
             {
                 bc_srv.request.par_names.push_back(req.par_names.at(i));
@@ -214,7 +216,9 @@ namespace sir
             deliberative_tier::start_task ctw_srv;
             ctw_srv.request.reasoner_id = req.reasoner_id;
             ctw_srv.request.task_id = req.task_id;
-            ctw_srv.request.task_name = "start_count_the_word_cognitive_exercise";
+            ctw_srv.request.task_name = "start_cognitive_exercise";
+            ctw_srv.request.par_names.push_back("cognitive_exercise_type");
+            ctw_srv.request.par_values.push_back("count_the_word");
             for (size_t i = 0; i < req.par_names.size(); i++)
             {
                 ctw_srv.request.par_names.push_back(req.par_names.at(i));

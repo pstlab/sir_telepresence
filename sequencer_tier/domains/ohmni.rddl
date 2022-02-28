@@ -18,9 +18,8 @@ class OhmniRobot {
 }
 
 predicate KeepHealthy() {
-    goal ub = new UpperBodyPhysicalExercise();
-    goal lb = new LowerBodyPhysicalExercise();
-    goal bpg = new robot.dialogue.Interacting(intent: "start_blood_pressure_gathering");
+    goal cp = new robot.physical_exercise.ChestPress();
+    goal cw = new robot.cognitive_exercise.CountTheWord(word_sequence:"PALLA PELLE POLLO", word:"PALLA");
 }
 
 OhmniRobot robot = new OhmniRobot();

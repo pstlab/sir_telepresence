@@ -43,8 +43,6 @@ get_deliberative_state.callService(ROSLIB.ServiceRequest({}), function (result) 
 });
 
 function init_ros_services() {
-    document.getElementById('listen-button').addEventListener('click', start_listen);
-
     const set_face_service = new ROSLIB.Service({ ros: ros, name: '/set_face', serviceType: 'dialogue_manager/face_to_show' });
     set_face_service.advertise(function (request, response) {
         console.log('Setting robot face:' + request.facial_expression);
@@ -170,6 +168,18 @@ function init_ros_services() {
         return true;
     });
 
+    const toast_service = new ROSLIB.Service({ ros: ros, name: '/toast', serviceType: 'dialogue_manager/toast_to_show' });
+    toast_service.advertise(function (request, response) {
+        console.log('Showing toast:' + request.text);
+        const toast_div = document.getElementById('recognized_speech');
+        const toast_text = document.getElementById('recognized_speech_text');
+        toast_text.innerHTML = request.text;
+        var toast = new bootstrap.Toast(toast_div)
+        toast.show()
+        response['success'] = true;
+        return true;
+    });
+
     /*
     Ohmni.setSpeechLanguage('it-IT');
     const text_to_speech_service = new ROSLIB.Service({ ros: ros, name: '/text_to_speech', serviceType: 'dialogue_manager/utterance_to_pronounce' });
@@ -182,6 +192,7 @@ function init_ros_services() {
     */
 
     const listen_service = new ROSLIB.Service({ ros: ros, name: '/listen', serviceType: 'std_srvs/Trigger' });
+    document.getElementById('listen-button').onclick = (event) => start_listen(listen_service);
 
     const sequencer_state_listener = new ROSLIB.Topic({ ros: ros, name: '/sequencer_state', messageType: 'sequencer_tier/sequencer_state' });
     sequencer_state_listener.subscribe(function (message) {
@@ -449,7 +460,7 @@ function resolver_tooltip(resolver) {
     }
 }
 
-function start_listen() {
+function start_listen(listen_service) {
     listen_service.callService(new ROSLIB.ServiceRequest({}), function (result) {
         if (result.success)
             console.log('Opening microphone..');

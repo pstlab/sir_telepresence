@@ -10,5 +10,6 @@ class CognitiveExerciseStateVariable : StateVariable {
 
     predicate CountTheWord(string word_sequence, string word) {
         duration >= 20.0;
+        goal cp = new robot.dialogue.Busy(start: start, duration: duration, end: end);
     }
 }
