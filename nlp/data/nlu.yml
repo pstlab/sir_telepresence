@@ -94,6 +94,8 @@ nlu:
   - intent: start_cognitive_exercise
     examples: |
       - Cominciamo l'esercizio di [conta le parole](cognitive_exercise_type)
+      - Avvia l'esercizio [conta le parole](cognitive_exercise_type)
+      - Iniziamo l'esercizio [conta le parole](cognitive_exercise_type)
       - Avviamo un esercizio [count_the_word](cognitive_exercise_type)
       - Facciamo un esercizio di [conta le parole](cognitive_exercise_type)
 
@@ -105,6 +107,7 @@ nlu:
 
   - intent: tell_num_words
     examples: |
+      - [una](number) volta
       - [due](number)
       - [tre](number)
       - [quattro](number) volte
@@ -122,6 +125,7 @@ nlu:
   - synonym: count_the_word
     examples: |
       - conta le parole
+      - conta la parola
 
   - synonym: biceps_curl
     examples: |

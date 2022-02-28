@@ -89,7 +89,8 @@ stories:
       - intent: affirm
       - slot_was_set:
           - cognitive_exercise: count_the_word
-      - action: utter_describe_count_the_word0
+      - action: action_init_count_the_word
+      - action: utter_describe_count_the_word
       - action: utter_confirm
       - intent: affirm
       - action: utter_start_count_the_word

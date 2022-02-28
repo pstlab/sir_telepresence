@@ -19,7 +19,7 @@ class OhmniRobot {
 
 predicate KeepHealthy() {
     goal cp = new robot.physical_exercise.ChestPress();
-    goal cw = new robot.cognitive_exercise.CountTheWord(count_the_word_word_sequence0:"PALLA, PELLE, POLLO", count_the_word_word0:"PALLA", count_the_word_word_sequence1:"IMBACUCCATO, ACCUCCIATO, ASSONNATO", count_the_word_word1:"IMBACUCCATO");
+    goal cw = new robot.cognitive_exercise.CountTheWord(count_the_word_word_sequence:"PALLA, PELLE, POLLO; IMBACUCCATO, ACCUCCIATO, ASSONNATO", count_the_word_word:"PALLA; IMBACUCCATO");
 }
 
 OhmniRobot robot = new OhmniRobot();

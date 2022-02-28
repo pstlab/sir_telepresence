@@ -255,23 +255,60 @@ class ActionAnalyzeProfile(Action):
         return [SlotSet('user_extraversion', analyze_profile(tracker))]
 
 
+def next_count_the_word(tracker: Tracker):
+    word_sequences = tracker.get_slot(
+        'count_the_word_word_sequences').split('; ')
+    words = tracker.get_slot('count_the_word_words').split('; ')
+    assert len(word_sequences) == len(words)
+
+    if len(word_sequences) > 1:
+        return {'count_the_word_word_sequences': '; '.join(word_sequences[1:]),
+                'count_the_word_words': '; '.join(words[1:]),
+                'count_the_word_word_sequence': word_sequences[0],
+                'count_the_word_word': words[0]}
+    else:
+        return {'count_the_word_word_sequences': None,
+                'count_the_word_words': None,
+                'count_the_word_word_sequence': word_sequences[0],
+                'count_the_word_word': words[0]}
+
+
+class ActionInitCountTheWord(Action):
+
+    def name(self) -> Text:
+        return 'action_init_count_the_word'
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        slots = next_count_the_word(tracker)
+        to_set = []
+        for s in slots:
+            to_set.append(SlotSet(s, slots[s]))
+        return to_set
+
+
 class ValidateCountTheWordForm(FormValidationAction):
     def name(self) -> Text:
         return 'validate_count_the_word_form'
 
-    def validate_count_the_word_num_word0(
+    def validate_count_the_word_num_word(
         self,
         slot_value: Any,
         dispatcher: CollectingDispatcher,
         tracker: Tracker,
         domain: DomainDict,
     ) -> Dict[Text, Any]:
-        if not tracker.get_slot('requested_slot') == 'count_the_word_num_word0':
+        if not tracker.get_slot('requested_slot') == 'count_the_word_num_word':
             return {}
 
-        words = tracker.get_slot('count_the_word_word_sequence0').split(', ')
-        word = words.count(tracker.get_slot('count_the_word_word0'))
+        words = tracker.get_slot('count_the_word_word_sequence').split(', ')
+        word = tracker.get_slot('count_the_word_word')
         extraversion = tracker.get_slot('user_extraversion')
+        print('The word "{}" appears {} times in the list "{}"'.format(
+            word, str(words.count(word)), ', '.join(words)))
+        print("user's response: " + str(slot_value))
 
         if slot_value == words.count(word):
             if extraversion == 'extroverted':
@@ -280,11 +317,18 @@ class ValidateCountTheWordForm(FormValidationAction):
             elif extraversion == 'introverted':
                 dispatcher.utter_message(
                     response='utter_positive_feedback_intro')
-            dispatcher.utter_message(
-                response='utter_count_the_word_more_challenging')
-            dispatcher.utter_message(
-                response='utter_describe_count_the_word1')
-            return {'count_the_word_num_word0': slot_value}
+            if tracker.get_slot('count_the_word_word_sequences') is not None:
+                print('another round..')
+                dispatcher.utter_message(
+                    response='utter_count_the_word_more_challenging')
+                slots = next_count_the_word(tracker)
+                dispatcher.utter_message(
+                    response='utter_describe_count_the_word', count_the_word_word=slots['count_the_word_word'])
+                slots['count_the_word_num_word'] = None
+                return slots
+            else:
+                print('last round..')
+                return {'count_the_word_num_word': slot_value}
         else:
             if extraversion == 'extroverted':
                 dispatcher.utter_message(
@@ -293,41 +337,9 @@ class ValidateCountTheWordForm(FormValidationAction):
                 dispatcher.utter_message(
                     response='utter_negative_feedback_intro')
 
-            dispatcher.utter_message(response='utter_try_again_count_the_word0')
-            return {'count_the_word_num_word0': None}
-
-    def validate_count_the_word_num_word1(
-        self,
-        slot_value: Any,
-        dispatcher: CollectingDispatcher,
-        tracker: Tracker,
-        domain: DomainDict,
-    ) -> Dict[Text, Any]:
-        if not tracker.get_slot('requested_slot') == 'count_the_word_num_word1':
-            return {}
-
-        words = tracker.get_slot('count_the_word_word_sequence1').split(', ')
-        word = words.count(tracker.get_slot('count_the_word_word1'))
-        extraversion = tracker.get_slot('user_extraversion')
-
-        if slot_value == words.count(word):
-            if extraversion == 'extroverted':
-                dispatcher.utter_message(
-                    response='utter_positive_feedback_estro')
-            elif extraversion == 'introverted':
-                dispatcher.utter_message(
-                    response='utter_positive_feedback_intro')
-            return {'count_the_word_num_word1': slot_value}
-        else:
-            if extraversion == 'extroverted':
-                dispatcher.utter_message(
-                    response='utter_negative_feedback_estro')
-            elif extraversion == 'introverted':
-                dispatcher.utter_message(
-                    response='utter_negative_feedback_intro')
-
-            dispatcher.utter_message(response='utter_try_again_count_the_word1')
-            return {'count_the_word_num_word1': None}
+            dispatcher.utter_message(
+                response='utter_try_again_count_the_word')
+            return {'count_the_word_num_word': None}
 
 
 class ActionWeatherAnalysis(Action):
