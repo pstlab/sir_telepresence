@@ -8,19 +8,6 @@ nlu:
       - Buongiorno
       - Buonasera
 
-  - intent: goodbye
-    examples: |
-      - Ci vediamo
-      - Arrivederci
-      - A presto
-      - Va bene così
-      - Va bene così, grazie
-      - Non mi serve niente
-      - Non mi serve nient'altro
-      - Per ora non mi serve niente
-      - Se mi serve qualcosa te lo faccio sapere
-      - Se mi serve qualcosa ti chiamo dopo
-
   - intent: affirm
     examples: |
       - Sì
@@ -31,6 +18,8 @@ nlu:
       - Va bene
       - Infatti
       - Corretto
+      - Un po'
+      - A volte
       - Mi sembra giusto
 
   - intent: deny
@@ -44,41 +33,10 @@ nlu:
       - Certo che no
       - Sicuramente no
       - No davvero
+      - Raramente
       - Per ora, non mi serve nulla!
 
-  - intent: uncertain
-    examples: |
-      - Non so, ieri non sono andato tanto bene
-      - Non saprei
-      - Non ne sono sicuro
-      - Non ne sono sicura
-
-  - intent: introduce_yourself
-    examples: |
-      - Chi sei?
-      - Come ti chiami?
-
-  - intent: ask_capabilities
-    examples: |
-      - Cosa sai fare?
-      - Quali sono le tue funzionalità?
-
-  - intent: done
-    examples: |
-      - Ho fatto
-      - Ora posso comunicarti i valori
-      - Posso comunicarti i valori
-      - Ho fatto quello che dovevo fare
-
-  - intent: start_profile_gathering
-    examples: |
-      - Voglio parlarti di me
-      - Voglio descriverti il mio profilo
-      - Voglio raccontarti di me
-      - Voglio raccontarti alcune cose di me
-      - Voglio descrivermi
-
-  - intent: set_name
+  - intent: tell_name
     examples: |
       - Mi chiamo [Nome](PER)
       - Mi chiamo [Gloria](PER)
@@ -91,145 +49,88 @@ nlu:
       - Puoi chiamarmi [Nome](PER)
       - Puoi chiamarmi [Cognome](PER)
       - Puoi chiamarmi [Soprannome](PER)
+      - [Nome](PER)
+      - [Cognome](PER)
+      - [Riccardo](PER)
+      - [Francesca](PER)
+      - [Gloria](PER)
+      - [Gabriella](PER)
 
-  - intent: set_location
+  - intent: tell_location
     examples: |
       - Sono a [Roma](LOC)
       - Sono di [Campoli Appennino](LOC)
       - In questo momento mi trovo a [Castelfranco Veneto](LOC)
 
-  - intent: set_extraversion
+  - intent: ask_informations
     examples: |
-      - [introversa](extraversion)
-      - [estroverso](extraversion)
-      - Sono [introverso](extraversion)
-      - Sono [estroversa](extraversion)
-      - Mi sento più [introverso](extraversion)
-      - Mi sento più [estroversa](extraversion)
+      - Chi sei?
+      - Cosa sei?
 
-  - intent: set_gender
+  - intent: ask_capabilities
     examples: |
-      - [maschile](gender)
-      - [femminile](gender)
-      - Sono [uomo](gender)
-      - Sono [donna](gender)
-      - Mi sento più [maschio](gender)
-      - Mi sento più [femmina](gender)
-      - Preferisco il [maschile](gender)
-      - Preferisco il [femminile](gender)
+      - Cosa sai fare?
+      - Quali sono le tue funzionalità?
 
-  - intent: ask_weather
+  - intent: start_profile_gathering
     examples: |
-      - Com'è il tempo oggi?
-      - Com'è la [temperatura](weather_field) fuori?
-      - Com'è l'[umidità](weather_field) all'esterno?
+      - Voglio parlarti di me
+      - Voglio descriverti il mio profilo
+      - Voglio raccontarti di me
+      - Voglio raccontarti alcune cose di me
+      - Voglio descrivermi
 
-  - intent: start_interaction
+  - intent: tell_life_style
     examples: |
-      - Voglio parlare con te
-      - Voglio dirti qualcosa
-      - Voglio dirti una cosa
+      - Ho una vita [noiosa](life_style)
+      - Ho una vita [eccitante](life_style)
+      - La mia vita è [noiosa](life_style)
+      - La mia vita è [ecitante](life_style)
+      - [noiosa](life_style)
+      - [eccitante](life_style)
+      - Probabilmente [noiosa](life_style)
+      - Sicuramente [eccitante](life_style)
 
-  - intent: set_reps
+  - intent: start_cognitive_exercise
     examples: |
-      - Il numero di ripetizioni è [cinque](number)
-      - Ho fatto [sei](number) ripetizioni
-      - Il numero di ripetizioni è [due](number)
-      - Ho fatto [una](number) ripetizione
-
-  - intent: positive_feedback
-    examples: |
-      - Dammi un feedback positivo
-      - Voglio un feedback positivo
-
-  - intent: negative_feedback
-    examples: |
-      - Dammi un feedback negativo
-      - Voglio un feedback negativo
+      - Cominciamo l'esercizio di [conta le parole](cognitive_exercise_type)
+      - Avviamo un esercizio [count_the_word](cognitive_exercise_type)
+      - Facciamo un esercizio di [conta le parole](cognitive_exercise_type)
 
   - intent: start_physical_exercise
     examples: |
-      - Cominciamo un esercizio di [biceps curl](physical_exercise_name)
-      - Avviamo un esercizio di [chest press](physical_exercise_name)
-      - Facciamo un esercizio di [standing calf raises](physical_exercise_name)
+      - Cominciamo l'esercizio di [biceps_curl](physical_exercise_type)
+      - Avviamo un esercizio [shoulder_t](physical_exercise_type)
+      - Facciamo un esercizio [front_shoulder_raise](physical_exercise_type)
 
-  - intent: end_physical_exercise
+  - intent: tell_num_words
     examples: |
-      - Terminiamo un esercizio di [chair squats](physical_exercise_name)
-      - Chiudiamo un esercizio di [upright row](physical_exercise_name)
-      - Finiamo un esercizio di [chest press](physical_exercise_name)
+      - [due](number)
+      - [tre](number)
+      - [quattro](number) volte
+      - credo di aver sentito [cinque](number) volte
 
-  - intent: start_count_the_word_cognitive_exercise
+  - synonym: boring
     examples: |
-      - Cominciamo un esercizio di conta le parole
-      - Avviamo un esercizio di conta le parole
-      - Facciamo un esercizio di conta le parole
+      - noiosa
+      - noioso
 
-  - intent: start_blood_pressure_gathering
+  - synonym: exciting
     examples: |
-      - Voglio dirti la mia pressione
-      - Voglio comunicarti la mia pressione cardiaca
-      - Ti dico la mia pressione corrente
-      - Ti comunico la mia attuale pressione
+      - eccitante
 
-  - intent: set_blood_pressure
+  - synonym: count_the_word
     examples: |
-      - La mia attuale pressione sistolica è di [dieci](number)
-      - La mia attuale pressione diastolica è di [quindici](number)
-      - La mia attuale pressione sistolica è di [dieci](number) mentre la diastolica è di [quindici](number)
-      - La mia attuale pressione è di [dieci](number) su [quindici](number)
-      - La mia pressione è di [dieci](number) su [quindici](number)
-      - Le mie attuali pulsazioni sono di [undici](number)
+      - conta le parole
 
-  - intent: start_blood_saturation_gathering
+  - synonym: biceps_curl
     examples: |
-      - Voglio dirti la mia saturazione
-      - Voglio comunicarti la mia saturazione dell'ossigeno
-      - Ti dico la mia saturazione corrente
-      - Ti comunico la mia attuale saturazione sanguigna
+      - biceps curl
 
-  - intent: set_blood_saturation
+  - synonym: shoulder_t
     examples: |
-      - La mia attuale saturazione dell'ossigeno è di [dieci](number)
-      - La mia attuale saturazione diastolica è di [quindici](number)
-      - La mia attuale saturazione è di [dieci](number) su [quindici](number)
-      - La mia saturazione sanguigna è di [dieci](number) su [quindici](number)
+      - shoulder t
 
-  - intent: out_of_scope
+  - synonym: front_shoulder_raise
     examples: |
-      - A che ora si pranza?
-      - Posso ordinare del cibo?
-      - Quanto fa 2 + 2?
-      - Chi è il presidente del consiglio?
-
-  - synonym: extroverted
-    examples: |
-      - estroverso
-      - estroversa
-
-  - synonym: introverted
-    examples: |
-      - introverso
-      - introversa
-
-  - synonym: male
-    examples: |
-      - maschio
-      - maschile
-      - uomo
-
-  - synonym: female
-    examples: |
-      - femmina
-      - femminile
-      - donna
-
-  - synonym: temperature
-    examples: |
-      - temperatura
-      - gradi
-
-  - synonym: humidity
-    examples: |
-      - umidità
-      - umido
+      - front shoulder raise

@@ -2,80 +2,90 @@
 #### If you want to learn more, please see the docs: https://rasa.com/docs/rasa/testing-your-assistant
 
 stories:
-  - story: happy path 1
-    steps:
-      - user: |
-          Salve!
-        intent: greet
-      - action: action_command_start
-      - action: utter_greet
-      - action: utter_help_proposal
-      - user: |
-          Certo che no!
-        intent: deny
-      - action: utter_I_am_here
-      - action: action_command_done
-      
-  - story: happy path 2
-    steps:
-      - user: |
-          Salve!
-        intent: greet
-      - action: action_command_start
-      - action: utter_greet
-      - action: utter_help_proposal
-      - user: |
-          Cosa sai fare?
-        intent: ask_capabilities
-      - action: utter_present_capabilities
-      - action: utter_help_proposal
-      - user: |
-          No!
-        intent: deny
-      - action: utter_I_am_here
-      - action: action_command_done
+- story: happy path 1
+  steps:
+  - user: |
+      hello there!
+    intent: greet
+  - action: utter_greet
+  - user: |
+      amazing
+    intent: mood_great
+  - action: utter_happy
 
-  - story: Set name intent
-    steps:
-      - user: |
-          Mi chiamo [Riccardo]{"entity": "PER"}
-        intent: set_name
-      - action: action_command_start
-      - action: utter_greet_name
-      - action: utter_help_proposal
-      - user: |
-          No!
-        intent: deny
-      - action: utter_I_am_here
-      - action: action_command_done
+- story: happy path 2
+  steps:
+  - user: |
+      hello there!
+    intent: greet
+  - action: utter_greet
+  - user: |
+      amazing
+    intent: mood_great
+  - action: utter_happy
+  - user: |
+      bye-bye!
+    intent: goodbye
+  - action: utter_goodbye
 
-  - story: Profile gathering
-    steps:
-      - user: |
-          Ciao! Voglio parlarti di me!
-        intent: start_profile_gathering
-      - action: action_command_start
-      - action: utter_start_profile_gathering
-      - action: utter_ask_confirm
-      - user: |
-          Va bene!
-        intent: affirm
-      - action: profile_form
-      - active_loop: profile_form
-      - user: |
-          Mi chiamo [Riccardo]{"entity": "PER"}
-        intent: set_name
-      - action: profile_form
-      - active_loop: profile_form
-      - user: |
-          il [maschile]{"entity": "gender"}
-        intent: set_gender
-      - action: profile_form
-      - active_loop: profile_form
-      - user: |
-          una persona [introversa]{"entity": "extraversion"}
-        intent: set_extraversion
-      - action: profile_form
-      - active_loop: null
-      - action: utter_profile_gathered
-      - action: action_command_done
+- story: sad path 1
+  steps:
+  - user: |
+      hello
+    intent: greet
+  - action: utter_greet
+  - user: |
+      not good
+    intent: mood_unhappy
+  - action: utter_cheer_up
+  - action: utter_did_that_help
+  - user: |
+      yes
+    intent: affirm
+  - action: utter_happy
+
+- story: sad path 2
+  steps:
+  - user: |
+      hello
+    intent: greet
+  - action: utter_greet
+  - user: |
+      not good
+    intent: mood_unhappy
+  - action: utter_cheer_up
+  - action: utter_did_that_help
+  - user: |
+      not really
+    intent: deny
+  - action: utter_goodbye
+
+- story: sad path 3
+  steps:
+  - user: |
+      hi
+    intent: greet
+  - action: utter_greet
+  - user: |
+      very terrible
+    intent: mood_unhappy
+  - action: utter_cheer_up
+  - action: utter_did_that_help
+  - user: |
+      no
+    intent: deny
+  - action: utter_goodbye
+
+- story: say goodbye
+  steps:
+  - user: |
+      bye-bye!
+    intent: goodbye
+  - action: utter_goodbye
+
+- story: bot challenge
+  steps:
+  - user: |
+      are you a bot?
+    intent: bot_challenge
+  - action: utter_iamabot

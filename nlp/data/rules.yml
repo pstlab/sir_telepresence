@@ -1,12 +1,6 @@
 version: "3.0"
 
 rules:
-  - rule: Say goodbye anytime the user says goodbye
-    steps:
-      - intent: goodbye
-      - action: utter_goodbye
-      - action: action_command_done
-
   - rule: profile form
     condition:
       - active_loop: profile_form
@@ -15,39 +9,8 @@ rules:
       - active_loop: null
       - slot_was_set:
           - requested_slot: null
-      - action: action_profile_analysis
+      - action: action_analyze_profile
       - action: utter_profile_gathered
-      - action: action_command_done
-
-  - rule: profile form unhappy path
-    condition:
-      - active_loop: profile_form
-    steps:
-      - intent: ask_capabilities
-      - action: utter_present_capabilities
-      - action: profile_form
-      - active_loop: profile_form
-
-  - rule: blood pressure form
-    condition:
-      - active_loop: blood_pressure_measurement_form
-    steps:
-      - action: blood_pressure_measurement_form
-      - active_loop: null
-      - slot_was_set:
-          - requested_slot: null
-      - action: action_blood_pressure_analysis
-      - action: action_command_done
-
-  - rule: blood saturation form
-    condition:
-      - active_loop: blood_saturation_measurement_form
-    steps:
-      - action: blood_saturation_measurement_form
-      - active_loop: null
-      - slot_was_set:
-          - requested_slot: null
-      - action: action_blood_saturation_analysis
       - action: action_command_done
 
   - rule: count the word form
@@ -58,22 +21,5 @@ rules:
       - active_loop: null
       - slot_was_set:
           - requested_slot: null
-      - action: utter_count_the_words_done
+      - action: utter_exercise_done
       - action: action_command_done
-
-  - rule: Reps feedback
-    steps:
-      - intent: set_reps
-      - action: action_command_start
-      - action: utter_count_reps
-      - action: action_command_done
-
-  - rule: Out of scope
-    steps:
-      - intent: out_of_scope
-      - action: utter_out_of_scope
-
-  - rule: Ask the user to rephrase whenever they send a message with low NLU confidence
-    steps:
-      - intent: nlu_fallback
-      - action: utter_please_rephrase

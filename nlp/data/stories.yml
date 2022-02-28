@@ -1,225 +1,112 @@
 version: "3.0"
 
 stories:
-  - story: Happy path
+  - story: Say hello
     steps:
       - intent: greet
-      - action: action_command_start
+      - slot_was_set:
+          - user_name: null
       - action: utter_greet
-      - action: utter_help_proposal
-      - intent: deny
-      - action: utter_I_am_here
-      - action: action_command_done
+      - action: utter_offer_help
 
-  - story: Happy path name
+  - story: Say hello with name
     steps:
       - intent: greet
-      - action: action_command_start
       - slot_was_set:
           - user_name
       - action: utter_greet_name
-      - action: utter_help_proposal
-      - intent: deny
-      - action: utter_I_am_here
-      - action: action_command_done
+      - action: utter_offer_help
 
-  - story: Happy path male
+  - story: Ask who you are
     steps:
-      - intent: greet
-      - action: action_command_start
-      - slot_was_set:
-          - user_gender: male
-      - action: utter_greet_male
-      - action: utter_help_proposal
-      - intent: deny
-      - action: utter_I_am_here
-      - action: action_command_done
-
-  - story: Happy path female
-    steps:
-      - intent: greet
-      - action: action_command_start
-      - slot_was_set:
-          - user_gender: female
-      - action: utter_greet_female
-      - action: utter_help_proposal
-      - intent: deny
-      - action: utter_I_am_here
-      - action: action_command_done
-
-  - story: Ask capabilities
-    steps:
-      - intent: ask_capabilities
-      - action: action_command_start
-      - action: utter_present_capabilities
-      - action: utter_help_proposal
-      - intent: deny
-      - action: utter_I_am_here
-      - action: action_command_done
-
-  - story: Set name intent
-    steps:
-      - intent: set_name
-      - action: action_command_start
-      - slot_was_set:
-          - user_name
-      - action: utter_greet_name
-      - action: utter_help_proposal
-      - intent: deny
-      - action: utter_I_am_here
-      - action: action_command_done
-
-  - story: Presentation
-    steps:
-      - intent: introduce_yourself
-      - action: action_command_start
+      - intent: ask_informations
       - action: utter_presentation
-      - action: utter_ask_what_I_do
-      - intent: affirm
-      - action: utter_present_capabilities
-      - action: action_command_done
 
-  - story: Start interaction no name
-    steps:
-      - intent: start_interaction
-      - action: action_command_start
-      - action: utter_help_proposal
-
-  - story: Start interaction name
-    steps:
-      - intent: start_interaction
-      - action: action_command_start
-      - slot_was_set:
-          - user_name
-      - action: utter_greet_name
-      - action: utter_help_proposal
-
-  - story: Start interaction male
-    steps:
-      - intent: start_interaction
-      - action: action_command_start
-      - slot_was_set:
-          - user_gender: male
-      - action: utter_greet_male
-      - action: utter_help_proposal
-
-  - story: Start interaction female
-    steps:
-      - intent: start_interaction
-      - action: action_command_start
-      - slot_was_set:
-          - user_gender: female
-      - action: utter_greet_female
-      - action: utter_help_proposal
-
-  - story: Profile gathering
+  - story: Start profile gathering
     steps:
       - intent: start_profile_gathering
-      - action: action_command_start
-      - action: utter_start_profile_gathering
-      - action: utter_ask_confirm
+      - slot_was_set:
+          - user_name: null
+      - action: utter_presentation
+      - action: utter_know_ourself
+      - action: utter_confirm
       - intent: affirm
       - action: profile_form
       - active_loop: profile_form
 
-  - story: Profile gathering
+  - story: Start profile gathering 2
     steps:
+      - intent: ask_capabilities
+      - action: utter_functionalities
+      - slot_was_set:
+          - user_name: null
+      - action: utter_know_ourself
+      - action: utter_confirm
+      - intent: affirm
       - action: profile_form
+      - active_loop: profile_form
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: action_analyze_profile
+      - action: utter_profile_gathered
+      - action: action_command_done
+
+  - story: interactive_story_1
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - action: utter_offer_help
+      - intent: ask_capabilities
+      - slot_was_set:
+          - user_name: null
+      - action: utter_functionalities
+      - action: utter_know_ourself
+      - action: utter_confirm
+      - intent: affirm
+      - action: profile_form
+      - active_loop: profile_form
+      - slot_was_set:
+          - requested_slot: user_name
       - slot_was_set:
           - user_name: Riccardo
-          - user_gender: male
+      - slot_was_set:
+          - user_extraversion: extroverted
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: action_analyze_profile
+      - slot_was_set:
           - user_extraversion: extroverted
       - action: utter_profile_gathered
       - action: action_command_done
 
-  - story: Ask weather
-    steps:
-      - intent: ask_weather
-      - action: action_command_start
-      - action: action_weather_analysis
-      - action: action_command_done
-
-  - story: Blood pressure gathering
-    steps:
-      - intent: start_blood_pressure_gathering
-      - action: action_command_start
-      - action: utter_start_blood_pressure_gathering
-      - intent: affirm
-      - action: blood_pressure_measurement_form
-      - active_loop: blood_pressure_measurement_form
-
-  - story: Blood pressure gathering waiting
-    steps:
-      - intent: start_blood_pressure_gathering
-      - action: action_command_start
-      - action: utter_start_blood_pressure_gathering
-      - intent: deny
-      - action: utter_measure_blood_pressure
-      - or:
-          - intent: done
-          - intent: start_blood_pressure_gathering
-      - action: blood_pressure_measurement_form
-      - active_loop: blood_pressure_measurement_form
-
-  - story: Blood saturation gathering
-    steps:
-      - intent: start_blood_saturation_gathering
-      - action: action_command_start
-      - action: utter_start_blood_saturation_gathering
-      - intent: affirm
-      - action: blood_saturation_measurement_form
-      - active_loop: blood_saturation_measurement_form
-
-  - story: Blood saturation gathering waiting
-    steps:
-      - intent: start_blood_saturation_gathering
-      - action: action_command_start
-      - action: utter_start_blood_saturation_gathering
-      - intent: deny
-      - action: utter_measure_blood_saturation
-      - action: action_command_pending
-      - or:
-          - intent: done
-          - intent: start_blood_saturation_gathering
-      - action: blood_saturation_measurement_form
-      - active_loop: blood_saturation_measurement_form
-
-  - story: Start physical exercise
-    steps:
-      - intent: start_physical_exercise
-      - action: action_command_start
-      - action: utter_start_physical_exercise
-      - action: utter_ask_confirm
-      - intent: affirm
-      - action: action_command_done
-
   - story: Start count the word cognitive exercise
     steps:
-      - intent: start_count_the_word_cognitive_exercise
-      - action: action_command_start
-      - action: utter_start_cognitive_exercise
-      - action: utter_ask_confirm
+      - intent: start_cognitive_exercise
+      - action: utter_intro_cognitive_exercise
+      - action: utter_confirm
       - intent: affirm
+      - slot_was_set:
+          - cognitive_exercise: count_the_word
       - action: utter_describe_count_the_words
-      - action: utter_ask_confirm
+      - action: utter_confirm
       - intent: affirm
       - action: utter_start_count_the_word
       - action: count_the_word_form
       - active_loop: count_the_word_form
 
-  - story: Start count the word cognitive exercise uncertain
+  - story: Start biceps curl physical exercise
     steps:
-      - intent: start_count_the_word_cognitive_exercise
-      - action: action_command_start
-      - action: utter_start_cognitive_exercise
-      - action: utter_ask_confirm
-      - intent: uncertain
-      - action: utter_reassure
-      - action: utter_ask_confirm
+      - intent: start_physical_exercise
+      - action: utter_intro_physical_exercise
+      - action: utter_confirm
       - intent: affirm
-      - action: utter_describe_count_the_words
-      - action: utter_ask_confirm
+      - slot_was_set:
+          - physical_exercise: biceps_curl
+      - action: utter_describe_biceps_curl
+      - action: utter_describe_biceps_curl2
+      - action: utter_take_the_weights
+      - action: utter_confirm
       - intent: affirm
-      - action: utter_start_count_the_word
-      - action: count_the_word_form
-      - active_loop: count_the_word_form
+      - action: utter_start_physical_exercise
