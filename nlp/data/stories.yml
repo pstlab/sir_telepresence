@@ -89,12 +89,17 @@ stories:
       - intent: affirm
       - slot_was_set:
           - cognitive_exercise: count_the_word
-      - action: utter_describe_count_the_words
+      - action: utter_describe_count_the_word0
       - action: utter_confirm
       - intent: affirm
       - action: utter_start_count_the_word
       - action: count_the_word_form
       - active_loop: count_the_word_form
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: utter_exercise_done
+      - action: action_command_done
 
   - story: Start biceps curl physical exercise
     steps:

@@ -171,19 +171,20 @@ slots:
     influence_conversation: false
     mappings:
       - type: custom
-  cognitive_exercise_word_sequence:
+
+  count_the_word_word_sequence0:
     type: text
     influence_conversation: false
-    initial_value: PALLA PELLE POLLO
+    initial_value: PALLA, PELLE, POLLO
     mappings:
       - type: custom
-  cognitive_exercise_word:
+  count_the_word_word0:
     type: text
     influence_conversation: false
     initial_value: PALLA
     mappings:
       - type: custom
-  cognitive_exercise_num_words:
+  count_the_word_num_word0:
     type: float
     influence_conversation: false
     mappings:
@@ -192,7 +193,30 @@ slots:
         intent: tell_num_words
         conditions:
           - active_loop: count_the_word_form
-            requested_slot: cognitive_exercise_num_words
+            requested_slot: count_the_word_num_word0
+  count_the_word_word_sequence1:
+    type: text
+    influence_conversation: false
+    initial_value: IMBACUCCATO, ACCUCCIATO, ASSONNATO
+    mappings:
+      - type: custom
+  count_the_word_word1:
+    type: text
+    influence_conversation: false
+    initial_value: IMBACUCCATO
+    mappings:
+      - type: custom
+  count_the_word_num_word1:
+    type: float
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: number
+        intent: tell_num_words
+        conditions:
+          - active_loop: count_the_word_form
+            requested_slot: count_the_word_num_word1
+
   command_state:
     type: categorical
     influence_conversation: false
@@ -217,7 +241,8 @@ forms:
       - user_talks_lot
   count_the_word_form:
     required_slots:
-      - cognitive_exercise_num_words
+      - count_the_word_num_word0
+      - count_the_word_num_word1
 
 responses:
   utter_greet:
@@ -399,19 +424,37 @@ responses:
   utter_intro_cognitive_exercise:
     - text: Ciao {user_name}! Cominceremo ora la nostra sessione giornaliera di esercizi cognitivi! Oggi ti proporrò alcuni giochi.
 
-  utter_describe_count_the_words:
-    - text: Ora ti dirò una lista di parole. Alla fine, mi dirai quante volte ho detto la parola {cognitive_exercise_word}.
-    - text: Ora, ti dirò una lista di parole. Alla fine vorrei che mi dicessi quante volte ho detto la parola {cognitive_exercise_word}.
-    - text: Adesso ti elencherò una serie di parole. Fai attenzione, perchè alla fine dovrai dirmi quante volte ho detto la parola {cognitive_exercise_word}.
-  utter_start_count_the_word:
-    - text: Andiamo! {cognitive_exercise_word_sequence}.
-    - text: Cominciamo! {cognitive_exercise_word_sequence}.
-    - text: "Le parole sono: {cognitive_exercise_word_sequence}."
-  utter_count_the_word:
-    - text: "{cognitive_exercise_word_sequence}."
-  utter_ask_num_words:
-    - text: Quante volte ho detto la parola {cognitive_exercise_word}?
-    - text: Quante volte è stata detta la parola {cognitive_exercise_word}?
+  utter_describe_count_the_word0:
+    - text: Ora ti dirò una lista di parole. Alla fine, mi dirai quante volte ho detto la parola {count_the_word_word0}.
+    - text: Ora, ti dirò una lista di parole. Alla fine vorrei che mi dicessi quante volte ho detto la parola {count_the_word_word0}.
+    - text: Adesso ti elencherò una serie di parole. Fai attenzione, perchè alla fine dovrai dirmi quante volte ho detto la parola {count_the_word_word0}.
+  utter_start_count_the_word0:
+    - text: Andiamo! {count_the_word_word_sequence0}.
+    - text: Cominciamo! {count_the_word_word_sequence0}.
+    - text: "Le parole sono: {count_the_word_word_sequence0}."
+  utter_try_again_count_the_word0:
+    - text: "Riproviamo: {count_the_word_word_sequence0}."
+    - text: "Ancora una volta: {count_the_word_word_sequence0}."
+  utter_ask_count_the_word_num_word0:
+    - text: Quante volte ho detto la parola {count_the_word_word0}?
+    - text: Quante volte è stata detta la parola {count_the_word_word0}?
+  utter_describe_count_the_word1:
+    - text: Ora ti dirò una lista di parole. Alla fine, mi dirai quante volte ho detto la parola {count_the_word_word1}.
+    - text: Ora, ti dirò una lista di parole. Alla fine vorrei che mi dicessi quante volte ho detto la parola {count_the_word_word1}.
+    - text: Adesso ti elencherò una serie di parole. Fai attenzione, perchè alla fine dovrai dirmi quante volte ho detto la parola {count_the_word_word1}.
+  utter_start_count_the_word1:
+    - text: Andiamo! {count_the_word_word_sequence1}.
+    - text: Cominciamo! {count_the_word_word_sequence1}.
+    - text: "Le parole sono: {count_the_word_word_sequence1}."
+  utter_try_again_count_the_word1:
+    - text: "Riproviamo: {count_the_word_word_sequence1}."
+    - text: "Ancora una volta: {count_the_word_word_sequence1}."
+  utter_ask_count_the_word_num_word1:
+    - text: Quante volte ho detto la parola {count_the_word_word1}?
+    - text: Quante volte è stata detta la parola {count_the_word_word1}?
+  utter_count_the_word_more_challenging:
+    - text: Proviamo con un'altra serie di parole, un po' più difficili!
+    - text: Proviamo con un'altra serie di parole, un po' più impegnative!
 
   utter_intro_physical_exercise:
     - text: Ciao {user_name}! Ora mi trasformerò nel tuo allenatore!

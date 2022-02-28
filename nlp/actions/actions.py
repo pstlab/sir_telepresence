@@ -259,25 +259,32 @@ class ValidateCountTheWordForm(FormValidationAction):
     def name(self) -> Text:
         return 'validate_count_the_word_form'
 
-    def validate_cognitive_exercise_num_words(
+    def validate_count_the_word_num_word0(
         self,
         slot_value: Any,
         dispatcher: CollectingDispatcher,
         tracker: Tracker,
         domain: DomainDict,
     ) -> Dict[Text, Any]:
-        words = tracker.get_slot('cognitive_exercise_word_sequence').split()
-        num_words = words.count(tracker.get_slot('cognitive_exercise_word'))
+        if not tracker.get_slot('requested_slot') == 'count_the_word_num_word0':
+            return {}
+
+        words = tracker.get_slot('count_the_word_word_sequence0').split(', ')
+        word = words.count(tracker.get_slot('count_the_word_word0'))
         extraversion = tracker.get_slot('user_extraversion')
 
-        if slot_value == num_words:
+        if slot_value == words.count(word):
             if extraversion == 'extroverted':
                 dispatcher.utter_message(
                     response='utter_positive_feedback_estro')
             elif extraversion == 'introverted':
                 dispatcher.utter_message(
                     response='utter_positive_feedback_intro')
-            return {'cognitive_exercise_num_words': slot_value}
+            dispatcher.utter_message(
+                response='utter_count_the_word_more_challenging')
+            dispatcher.utter_message(
+                response='utter_describe_count_the_word1')
+            return {'count_the_word_num_word0': slot_value}
         else:
             if extraversion == 'extroverted':
                 dispatcher.utter_message(
@@ -286,8 +293,41 @@ class ValidateCountTheWordForm(FormValidationAction):
                 dispatcher.utter_message(
                     response='utter_negative_feedback_intro')
 
-            dispatcher.utter_message(response='utter_count_the_word')
-            return {'cognitive_exercise_num_words': None}
+            dispatcher.utter_message(response='utter_try_again_count_the_word0')
+            return {'count_the_word_num_word0': None}
+
+    def validate_count_the_word_num_word1(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        if not tracker.get_slot('requested_slot') == 'count_the_word_num_word1':
+            return {}
+
+        words = tracker.get_slot('count_the_word_word_sequence1').split(', ')
+        word = words.count(tracker.get_slot('count_the_word_word1'))
+        extraversion = tracker.get_slot('user_extraversion')
+
+        if slot_value == words.count(word):
+            if extraversion == 'extroverted':
+                dispatcher.utter_message(
+                    response='utter_positive_feedback_estro')
+            elif extraversion == 'introverted':
+                dispatcher.utter_message(
+                    response='utter_positive_feedback_intro')
+            return {'count_the_word_num_word1': slot_value}
+        else:
+            if extraversion == 'extroverted':
+                dispatcher.utter_message(
+                    response='utter_negative_feedback_estro')
+            elif extraversion == 'introverted':
+                dispatcher.utter_message(
+                    response='utter_negative_feedback_intro')
+
+            dispatcher.utter_message(response='utter_try_again_count_the_word1')
+            return {'count_the_word_num_word1': None}
 
 
 class ActionWeatherAnalysis(Action):
