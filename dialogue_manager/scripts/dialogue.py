@@ -235,6 +235,7 @@ class dialogue_manager:
                                 self.set_face(face_talking)
                                 self.text_to_speech(ans['text'])
                             self.set_face(face_idle)
+                        time.sleep(0.5)
                     except rospy.ServiceException:
                         rospy.logerr('Text to speech service call failed\n' +
                                      ''.join(traceback.format_stack()))
@@ -255,7 +256,7 @@ class dialogue_manager:
         # we listen..
         while True:
             stt = self.speech_to_text()
-            if stt.text == '':
+            if stt.utterance == '':
                 rospy.logwarn('Recognized empty string..')
                 try:
                     stt_conf = self.configure_speech_to_text()
@@ -282,9 +283,10 @@ class dialogue_manager:
             raise SystemExit(e)
 
         # we make the request..
-        rospy.logdebug('Generating responses for utterance "%s"..', stt.text)
+        rospy.logdebug(
+            'Generating responses for utterance "%s"..', stt.utterance)
         r = requests.post('http://' + host + ':' + port + '/webhooks/rest/webhook', params={
-            'include_events': 'NONE'}, json={'sender': user, 'message': stt.text})
+            'include_events': 'NONE'}, json={'sender': user, 'message': stt.utterance})
         if(r.status_code == requests.codes.ok):
             # we update the state..
             self.state_pub.publish(dialogue_state(dialogue_state.speaking))
@@ -325,6 +327,7 @@ class dialogue_manager:
                         self.set_face(face_talking)
                         self.text_to_speech(ans['text'])
                     self.set_face(face_idle)
+                time.sleep(0.5)
             except rospy.ServiceException:
                 rospy.logerr('Text to speech service call failed\n' +
                              ''.join(traceback.format_stack()))
