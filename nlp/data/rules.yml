@@ -23,3 +23,75 @@ rules:
           - requested_slot: null
       - action: utter_exercise_done
       - action: action_command_done
+
+  - rule: intro physical exercise
+    steps:
+      - intent: tell_intro_physical_exercise
+      - action: utter_intro_physical_exercise
+
+  - rule: describe biceps curl
+    steps:
+      - intent: tell_describe_biceps_curl
+      - action: utter_describe_biceps_curl
+
+  - rule: take the weights
+    steps:
+      - intent: tell_take_the_weights
+      - action: utter_take_the_weights
+
+  - rule: start physical exercise
+    steps:
+      - intent: tell_start_physical_exercise
+      - action: utter_start_physical_exercise
+
+  - rule: physical exercise repetitions
+    steps:
+      - intent: tell_physical_exercise_repetitions
+      - action: utter_physical_exercise_repetitions
+
+  - rule: positive feedback estro
+    condition:
+      - slot_was_set:
+          - user_extraversion: extroverted
+    steps:
+      - intent: tell_positive_feedback
+      - action: utter_positive_feedback_estro
+
+  - rule: positive feedback intro
+    condition:
+      - slot_was_set:
+          - user_extraversion: introverted
+    steps:
+      - intent: tell_positive_feedback
+      - action: utter_positive_feedback_intro
+
+  - rule: positive physical exercise feedback
+    steps:
+      - intent: tell_positive_physical_exercise_feedback
+      - action: utter_positive_physical_exercise_feedback
+
+  - rule: negative feedback estro
+    condition:
+      - slot_was_set:
+          - user_extraversion: extroverted
+    steps:
+      - intent: tell_negative_feedback
+      - action: utter_negative_feedback_estro
+
+  - rule: negative feedback intro
+    condition:
+      - slot_was_set:
+          - user_extraversion: introverted
+    steps:
+      - intent: tell_negative_feedback
+      - action: utter_negative_feedback_intro
+
+  - rule: negative physical exercise feedback
+    steps:
+      - intent: tell_negative_physical_exercise_feedback
+      - action: utter_negative_physical_exercise_feedback
+
+  - rule: exercise done
+    steps:
+      - intent: tell_exercise_done
+      - action: utter_exercise_done

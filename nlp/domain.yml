@@ -11,8 +11,18 @@ intents:
   - start_profile_gathering
   - tell_life_style
   - start_cognitive_exercise
+  - tell_positive_feedback
+  - tell_positive_physical_exercise_feedback
+  - tell_negative_feedback
+  - tell_negative_physical_exercise_feedback
   - tell_num_words
-  - start_physical_exercise
+  - tell_intro_physical_exercise
+  - tell_start_physical_exercise
+  - tell_describe_biceps_curl
+  - tell_describe_biceps_curl2
+  - tell_take_the_weights
+  - tell_physical_exercise_repetitions
+  - tell_exercise_done
 
 entities:
   - PER
@@ -167,6 +177,11 @@ slots:
         intent: start_physical_exercise
 
   physical_exercise_repetitions:
+    type: float
+    influence_conversation: false
+    mappings:
+      - type: custom
+  missing_physical_exercise_repetitions:
     type: float
     influence_conversation: false
     mappings:
@@ -445,10 +460,17 @@ responses:
   utter_describe_biceps_curl:
     - text: Oggi alleniamo le braccia e facciamo alcune flessioni sollevando dei pesetti. Dovrai eseguire il semplice esercizio fisico che ti mostro sul mio tablet ora.
   utter_describe_biceps_curl2:
-    - text: Mi raccomando di  distendere bene le braccia! Io sarò qui con te e conterò il numero di flessioni che hai svolto correttamente.
+    - text: Mi raccomando di distendere bene le braccia! Io sarò qui con te e conterò il numero di flessioni che hai svolto correttamente.
   utter_take_the_weights:
     - text: Prendi ora i pesetti alla tua destra.
     - text: È il momento di prendere I pesetti alla tua destra.
+  utter_physical_exercise_repetitions:
+    - text: "{physical_exercise_repetitions}"
+
+  utter_positive_physical_exercise_feedback:
+    - text: Stai andando bene, meno "{missing_physical_exercise_repetitions}" ripetizioni
+  utter_negative_physical_exercise_feedback:
+    - text: Sei stanco, dai che mancano "{missing_physical_exercise_repetitions}" ripetizioni
 
   utter_start_physical_exercise:
     - text: Ora iniziamo l'esercizio;.
