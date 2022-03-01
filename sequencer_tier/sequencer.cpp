@@ -201,9 +201,7 @@ namespace sir
             deliberative_tier::start_task bc_srv;
             bc_srv.request.reasoner_id = req.reasoner_id;
             bc_srv.request.task_id = req.task_id;
-            bc_srv.request.task_name = "start_physical_exercise";
-            bc_srv.request.par_names.push_back("physical_exercise_type");
-            bc_srv.request.par_values.push_back("biceps_curl");
+            bc_srv.request.task_name = "BICEPS CURL";
             for (size_t i = 0; i < req.par_names.size(); i++)
             {
                 bc_srv.request.par_names.push_back(req.par_names.at(i));
