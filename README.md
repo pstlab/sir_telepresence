@@ -16,7 +16,12 @@ Then you should download your config file for mqtt_bridge by connecting to http:
 **for RASA**
 ```
 cd sir_telepresence/nlu  #every time to cancel cloud directory
-rasa train   
+rasa train
+pip install -U pip setuptools wheel
+pip install -U spacy
+python3 -m spacy download it_core_news_lg
+in the terminal python3 -c "import spacy; spacy.load('it_core_news_lg')"
+pip3 install sanic==21.9.3
 ```
 
 One shell
