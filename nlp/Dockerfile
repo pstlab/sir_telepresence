@@ -4,4 +4,4 @@ RUN pip3 install -U pip setuptools wheel && pip3 install -U spacy && python3 -m 
 COPY . nlp
 RUN cd nlp && rasa train
 EXPOSE 5005/tcp
-CMD [ "rasa run actions & rasa run --enable-api" ]
+CMD [ "bash", "-c", "'cd nlp && rasa run actions | rasa run --enable-api'" ]
