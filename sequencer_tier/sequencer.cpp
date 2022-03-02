@@ -201,7 +201,7 @@ namespace sir
             deliberative_tier::start_task bc_srv;
             bc_srv.request.reasoner_id = req.reasoner_id;
             bc_srv.request.task_id = req.task_id;
-            bc_srv.request.task_name = "BICEPS CURL";
+            bc_srv.request.task_name = "biceps_curl";
             for (size_t i = 0; i < req.par_names.size(); i++)
             {
                 bc_srv.request.par_names.push_back(req.par_names.at(i));
