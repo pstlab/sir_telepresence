@@ -16,7 +16,10 @@ Then you should download your config file for mqtt_bridge by connecting to http:
 **for RASA**
 ```
 cd sir_telepresence/nlu  #every time to cancel cloud directory
-rasa train   
+rasa train
+pip install -U pip setuptools wheel
+pip install -U spacy
+python3 -m spacy download it_core_news_lg
 ```
 
 One shell
