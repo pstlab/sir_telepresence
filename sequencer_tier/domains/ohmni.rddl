@@ -18,7 +18,7 @@ class OhmniRobot {
 }
 
 predicate KeepHealthy() {
-    goal cp = new robot.physical_exercise.BicepsCurl(repetitions:10.0);
+    goal cp = new robot.physical_exercise.BicepsCurl(repetitions:10.0, interval_between_repetitions:2.0);
     goal cw = new robot.cognitive_exercise.CountTheWord(count_the_word_word_sequence:"PALLA, PELLE, POLLO; IMBACUCCATO, ACCUCCIATO, ASSONNATO", count_the_word_word:"PALLA; IMBACUCCATO");
 }
 
