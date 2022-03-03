@@ -76,7 +76,7 @@ namespace sir
             ros::param::get("~notify_start", new_reasoner.request.notify_start);
 
             create_reasoner.call(new_reasoner);
-            if (new_reasoner.response.created)
+            if (new_reasoner.response.consistent)
             {
                 ROS_ASSERT(new_reasoner.response.reasoner_id == 0);
                 deliberative_state[new_reasoner.response.reasoner_id] = deliberative_tier::deliberative_state::idle;
@@ -122,7 +122,7 @@ namespace sir
             ros::param::get("~notify_start", new_reasoner.request.notify_start);
 
             create_reasoner.call(new_reasoner);
-            if (new_reasoner.response.created)
+            if (new_reasoner.response.consistent)
             {
                 ROS_ASSERT(new_reasoner.response.reasoner_id == 0);
                 deliberative_state[new_reasoner.response.reasoner_id] = deliberative_tier::deliberative_state::idle;
