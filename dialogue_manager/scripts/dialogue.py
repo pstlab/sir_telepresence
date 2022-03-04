@@ -6,6 +6,7 @@ import traceback
 from std_srvs.srv import Trigger, TriggerResponse, Empty
 from dialogue_manager.msg import dialogue_state, audio, video, button
 from dialogue_manager.srv import utterance_to_pronounce, face_to_show, image_to_show, audio_to_play, video_to_play, page_to_show, question_to_ask, utterance_to_recognize
+from deliberative_tier.msg import task
 from deliberative_tier.srv import task_service, task_serviceResponse, task_finished
 from persistence_manager.srv import get_state, set_state, set_stateResponse
 
@@ -102,7 +103,8 @@ class dialogue_manager:
         self.set_face(face_idle)
 
     def start_dialogue_task(self, req):
-        rospy.logdebug('Start dialogue task "%s" request..', req.task.task_name)
+        rospy.logdebug('Start dialogue task "%s" request..',
+                       req.task.task_name)
         # we store the informations about the starting dialogue task..
         self.deliberative_task = True
         return self.start_dialogue(req)
@@ -110,7 +112,8 @@ class dialogue_manager:
     def start_dialogue(self, req):
         rospy.logdebug('Start dialogue "%s" request..', req.task.task_name)
         for i in range(len(req.task.par_names)):
-            rospy.logdebug(req.task.par_names[i] + ': %s', req.task.par_values[i])
+            rospy.logdebug(
+                req.task.par_names[i] + ': %s', req.task.par_values[i])
         r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
                           'include_events': 'NONE'}, json={'event': 'slot', 'name': 'command_state', 'value': 'executing', 'timestamp': time.time()})
         if(r.status_code != requests.codes.ok):
@@ -124,11 +127,12 @@ class dialogue_manager:
         return task_serviceResponse(True)
 
     def set_dialogue_parameters(self, req):
-        rospy.logdebug('Setting "%s" dialogue parameters..', req.task.name)
-        for i in range(len(req.task.par_names)):
-            rospy.logdebug(req.task.par_names[i] + ': %s', req.task.par_values[i])
+        rospy.logdebug('Setting "%s" dialogue parameters..', req.name)
+        for i in range(len(req.par_names)):
+            rospy.logdebug(
+                req.par_names[i] + ': %s', req.par_values[i])
             r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
-                'include_events': 'NONE'}, json={'event': 'slot', 'name': req.task.par_names[i], 'value': req.task.par_values[i], 'timestamp': time.time()})
+                'include_events': 'NONE'}, json={'event': 'slot', 'name': req.par_names[i], 'value': req.par_values[i], 'timestamp': time.time()})
             if(r.status_code == requests.codes.ok):
                 j_res = r.json()
             else:
@@ -244,7 +248,6 @@ class dialogue_manager:
                                 self.set_face(face_talking)
                                 self.text_to_speech(ans['text'])
                             self.set_face(face_idle)
-                        time.sleep(0.5)
                     except rospy.ServiceException:
                         rospy.logerr('Text to speech service call failed\n' +
                                      ''.join(traceback.format_stack()))
@@ -336,7 +339,6 @@ class dialogue_manager:
                         self.set_face(face_talking)
                         self.text_to_speech(ans['text'])
                     self.set_face(face_idle)
-                time.sleep(0.5)
             except rospy.ServiceException:
                 rospy.logerr('Text to speech service call failed\n' +
                              ''.join(traceback.format_stack()))
@@ -371,14 +373,14 @@ class dialogue_manager:
                     # the task is closed with a success..
                     rospy.logdebug(
                         'Closing task "%s" with a success..', self.task_name)
-                    self.dialogue_task_finished(
-                        self.reasoner_id, self.task_id, self.task_name, par_names, par_values, True)
+                    self.dialogue_task_finished(task(
+                        self.reasoner_id, self.task_id, self.task_name, par_names, par_values), True)
                 elif self.state['command_state'] == 'failure':
                     # the task is closed with a failure..
                     rospy.logdebug(
                         'Closing task "%s" with a failure..', self.task_name)
-                    self.dialogue_task_finished(
-                        self.reasoner_id, self.task_id, self.task_name, par_names, par_values, False)
+                    self.dialogue_task_finished(task(
+                        self.reasoner_id, self.task_id, self.task_name, par_names, par_values), False)
                 self.deliberative_task = False
                 self.reasoner_id = -1
                 self.task_id = -1
