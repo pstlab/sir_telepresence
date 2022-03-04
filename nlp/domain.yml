@@ -250,32 +250,32 @@ responses:
   utter_greet:
     - custom:
         text: Ciao!
-        face: talking
+        face: happy_talking
     - custom:
         text: Hey!
-        face: talking
+        face: happy_talking
     - custom:
         text: Salve!
-        face: talking
+        face: happy_talking
     - custom:
         text: Buongiorno!
-        face: talking
+        face: happy_talking
 
   utter_greet_name:
     - custom:
         text: Ciao {user_name}!
-        face: talking
+        face: happy_talking
     - custom:
         text: Hey {user_name}!
-        face: talking
+        face: happy_talking
     - custom:
         text: Buongiorno {user_name}!
-        face: talking
+        face: happy_talking
 
   utter_offer_help:
     - custom:
         text: Come posso aiutarti?
-        face: talking
+        face: happy_talking
 
   utter_presentation:
     - custom:
@@ -328,29 +328,29 @@ responses:
   utter_location_comment:
     - custom:
         text: Ah, conosco {user_location}. Ci sono stato da piccolo.
-        face: talking
+        face: happy_talking
     - condition:
         - type: slot
           name: user_gender
           value: "male"
       custom:
         text: Lo sapevo! Era per vedere se eri attento!
-        face: talking
+        face: happy_talking
     - condition:
         - type: slot
           name: user_gender
           value: "female"
       custom:
         text: Lo sapevo! Era per vedere se eri attenta!
-        face: talking
+        face: happy_talking
 
   utter_nice_to_meet:
     - custom:
         text: Ciao {user_name}! Piacere di conoscerti!
-        face: talking
+        face: happy_talking
     - custom:
         text: Piacere di conoscerti {user_name}!
-        face: talking
+        face: happy_talking
 
   utter_ask_questions:
     - custom:
@@ -365,69 +365,69 @@ responses:
   utter_positive_feedback_intro:
     - custom:
         text: Continua così!
-        face: talking
+        face: happy_talking
     - custom:
         text: Molto bene!
-        face: talking
+        face: happy_talking
     - custom:
         text: OK!
-        face: talking
+        face: happy_talking
     - condition:
         - type: slot
           name: user_gender
           value: "male"
       custom:
         text: Bravo!
-        face: talking
+        face: happy_talking
     - condition:
         - type: slot
           name: user_gender
           value: "female"
       custom:
         text: Brava!
-        face: talking
+        face: happy_talking
   utter_positive_feedback_estro:
     - custom:
         text: Vai alla grande!
-        face: talking
+        face: happy_talking
     - custom:
         text: Stai andando forte!
-        face: talking
+        face: happy_talking
     - custom:
         text: Stai facendo l'esercizio molto bene!
-        face: talking
+        face: happy_talking
     - condition:
         - type: slot
           name: user_gender
           value: "male"
       custom:
         text: Bravissimo!
-        face: talking
+        face: happy_talking
     - condition:
         - type: slot
           name: user_gender
           value: "female"
       custom:
         text: Bravissima!
-        face: talking
+        face: happy_talking
 
   utter_negative_feedback_intro:
     - custom:
         text: Uhm, non proprio... ma non ti scoraggiare! Stai comunque andando bene.
-        face: talking
+        face: sad_talking
     - custom:
         text: Non esattamente, ma ci siamo quasi!
-        face: talking
+        face: sad_talking
   utter_negative_feedback_estro:
     - custom:
         text: No no!
-        face: talking
+        face: sad_talking
     - custom:
         text: Ma cosa stai facendo? No no!
-        face: talking
+        face: sad_talking
     - custom:
         text: Non così!
-        face: talking
+        face: sad_talking
 
   utter_ask_user_difficulty_express_feelings:
     - custom:
@@ -665,13 +665,13 @@ responses:
   utter_exercise_done:
     - custom:
         text: "Bene {user_name}, l'esercizio è terminato."
-        face: talking
+        face: happy_talking
     - custom:
         text: "Complimenti {user_name}, hai terminato l'esercizio."
-        face: talking
+        face: happy_talking
     - custom:
         text: "Ben fatto {user_name}, hai finito l'esercizio."
-        face: talking
+        face: happy_talking
 
   utter_temperature:
     - custom:
@@ -699,6 +699,19 @@ responses:
     - custom:
         text: L'umidità è del {humidity}%
         face: talking
+
+  utter_please_rephrase:
+    - custom:
+        text: Mi spiace, non ho capito cosa hai detto. Puoi provare a dirlo in un altro modo?
+        face: sad_talking
+    - custom:
+        text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
+        face: sad_talking
+
+  utter_default:
+    - custom:
+        text: Mi spiace, non mi aspettavo mi parlassi di questo ora. Puoi provare a chiedermi un'altra cosa?
+        face: sad_talking
 
 actions:
   - validate_profile_form
