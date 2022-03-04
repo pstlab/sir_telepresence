@@ -3,8 +3,7 @@
 #include "sequencer_tier/sequencer_state.h"
 #include "deliberative_tier/deliberative_state.h"
 #include "dialogue_manager/dialogue_state.h"
-#include "deliberative_tier/can_start.h"
-#include "deliberative_tier/start_task.h"
+#include "deliberative_tier/task_service.h"
 #include "deliberative_tier/task_finished.h"
 #include <ros/ros.h>
 #include <queue>
@@ -25,8 +24,10 @@ namespace sir
     void tick();
 
   private:
-    bool can_start(deliberative_tier::can_start::Request &req, deliberative_tier::can_start::Response &res);
-    bool start_task(deliberative_tier::start_task::Request &req, deliberative_tier::start_task::Response &res);
+    bool can_start(deliberative_tier::task_service::Request &req, deliberative_tier::task_service::Response &res);
+    bool start_task(deliberative_tier::task_service::Request &req, deliberative_tier::task_service::Response &res);
+    bool can_end(deliberative_tier::task_service::Request &req, deliberative_tier::task_service::Response &res);
+    bool end_task(deliberative_tier::task_service::Request &req, deliberative_tier::task_service::Response &res);
 
     bool dialogue_task_finished(deliberative_tier::task_finished::Request &req, deliberative_tier::task_finished::Response &res);
 
@@ -45,6 +46,8 @@ namespace sir
     ros::ServiceClient task_finished;
     ros::ServiceServer can_start_server;
     ros::ServiceServer start_task_server;
+    ros::ServiceServer can_end_server;
+    ros::ServiceServer end_task_server;
     // Connection with the physical exercises manager..
     ros::ServiceClient start_physical_exercise_task;
     // Connection with the dialogue manager..

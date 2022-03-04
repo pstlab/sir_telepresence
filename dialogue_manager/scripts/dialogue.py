@@ -6,7 +6,7 @@ import traceback
 from std_srvs.srv import Trigger, TriggerResponse, Empty
 from dialogue_manager.msg import dialogue_state, audio, video, button
 from dialogue_manager.srv import utterance_to_pronounce, face_to_show, image_to_show, audio_to_play, video_to_play, page_to_show, question_to_ask, utterance_to_recognize
-from deliberative_tier.srv import start_task, start_taskResponse, task_finished
+from deliberative_tier.srv import task_service, task_serviceResponse, task_finished
 from persistence_manager.srv import get_state, set_state, set_stateResponse
 
 face_idle = 'idle'
@@ -29,7 +29,7 @@ class dialogue_manager:
 
         # called by the deliberative tier..
         start_dialogue_task_service = rospy.Service(
-            'start_dialogue_task', start_task, self.start_dialogue_task)
+            'start_dialogue_task', task_service, self.start_dialogue_task)
 
         # notifies the deliberative tier that a dialogue task has finished..
         self.dialogue_task_finished = rospy.ServiceProxy(
@@ -40,7 +40,7 @@ class dialogue_manager:
 
         # called by any component that requires to start a dialogue..
         start_dialogue_service = rospy.Service(
-            'start_dialogue', start_task, self.start_dialogue)
+            'start_dialogue', task_service, self.start_dialogue)
 
         # retrieves the current emotions..
         set_dialogue_parameters_service = rospy.Service(
@@ -102,33 +102,33 @@ class dialogue_manager:
         self.set_face(face_idle)
 
     def start_dialogue_task(self, req):
-        rospy.logdebug('Start dialogue task "%s" request..', req.task_name)
+        rospy.logdebug('Start dialogue task "%s" request..', req.task.task_name)
         # we store the informations about the starting dialogue task..
         self.deliberative_task = True
         return self.start_dialogue(req)
 
     def start_dialogue(self, req):
-        rospy.logdebug('Start dialogue "%s" request..', req.task_name)
-        for i in range(len(req.par_names)):
-            rospy.logdebug(req.par_names[i] + ': %s', req.par_values[i])
+        rospy.logdebug('Start dialogue "%s" request..', req.task.task_name)
+        for i in range(len(req.task.par_names)):
+            rospy.logdebug(req.task.par_names[i] + ': %s', req.task.par_values[i])
         r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
                           'include_events': 'NONE'}, json={'event': 'slot', 'name': 'command_state', 'value': 'executing', 'timestamp': time.time()})
         if(r.status_code != requests.codes.ok):
             rospy.logerr('Cannot connect to the dialogue engine..')
         # we store the informations about the starting dialogue..
-        self.reasoner_id = req.reasoner_id
-        self.task_id = req.task_id
-        self.task_name = req.task_name
-        self.par_names = req.par_names
-        self.par_values = req.par_values
-        return start_taskResponse(True)
+        self.reasoner_id = req.task.reasoner_id
+        self.task_id = req.task.task_id
+        self.task_name = req.task.task_name
+        self.par_names = req.task.par_names
+        self.par_values = req.task.par_values
+        return task_serviceResponse(True)
 
     def set_dialogue_parameters(self, req):
-        rospy.logdebug('Setting "%s" dialogue parameters..', req.name)
-        for i in range(len(req.par_names)):
-            rospy.logdebug(req.par_names[i] + ': %s', req.par_values[i])
+        rospy.logdebug('Setting "%s" dialogue parameters..', req.task.name)
+        for i in range(len(req.task.par_names)):
+            rospy.logdebug(req.task.par_names[i] + ': %s', req.task.par_values[i])
             r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
-                'include_events': 'NONE'}, json={'event': 'slot', 'name': req.par_names[i], 'value': req.par_values[i], 'timestamp': time.time()})
+                'include_events': 'NONE'}, json={'event': 'slot', 'name': req.task.par_names[i], 'value': req.task.par_values[i], 'timestamp': time.time()})
             if(r.status_code == requests.codes.ok):
                 j_res = r.json()
             else:

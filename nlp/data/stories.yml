@@ -1,13 +1,53 @@
 version: "3.0"
 
 stories:
-  - story: Say hello
+  - story: Say hello no name
     steps:
       - intent: greet
       - slot_was_set:
           - user_name: null
-      - action: utter_greet
-      - action: utter_offer_help
+      - action: utter_presentation
+      - action: utter_know_ourself
+      - action: utter_confirm
+      - intent: affirm
+      - action: profile_form
+      - active_loop: profile_form
+
+  - story: Say hello no location
+    steps:
+      - intent: greet
+      - slot_was_set:
+          - user_location: null
+      - action: utter_presentation
+      - action: utter_know_ourself
+      - action: utter_confirm
+      - intent: affirm
+      - action: profile_form
+      - active_loop: profile_form
+
+  - story: Say hello no difficulty express feelings
+    steps:
+      - intent: greet
+      - slot_was_set:
+          - user_difficulty_express_feelings: null
+      - action: utter_presentation
+      - action: utter_know_ourself
+      - action: utter_confirm
+      - intent: affirm
+      - action: profile_form
+      - active_loop: profile_form
+
+  - story: Say hello no exciting life
+    steps:
+      - intent: greet
+      - slot_was_set:
+          - user_exciting_life: null
+      - action: utter_presentation
+      - action: utter_know_ourself
+      - action: utter_confirm
+      - intent: affirm
+      - action: profile_form
+      - active_loop: profile_form
 
   - story: Say hello with name
     steps:
