@@ -12,11 +12,6 @@ def index_view():
     return render_template('index.html')
 
 
-@app.route('/timelines')
-def timelines_view():
-    return render_template('timelines.html')
-
-
 if __name__ == '__main__':
     print('Starting robot GUI..')
     serve(app, host="0.0.0.0", port=8080)

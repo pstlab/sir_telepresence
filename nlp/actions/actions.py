@@ -67,7 +67,7 @@ class ValidateProfileForm(FormValidationAction):
 
         print('validate_user_name')
         print("user's name: " + slot_value)
-        if not tracker.get_slot('requested_slot') == 'user_name':
+        if tracker.get_slot('requested_slot') != 'user_name':
             return {}
 
         gndr = gender.Detector().get_gender(slot_value, 'italy')
@@ -86,7 +86,7 @@ class ValidateProfileForm(FormValidationAction):
 
         print('validate_user_location')
         print("user's location: " + slot_value)
-        if not tracker.get_slot('requested_slot') == 'user_location':
+        if tracker.get_slot('requested_slot') != 'user_location':
             return {}
 
         dispatcher.utter_message(
@@ -103,7 +103,7 @@ class ValidateProfileForm(FormValidationAction):
 
         print('validate_user_difficulty_express_feelings')
         print("user's response: " + str(slot_value))
-        if not tracker.get_slot('requested_slot') == 'user_difficulty_express_feelings':
+        if tracker.get_slot('requested_slot') != 'user_difficulty_express_feelings':
             return {}
 
         coherent = tracker.get_slot('coherent')
@@ -136,7 +136,7 @@ class ValidateProfileForm(FormValidationAction):
 
         print('validate_user_exciting_life')
         print("user's response: " + str(slot_value))
-        if not tracker.get_slot('requested_slot') == 'user_exciting_life':
+        if tracker.get_slot('requested_slot') != 'user_exciting_life':
             return {}
 
         coherent = tracker.get_slot('coherent')
@@ -169,7 +169,7 @@ class ValidateProfileForm(FormValidationAction):
 
         print('validate_user_unease_unknown_people')
         print("user's response: " + str(slot_value))
-        if not tracker.get_slot('requested_slot') == 'user_unease_unknown_people':
+        if tracker.get_slot('requested_slot') != 'user_unease_unknown_people':
             return {}
 
         coherent = tracker.get_slot('coherent')
@@ -202,7 +202,7 @@ class ValidateProfileForm(FormValidationAction):
 
         print('validate_user_unease_attention')
         print("user's response: " + str(slot_value))
-        if not tracker.get_slot('requested_slot') == 'user_unease_attention':
+        if tracker.get_slot('requested_slot') != 'user_unease_attention':
             return {}
 
         coherent = tracker.get_slot('coherent')
@@ -235,7 +235,7 @@ class ValidateProfileForm(FormValidationAction):
 
         print('validate_user_talks_lot')
         print("user's response: " + str(slot_value))
-        if not tracker.get_slot('requested_slot') == 'user_talks_lot':
+        if tracker.get_slot('requested_slot') != 'user_talks_lot':
             return {}
 
         extraversion = analyze_profile(tracker)
@@ -300,7 +300,7 @@ class ValidateCountTheWordForm(FormValidationAction):
         tracker: Tracker,
         domain: DomainDict,
     ) -> Dict[Text, Any]:
-        if not tracker.get_slot('requested_slot') == 'count_the_word_num_word':
+        if tracker.get_slot('requested_slot') != 'count_the_word_num_word':
             return {}
 
         words = tracker.get_slot('count_the_word_word_sequence').split(', ')
