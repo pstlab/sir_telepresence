@@ -191,11 +191,11 @@ class dialogue_manager:
             rospy.loginfo('Restarting the dialogue engine..')
             r = requests.post('http://' + host + ':' + port + '/webhooks/rest/webhook', params={
                 'include_events': 'NONE'}, json={'sender': user, 'message': '/restart'})
-            assert r.status_code != requests.codes.ok
+            assert r.status_code == requests.codes.ok
             rospy.loginfo('Initializing the dialogue engine..')
             r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
                               'include_events': 'NONE'}, json={'event': 'slot', 'name': 'coherent', 'value': coherent, 'timestamp': time.time()})
-            assert r.status_code != requests.codes.ok
+            assert r.status_code == requests.codes.ok
         except requests.exceptions.RequestException as e:
             rospy.logerr('Rasa server call failed\n' +
                          ''.join(traceback.format_stack()))
@@ -228,7 +228,7 @@ class dialogue_manager:
                 try:
                     r = requests.post('http://' + host + ':' + port + '/conversations/' + user +
                                       '/trigger_intent', params={'include_events': 'NONE'}, json=payload)
-                    assert r.status_code != requests.codes.ok
+                    assert r.status_code == requests.codes.ok
                 except requests.exceptions.RequestException as e:
                     rospy.logerr('Rasa server call failed\n' +
                                  ''.join(traceback.format_stack()))
