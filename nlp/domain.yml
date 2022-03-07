@@ -289,7 +289,7 @@ responses:
 
   utter_know_ourself:
     - custom:
-        text: Prima, però, conosciamoci un po'.
+        text: Posso farti alcune domande per conoscerci un po'?
         face: talking
 
   utter_confirm:
@@ -656,7 +656,7 @@ responses:
 
   utter_start_physical_exercise:
     - custom:
-        text: Ora iniziamo l'esercizio;.
+        text: Ora iniziamo l'esercizio.
         face: talking
     - custom:
         text: Cominciamo l'esercizio.
