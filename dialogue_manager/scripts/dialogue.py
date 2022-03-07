@@ -42,6 +42,10 @@ class dialogue_manager:
         start_dialogue_service = rospy.Service(
             'start_dialogue', task_service, self.start_dialogue)
 
+        # called by any component that requires a contextualized speech..
+        contextualized_speech_service = rospy.Service(
+            'contextualized_speech', task_service, self.contextualized_speech)
+
         # retrieves the current emotions..
         set_dialogue_parameters_service = rospy.Service(
             'set_dialogue_parameters', set_state, self.set_dialogue_parameters)
@@ -113,16 +117,55 @@ class dialogue_manager:
         for i in range(len(req.task.par_names)):
             rospy.logdebug(
                 req.task.par_names[i] + ': %s', req.task.par_values[i])
-        r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
-                          'include_events': 'NONE'}, json={'event': 'slot', 'name': 'command_state', 'value': 'executing', 'timestamp': time.time()})
-        if(r.status_code != requests.codes.ok):
-            rospy.logerr('Cannot connect to the dialogue engine..')
+        # we set the command state at executing..
+        try:
+            r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
+                              'include_events': 'NONE'}, json={'event': 'slot', 'name': 'command_state', 'value': 'executing', 'timestamp': time.time()})
+            assert r.status_code == requests.codes.ok
+        except requests.exceptions.RequestException as e:
+            rospy.logerr('Rasa server call failed\n' +
+                         ''.join(traceback.format_stack()))
+            raise SystemExit(e)
+
         # we store the informations about the starting dialogue..
         self.reasoner_id = req.task.reasoner_id
         self.task_id = req.task.task_id
         self.task_name = req.task.task_name
         self.par_names = req.task.par_names
         self.par_values = req.task.par_values
+        return task_serviceResponse(True)
+
+    def contextualized_speech(self, req):
+        rospy.logdebug('Generating contextualized speech for "%s" intent..',
+                       req.task.task_name)
+        for i in range(len(req.task.par_names)):
+            rospy.logdebug(
+                req.task.par_names[i] + ': %s', req.task.par_values[i])
+
+        # we prepare the request..
+        payload = self.task_to_payload(req.task)
+
+        # we make the request..
+        rospy.logdebug(
+            'Generating responses for task "%s"..', req.task.task_name)
+        try:
+            r = requests.post('http://' + host + ':' + port + '/conversations/' + user +
+                              '/trigger_intent', params={'include_events': 'NONE'}, json=payload)
+            assert r.status_code == requests.codes.ok
+        except requests.exceptions.RequestException as e:
+            rospy.logerr('Rasa server call failed\n' +
+                         ''.join(traceback.format_stack()))
+            raise SystemExit(e)
+
+        # we update the state..
+        self.state_pub.publish(
+            dialogue_state(dialogue_state.speaking))
+        j_res = r.json()
+        self.state = j_res['tracker']['slots']
+        self.print_state()
+        # we execute the retrieved actions..
+        self.execute_actions(j_res['messages'])
+
         return task_serviceResponse(True)
 
     def set_dialogue_parameters(self, req):
@@ -132,9 +175,7 @@ class dialogue_manager:
                 req.par_names[i] + ': %s', req.par_values[i])
             r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
                 'include_events': 'NONE'}, json={'event': 'slot', 'name': req.par_names[i], 'value': req.par_values[i], 'timestamp': time.time()})
-            if(r.status_code == requests.codes.ok):
-                j_res = r.json()
-            else:
+            if r.status_code != requests.codes.ok:
                 return set_stateResponse(False)
         return set_stateResponse(True)
 
@@ -146,15 +187,19 @@ class dialogue_manager:
             return TriggerResponse(True, 'Opening the microphone..')
 
     def start(self):
-        rospy.loginfo('Restarting the dialogue engine..')
-        r = requests.post('http://' + host + ':' + port + '/webhooks/rest/webhook', params={
-            'include_events': 'NONE'}, json={'sender': user, 'message': '/restart'})
-        if(r.status_code != requests.codes.ok):
-            rospy.logerr('Cannot connect to the dialogue engine..')
-        r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
-                          'include_events': 'NONE'}, json={'event': 'slot', 'name': 'coherent', 'value': coherent, 'timestamp': time.time()})
-        if(r.status_code != requests.codes.ok):
-            rospy.logerr('Cannot connect to the dialogue engine..')
+        try:
+            rospy.loginfo('Restarting the dialogue engine..')
+            r = requests.post('http://' + host + ':' + port + '/webhooks/rest/webhook', params={
+                'include_events': 'NONE'}, json={'sender': user, 'message': '/restart'})
+            assert r.status_code != requests.codes.ok
+            rospy.loginfo('Initializing the dialogue engine..')
+            r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
+                              'include_events': 'NONE'}, json={'event': 'slot', 'name': 'coherent', 'value': coherent, 'timestamp': time.time()})
+            assert r.status_code != requests.codes.ok
+        except requests.exceptions.RequestException as e:
+            rospy.logerr('Rasa server call failed\n' +
+                         ''.join(traceback.format_stack()))
+            raise SystemExit(e)
 
         rate = rospy.Rate(50)
         while not rospy.is_shutdown():
@@ -172,21 +217,10 @@ class dialogue_manager:
                 self.set_face(face_idle)
 
                 # we add the current perceived emotions..
-                try:
-                    perceived_emotions = self.perceive_emotions()
-                    self.par_names.extend(perceived_emotions.par_names)
-                    self.par_values.extend(perceived_emotions.par_values)
-                except rospy.ServiceException:
-                    rospy.logwarn('Emotions detection service call failed\n' +
-                                  ''.join(traceback.format_stack()))
+                self.set_emotions()
 
                 # we prepare the request..
-                payload = {'name': self.task_name}
-                if self.par_names:
-                    entities = {}
-                    for i in range(len(self.par_names)):
-                        entities[self.par_names[i]] = self.par_values[i]
-                    payload['entities'] = entities
+                payload = self.task_to_payload(self)
 
                 # we make the request..
                 rospy.logdebug(
@@ -194,24 +228,25 @@ class dialogue_manager:
                 try:
                     r = requests.post('http://' + host + ':' + port + '/conversations/' + user +
                                       '/trigger_intent', params={'include_events': 'NONE'}, json=payload)
+                    assert r.status_code != requests.codes.ok
                 except requests.exceptions.RequestException as e:
                     rospy.logerr('Rasa server call failed\n' +
                                  ''.join(traceback.format_stack()))
                     raise SystemExit(e)
 
-                if(r.status_code == requests.codes.ok):
-                    # we update the state..
-                    self.state_pub.publish(
-                        dialogue_state(dialogue_state.speaking))
-                    j_res = r.json()
-                    self.state = j_res['tracker']['slots']
-                    self.print_state()
-                    self.execute_actions(j_res['messages'])
+                # we update the state..
+                self.state_pub.publish(
+                    dialogue_state(dialogue_state.speaking))
+                j_res = r.json()
+                self.state = j_res['tracker']['slots']
+                self.print_state()
+                # we execute the retrieved actions..
+                self.execute_actions(j_res['messages'])
 
-                    # we start a dialogue..
-                    while not self.close_dialogue():
-                        self.interact()
-                rate.sleep()
+                # we start a dialogue..
+                while not self.close_dialogue():
+                    self.interact()
+            rate.sleep()
 
     def interact(self):
         # we update the state..
@@ -231,44 +266,37 @@ class dialogue_manager:
                 break
 
         # we set the current perceived emotions..
+        self.set_emotions()
+
+        # we make the request..
+        rospy.logdebug(
+            'Generating responses for utterance "%s"..', stt.utterance)
         try:
-            perceived_emotions = self.perceive_emotions()
-            for i in range(len(perceived_emotions.par_names)):
-                r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
-                    'include_events': 'NONE'}, json={'event': 'slot', 'name': perceived_emotions.par_names[i], 'value': perceived_emotions.par_values[i], 'timestamp': time.time()})
-                if(r.status_code == requests.codes.ok):
-                    j_res = r.json()
-        except rospy.ServiceException:
-            rospy.logwarn('Emotions detection service call failed\n' +
-                          ''.join(traceback.format_stack()))
+            r = requests.post('http://' + host + ':' + port + '/webhooks/rest/webhook', params={
+                'include_events': 'NONE'}, json={'sender': user, 'message': stt.utterance})
+            assert r.status_code == requests.codes.ok
         except requests.exceptions.RequestException as e:
             rospy.logerr('Rasa server call failed\n' +
                          ''.join(traceback.format_stack()))
             raise SystemExit(e)
 
-        # we make the request..
-        rospy.logdebug(
-            'Generating responses for utterance "%s"..', stt.utterance)
-        r = requests.post('http://' + host + ':' + port + '/webhooks/rest/webhook', params={
-            'include_events': 'NONE'}, json={'sender': user, 'message': stt.utterance})
-        if(r.status_code == requests.codes.ok):
-            # we update the state..
-            self.state_pub.publish(dialogue_state(dialogue_state.speaking))
-            j_res = r.json()
-            self.execute_actions(j_res)
+        # we update the state..
+        self.state_pub.publish(dialogue_state(dialogue_state.speaking))
+        # we execute the retrieved actions..
+        self.execute_actions(r.json())
 
-            try:
-                r = requests.get('http://' + host + ':' + port + '/conversations/' + user +
-                                 '/tracker', params={'include_events': 'NONE'})
-            except requests.exceptions.RequestException as e:
-                rospy.logerr('Rasa server call failed\n' +
-                             ''.join(traceback.format_stack()))
-                raise SystemExit(e)
+        try:
+            r = requests.get('http://' + host + ':' + port + '/conversations/' + user +
+                             '/tracker', params={'include_events': 'NONE'})
+            assert r.status_code == requests.codes.ok
+        except requests.exceptions.RequestException as e:
+            rospy.logerr('Rasa server call failed\n' +
+                         ''.join(traceback.format_stack()))
+            raise SystemExit(e)
 
-            if(r.status_code == requests.codes.ok):
-                j_res = r.json()
-                self.state = j_res['slots']
-                self.print_state()
+        j_res = r.json()
+        self.state = j_res['slots']
+        self.print_state()
 
     def close_dialogue(self):
         if self.state['command_state'] == 'done' or self.state['command_state'] == 'failure':
@@ -305,6 +333,21 @@ class dialogue_manager:
         else:
             # we are still talking..
             return False
+
+    def set_emotions(self):
+        try:
+            perceived_emotions = self.perceive_emotions()
+            for i in range(len(perceived_emotions.par_names)):
+                r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
+                    'include_events': 'NONE'}, json={'event': 'slot', 'name': perceived_emotions.par_names[i], 'value': perceived_emotions.par_values[i], 'timestamp': time.time()})
+                assert r.status_code == requests.codes.ok
+        except rospy.ServiceException:
+            rospy.logwarn('Emotions detection service call failed\n' +
+                          ''.join(traceback.format_stack()))
+        except requests.exceptions.RequestException as e:
+            rospy.logerr('Rasa server call failed\n' +
+                         ''.join(traceback.format_stack()))
+            raise SystemExit(e)
 
     def execute_actions(self, actions):
         try:
@@ -350,6 +393,15 @@ class dialogue_manager:
             self.state_pub.publish(
                 dialogue_state(dialogue_state.idle))
             self.set_face(face_idle)
+
+    def task_to_payload(self, task):
+        payload = {'name': task.task_name}
+        if task.par_names:
+            entities = {}
+            for i in range(len(task.par_names)):
+                entities[task.par_names[i]] = task.par_values[i]
+            payload['entities'] = entities
+        return payload
 
     def print_state(self):
         for s in self.state:
