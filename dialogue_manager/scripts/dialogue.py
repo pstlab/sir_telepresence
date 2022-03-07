@@ -206,49 +206,7 @@ class dialogue_manager:
                     j_res = r.json()
                     self.state = j_res['tracker']['slots']
                     self.print_state()
-                    try:
-                        for ans in j_res['messages']:
-                            if 'custom' in ans:
-                                if 'face' in ans['custom']:
-                                    self.set_face(ans['custom']['face'])
-                                if 'image' in ans['custom']:
-                                    self.show_image(
-                                        ans['custom']['image']['src'], ans['custom']['image']['alt'])
-                                if 'audio' in ans['custom']:
-                                    srcs = []
-                                    for src in ans['custom']['audio']:
-                                        srcs.append(
-                                            audio(src['src'], src['type']))
-                                    self.play_audio(srcs)
-                                if 'video' in ans['custom']:
-                                    srcs = []
-                                    for src in ans['custom']['video']:
-                                        srcs.append(
-                                            video(src['src'], src['type']))
-                                    self.play_video(srcs)
-                                if 'page' in ans['custom']:
-                                    self.show_page(
-                                        ans['custom']['page']['src'], ans['custom']['page']['title'])
-                                if 'question' in ans['custom']:
-                                    btns = []
-                                    for btn in ans['custom']['question']:
-                                        btns.append(
-                                            button(btn['text'], btn['intent']))
-                                    self.ask_question(
-                                        ans['custom']['question']['facial_expression'], ans['custom']['question']['text'], btns)
-                                if 'text' in ans['custom']:
-                                    self.text_to_speech(ans['custom']['text'])
-                            else:
-                                self.set_face(face_talking)
-                                self.text_to_speech(ans['text'])
-                            self.set_face(face_idle)
-                    except rospy.ServiceException:
-                        rospy.logerr('Text to speech service call failed\n' +
-                                     ''.join(traceback.format_stack()))
-                        # we update the state..
-                        self.state_pub.publish(
-                            dialogue_state(dialogue_state.idle))
-                        self.set_face(face_idle)
+                    self.execute_actions(j_res['messages'])
 
                     # we start a dialogue..
                     while not self.close_dialogue():
@@ -297,49 +255,7 @@ class dialogue_manager:
             # we update the state..
             self.state_pub.publish(dialogue_state(dialogue_state.speaking))
             j_res = r.json()
-            try:
-                for ans in j_res:
-                    if 'custom' in ans:
-                        if 'face' in ans['custom']:
-                            self.set_face(ans['custom']['face'])
-                        if 'image' in ans['custom']:
-                            self.show_image(
-                                ans['custom']['image']['src'], ans['custom']['image']['alt'])
-                        if 'audio' in ans['custom']:
-                            srcs = []
-                            for src in ans['custom']['audio']:
-                                srcs.append(
-                                    audio(src['src'], src['type']))
-                            self.play_audio(srcs)
-                        if 'video' in ans['custom']:
-                            srcs = []
-                            for src in ans['custom']['video']:
-                                srcs.append(
-                                    video(src['src'], src['type']))
-                            self.play_video(srcs)
-                        if 'page' in ans['custom']:
-                            self.show_page(
-                                ans['custom']['page']['src'], ans['custom']['page']['title'])
-                        if 'question' in ans['custom']:
-                            btns = []
-                            for btn in ans['custom']['question']:
-                                btns.append(
-                                    button(btn['text'], btn['intent']))
-                            self.ask_question(
-                                ans['custom']['question']['facial_expression'], ans['custom']['question']['text'], btns)
-                        if 'text' in ans['custom']:
-                            self.text_to_speech(ans['custom']['text'])
-                    else:
-                        self.set_face(face_talking)
-                        self.text_to_speech(ans['text'])
-                    self.set_face(face_idle)
-            except rospy.ServiceException:
-                rospy.logerr('Text to speech service call failed\n' +
-                             ''.join(traceback.format_stack()))
-                # we update the state..
-                self.state_pub.publish(
-                    dialogue_state(dialogue_state.idle))
-                self.set_face(face_idle)
+            self.execute_actions(j_res)
 
             try:
                 r = requests.get('http://' + host + ':' + port + '/conversations/' + user +
@@ -389,6 +305,51 @@ class dialogue_manager:
         else:
             # we are still talking..
             return False
+
+    def execute_actions(self, actions):
+        try:
+            for action in actions:
+                if 'custom' in action:
+                    if 'face' in action['custom']:
+                        self.set_face(action['custom']['face'])
+                    if 'image' in action['custom']:
+                        self.show_image(
+                            action['custom']['image']['src'], action['custom']['image']['alt'])
+                    if 'audio' in action['custom']:
+                        srcs = []
+                        for src in action['custom']['audio']:
+                            srcs.append(
+                                audio(src['src'], src['type']))
+                        self.play_audio(srcs)
+                    if 'video' in action['custom']:
+                        srcs = []
+                        for src in action['custom']['video']:
+                            srcs.append(
+                                video(src['src'], src['type']))
+                        self.play_video(srcs)
+                    if 'page' in action['custom']:
+                        self.show_page(
+                            action['custom']['page']['src'], action['custom']['page']['title'])
+                    if 'question' in action['custom']:
+                        btns = []
+                        for btn in action['custom']['question']:
+                            btns.append(
+                                button(btn['text'], btn['intent']))
+                        self.ask_question(
+                            action['custom']['question']['facial_expression'], action['custom']['question']['text'], btns)
+                    if 'text' in action['custom']:
+                        self.text_to_speech(action['custom']['text'])
+                else:
+                    self.set_face(face_talking)
+                    self.text_to_speech(action['text'])
+                self.set_face(face_idle)
+        except rospy.ServiceException:
+            rospy.logerr('Action execution failed\n' +
+                         ''.join(traceback.format_stack()))
+            # we update the state..
+            self.state_pub.publish(
+                dialogue_state(dialogue_state.idle))
+            self.set_face(face_idle)
 
     def print_state(self):
         for s in self.state:
