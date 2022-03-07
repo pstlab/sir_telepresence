@@ -11,11 +11,11 @@ intents:
   - start_profile_gathering
   - tell_life_style
   - start_cognitive_exercise
+  - tell_num_words
   - tell_positive_feedback
   - tell_positive_physical_exercise_feedback
   - tell_negative_feedback
   - tell_negative_physical_exercise_feedback
-  - tell_num_words
   - tell_intro_physical_exercise
   - tell_start_physical_exercise
   - tell_describe_biceps_curl

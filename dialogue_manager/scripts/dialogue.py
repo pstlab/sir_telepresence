@@ -20,7 +20,6 @@ class dialogue_manager:
 
     def __init__(self):
         self.deliberative_task = False
-        self.pending = False
         self.state = {}
         self.reasoner_id = None
         self.task_id = None
@@ -140,10 +139,7 @@ class dialogue_manager:
         return set_stateResponse(True)
 
     def listen(self, req):
-        if self.pending:
-            self.pending = False
-            return TriggerResponse(True, 'Reopening the microphone..')
-        elif self.task_name:
+        if self.task_name:
             return TriggerResponse(False, 'Already having a dialogue..')
         else:
             self.task_name = 'start_interaction'
@@ -162,9 +158,7 @@ class dialogue_manager:
 
         rate = rospy.Rate(50)
         while not rospy.is_shutdown():
-            if self.pending:
-                rate.sleep()
-            elif self.task_name:
+            if self.task_name:
                 # we update the state..
                 self.state_pub.publish(
                     dialogue_state(dialogue_state.configuring))
@@ -390,12 +384,6 @@ class dialogue_manager:
 
             # we update the state..
             self.state_pub.publish(dialogue_state(dialogue_state.idle))
-            self.set_face(face_idle)
-            return True
-        elif self.state['command_state'] == 'pending':
-            self.pending = True
-            # we update the state..
-            self.state_pub.publish(dialogue_state(dialogue_state.pending))
             self.set_face(face_idle)
             return True
         else:

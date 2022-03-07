@@ -101,69 +101,27 @@ nlu:
       - Avviamo un esercizio [count_the_word](cognitive_exercise_type)
       - Facciamo un esercizio di [conta le parole](cognitive_exercise_type)
 
-  - intent: tell_positive_feedback
-    examples: |
-      - Dammi un feedback positivo
-      - Mandami un feedback positivo
-
-  - intent: tell_positive_physical_exercise_feedback
-    examples: |
-      - Dammi un feedback positivo sull'esercizio fisico
-      - Mandami un feedback positivo sull'esercizio fisico
-
-  - intent: tell_negative_feedback
-    examples: |
-      - Dammi un feedback negativo
-      - Mandami un feedback negativo
-
-  - intent: tell_negative_physical_exercise_feedback
-    examples: |
-      - Dammi un feedback negativo sull'esercizio fisico
-      - Mandami un feedback negativo sull'esercizio fisico
-
-  - intent: tell_intro_physical_exercise
-    examples: |
-      - Cominciamo l'esercizio di [biceps_curl](physical_exercise_type)
-      - Avviamo un esercizio [shoulder_t](physical_exercise_type)
-      - Facciamo un esercizio [front_shoulder_raise](physical_exercise_type)
-
-  - intent: tell_start_physical_exercise
-    examples: |
-      - Cominciamo l'esercizio di [biceps_curl](physical_exercise_type)
-      - Avviamo un esercizio [shoulder_t](physical_exercise_type)
-
   - intent: tell_num_words
     examples: |
       - [una](number) volta
       - [due](number)
       - [tre](number)
+      - forse [nove](number)
+      - mi sembra [dieci](number)
       - [quattro](number) volte
       - credo di aver sentito [cinque](number) volte
 
+  - intent: tell_positive_feedback
+  - intent: tell_positive_physical_exercise_feedback
+  - intent: tell_negative_feedback
+  - intent: tell_negative_physical_exercise_feedback
+  - intent: tell_intro_physical_exercise
+  - intent: tell_start_physical_exercise
   - intent: tell_describe_biceps_curl
-    examples: |
-      - Descrivimi l'esercizio [biceps_curl](physical_exercise_type)
-      - Parlami dell'esercizio [biceps_curl](physical_exercise_type)
-
   - intent: tell_describe_biceps_curl2
-    examples: |
-      - Dammi maggiori dettagli sull'esercizio [biceps_curl](physical_exercise_type)
-      - Spiegami di più sull'esercizio [biceps_curl](physical_exercise_type)
-
   - intent: tell_take_the_weights
-    examples: |
-      - Dimmi di prendere i pesetti
-      - Chiedimi di prendere i pesetti
-
   - intent: tell_physical_exercise_repetitions
-    examples: |
-      - A che ripetizione siamo?
-      - Quale è la prossima ripetizione?
-
   - intent: tell_exercise_done
-    examples: |
-      - Dimmi che abbiamo finito l'esercizio
-      - Dimmi che abbiamo fatto
 
   - synonym: boring
     examples: |
