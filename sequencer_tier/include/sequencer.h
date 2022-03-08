@@ -3,6 +3,7 @@
 #include "sequencer_tier/sequencer_state.h"
 #include "deliberative_tier/deliberative_state.h"
 #include "dialogue_manager/dialogue_state.h"
+#include "dialogue_manager/set_reminder.h"
 #include "deliberative_tier/task_service.h"
 #include "deliberative_tier/task_finished.h"
 #include <ros/ros.h>
@@ -29,7 +30,7 @@ namespace sir
     bool can_end(deliberative_tier::task_service::Request &req, deliberative_tier::task_service::Response &res);
     bool end_task(deliberative_tier::task_service::Request &req, deliberative_tier::task_service::Response &res);
 
-    bool dialogue_task_finished(deliberative_tier::task_finished::Request &req, deliberative_tier::task_finished::Response &res);
+    bool set_reminder(dialogue_manager::set_reminder::Request &req, dialogue_manager::set_reminder::Response &res);
 
     void updated_deliberative_state(const deliberative_tier::deliberative_state &msg) { deliberative_state[msg.reasoner_id] = msg.deliberative_state; }
     void updated_dialogue_state(const dialogue_manager::dialogue_state &msg) { dialogue_state = msg.dialogue_state; }
@@ -53,7 +54,7 @@ namespace sir
     // Connection with the dialogue manager..
     ros::ServiceClient start_dialogue_task;
     ros::ServiceClient set_dialogue_parameters;
-    ros::ServiceServer dialogue_task_finished_server;
+    ros::ServiceServer set_reminder_server;
     // Connection with the persistence manager..
     ros::ServiceClient load, dump;
 

@@ -1,0 +1,4 @@
+uint64 waiting_time
+string reminder_type
+---
+bool success

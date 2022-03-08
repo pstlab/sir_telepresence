@@ -33,7 +33,7 @@ class dialogue_manager:
 
         # notifies the deliberative tier that a dialogue task has finished..
         self.dialogue_task_finished = rospy.ServiceProxy(
-            'dialogue_task_finished', task_finished)
+            'task_finished', task_finished)
 
         # called by the gui for starting a dialogue by the user..
         listen_service = rospy.Service('listen', Trigger, self.listen)
@@ -93,6 +93,11 @@ class dialogue_manager:
         self.show_page = rospy.ServiceProxy(
             'show_page', page_to_show)
         self.show_page.wait_for_service()
+
+        # stores the gathered profile..
+        self.store_profile = rospy.ServiceProxy(
+            'dump', set_state)
+        self.store_profile.wait_for_service()
 
         # waits for the question manager..
         self.ask_question = rospy.ServiceProxy(
@@ -311,6 +316,8 @@ class dialogue_manager:
                     # the task is closed with a success..
                     rospy.logdebug(
                         'Closing task "%s" with a success..', self.task_name)
+                    if self.task_name == 'start_profile_gathering':
+                        self.store_profile('profile.json', par_names, par_values)
                     self.dialogue_task_finished(task(
                         self.reasoner_id, self.task_id, self.task_name, par_names, par_values), True)
                 elif self.state['command_state'] == 'failure':

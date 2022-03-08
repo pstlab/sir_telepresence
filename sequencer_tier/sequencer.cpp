@@ -28,7 +28,7 @@ namespace sir
                                                start_physical_exercise_task(h.serviceClient<deliberative_tier::task_service>("start_physical_exercise")),
                                                start_dialogue_task(h.serviceClient<deliberative_tier::task_service>("start_dialogue_task")),
                                                set_dialogue_parameters(h.serviceClient<persistence_manager::set_state>("set_dialogue_parameters")),
-                                               dialogue_task_finished_server(h.advertiseService("dialogue_task_finished", &sequencer::dialogue_task_finished, this)),
+                                               set_reminder_server(h.advertiseService("set_reminder", &sequencer::set_reminder, this)),
                                                load(h.serviceClient<persistence_manager::get_state>("load")),
                                                dump(h.serviceClient<persistence_manager::set_state>("dump"))
     {
@@ -246,25 +246,9 @@ namespace sir
         return true;
     }
 
-    bool sequencer::dialogue_task_finished(deliberative_tier::task_finished::Request &req, deliberative_tier::task_finished::Response &res)
+    bool sequencer::set_reminder(dialogue_manager::set_reminder::Request &req, dialogue_manager::set_reminder::Response &res)
     {
-        if (req.task.task_name == "start_profile_gathering" && req.success)
-        { // we store the gathered profile..
-            persistence_manager::set_state d_srv;
-            d_srv.request.name = "profile.json";
-            d_srv.request.par_names = req.task.par_names;
-            d_srv.request.par_values = req.task.par_values;
-            dump.call(d_srv);
-        }
-
-        // we close the task to the deliberative tier..
-        deliberative_tier::task_finished dtf_srv;
-        dtf_srv.request.task.reasoner_id = req.task.reasoner_id;
-        dtf_srv.request.task.task_id = req.task.task_id;
-        dtf_srv.request.success = req.success;
-        task_finished.call(dtf_srv);
-
-        res.ended = true;
+        res.success = true;
         return true;
     }
 
