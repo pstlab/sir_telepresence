@@ -6,6 +6,16 @@ rules:
       - intent: nlu_fallback
       - action: utter_please_rephrase
 
+  - rule: Start interaction
+    steps:
+      - intent: start_interaction
+      - action: utter_offer_help
+
+  - rule: Close dialogue
+    steps:
+      - intent: close_dialogue
+      - action: utter_see_you_later
+
   - rule: profile form
     condition:
       - active_loop: profile_form

@@ -36,6 +36,13 @@ nlu:
       - Raramente
       - Per ora, non mi serve nulla!
 
+  - intent: close_dialogue
+    examples: |
+      - Va bene così.
+      - Non mi serve niente.
+      - Non mi serve nient'altro.
+      - Non ho bisogno di nulla.
+
   - intent: tell_name
     examples: |
       - Mi chiamo [Nome](PER)
@@ -94,6 +101,12 @@ nlu:
       - Probabilmente [noiosa](life_style)
       - Sicuramente [eccitante](life_style)
 
+  - intent: set_reminder
+    examples: |
+      - Ricordami, fra cinque minuti, di [prendere le medicine](reminder_type).
+      - Ricordami, fra dieci minuti minuti, di [andare dal medico](reminder_type).
+      - Ricordami, fra un quarto d'ora, di [andare dal medico](reminder_type).
+
   - intent: start_cognitive_exercise
     examples: |
       - Cominciamo l'esercizio di [conta le parole](cognitive_exercise_type)
@@ -112,6 +125,7 @@ nlu:
       - [quattro](number) volte
       - credo di aver sentito [cinque](number) volte
 
+  - intent: start_interaction
   - intent: tell_positive_feedback
   - intent: tell_positive_physical_exercise_feedback
   - intent: tell_negative_feedback

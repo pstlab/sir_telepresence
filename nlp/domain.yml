@@ -4,13 +4,16 @@ intents:
   - greet
   - affirm
   - deny
+  - close_dialogue
   - tell_name
   - tell_location
   - ask_informations
   - ask_capabilities
   - start_profile_gathering
   - tell_life_style
+  - set_reminder
   - start_cognitive_exercise
+  - start_interaction
   - tell_num_words
   - tell_positive_feedback
   - tell_positive_physical_exercise_feedback
@@ -28,9 +31,11 @@ entities:
   - PER
   - LOC
   - number
+  - time
   - life_style
   - cognitive_exercise_type
   - physical_exercise_type
+  - reminder_type
 
 slots:
   coherent:
@@ -154,6 +159,14 @@ slots:
     initial_value: neutral
     mappings:
       - type: custom
+
+  reminder_time:
+    type: float
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: time
+        intent: set_reminder
 
   cognitive_exercise:
     type: categorical
@@ -282,6 +295,26 @@ responses:
   utter_offer_help:
     - custom:
         text: Come posso aiutarti?
+        face: happy_talking
+    - custom:
+        text: Cosa posso fare per te?
+        face: happy_talking
+    - custom:
+        text: Ti serve qualcosa?
+        face: happy_talking
+    - custom:
+        text: Di cosa hai bisogno?
+        face: happy_talking
+
+  utter_see_you_later:
+    - custom:
+        text: Ci sentiamo dopo.
+        face: happy_talking
+    - custom:
+        text: A dopo.
+        face: happy_talking
+    - custom:
+        text: A presto.
         face: happy_talking
 
   utter_presentation:
