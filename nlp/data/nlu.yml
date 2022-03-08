@@ -63,6 +63,7 @@ nlu:
       - In questo momento mi trovo a [Castelfranco Veneto](LOC)
       - Siamo a [Castelfranco](LOC)
       - Siamo a [Roma](LOC)
+      - Sono di [Vedelago](LOC)
 
   - intent: ask_informations
     examples: |

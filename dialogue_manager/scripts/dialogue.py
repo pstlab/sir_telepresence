@@ -147,7 +147,7 @@ class dialogue_manager:
 
         # we make the request..
         rospy.logdebug(
-            'Generating responses for task "%s"..', req.task.task_name)
+            'Generating responses for "%s" intent..', req.task.task_name)
         try:
             r = requests.post('http://' + host + ':' + port + '/conversations/' + user +
                               '/trigger_intent', params={'include_events': 'NONE'}, json=payload)

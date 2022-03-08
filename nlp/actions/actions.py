@@ -91,6 +91,8 @@ class ValidateProfileForm(FormValidationAction):
 
         dispatcher.utter_message(
             response='utter_location_comment', LOC=slot_value)
+        dispatcher.utter_message(
+            response='utter_location_comment_continuation', LOC=slot_value)
         return {'user_location': slot_value}
 
     def validate_user_difficulty_express_feelings(

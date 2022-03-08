@@ -174,18 +174,25 @@ slots:
     mappings:
       - type: from_entity
         entity: physical_exercise_type
-        intent: start_physical_exercise
+        intent: tell_start_physical_exercise
 
   physical_exercise_repetitions:
     type: float
     influence_conversation: false
     mappings:
-      - type: custom
+      - type: from_entity
+        entity: number
+        intent: tell_physical_exercise_repetitions
   missing_physical_exercise_repetitions:
     type: float
     influence_conversation: false
     mappings:
-      - type: custom
+      - type: from_entity
+        entity: number
+        intent: tell_positive_physical_exercise_feedback
+      - type: from_entity
+        entity: number
+        intent: tell_negative_physical_exercise_feedback
 
   count_the_word_word_sequences:
     type: text
@@ -342,6 +349,11 @@ responses:
           value: "female"
       custom:
         text: Lo sapevo! Era per vedere se eri attenta!
+        face: happy_talking
+
+  utter_location_comment_continuation:
+    - custom:
+        text: Ho delle curiosità su di te.
         face: happy_talking
 
   utter_nice_to_meet:
@@ -526,7 +538,7 @@ responses:
           name: user_extraversion
           value: "extroverted"
       custom:
-        text: Sai, io sono uno che parla molto, non mi capita mai di rimanere senza qualcosa da dire. Tu invece, resti mai senza parole?
+        text: Sai, io sono uno che parla molto, non mi sucede mai di rimanere senza qualcosa da dire. Tu invece, resti mai senza parole?
         face: talking
     - condition:
         - type: slot
@@ -536,7 +548,7 @@ responses:
           name: user_extraversion
           value: "introverted"
       custom:
-        text: Sai, a volte mi capita di non avere argomenti di cui parlare, non so cosa dire alle persone. Capita anche a te?
+        text: Sai, a volte mi accade di non avere argomenti di cui parlare, non so cosa dire alle persone. Succede anche a te?
         face: talking
     - condition:
         - type: slot
@@ -546,7 +558,7 @@ responses:
           name: user_extraversion
           value: "extroverted"
       custom:
-        text: Sai, a volte mi capita di non avere argomenti di cui parlare, non so cosa dire alle persone. Capita anche a te?
+        text: Sai, a volte mi accade di non avere argomenti di cui parlare, non so cosa dire alle persone. Succede anche a te?
         face: talking
     - condition:
         - type: slot
@@ -556,7 +568,7 @@ responses:
           name: user_extraversion
           value: "introverted"
       custom:
-        text: Sai, io sono uno che parla molto, non mi capita mai di rimanere senza qualcosa da dire. Tu invece, resti mai senza parole?
+        text: Sai, io sono uno che parla molto, non mi accsucedeade mai di rimanere senza qualcosa da dire. Tu invece, resti mai senza parole?
         face: talking
 
   utter_profile_gathered:
