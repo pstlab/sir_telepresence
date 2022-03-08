@@ -103,9 +103,9 @@ nlu:
 
   - intent: set_reminder
     examples: |
-      - Ricordami, fra cinque minuti, di [prendere le medicine](reminder_type).
-      - Ricordami, fra dieci minuti minuti, di [andare dal medico](reminder_type).
-      - Ricordami, fra un quarto d'ora, di [andare dal medico](reminder_type).
+      - Ricordami, fra cinque minuti, di [take_medicines](reminder_type).
+      - Ricordami, fra dieci minuti minuti, di [go_to_the_doctor](reminder_type).
+      - Ricordami, fra un quarto d'ora, di [go_to_the_doctor](reminder_type).
 
   - intent: start_cognitive_exercise
     examples: |
@@ -146,6 +146,16 @@ nlu:
   - synonym: exciting
     examples: |
       - eccitante
+
+  - synonym: take_medicines
+    examples: |
+      - prendere le pillole
+      - prendere le medicine
+
+  - synonym: go_to_the_doctor
+    examples: |
+      - andare dal medico
+      - andare dal dottore
 
   - synonym: count_the_word
     examples: |

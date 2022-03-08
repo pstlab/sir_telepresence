@@ -95,12 +95,6 @@ slots:
         conditions:
           - active_loop: profile_form
             requested_slot: user_exciting_life
-      - type: from_intent
-        value: false
-        intent: deny
-        conditions:
-          - active_loop: profile_form
-            requested_slot: user_exciting_life
   user_unease_unknown_people:
     type: bool
     influence_conversation: false
@@ -166,6 +160,16 @@ slots:
     mappings:
       - type: from_entity
         entity: time
+        intent: set_reminder
+  reminder_type:
+    type: categorical
+    influence_conversation: false
+    values:
+      - take_medicines
+      - go_to_the_doctor
+    mappings:
+      - type: from_entity
+        entity: reminder_type
         intent: set_reminder
 
   cognitive_exercise:
