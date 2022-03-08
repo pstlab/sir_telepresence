@@ -36,12 +36,18 @@ nlu:
       - Raramente
       - Per ora, non mi serve nulla!
 
+  - intent: uncertain
+    examples: |
+      - Forse
+      - Dipende
+      - Chissà
+
   - intent: close_dialogue
     examples: |
-      - Va bene così.
-      - Non mi serve niente.
-      - Non mi serve nient'altro.
-      - Non ho bisogno di nulla.
+      - Va bene così
+      - Non mi serve niente
+      - Non mi serve nient'altro
+      - Non ho bisogno di nulla
 
   - intent: tell_name
     examples: |

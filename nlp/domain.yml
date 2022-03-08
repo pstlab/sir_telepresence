@@ -4,6 +4,7 @@ intents:
   - greet
   - affirm
   - deny
+  - uncertain
   - close_dialogue
   - tell_name
   - tell_location
@@ -477,6 +478,25 @@ responses:
     - custom:
         text: Non così!
         face: sad_talking
+
+  utter_more_precise_answer:
+    - custom:
+        text: Per favore, cerca di darmi una risposta più precisa.
+        face: happy_talking
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "male"
+      custom:
+        text: Per favore, cerca di essere più preciso.
+        face: happy_talking
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "female"
+      custom:
+        text: Per favore, cerca di essere più precisa.
+        face: happy_talking
 
   utter_ask_user_difficulty_express_feelings:
     - custom:

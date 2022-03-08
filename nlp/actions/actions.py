@@ -108,6 +108,11 @@ class ValidateProfileForm(FormValidationAction):
         if tracker.get_slot('requested_slot') != 'user_difficulty_express_feelings':
             return {}
 
+        if tracker.get_intent_of_latest_message() == 'uncertain':
+            dispatcher.utter_message(
+                response='utter_more_precise_answer')
+            return {'user_difficulty_express_feelings': None}
+
         coherent = tracker.get_slot('coherent')
         extraversion = analyze_profile(tracker)
 
@@ -140,6 +145,11 @@ class ValidateProfileForm(FormValidationAction):
         print("user's response: " + str(slot_value))
         if tracker.get_slot('requested_slot') != 'user_exciting_life':
             return {}
+
+        if tracker.get_intent_of_latest_message() == 'uncertain':
+            dispatcher.utter_message(
+                response='utter_more_precise_answer')
+            return {'user_exciting_life': None}
 
         coherent = tracker.get_slot('coherent')
         extraversion = analyze_profile(tracker)
@@ -174,6 +184,11 @@ class ValidateProfileForm(FormValidationAction):
         if tracker.get_slot('requested_slot') != 'user_unease_unknown_people':
             return {}
 
+        if tracker.get_intent_of_latest_message() == 'uncertain':
+            dispatcher.utter_message(
+                response='utter_more_precise_answer')
+            return {'user_unease_unknown_people': None}
+
         coherent = tracker.get_slot('coherent')
         extraversion = analyze_profile(tracker)
 
@@ -207,6 +222,11 @@ class ValidateProfileForm(FormValidationAction):
         if tracker.get_slot('requested_slot') != 'user_unease_attention':
             return {}
 
+        if tracker.get_intent_of_latest_message() == 'uncertain':
+            dispatcher.utter_message(
+                response='utter_more_precise_answer')
+            return {'user_unease_attention': None}
+
         coherent = tracker.get_slot('coherent')
         extraversion = analyze_profile(tracker)
 
@@ -239,6 +259,11 @@ class ValidateProfileForm(FormValidationAction):
         print("user's response: " + str(slot_value))
         if tracker.get_slot('requested_slot') != 'user_talks_lot':
             return {}
+
+        if tracker.get_intent_of_latest_message() == 'uncertain':
+            dispatcher.utter_message(
+                response='utter_more_precise_answer')
+            return {'user_talks_lot': None}
 
         extraversion = analyze_profile(tracker)
 
