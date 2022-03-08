@@ -48,7 +48,6 @@ namespace sir
     ros::ServiceClient start_physical_exercise_task;
     // Connection with the dialogue manager..
     ros::ServiceClient start_dialogue_task;
-    ros::ServiceClient set_dialogue_parameters;
     ros::ServiceServer set_reminder_server;
 
     /*

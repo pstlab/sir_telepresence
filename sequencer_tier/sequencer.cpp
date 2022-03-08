@@ -2,7 +2,6 @@
 #include "deliberative_tier/create_reasoner.h"
 #include "deliberative_tier/destroy_reasoner.h"
 #include "deliberative_tier/new_requirement.h"
-#include "persistence_manager/set_state.h"
 #include <ros/package.h>
 
 namespace sir
@@ -25,7 +24,6 @@ namespace sir
                                                end_task_server(h.advertiseService("end_task", &sequencer::end_task, this)),
                                                start_physical_exercise_task(h.serviceClient<deliberative_tier::task_service>("start_physical_exercise")),
                                                start_dialogue_task(h.serviceClient<deliberative_tier::task_service>("start_dialogue_task")),
-                                               set_dialogue_parameters(h.serviceClient<persistence_manager::set_state>("set_dialogue_parameters")),
                                                set_reminder_server(h.advertiseService("set_reminder", &sequencer::set_reminder, this))
     {
         create_reasoner.waitForExistence();

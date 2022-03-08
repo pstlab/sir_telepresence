@@ -20,5 +20,4 @@
   <depend>roslib</depend>
   <depend>deliberative_tier</depend>
   <depend>dialogue_manager</depend>
-  <depend>persistence_manager</depend>
 </package>
