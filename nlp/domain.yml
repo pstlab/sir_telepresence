@@ -155,7 +155,7 @@ slots:
       - type: custom
 
   reminder_time:
-    type: string
+    type: any
     influence_conversation: false
     mappings:
       - type: from_entity
