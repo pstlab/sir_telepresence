@@ -2,9 +2,7 @@
 #include "deliberative_tier/create_reasoner.h"
 #include "deliberative_tier/destroy_reasoner.h"
 #include "deliberative_tier/new_requirement.h"
-#include "persistence_manager/get_state.h"
 #include "persistence_manager/set_state.h"
-#include "service_call.h"
 #include <ros/package.h>
 
 namespace sir
@@ -28,17 +26,13 @@ namespace sir
                                                start_physical_exercise_task(h.serviceClient<deliberative_tier::task_service>("start_physical_exercise")),
                                                start_dialogue_task(h.serviceClient<deliberative_tier::task_service>("start_dialogue_task")),
                                                set_dialogue_parameters(h.serviceClient<persistence_manager::set_state>("set_dialogue_parameters")),
-                                               set_reminder_server(h.advertiseService("set_reminder", &sequencer::set_reminder, this)),
-                                               load(h.serviceClient<persistence_manager::get_state>("load")),
-                                               dump(h.serviceClient<persistence_manager::set_state>("dump"))
+                                               set_reminder_server(h.advertiseService("set_reminder", &sequencer::set_reminder, this))
     {
         create_reasoner.waitForExistence();
         new_requirement.waitForExistence();
         task_finished.waitForExistence();
         // start_physical_exercise_task.waitForExistence();
         start_dialogue_task.waitForExistence();
-        load.waitForExistence();
-        dump.waitForExistence();
 
         ros::service::waitForService("set_face");
     }
@@ -47,15 +41,6 @@ namespace sir
     void sequencer::tick()
     {
         ROS_DEBUG("{\"System\": %s, \"Deliberative\": %s, \"Dialogue\": %s}", sequencer_to_string(sequencer_state).c_str(), deliberative_to_string(deliberative_state).c_str(), dialogue_to_string(dialogue_state).c_str());
-
-        while (!pending_calls.empty())
-        {
-            auto pc = pending_calls.front();
-            auto cr = pc->call();
-            ROS_WARN_COND(!cr, "Call failed..");
-            delete pc;
-            pending_calls.pop();
-        }
 
         switch (sequencer_state)
         {
@@ -175,26 +160,6 @@ namespace sir
                     sd_srv.request.task.par_names.push_back(req.task.par_names.at(i));
                     sd_srv.request.task.par_values.push_back(req.task.par_values.at(i));
                 }
-            if (sd_srv.request.task.task_name == "start_profile_gathering")
-            { // we check whether a profile already exist..
-                persistence_manager::get_state l_srv;
-                l_srv.request.name = "profile.json";
-                if (load.call(l_srv) && l_srv.response.success)
-                { // we set the profile on the dialogue manager..
-                    persistence_manager::set_state sdp_srv;
-                    sdp_srv.request.name = l_srv.request.name;
-                    sdp_srv.request.par_names = l_srv.response.par_names;
-                    sdp_srv.request.par_values = l_srv.response.par_values;
-
-                    res.success = set_dialogue_parameters.call(sdp_srv);
-
-                    // .. and append (direct call causes deadlock!) the closing of the task to the deliberative tier..
-                    pending_calls.push(new task_finished_service_call(*this, req.task.reasoner_id, req.task.task_id, req.task.task_name, {}, {}, true));
-
-                    res.success = true;
-                    return true;
-                }
-            }
             // we start the dialogue task..
             res.success = start_dialogue_task.call(sd_srv);
         }

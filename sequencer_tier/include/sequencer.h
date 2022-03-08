@@ -11,13 +11,8 @@
 
 namespace sir
 {
-  class service_call;
-  class task_finished_service_call;
-
   class sequencer
   {
-    friend class task_finished_service_call;
-
   public:
     sequencer(ros::NodeHandle &handle);
     ~sequencer();
@@ -55,8 +50,6 @@ namespace sir
     ros::ServiceClient start_dialogue_task;
     ros::ServiceClient set_dialogue_parameters;
     ros::ServiceServer set_reminder_server;
-    // Connection with the persistence manager..
-    ros::ServiceClient load, dump;
 
     /*
      * The sequencer state
@@ -66,6 +59,5 @@ namespace sir
     std::map<uint64_t, unsigned int> deliberative_state;
     ros::Subscriber dialogue_state_sub;
     unsigned int dialogue_state = dialogue_manager::dialogue_state::idle;
-    std::queue<service_call *> pending_calls;
   };
 } // namespace sir

@@ -20,7 +20,7 @@ generate_messages(DEPENDENCIES std_msgs)
 ## Declare a catkin package
 catkin_package()
 
-add_executable(${PROJECT_NAME} main.cpp sequencer.cpp service_call.cpp)
+add_executable(${PROJECT_NAME} main.cpp sequencer.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE include ${catkin_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

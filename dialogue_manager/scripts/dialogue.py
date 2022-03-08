@@ -94,10 +94,15 @@ class dialogue_manager:
             'show_page', page_to_show)
         self.show_page.wait_for_service()
 
-        # stores the gathered profile..
-        self.store_profile = rospy.ServiceProxy(
+        # stores informations locally..
+        self.dump = rospy.ServiceProxy(
             'dump', set_state)
-        self.store_profile.wait_for_service()
+        self.dump.wait_for_service()
+
+        # loads informations locally..
+        self.load = rospy.ServiceProxy(
+            'load', get_state)
+        self.load.wait_for_service()
 
         # waits for the question manager..
         self.ask_question = rospy.ServiceProxy(
@@ -209,6 +214,21 @@ class dialogue_manager:
         rate = rospy.Rate(50)
         while not rospy.is_shutdown():
             if self.task_name:
+                if self.task_name == 'start_profile_gathering':
+                    load_profile_call = self.load('profile.json')
+                    if load_profile_call.success:
+                        self.set_dialogue_parameters(set_state(
+                            'profile.json', load_profile_call.par_names, load_profile_call.par_values))
+                        self.dialogue_task_finished(task(
+                            self.reasoner_id, self.task_id, self.task_name, par_names, par_values), True)
+                        self.deliberative_task = False
+                        self.reasoner_id = -1
+                        self.task_id = -1
+                        self.task_name = ''
+                        self.par_names.clear()
+                        self.par_values.clear()
+                        continue
+
                 # we update the state..
                 self.state_pub.publish(
                     dialogue_state(dialogue_state.configuring))
@@ -317,7 +337,7 @@ class dialogue_manager:
                     rospy.logdebug(
                         'Closing task "%s" with a success..', self.task_name)
                     if self.task_name == 'start_profile_gathering':
-                        self.store_profile('profile.json', par_names, par_values)
+                        self.dump('profile.json', par_names, par_values)
                     self.dialogue_task_finished(task(
                         self.reasoner_id, self.task_id, self.task_name, par_names, par_values), True)
                 elif self.state['command_state'] == 'failure':
