@@ -15,6 +15,7 @@ rules:
     steps:
       - intent: close_dialogue
       - action: utter_see_you_later
+      - action: action_command_done
 
   - rule: profile form
     condition:

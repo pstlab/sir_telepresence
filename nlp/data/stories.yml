@@ -12,6 +12,12 @@ stories:
       - intent: affirm
       - action: profile_form
       - active_loop: profile_form
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: action_analyze_profile
+      - action: utter_profile_gathered
+      - action: action_command_done
 
   - story: Say hello no location
     steps:
@@ -24,6 +30,12 @@ stories:
       - intent: affirm
       - action: profile_form
       - active_loop: profile_form
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: action_analyze_profile
+      - action: utter_profile_gathered
+      - action: action_command_done
 
   - story: Say hello no difficulty express feelings
     steps:
@@ -36,6 +48,12 @@ stories:
       - intent: affirm
       - action: profile_form
       - active_loop: profile_form
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: action_analyze_profile
+      - action: utter_profile_gathered
+      - action: action_command_done
 
   - story: Say hello no exciting life
     steps:
@@ -48,6 +66,12 @@ stories:
       - intent: affirm
       - action: profile_form
       - active_loop: profile_form
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: action_analyze_profile
+      - action: utter_profile_gathered
+      - action: action_command_done
 
   - story: Say hello with name
     steps:
@@ -73,6 +97,12 @@ stories:
       - intent: affirm
       - action: profile_form
       - active_loop: profile_form
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: action_analyze_profile
+      - action: utter_profile_gathered
+      - action: action_command_done
 
   - story: Start profile gathering 2
     steps:
