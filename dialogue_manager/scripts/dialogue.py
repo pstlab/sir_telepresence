@@ -8,7 +8,7 @@ from dialogue_manager.msg import dialogue_state, audio, video, button
 from dialogue_manager.srv import utterance_to_pronounce, face_to_show, image_to_show, audio_to_play, video_to_play, page_to_show, question_to_ask, utterance_to_recognize
 from deliberative_tier.msg import task
 from deliberative_tier.srv import task_service, task_serviceResponse, task_finished
-from persistence_manager.srv import get_state, set_state, set_stateResponse
+from persistence_manager.srv import get_state, set_state, set_stateRequest, set_stateResponse
 
 face_idle = 'idle'
 face_talking = 'talking'
@@ -202,10 +202,20 @@ class dialogue_manager:
             r = requests.post('http://' + host + ':' + port + '/webhooks/rest/webhook', params={
                 'include_events': 'NONE'}, json={'sender': user, 'message': '/restart'})
             assert r.status_code == requests.codes.ok
+
             rospy.loginfo('Initializing the dialogue engine..')
             r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
                               'include_events': 'NONE'}, json={'event': 'slot', 'name': 'coherent', 'value': coherent, 'timestamp': time.time()})
             assert r.status_code == requests.codes.ok
+
+            rospy.loginfo('Checking for existing profile..')
+            load_profile_call = self.load('profile.json')
+            if load_profile_call.success:
+                rospy.loginfo('Existing profile found..')
+                self.set_dialogue_parameters(set_stateRequest(
+                    'profile.json', load_profile_call.par_names, load_profile_call.par_values))
+                self.dialogue_task_finished(task(
+                    self.reasoner_id, self.task_id, self.task_name, par_names, par_values), True)
         except requests.exceptions.RequestException as e:
             rospy.logerr('Rasa server call failed\n' +
                          ''.join(traceback.format_stack()))
@@ -214,21 +224,6 @@ class dialogue_manager:
         rate = rospy.Rate(50)
         while not rospy.is_shutdown():
             if self.task_name:
-                if self.task_name == 'start_profile_gathering':
-                    load_profile_call = self.load('profile.json')
-                    if load_profile_call.success:
-                        self.set_dialogue_parameters(set_state(
-                            'profile.json', load_profile_call.par_names, load_profile_call.par_values))
-                        self.dialogue_task_finished(task(
-                            self.reasoner_id, self.task_id, self.task_name, par_names, par_values), True)
-                        self.deliberative_task = False
-                        self.reasoner_id = -1
-                        self.task_id = -1
-                        self.task_name = ''
-                        self.par_names.clear()
-                        self.par_values.clear()
-                        continue
-
                 # we update the state..
                 self.state_pub.publish(
                     dialogue_state(dialogue_state.configuring))
@@ -337,6 +332,7 @@ class dialogue_manager:
                     rospy.logdebug(
                         'Closing task "%s" with a success..', self.task_name)
                     if self.task_name == 'start_profile_gathering':
+                        rospy.loginfo('Storing gathered profile..')
                         self.dump('profile.json', par_names, par_values)
                     self.dialogue_task_finished(task(
                         self.reasoner_id, self.task_id, self.task_name, par_names, par_values), True)
