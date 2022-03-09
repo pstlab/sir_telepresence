@@ -14,7 +14,7 @@ pipeline:
     min_ngram: 1
     max_ngram: 4
   - name: DIETClassifier
-    epochs: 100
+    epochs: 500
   - name: "SpacyEntityExtractor"
     dimensions: ["PER", "LOC"]
   - name: "DucklingEntityExtractor"
