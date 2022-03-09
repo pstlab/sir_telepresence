@@ -108,6 +108,7 @@ class ValidateProfileForm(FormValidationAction):
         if tracker.get_slot('requested_slot') != 'user_difficulty_express_feelings':
             return {}
 
+        print("user's intent: " + tracker.get_intent_of_latest_message())
         if tracker.get_intent_of_latest_message() == 'uncertain':
             dispatcher.utter_message(
                 response='utter_more_precise_answer')
@@ -146,6 +147,7 @@ class ValidateProfileForm(FormValidationAction):
         if tracker.get_slot('requested_slot') != 'user_exciting_life':
             return {}
 
+        print("user's intent: " + tracker.get_intent_of_latest_message())
         if tracker.get_intent_of_latest_message() == 'uncertain':
             dispatcher.utter_message(
                 response='utter_more_precise_answer')
@@ -184,6 +186,7 @@ class ValidateProfileForm(FormValidationAction):
         if tracker.get_slot('requested_slot') != 'user_unease_unknown_people':
             return {}
 
+        print("user's intent: " + tracker.get_intent_of_latest_message())
         if tracker.get_intent_of_latest_message() == 'uncertain':
             dispatcher.utter_message(
                 response='utter_more_precise_answer')
@@ -222,6 +225,7 @@ class ValidateProfileForm(FormValidationAction):
         if tracker.get_slot('requested_slot') != 'user_unease_attention':
             return {}
 
+        print("user's intent: " + tracker.get_intent_of_latest_message())
         if tracker.get_intent_of_latest_message() == 'uncertain':
             dispatcher.utter_message(
                 response='utter_more_precise_answer')
@@ -260,6 +264,7 @@ class ValidateProfileForm(FormValidationAction):
         if tracker.get_slot('requested_slot') != 'user_talks_lot':
             return {}
 
+        print("user's intent: " + tracker.get_intent_of_latest_message())
         if tracker.get_intent_of_latest_message() == 'uncertain':
             dispatcher.utter_message(
                 response='utter_more_precise_answer')

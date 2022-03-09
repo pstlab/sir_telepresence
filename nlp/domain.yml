@@ -83,6 +83,12 @@ slots:
         conditions:
           - active_loop: profile_form
             requested_slot: user_difficulty_express_feelings
+      - type: from_intent
+        value: false
+        intent: uncertain
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_difficulty_express_feelings
   user_exciting_life:
     type: categorical
     influence_conversation: false
@@ -112,6 +118,12 @@ slots:
         conditions:
           - active_loop: profile_form
             requested_slot: user_unease_unknown_people
+      - type: from_intent
+        value: false
+        intent: uncertain
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_unease_unknown_people
   user_unease_attention:
     type: bool
     influence_conversation: false
@@ -128,6 +140,12 @@ slots:
         conditions:
           - active_loop: profile_form
             requested_slot: user_unease_attention
+      - type: from_intent
+        value: false
+        intent: uncertain
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_unease_attention
   user_talks_lot:
     type: bool
     influence_conversation: false
@@ -141,6 +159,12 @@ slots:
       - type: from_intent
         value: false
         intent: deny
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_talks_lot
+      - type: from_intent
+        value: false
+        intent: uncertain
         conditions:
           - active_loop: profile_form
             requested_slot: user_talks_lot

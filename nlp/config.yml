@@ -14,7 +14,8 @@ pipeline:
     min_ngram: 1
     max_ngram: 4
   - name: DIETClassifier
-    epochs: 500
+    epochs: 200
+    #tensorboard_log_directory: diet_classifier
   - name: "SpacyEntityExtractor"
     dimensions: ["PER", "LOC"]
   - name: "DucklingEntityExtractor"
@@ -35,10 +36,9 @@ policies:
     core_fallback_threshold: 0.4
     core_fallback_action_name: "action_default_fallback"
     enable_fallback_prediction: True
-  - name: UnexpecTEDIntentPolicy
-    max_history: 20
-    epochs: 100
   - name: TEDPolicy
-    max_history: 20
     epochs: 100
     constrain_similarities: true
+    #tensorboard_log_directory: ted_policy
+  - name: UnexpecTEDIntentPolicy
+    epochs: 100

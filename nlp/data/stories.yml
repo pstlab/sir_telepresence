@@ -122,6 +122,26 @@ stories:
       - action: utter_profile_gathered
       - action: action_command_done
 
+  - story: Start profile gathering done
+    steps:
+      - intent: start_profile_gathering
+      - slot_was_set:
+          - user_name
+      - slot_was_set:
+          - user_location
+      - slot_was_set:
+          - user_difficulty_express_feelings
+      - slot_was_set:
+          - user_exciting_life
+      - slot_was_set:
+          - user_unease_unknown_people
+      - slot_was_set:
+          - user_unease_attention
+      - slot_was_set:
+          - user_talks_lot
+      - action: action_analyze_profile
+      - action: action_command_done
+
   - story: interactive_story_1
     steps:
       - intent: greet
@@ -170,4 +190,15 @@ stories:
           - requested_slot: null
       - active_loop: null
       - action: utter_exercise_done
+      - action: action_command_done
+
+  - story: Start interaction
+    steps:
+      - intent: start_interaction
+      - action: utter_offer_help
+
+  - story: Close dialogue
+    steps:
+      - intent: close_dialogue
+      - action: utter_see_you_later
       - action: action_command_done

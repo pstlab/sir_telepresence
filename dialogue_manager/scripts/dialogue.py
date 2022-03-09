@@ -186,6 +186,7 @@ class dialogue_manager:
             r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
                 'include_events': 'NONE'}, json={'event': 'slot', 'name': req.par_names[i], 'value': req.par_values[i], 'timestamp': time.time()})
             if r.status_code != requests.codes.ok:
+                rospy.logerr('Dialogue parameter setting failed..')
                 return set_stateResponse(False)
         return set_stateResponse(True)
 
@@ -194,6 +195,15 @@ class dialogue_manager:
             return TriggerResponse(False, 'Already having a dialogue..')
         else:
             self.task_name = 'start_interaction'
+            # we set the command state at executing..
+            try:
+                r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
+                                  'include_events': 'NONE'}, json={'event': 'slot', 'name': 'command_state', 'value': 'executing', 'timestamp': time.time()})
+                assert r.status_code == requests.codes.ok
+            except requests.exceptions.RequestException as e:
+                rospy.logerr('Rasa server call failed\n' +
+                             ''.join(traceback.format_stack()))
+                raise SystemExit(e)
             return TriggerResponse(True, 'Opening the microphone..')
 
     def start(self):
@@ -214,8 +224,6 @@ class dialogue_manager:
                 rospy.loginfo('Existing profile found..')
                 self.set_dialogue_parameters(set_stateRequest(
                     'profile.json', load_profile_call.par_names, load_profile_call.par_values))
-                self.dialogue_task_finished(task(
-                    self.reasoner_id, self.task_id, self.task_name, par_names, par_values), True)
         except requests.exceptions.RequestException as e:
             rospy.logerr('Rasa server call failed\n' +
                          ''.join(traceback.format_stack()))
@@ -261,6 +269,7 @@ class dialogue_manager:
                 self.state = j_res['tracker']['slots']
                 self.print_state()
                 # we execute the retrieved actions..
+                rospy.logdebug('Executing actions..')
                 self.execute_actions(j_res['messages'])
 
                 # we start a dialogue..
@@ -303,6 +312,7 @@ class dialogue_manager:
         # we update the state..
         self.state_pub.publish(dialogue_state(dialogue_state.speaking))
         # we execute the retrieved actions..
+        rospy.logdebug('Executing actions..')
         self.execute_actions(r.json())
 
         try:
@@ -319,6 +329,16 @@ class dialogue_manager:
         self.print_state()
 
     def close_dialogue(self):
+        try:
+            r = requests.get('http://' + host + ':' + port + '/conversations/' + user +
+                             '/story', params={'include_events': 'NONE'})
+            assert r.status_code == requests.codes.ok
+            print(r.text)
+        except requests.exceptions.RequestException as e:
+            rospy.logerr('Rasa server call failed\n' +
+                         ''.join(traceback.format_stack()))
+            raise SystemExit(e)
+
         if self.state['command_state'] == 'done' or self.state['command_state'] == 'failure':
             if self.deliberative_task:
                 par_names = []
