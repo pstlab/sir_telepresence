@@ -203,13 +203,21 @@ stories:
       - action: utter_offer_help
       - intent: set_reminder
       - slot_was_set:
-          - reminder_time
+          - reminder_time_to_set
       - slot_was_set:
-          - reminder_type
+          - reminder_type_to_set
       - action: utter_reminder_set
 
   - story: Close dialogue
     steps:
       - intent: close_dialogue
       - action: utter_see_you_later
+      - action: action_command_done
+
+  - story: Send reminder
+    steps:
+      - intent: ask_reminder
+      - action: utter_reminder
+      - action: utter_confirm
+      - intent: affirm
       - action: action_command_done

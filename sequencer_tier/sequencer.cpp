@@ -211,7 +211,12 @@ namespace sir
 
     bool sequencer::set_reminder(dialogue_manager::set_reminder::Request &req, dialogue_manager::set_reminder::Response &res)
     {
-        res.success = true;
+        deliberative_tier::new_requirement new_req;
+        new_req.request.reasoner_id = default_reasoner;
+        new_req.request.requirement = "fact rem = new robot.dialogue.Interacting(intent: \"ask_reminder\");\n";
+        new_req.request.requirement += "rem.start >= " + std::to_string(timelines_times[default_reasoner] + req.waiting_time) + ";\n";
+
+        res.success = new_requirement.call(new_req);
         return true;
     }
 

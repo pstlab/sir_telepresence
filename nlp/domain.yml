@@ -36,7 +36,7 @@ entities:
   - life_style
   - cognitive_exercise_type
   - physical_exercise_type
-  - reminder_type
+  - reminder_type_to_set
 
 slots:
   coherent:
@@ -179,14 +179,14 @@ slots:
     mappings:
       - type: custom
 
-  reminder_time:
+  reminder_time_to_set:
     type: any
     influence_conversation: false
     mappings:
       - type: from_entity
         entity: time
         intent: set_reminder
-  reminder_type:
+  reminder_type_to_set:
     type: categorical
     influence_conversation: false
     values:
@@ -194,7 +194,7 @@ slots:
       - go_to_the_doctor
     mappings:
       - type: from_entity
-        entity: reminder_type
+        entity: reminder_type_to_set
         intent: set_reminder
 
   cognitive_exercise:
@@ -666,6 +666,22 @@ responses:
   utter_reminder_set:
     - custom:
         text: Non preoccuparti {user_name}! Te lo ricorderò
+        face: happy_talking
+
+  utter_reminder:
+    - condition:
+        - type: slot
+          name: user_extraversion
+          value: "take_medicines"
+      custom:
+        text: Ciao {user_name}! Ti ricordo che devi prendere le tue medicine!
+        face: happy_talking
+    - condition:
+        - type: slot
+          name: user_extraversion
+          value: "go_to_the_doctor"
+      custom:
+        text: Ciao {user_name}! Ti ricordo che devi andare dal medico!
         face: happy_talking
 
   utter_intro_cognitive_exercise:
