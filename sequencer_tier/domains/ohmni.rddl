@@ -6,6 +6,10 @@ class DialogueStateVariable : StateVariable {
     predicate Interacting(string intent) {
         duration >= 5.0;
     }
+
+    predicate Reminder(string reminder_type) {
+        duration >= 5.0;
+    }
 }
 
 class OhmniRobot {

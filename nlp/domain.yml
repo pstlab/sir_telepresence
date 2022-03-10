@@ -13,6 +13,7 @@ intents:
   - start_profile_gathering
   - tell_life_style
   - set_reminder
+  - tell_reminder
   - start_cognitive_exercise
   - start_interaction
   - tell_num_words
@@ -36,7 +37,7 @@ entities:
   - life_style
   - cognitive_exercise_type
   - physical_exercise_type
-  - reminder_type_to_set
+  - reminder_type
 
 slots:
   coherent:
@@ -194,8 +195,16 @@ slots:
       - go_to_the_doctor
     mappings:
       - type: from_entity
-        entity: reminder_type_to_set
+        entity: reminder_type
         intent: set_reminder
+  reminder_type:
+    type: categorical
+    influence_conversation: false
+    values:
+      - take_medicines
+      - go_to_the_doctor
+    mappings:
+      - type: custom
 
   cognitive_exercise:
     type: categorical
@@ -663,7 +672,7 @@ responses:
         text: Molto bene {user_name}. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
         face: talking
 
-  utter_reminder_set:
+  utter_reminder_set_confirmation:
     - custom:
         text: Non preoccuparti {user_name}! Te lo ricorderò
         face: happy_talking
@@ -671,14 +680,14 @@ responses:
   utter_reminder:
     - condition:
         - type: slot
-          name: user_extraversion
+          name: reminder_type
           value: "take_medicines"
       custom:
         text: Ciao {user_name}! Ti ricordo che devi prendere le tue medicine!
         face: happy_talking
     - condition:
         - type: slot
-          name: user_extraversion
+          name: reminder_type
           value: "go_to_the_doctor"
       custom:
         text: Ciao {user_name}! Ti ricordo che devi andare dal medico!

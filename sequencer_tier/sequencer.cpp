@@ -161,6 +161,20 @@ namespace sir
             // we start the dialogue task..
             res.success = start_dialogue_task.call(sd_srv);
         }
+        if (req.task.task_name == "Reminder")
+        { // sends a reminder to the user..
+            deliberative_tier::task_service sr_srv;
+            sr_srv.request.task.reasoner_id = req.task.reasoner_id;
+            sr_srv.request.task.task_id = req.task.task_id;
+            sr_srv.request.task.task_name = "tell_reminder";
+            for (size_t i = 0; i < req.task.par_names.size(); i++)
+            {
+                sr_srv.request.task.par_names.push_back(req.task.par_names.at(i));
+                sr_srv.request.task.par_values.push_back(req.task.par_values.at(i));
+            }
+            // we start the dialogue task..
+            res.success = start_dialogue_task.call(sr_srv);
+        }
         else if (req.task.task_name == "BicepsCurl")
         { // starts a count the biceps curl physical exercise with the user..
             deliberative_tier::task_service bc_srv;
@@ -213,7 +227,7 @@ namespace sir
     {
         deliberative_tier::new_requirement new_req;
         new_req.request.reasoner_id = default_reasoner;
-        new_req.request.requirement = "fact rem = new robot.dialogue.Interacting(intent: \"ask_reminder\");\n";
+        new_req.request.requirement = "fact rem = new robot.dialogue.Reminder(reminder_type: \"" + req.reminder_type + "\");\n";
         new_req.request.requirement += "rem.start >= " + std::to_string(timelines_times[default_reasoner] + req.waiting_time) + ";\n";
 
         res.success = new_requirement.call(new_req);
