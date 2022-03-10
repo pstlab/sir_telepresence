@@ -13,6 +13,7 @@ namespace sir
     sequencer::sequencer(ros::NodeHandle &h) : handle(h),
                                                notify_state(h.advertise<sequencer_tier::sequencer_state>("sequencer_state", 10, true)),
                                                deliberative_state_sub(h.subscribe("deliberative_state", 100, &sequencer::updated_deliberative_state, this)),
+                                               timelines_sub(h.subscribe("timelines", 100, &sequencer::updated_timelines, this)),
                                                dialogue_state_sub(h.subscribe("dialogue_state", 100, &sequencer::updated_dialogue_state, this)),
                                                create_reasoner(h.serviceClient<deliberative_tier::create_reasoner>("create_reasoner")),
                                                destroy_reasoner(h.serviceClient<deliberative_tier::destroy_reasoner>("destroy_reasoner")),

@@ -2,6 +2,7 @@
 
 #include "sequencer_tier/sequencer_state.h"
 #include "deliberative_tier/deliberative_state.h"
+#include "deliberative_tier/timelines.h"
 #include "dialogue_manager/dialogue_state.h"
 #include "dialogue_manager/set_reminder.h"
 #include "deliberative_tier/task_service.h"
@@ -28,6 +29,11 @@ namespace sir
     bool set_reminder(dialogue_manager::set_reminder::Request &req, dialogue_manager::set_reminder::Response &res);
 
     void updated_deliberative_state(const deliberative_tier::deliberative_state &msg) { deliberative_state[msg.reasoner_id] = msg.deliberative_state; }
+    void updated_timelines(const deliberative_tier::timelines &msg)
+    {
+      if (msg.update == msg.time_changed)
+        timelines_times[msg.reasoner_id] = msg.time.num / msg.time.den;
+    }
     void updated_dialogue_state(const dialogue_manager::dialogue_state &msg) { dialogue_state = msg.dialogue_state; }
 
     void set_state(const unsigned int &state);
@@ -57,6 +63,8 @@ namespace sir
     uint64_t config_reasoner = 0, default_reasoner = 0;
     ros::Subscriber deliberative_state_sub;
     std::map<uint64_t, unsigned int> deliberative_state;
+    ros::Subscriber timelines_sub;
+    std::map<uint64_t, long> timelines_times;
     ros::Subscriber dialogue_state_sub;
     unsigned int dialogue_state = dialogue_manager::dialogue_state::idle;
   };
