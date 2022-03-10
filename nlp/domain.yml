@@ -487,39 +487,39 @@ responses:
 
   utter_negative_feedback_intro:
     - custom:
-        text: Uhm, non proprio... ma non ti scoraggiare! Stai comunque andando bene.
+        text: Uhm, non proprio... ma non ti scoraggiare {user_name}! Stai comunque andando bene.
         face: sad_talking
     - custom:
-        text: Non esattamente, ma ci siamo quasi!
+        text: Non esattamente {user_name}, ma ci siamo quasi!
         face: sad_talking
   utter_negative_feedback_estro:
     - custom:
         text: No no!
         face: sad_talking
     - custom:
-        text: Ma cosa stai facendo? No no!
+        text: Ma cosa stai facendo {user_name}? No no!
         face: sad_talking
     - custom:
-        text: Non così!
+        text: Non così {user_name}!
         face: sad_talking
 
   utter_more_precise_answer:
     - custom:
-        text: Per favore, cerca di darmi una risposta più precisa.
+        text: Per favore {user_name}, cerca di darmi una risposta più precisa.
         face: happy_talking
     - condition:
         - type: slot
           name: user_gender
           value: "male"
       custom:
-        text: Per favore, cerca di essere più preciso.
+        text: Per favore {user_name}, cerca di essere più preciso.
         face: happy_talking
     - condition:
         - type: slot
           name: user_gender
           value: "female"
       custom:
-        text: Per favore, cerca di essere più precisa.
+        text: Per favore {user_name}, cerca di essere più precisa.
         face: happy_talking
 
   utter_ask_user_difficulty_express_feelings:
@@ -662,6 +662,11 @@ responses:
     - custom:
         text: Molto bene {user_name}. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
         face: talking
+
+  utter_reminder_set:
+    - custom:
+        text: Non preoccuparti {user_name}! Te lo ricorderò
+        face: happy_talking
 
   utter_intro_cognitive_exercise:
     - custom:

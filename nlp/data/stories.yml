@@ -197,6 +197,17 @@ stories:
       - intent: start_interaction
       - action: utter_offer_help
 
+  - story: Create reminder
+    steps:
+      - intent: start_interaction
+      - action: utter_offer_help
+      - intent: set_reminder
+      - slot_was_set:
+          - reminder_time
+      - slot_was_set:
+          - reminder_type
+      - action: utter_reminder_set
+
   - story: Close dialogue
     steps:
       - intent: close_dialogue
