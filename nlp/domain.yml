@@ -180,14 +180,14 @@ slots:
     mappings:
       - type: custom
 
-  reminder_time_to_set:
+  reminder_to_set_time:
     type: any
     influence_conversation: false
     mappings:
       - type: from_entity
         entity: time
         intent: set_reminder
-  reminder_type_to_set:
+  reminder_to_set_type:
     type: categorical
     influence_conversation: false
     values:

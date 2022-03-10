@@ -25,7 +25,7 @@ namespace sir
                                                end_task_server(h.advertiseService("end_task", &sequencer::end_task, this)),
                                                start_physical_exercise_task(h.serviceClient<deliberative_tier::task_service>("start_physical_exercise")),
                                                start_dialogue_task(h.serviceClient<deliberative_tier::task_service>("start_dialogue_task")),
-                                               set_reminder_server(h.advertiseService("set_reminder", &sequencer::set_reminder, this))
+                                               set_reminder_server(h.advertiseService("set_reminder", &sequencer::reminder_to_set, this))
     {
         create_reasoner.waitForExistence();
         new_requirement.waitForExistence();
@@ -161,7 +161,7 @@ namespace sir
             // we start the dialogue task..
             res.success = start_dialogue_task.call(sd_srv);
         }
-        if (req.task.task_name == "Reminder")
+        else if (req.task.task_name == "Reminder")
         { // sends a reminder to the user..
             deliberative_tier::task_service sr_srv;
             sr_srv.request.task.reasoner_id = req.task.reasoner_id;
@@ -223,7 +223,7 @@ namespace sir
         return true;
     }
 
-    bool sequencer::set_reminder(dialogue_manager::set_reminder::Request &req, dialogue_manager::set_reminder::Response &res)
+    bool sequencer::reminder_to_set(dialogue_manager::reminder_to_set::Request &req, dialogue_manager::reminder_to_set::Response &res)
     {
         deliberative_tier::new_requirement new_req;
         new_req.request.reasoner_id = default_reasoner;

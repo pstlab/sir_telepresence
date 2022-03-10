@@ -2,10 +2,12 @@
 import rospy
 import requests
 import time
+import dateutil.parser
+import pytz
 import traceback
 from std_srvs.srv import Trigger, TriggerResponse, Empty
 from dialogue_manager.msg import dialogue_state, audio, video, button
-from dialogue_manager.srv import utterance_to_pronounce, face_to_show, image_to_show, audio_to_play, video_to_play, page_to_show, question_to_ask, utterance_to_recognize
+from dialogue_manager.srv import utterance_to_pronounce, face_to_show, image_to_show, audio_to_play, video_to_play, page_to_show, question_to_ask, utterance_to_recognize, reminder_to_set
 from deliberative_tier.msg import task
 from deliberative_tier.srv import task_service, task_serviceResponse, task_finished
 from persistence_manager.srv import get_state, set_state, set_stateRequest, set_stateResponse
@@ -109,6 +111,11 @@ class dialogue_manager:
             'ask_question', question_to_ask)
         self.ask_question.wait_for_service()
 
+        # waits for reminder setting service..
+        self.set_reminder = rospy.ServiceProxy(
+            'set_reminder', reminder_to_set)
+        self.set_reminder.wait_for_service()
+
         # publishes the state of the dialogue manager..
         self.state_pub = rospy.Publisher(
             'dialogue_state', dialogue_state, queue_size=10, latch=True)
@@ -180,14 +187,17 @@ class dialogue_manager:
 
     def set_dialogue_parameters(self, req):
         rospy.logdebug('Setting "%s" dialogue parameters..', req.name)
-        for i in range(len(req.par_names)):
-            rospy.logdebug(
-                req.par_names[i] + ': %s', req.par_values[i])
-            r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
-                'include_events': 'NONE'}, json={'event': 'slot', 'name': req.par_names[i], 'value': req.par_values[i], 'timestamp': time.time()})
-            if r.status_code != requests.codes.ok:
-                rospy.logerr('Dialogue parameter setting failed..')
-                return set_stateResponse(False)
+        try:
+            for i in range(len(req.par_names)):
+                rospy.logdebug(
+                    req.par_names[i] + ': %s', req.par_values[i])
+                r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
+                    'include_events': 'NONE'}, json={'event': 'slot', 'name': req.par_names[i], 'value': req.par_values[i], 'timestamp': time.time()})
+                assert r.status_code == requests.codes.ok
+        except requests.exceptions.RequestException as e:
+            rospy.logerr('Rasa server call failed\n' +
+                         ''.join(traceback.format_stack()))
+            raise SystemExit(e)
         return set_stateResponse(True)
 
     def listen(self, req):
@@ -313,6 +323,29 @@ class dialogue_manager:
 
     def close_dialogue(self):
         self.print_story()
+        if self.state['reminder_to_set_time'] and self.state['reminder_to_set_type']:
+            rospy.logdebug('A new reminder has been set..')
+            # we set the reminder..
+            request_time = datetime.now(tz=pytz.timezone('Europe/Rome'))
+            reminder_time = dateutil.parser.parse(
+                current_timestamp, tzinfos={"CET": dateutil.tz.gettz("Europe/Rome")})
+            self.set_reminder(
+                (response_human_time - request_time).total_seconds(), self.state['reminder_to_set_type'])
+            # we clear the reminder to set..
+            try:
+                remove_reminder_time_req = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
+                    'include_events': 'NONE'}, json={'event': 'slot', 'name': 'reminder_to_set_time', 'value': None, 'timestamp': time.time()})
+                assert remove_reminder_time_req.status_code == requests.codes.ok
+                del self.state['reminder_to_set_time']
+                remove_reminder_type_req = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
+                    'include_events': 'NONE'}, json={'event': 'slot', 'name': 'reminder_to_set_type', 'value': None, 'timestamp': time.time()})
+                assert remove_reminder_type_req.status_code == requests.codes.ok
+                del self.state['reminder_to_set_type']
+            except requests.exceptions.RequestException as e:
+                rospy.logerr('Rasa server call failed\n' +
+                             ''.join(traceback.format_stack()))
+                raise SystemExit(e)
+
         if self.state['command_state'] == 'done' or self.state['command_state'] == 'failure':
             rospy.logdebug('Closing dialogue..')
             if self.deliberative_task:

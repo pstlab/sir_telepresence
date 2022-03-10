@@ -4,7 +4,7 @@
 #include "deliberative_tier/deliberative_state.h"
 #include "deliberative_tier/timelines.h"
 #include "dialogue_manager/dialogue_state.h"
-#include "dialogue_manager/set_reminder.h"
+#include "dialogue_manager/reminder_to_set.h"
 #include "deliberative_tier/task_service.h"
 #include "deliberative_tier/task_finished.h"
 #include <ros/ros.h>
@@ -26,7 +26,7 @@ namespace sir
     bool can_end(deliberative_tier::task_service::Request &req, deliberative_tier::task_service::Response &res);
     bool end_task(deliberative_tier::task_service::Request &req, deliberative_tier::task_service::Response &res);
 
-    bool set_reminder(dialogue_manager::set_reminder::Request &req, dialogue_manager::set_reminder::Response &res);
+    bool reminder_to_set(dialogue_manager::reminder_to_set::Request &req, dialogue_manager::reminder_to_set::Response &res);
 
     void updated_deliberative_state(const deliberative_tier::deliberative_state &msg) { deliberative_state[msg.reasoner_id] = msg.deliberative_state; }
     void updated_timelines(const deliberative_tier::timelines &msg)

@@ -203,9 +203,9 @@ stories:
       - action: utter_offer_help
       - intent: set_reminder
       - slot_was_set:
-          - reminder_time_to_set
+          - reminder_to_set_time
       - slot_was_set:
-          - reminder_type_to_set
+          - reminder_to_set_type
       - action: utter_reminder_set_confirmation
 
   - story: Send reminder
