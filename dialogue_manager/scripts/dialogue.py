@@ -3,6 +3,7 @@ import rospy
 import requests
 import time
 import dateutil.parser
+from datetime import datetime
 import pytz
 import traceback
 from std_srvs.srv import Trigger, TriggerResponse, Empty
@@ -232,6 +233,11 @@ class dialogue_manager:
             load_profile_call = self.load('profile.json')
             if load_profile_call.success:
                 rospy.loginfo('Existing profile found..')
+                for i in range(len(load_profile_call.par_names)):
+                    if load_profile_call.par_values[i] == 'None':
+                        load_profile_call.par_values[i] = None
+                    rospy.loginfo(
+                        ' - ' + load_profile_call.par_names[i] + ': %s', load_profile_call.par_values[i])
                 self.set_dialogue_parameters(set_stateRequest(
                     'profile.json', load_profile_call.par_names, load_profile_call.par_values))
         except requests.exceptions.RequestException as e:
@@ -323,12 +329,14 @@ class dialogue_manager:
 
     def close_dialogue(self):
         self.print_story()
-        if self.state['reminder_to_set_time'] and self.state['reminder_to_set_type']:
-            rospy.logdebug('A new reminder has been set..')
+        self.print_state()
+        if self.state['reminder_to_set_time'] is not None and self.state['reminder_to_set_type'] is not None:
+            rospy.logdebug('A new "%s" reminder, at time "%s", has been set..',
+                           self.state['reminder_to_set_type'], self.state['reminder_to_set_time'])
             # we set the reminder..
             request_time = datetime.now(tz=pytz.timezone('Europe/Rome'))
             reminder_time = dateutil.parser.parse(
-                current_timestamp, tzinfos={"CET": dateutil.tz.gettz("Europe/Rome")})
+                self.state['reminder_to_set_time'], tzinfos={"CET": dateutil.tz.gettz("Europe/Rome")})
             self.set_reminder(
                 (response_human_time - request_time).total_seconds(), self.state['reminder_to_set_type'])
             # we clear the reminder to set..
@@ -452,6 +460,9 @@ class dialogue_manager:
 
     def update_internal_state(self, internal_state):
         self.state = internal_state
+        for s in self.state:
+            if self.state[s] == 'None':
+                self.state[s] = None
         self.print_state()
 
     def task_to_payload(self, task):

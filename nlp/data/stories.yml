@@ -207,6 +207,7 @@ stories:
       - slot_was_set:
           - reminder_to_set_type
       - action: utter_reminder_set_confirmation
+      - action: action_command_done
 
   - story: Send reminder
     steps:
