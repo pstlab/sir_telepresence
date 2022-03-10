@@ -192,6 +192,69 @@ stories:
       - action: utter_exercise_done
       - action: action_command_done
 
+  - story: Tell intro physical exercise
+    steps:
+      - intent: tell_intro_physical_exercise
+      - action: utter_intro_physical_exercise
+
+  - story: Tell describe biceps curl
+    steps:
+      - intent: tell_describe_biceps_curl
+      - action: utter_describe_biceps_curl
+
+  - story: Tell take the weights
+    steps:
+      - intent: tell_take_the_weights
+      - action: utter_take_the_weights
+
+  - story: Tell start physical exercise
+    steps:
+      - intent: tell_start_physical_exercise
+      - action: utter_start_physical_exercise
+
+  - story: Tell physical exercise repetitions
+    steps:
+      - intent: tell_physical_exercise_repetitions
+      - action: utter_physical_exercise_repetitions
+
+  - story: Tell positive feedback estro
+    steps:
+      - slot_was_set:
+          - user_extraversion: extroverted
+      - intent: tell_positive_feedback
+      - action: utter_positive_feedback_estro
+
+  - story: Tell positive feedback intro
+    steps:
+      - slot_was_set:
+          - user_extraversion: introverted
+      - intent: tell_positive_feedback
+      - action: utter_positive_feedback_intro
+
+  - story: Tell positive physical exercise feedback
+    steps:
+      - intent: tell_positive_physical_exercise_feedback
+      - action: utter_positive_physical_exercise_feedback
+
+  - story: Tell negative feedback estro
+    steps:
+      - intent: tell_negative_feedback
+      - slot_was_set:
+          - user_extraversion: extroverted
+      - action: utter_negative_feedback_estro
+
+  - story: Tell negative feedback intro
+    steps:
+      - intent: tell_negative_feedback
+      - slot_was_set:
+          - user_extraversion: introverted
+      - action: utter_negative_feedback_intro
+
+  - story: Tell negative physical exercise feedback
+    steps:
+      - intent: tell_negative_physical_exercise_feedback
+      - action: utter_negative_physical_exercise_feedback
+
   - story: Start interaction
     steps:
       - intent: start_interaction
