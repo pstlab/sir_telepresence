@@ -54,6 +54,7 @@ namespace sir
      * The sequencer state
      */
     unsigned int sequencer_state = sequencer_tier::sequencer_state::unconfigured;
+    uint64_t config_reasoner = 0, default_reasoner = 0;
     ros::Subscriber deliberative_state_sub;
     std::map<uint64_t, unsigned int> deliberative_state;
     ros::Subscriber dialogue_state_sub;

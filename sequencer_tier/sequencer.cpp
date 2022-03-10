@@ -63,24 +63,23 @@ namespace sir
             create_reasoner.call(new_reasoner);
             if (new_reasoner.response.consistent)
             {
-                ROS_ASSERT(new_reasoner.response.reasoner_id == 0);
-                deliberative_state[new_reasoner.response.reasoner_id] = deliberative_tier::deliberative_state::idle;
+                config_reasoner = new_reasoner.response.reasoner_id;
+                deliberative_state[config_reasoner] = deliberative_tier::deliberative_state::idle;
             }
             break;
         }
         case sequencer_tier::sequencer_state::configuring:
         { // we are configuring the system..
-            const uint64_t configure_reasoner_id = 0;
-            switch (deliberative_state.at(configure_reasoner_id))
+            switch (deliberative_state.at(config_reasoner))
             {
             case deliberative_tier::deliberative_state::finished:
             {
                 ROS_INFO("System configured..");
                 deliberative_tier::destroy_reasoner dest_reasoner;
-                dest_reasoner.request.reasoner_id = configure_reasoner_id;
+                dest_reasoner.request.reasoner_id = config_reasoner;
                 destroy_reasoner.call(dest_reasoner);
                 set_state(sequencer_tier::sequencer_state::configured);
-                deliberative_state.erase(configure_reasoner_id);
+                deliberative_state.erase(config_reasoner);
                 break;
             }
             default:
@@ -109,8 +108,8 @@ namespace sir
             create_reasoner.call(new_reasoner);
             if (new_reasoner.response.consistent)
             {
-                ROS_ASSERT(new_reasoner.response.reasoner_id == 0);
-                deliberative_state[new_reasoner.response.reasoner_id] = deliberative_tier::deliberative_state::idle;
+                default_reasoner = new_reasoner.response.reasoner_id;
+                deliberative_state[default_reasoner] = deliberative_tier::deliberative_state::idle;
             }
             break;
         }
