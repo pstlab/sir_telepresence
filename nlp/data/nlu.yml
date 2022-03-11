@@ -109,11 +109,11 @@ nlu:
 
   - intent: set_reminder
     examples: |
-      - Ricordami, fra cinque minuti, di [take_medicines](reminder_type)
-      - Ricordami di [take_medicines](reminder_type) fra cinque minuti
-      - Ricordami, fra dieci minuti minuti, di [go_to_the_doctor](reminder_type)
-      - Ricordami di [go_to_the_doctor](reminder_type) fra dieci minuti minuti
-      - Ricordami di [go_to_the_doctor](reminder_type) fra un quarto d'ora
+      - Ricordami, fra cinque minuti, di [prendere le pillole](reminder_type)
+      - Ricordami di [prendere le medicine](reminder_type) fra cinque minuti
+      - Ricordami, fra dieci minuti minuti, di [andare dal medico](reminder_type)
+      - Ricordami di [andare dal dottore](reminder_type) fra dieci minuti minuti
+      - Ricordami di [andare dal medico](reminder_type) fra un quarto d'ora
 
   - intent: start_cognitive_exercise
     examples: |

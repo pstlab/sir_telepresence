@@ -406,7 +406,7 @@ function atom_title(atm) { return '\u03C3' + atm.sigma + ' ' + atm.predicate + '
 function par_to_string(par) {
     switch (par.type) {
         case 'bool': return par.name + ': ' + par.value;
-        case 'real': return par.name + ': ' + par.value.num / par.value.den;
+        case 'real': return par.name + ': ' + par.value.val.num / par.value.val.den;
         default: return par.name;
     }
 }

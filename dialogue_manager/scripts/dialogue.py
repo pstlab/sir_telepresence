@@ -236,6 +236,10 @@ class dialogue_manager:
                 for i in range(len(load_profile_call.par_names)):
                     if load_profile_call.par_values[i] == 'None':
                         load_profile_call.par_values[i] = None
+                    elif load_profile_call.par_values[i] == 'True':
+                        load_profile_call.par_values[i] = True
+                    elif load_profile_call.par_values[i] == 'False':
+                        load_profile_call.par_values[i] = False
                     rospy.loginfo(
                         ' - ' + load_profile_call.par_names[i] + ': %s', load_profile_call.par_values[i])
                 self.set_dialogue_parameters(set_stateRequest(
@@ -337,8 +341,10 @@ class dialogue_manager:
             request_time = datetime.now(tz=pytz.timezone('Europe/Rome'))
             reminder_time = dateutil.parser.parse(
                 self.state['reminder_to_set_time'], tzinfos={"CET": dateutil.tz.gettz("Europe/Rome")})
-            self.set_reminder(
-                (response_human_time - request_time).total_seconds(), self.state['reminder_to_set_type'])
+            waiting_time = int((reminder_time - request_time).total_seconds())
+            self.set_reminder(waiting_time, self.state['reminder_to_set_type'])
+            rospy.logdebug('The "%s" reminder has been set in "%s" seconds from now..',
+                           self.state['reminder_to_set_type'], waiting_time)
             # we clear the reminder to set..
             try:
                 remove_reminder_time_req = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
@@ -463,6 +469,10 @@ class dialogue_manager:
         for s in self.state:
             if self.state[s] == 'None':
                 self.state[s] = None
+            elif self.state[s] == 'True':
+                self.state[s] = True
+            elif self.state[s] == 'False':
+                self.state[s] = False
         self.print_state()
 
     def task_to_payload(self, task):
