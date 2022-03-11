@@ -380,11 +380,11 @@ class dialogue_manager:
                     self.dialogue_task_finished(task(
                         self.reasoner_id, self.task_id, self.task_name, par_names, par_values), False)
                 self.deliberative_task = False
-                self.reasoner_id = -1
-                self.task_id = -1
-                self.task_name = ''
-                self.par_names.clear()
-                self.par_values.clear()
+            self.reasoner_id = -1
+            self.task_id = -1
+            self.task_name = ''
+            self.par_names.clear()
+            self.par_values.clear()
 
             # we notify the state change..
             self.state_pub.publish(dialogue_state(dialogue_state.idle))
