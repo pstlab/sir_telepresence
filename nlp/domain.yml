@@ -204,7 +204,9 @@ slots:
       - take_medicines
       - go_to_the_doctor
     mappings:
-      - type: custom
+      - type: from_entity
+        entity: reminder_type
+        intent: tell_reminder
 
   cognitive_exercise:
     type: categorical
