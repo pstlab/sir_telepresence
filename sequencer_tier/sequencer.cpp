@@ -125,6 +125,8 @@ namespace sir
         ROS_DEBUG("checking whether task \'%s\' can start..", req.task.task_name.c_str());
         if (req.task.task_name == "Interacting")
             res.success = dialogue_state == dialogue_manager::dialogue_state::idle;
+        else if (req.task.task_name == "Reminder")
+            res.success = dialogue_state == dialogue_manager::dialogue_state::idle;
         else if (req.task.task_name == "BicepsCurl")
             res.success = dialogue_state == dialogue_manager::dialogue_state::idle;
         else if (req.task.task_name == "CountTheWord")
