@@ -335,13 +335,15 @@ class dialogue_manager:
         self.print_story()
         self.print_state()
         if self.state['reminder_to_set_time'] is not None and self.state['reminder_to_set_type'] is not None:
-            rospy.logdebug('A new "%s" reminder, at time "%s", has been set..',
+            rospy.logdebug('A new "%s" reminder, at time "%s", has been requested..',
                            self.state['reminder_to_set_type'], self.state['reminder_to_set_time'])
             # we set the reminder..
             request_time = datetime.now(tz=pytz.timezone('Europe/Rome'))
             reminder_time = dateutil.parser.parse(
                 self.state['reminder_to_set_time'], tzinfos={"CET": dateutil.tz.gettz("Europe/Rome")})
             waiting_time = int((reminder_time - request_time).total_seconds())
+            rospy.logdebug('The "%s" reminder is about to be set in "%s" seconds from now..',
+                           self.state['reminder_to_set_type'], waiting_time)
             self.set_reminder(waiting_time, self.state['reminder_to_set_type'])
             rospy.logdebug('The "%s" reminder has been set in "%s" seconds from now..',
                            self.state['reminder_to_set_type'], waiting_time)

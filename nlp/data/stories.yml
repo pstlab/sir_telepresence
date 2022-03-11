@@ -140,6 +140,7 @@ stories:
       - slot_was_set:
           - user_talks_lot
       - action: action_analyze_profile
+      - action: utter_profile_gathered
       - action: action_command_done
 
   - story: interactive_story_1
