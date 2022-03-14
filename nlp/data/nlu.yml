@@ -21,6 +21,7 @@ nlu:
       - Un po'
       - A volte
       - Mi sembra giusto
+      - Cominciamo
 
   - intent: deny
     examples: |
