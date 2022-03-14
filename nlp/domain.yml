@@ -103,6 +103,12 @@ slots:
         conditions:
           - active_loop: profile_form
             requested_slot: user_exciting_life
+      - type: from_intent
+        value: exciting
+        intent: uncertain
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_exciting_life
   user_unease_unknown_people:
     type: bool
     influence_conversation: false

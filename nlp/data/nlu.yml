@@ -75,6 +75,10 @@ nlu:
       - Sono di [Campoli Appennino](LOC)
       - In questo momento mi trovo a [Castelfranco Veneto](LOC)
       - Siamo a [Castelfranco](LOC)
+      - [Castelfranco](LOC)
+      - [Roma](LOC)
+      - [Sora](LOC)
+      - [Vedelago](LOC)
       - Siamo a [Roma](LOC)
       - Sono di [Vedelago](LOC)
 
