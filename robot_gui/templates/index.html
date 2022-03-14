@@ -13,7 +13,7 @@
 </head>
 
 <body style="background-color:black;">
-    <nav class="navbar navbar-expand-sm navbar-dark bg-dark pt-3">
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark py-4">
         <div class="container-fluid">
             <a class="navbar-brand">
                 <img src="static/si_robotics.svg" height="30" class="d-inline-block align-top" alt="" loading="lazy">
@@ -36,21 +36,21 @@
             <div id="face_div" class="d-flex justify-content-center">
                 <img id="robot_face" src="static/faces/idle.gif" alt="" height="700">
             </div>
-            <div id="image_div" class="d-flex justify-content-center">
+            <div id="image_div" class="d-flex justify-content-center d-none">
                 <img id="image" src="" alt="" height="700">
             </div>
-            <div id="audio_div" class="d-flex justify-content-center">
+            <div id="audio_div" class="d-flex justify-content-center d-none">
                 <audio id="audio" controls>Your browser does not support the audio element.</audio>
             </div>
-            <div id="video_div" class="d-flex justify-content-center">
+            <div id="video_div" class="d-flex justify-content-center d-none">
                 <video id="video" height="700" controls>Your browser does not support the video
                     tag.</video>
             </div>
-            <div id="html_div" class="d-flex justify-content-center">
+            <div id="html_div" class="d-flex justify-content-center d-none">
                 <iframe id="html" src="" title=""></iframe>
             </div>
-            <div id="question_div" class="d-flex justify-content-center">
-                <div class="d-grid justify-content-center">
+            <div id="question_div" class="d-flex justify-content-center d-none">
+                <div class="d-flex justify-content-center">
                     <h2 id="question_text" style="color:white;"></h2>
                 </div>
                 <div id="question_buttons" class="d-grid gap-2 col-6 mx-auto">
@@ -63,7 +63,7 @@
         </div>
     </div>
 
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end pt-3">
+    <div class="d-flex gap-2 d-md-flex justify-content-md-end">
         <button class="btn btn-outline-secondary float-right me-2" id="listen-button" type="submit">Parlami</button>
     </div>
 
