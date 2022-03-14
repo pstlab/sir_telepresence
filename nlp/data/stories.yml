@@ -203,6 +203,11 @@ stories:
       - intent: tell_describe_biceps_curl
       - action: utter_describe_biceps_curl
 
+  - story: Tell describe biceps curl2
+    steps:
+      - intent: tell_describe_biceps_curl2
+      - action: utter_describe_biceps_curl2
+
   - story: Tell take the weights
     steps:
       - intent: tell_take_the_weights

@@ -522,21 +522,7 @@ responses:
 
   utter_more_precise_answer:
     - custom:
-        text: Per favore {user_name}, cerca di darmi una risposta più precisa.
-        face: happy_talking
-    - condition:
-        - type: slot
-          name: user_gender
-          value: "male"
-      custom:
-        text: Per favore {user_name}, cerca di essere più preciso.
-        face: happy_talking
-    - condition:
-        - type: slot
-          name: user_gender
-          value: "female"
-      custom:
-        text: Per favore {user_name}, cerca di essere più precisa.
+        text: Lo so che è difficile dare una risposta secca, ma pensa a quello che ti accade più frequentemente
         face: happy_talking
 
   utter_ask_user_difficulty_express_feelings:
@@ -585,7 +571,7 @@ responses:
 
   utter_ask_user_unease_unknown_people:
     - custom:
-        text: Ma dimmi. Ti piacerebbe se un giorno organizzassimo una festa a casa? Potremmo fare degli inviti aperti anche agli amici degli amici! Ti sentiresti a disagio a stare in mezzo a persone che non conosci?
+        text: Ti piacerebbe se un giorno organizzassimo una festa a casa? Potremmo fare degli inviti aperti anche agli amici degli amici! Ti sentiresti a disagio a stare in mezzo a persone che non conosci?
         face: talking
 
   utter_unknown_people_yes_comment_intro:
@@ -759,7 +745,9 @@ responses:
   utter_describe_biceps_curl:
     - custom:
         text: Oggi alleniamo le braccia e facciamo alcune flessioni sollevando dei pesetti. Dovrai eseguire il semplice esercizio fisico che ti mostro sul mio tablet ora.
-        image: static/images/biceps_curl.gif
+        image:
+          src: static/images/biceps_curl.gif
+          alt: Esercizio Biceps Curl
   utter_describe_biceps_curl2:
     - custom:
         text: Mi raccomando di distendere bene le braccia! Io sarò qui con te e conterò il numero di flessioni che hai svolto correttamente.
