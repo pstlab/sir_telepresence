@@ -13,12 +13,12 @@
 </head>
 
 <body style="background-color:black;">
-    <nav class="navbar navbar-expand-sm navbar-dark bg-dark py-4">
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark pt-3">
         <div class="container-fluid">
             <a class="navbar-brand">
                 <img src="static/si_robotics.svg" height="30" class="d-inline-block align-top" alt="" loading="lazy">
             </a>
-            <ul class="nav nav-pills" id="pills-tab" role="tablist">
+            <ul class="nav nav-pills me-auto" id="pills-tab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="home-tab" data-bs-toggle="pill" data-bs-target="#pills-home"
                         type="button" role="tab" aria-controls="home" aria-selected="true">Home</button>
@@ -28,28 +28,28 @@
                         type="button" role="tab" aria-controls="reasoners" aria-selected="false">Reasoners</button>
                 </li>
             </ul>
-            <button class="btn btn-outline-secondary ms-3 me-auto" id="listen-button" type="submit">Parlami</button>
         </div>
     </nav>
 
     <div class="tab-content h-75" id="pills-tabContent">
         <div class="tab-pane fade h-100 show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
             <div id="face_div" class="d-flex justify-content-center">
-                <img class="center" id="robot_face" src="static/faces/idle.gif" alt="" height="700">
+                <img id="robot_face" src="static/faces/idle.gif" alt="" height="700">
             </div>
-            <div id="image_div" class="d-grid justify-content-center d-none">
-                <img class="center" id="image" src="" alt="" height="700">
+            <div id="image_div" class="d-flex justify-content-center">
+                <img id="image" src="" alt="" height="700">
             </div>
-            <div id="audio_div" class="d-grid justify-content-center d-none">
-                <audio class="center" id="audio" controls>Your browser does not support the audio element.</audio>
+            <div id="audio_div" class="d-flex justify-content-center">
+                <audio id="audio" controls>Your browser does not support the audio element.</audio>
             </div>
-            <div id="video_div" class="d-grid justify-content-center d-none">
-                <video class="center" id="video" height="700" controls>Your browser does not support the video tag.</video>
+            <div id="video_div" class="d-flex justify-content-center">
+                <video id="video" height="700" controls>Your browser does not support the video
+                    tag.</video>
             </div>
-            <div id="html_div" class="d-grid justify-content-center d-none">
+            <div id="html_div" class="d-flex justify-content-center">
                 <iframe id="html" src="" title=""></iframe>
             </div>
-            <div id="question_div" class="d-grid justify-content-center d-none">
+            <div id="question_div" class="d-flex justify-content-center">
                 <div class="d-grid justify-content-center">
                     <h2 id="question_text" style="color:white;"></h2>
                 </div>
@@ -61,6 +61,10 @@
             <ul class="nav nav-pills bg-dark" id="reasoners-tabs"></ul>
             <div class="tab-content h-100" id="reasoners-content"></div>
         </div>
+    </div>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end pt-3">
+        <button class="btn btn-outline-secondary float-right me-2" id="listen-button" type="submit">Parlami</button>
     </div>
 
     <div id="recognized_speech" class="toast align-items-center bg-dark text-white" role="alert" aria-live="assertive"
