@@ -19,6 +19,12 @@ html, body {
     color: lightgray;
 }
 
+#listen-button {
+    position: fixed;
+    bottom: 10px;
+    right: 10px; 
+}
+
 .vis-custom-time {
     pointer-events: none;
 }
