@@ -165,11 +165,15 @@ nlu:
     examples: |
       - prendere le pillole
       - prendere le medicine
+      - le pillole
+      - le medicine
 
   - synonym: go_to_the_doctor
     examples: |
       - andare dal medico
       - andare dal dottore
+      - il medico
+      - il dottore
 
   - synonym: count_the_word
     examples: |

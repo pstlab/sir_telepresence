@@ -750,7 +750,7 @@ responses:
           alt: Esercizio Biceps Curl
   utter_describe_biceps_curl2:
     - custom:
-        text: Mi raccomando di distendere bene le braccia! Io sarò qui con te e conterò il numero di flessioni che hai svolto correttamente.
+        text: Mi raccomando di distendere bene le braccia! Io sarò qui con te, e conterò il numero di flessioni che hai svolto correttamente.
         image:
           src: static/images/biceps_curl.gif
           alt: Esercizio Biceps Curl
