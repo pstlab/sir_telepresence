@@ -314,8 +314,8 @@ function create_reasoner(r_id) {
     reasoner_button.setAttribute('id', 'r' + r_id + '-but');
     reasoner_button.setAttribute('data-bs-target', '#r' + r_id);
     reasoner_button.setAttribute('aria-controls', 'r' + r_id);
-    reasoner_button.append('Reasoner (' + r_id + ')');
-    reasoners_tabs.append(reasoner_tab);
+    reasoner_button.textContent = 'Reasoner (' + r_id + ')';
+    reasoners_tabs.appendChild(reasoner_tab);
 
     const reasoners_content = document.getElementById('reasoners-content');
     const reasoner_template = document.getElementById('reasoner-content-template');
@@ -324,7 +324,7 @@ function create_reasoner(r_id) {
         reasoner.classList.add('show', 'active');
     reasoner.setAttribute('id', 'r' + r_id);
     reasoner.setAttribute('aria-labelledby', 'r' + r_id + '-but');
-    reasoners_content.append(reasoner);
+    reasoners_content.appendChild(reasoner);
 
     const timelines_div = document.createElement('div');
     timelines_div.setAttribute('id', 'r' + r_id + '-timelines');
