@@ -333,7 +333,6 @@ class dialogue_manager:
 
     def close_dialogue(self):
         self.print_story()
-        self.print_state()
         if self.state['reminder_to_set_time'] is not None and self.state['reminder_to_set_type'] is not None:
             rospy.logdebug('A new "%s" reminder, at time "%s", has been requested..',
                            self.state['reminder_to_set_type'], self.state['reminder_to_set_time'])
@@ -477,7 +476,6 @@ class dialogue_manager:
                 self.state[s] = True
             elif self.state[s] == 'False':
                 self.state[s] = False
-        self.print_state()
 
     def task_to_payload(self, task):
         payload = {'name': task.task_name}
