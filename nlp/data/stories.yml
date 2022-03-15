@@ -104,6 +104,17 @@ stories:
       - action: utter_profile_gathered
       - action: action_command_done
 
+  - story: Start profile gathering negated
+    steps:
+      - intent: start_profile_gathering
+      - slot_was_set:
+          - user_name: null
+      - action: utter_presentation
+      - action: utter_know_ourself
+      - action: utter_confirm
+      - intent: deny
+      - action: action_command_failure
+
   - story: Start profile gathering 2
     steps:
       - intent: ask_capabilities
@@ -192,6 +203,14 @@ stories:
       - active_loop: null
       - action: utter_exercise_done
       - action: action_command_done
+
+  - story: Start count the word cognitive exercise negated
+    steps:
+      - intent: start_cognitive_exercise
+      - action: utter_intro_cognitive_exercise
+      - action: utter_confirm
+      - intent: deny
+      - action: action_command_failure
 
   - story: Tell intro physical exercise
     steps:
@@ -285,6 +304,14 @@ stories:
       - action: utter_confirm
       - intent: affirm
       - action: action_command_done
+
+  - story: Send reminder negated
+    steps:
+      - intent: tell_reminder
+      - action: utter_reminder
+      - action: utter_confirm
+      - intent: affirm
+      - action: action_command_failure
 
   - story: Close dialogue
     steps:
