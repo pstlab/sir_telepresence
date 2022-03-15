@@ -19,7 +19,7 @@ pipeline:
   - name: "SpacyEntityExtractor"
     dimensions: ["PER", "LOC"]
   - name: "DucklingEntityExtractor"
-    url: "http://duckling:8000"
+    url: "http://localhost:8000"
     dimensions: ["time", "number"]
     locale: "it_IT"
     timezone: "Europe/Rome"
