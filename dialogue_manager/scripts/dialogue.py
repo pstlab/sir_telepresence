@@ -454,10 +454,12 @@ class dialogue_manager:
                             action['custom']['question']['facial_expression'], action['custom']['question']['text'], btns)
                     if 'text' in action['custom']:
                         self.text_to_speech(action['custom']['text'])
+                    print(action)
                 else:
                     self.set_face(face_talking)
                     self.text_to_speech(action['text'])
                 self.set_face(face_idle)
+                
         except rospy.ServiceException:
             rospy.logerr('Action execution failed\n' +
                          ''.join(traceback.format_stack()))
