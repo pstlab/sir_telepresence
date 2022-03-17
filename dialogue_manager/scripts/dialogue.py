@@ -332,7 +332,6 @@ class dialogue_manager:
         self.update_internal_state(state_req.json()['slots'])
 
     def close_dialogue(self):
-        self.print_story()
         if self.state['reminder_to_set_time'] is not None and self.state['reminder_to_set_type'] is not None:
             rospy.logdebug('A new "%s" reminder, at time "%s", has been requested..',
                            self.state['reminder_to_set_type'], self.state['reminder_to_set_time'])
@@ -363,6 +362,7 @@ class dialogue_manager:
 
         if self.state['command_state'] == 'done' or self.state['command_state'] == 'failure':
             rospy.logdebug('Closing dialogue..')
+            self.print_story()
             if self.deliberative_task:
                 rospy.logdebug('Closing "%s" dialogue..', self.task_name)
                 par_names = []
