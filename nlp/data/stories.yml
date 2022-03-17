@@ -280,6 +280,11 @@ stories:
       - intent: tell_negative_physical_exercise_feedback
       - action: utter_negative_physical_exercise_feedback
 
+  - story: Tell exercise done
+    steps:
+      - intent: tell_exercise_done
+      - action: utter_exercise_done
+
   - story: Start interaction
     steps:
       - intent: start_interaction
