@@ -771,8 +771,19 @@ responses:
         text: Stai andando bene, meno "{missing_physical_exercise_repetitions}" ripetizioni
         face: talking
   utter_negative_physical_exercise_feedback:
-    - custom:
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "male"
+      custom:
         text: Sei stanco, dai che mancano "{missing_physical_exercise_repetitions}" ripetizioni
+        face: talking
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "female"
+      custom:
+        text: Sei stanca, dai che mancano "{missing_physical_exercise_repetitions}" ripetizioni
         face: talking
 
   utter_start_physical_exercise:
