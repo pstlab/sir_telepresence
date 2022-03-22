@@ -120,6 +120,24 @@ nlu:
       - Ricordami di [andare dal dottore](reminder_type) fra dieci minuti minuti
       - Ricordami di [andare dal medico](reminder_type) fra un quarto d'ora
 
+  - intent: tell_time
+    examples: |
+      - Fra cinque minuti
+      - Ricordamelo fra dieci minuti
+      - Fra due ore
+      - Fra un quarto d'ora
+      - Domani
+      - Dopodomani
+      - Ricordamelo domani
+
+  - intent: tell_reminder_type
+    examples: |
+      - Ricordami di [prendere le pillole](reminder_type)
+      - Ricordami di [prendere le medicine](reminder_type)
+      - Di [andare dal medico](reminder_type)
+      - Di [andare dal dottore](reminder_type)
+      - Ricordami di [andare dal medico](reminder_type)
+
   - intent: start_cognitive_exercise
     examples: |
       - Cominciamo l'esercizio di [conta le parole](cognitive_exercise_type)

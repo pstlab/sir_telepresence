@@ -295,10 +295,11 @@ stories:
       - intent: start_interaction
       - action: utter_offer_help
       - intent: set_reminder
+      - action: reminder_form
+      - active_loop: reminder_form
       - slot_was_set:
-          - reminder_to_set_time
-      - slot_was_set:
-          - reminder_to_set_type
+          - requested_slot: null
+      - active_loop: null
       - action: utter_reminder_set_confirmation
       - action: action_command_done
 

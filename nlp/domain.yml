@@ -13,6 +13,8 @@ intents:
   - start_profile_gathering
   - tell_life_style
   - set_reminder
+  - tell_time
+  - tell_reminder_type
   - tell_reminder
   - tell_wait
   - start_cognitive_exercise
@@ -312,6 +314,10 @@ forms:
   count_the_word_form:
     required_slots:
       - count_the_word_num_word
+  reminder_form:
+    required_slots:
+      - reminder_to_set_time
+      - reminder_to_set_type
 
 responses:
   utter_greet:
@@ -667,6 +673,15 @@ responses:
         text: Molto bene {user_name}. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
         face: talking
 
+  utter_ask_reminder_to_set_time:
+    - custom:
+        text: Quando vuoi che te lo ricordi?
+        face: talking
+  utter_ask_reminder_to_set_type:
+    - custom:
+        text: Cosa vuoi che ti ricordi?
+        face: talking
+
   utter_reminder_set_confirmation:
     - custom:
         text: Non preoccuparti {user_name}! Te lo ricorderò
@@ -694,23 +709,23 @@ responses:
           name: user_gender
           value: "male"
       custom:
-        question:
-          face: happy
-          text: Ciao {user_name}! Fammi sapere, per cortesia, quando sei pronto per andare avanti.
-          answers:
-            - text: Sono pronto. Andiamo avanti.
-              intent: affirm
+        text: Ciao {user_name}! Fammi sapere, per cortesia, quando sei pronto per andare avanti.
+        face: happy
+        pronounce_text: false
+        answers:
+          - text: Sono pronto. Andiamo avanti.
+            intent: affirm
     - condition:
         - type: slot
           name: user_gender
           value: "female"
       custom:
-        question:
-          face: happy
-          text: Ciao {user_name}! Fammi sapere, per cortesia, quando sei pronta per andare avanti.
-          answers:
-            - text: Sono pronta. Andiamo avanti.
-              intent: affirm
+        text: Ciao {user_name}! Fammi sapere, per cortesia, quando sei pronta per andare avanti.
+        face: happy
+        pronounce_text: false
+        answers:
+          - text: Sono pronta. Andiamo avanti.
+            intent: affirm
 
   utter_intro_cognitive_exercise:
     - custom:
