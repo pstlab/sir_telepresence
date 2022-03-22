@@ -25,6 +25,7 @@ add_service_files(
     utterance_to_recognize.srv
     toast_to_show.srv
     reminder_to_set.srv
+    answer_to_message.srv
 )
 
 ## Generate added messages and services

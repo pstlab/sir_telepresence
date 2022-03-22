@@ -315,11 +315,18 @@ stories:
       - intent: tell_reminder
       - action: utter_reminder
       - action: utter_confirm
-      - intent: affirm
+      - intent: deny
       - action: action_command_failure
 
   - story: Close dialogue
     steps:
       - intent: close_dialogue
       - action: utter_see_you_later
+      - action: action_command_done
+
+  - story: Wait for input
+    steps:
+      - intent: tell_wait
+      - action: utter_wait
+      - intent: affirm
       - action: action_command_done

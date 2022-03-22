@@ -14,6 +14,7 @@ intents:
   - tell_life_style
   - set_reminder
   - tell_reminder
+  - tell_wait
   - start_cognitive_exercise
   - start_interaction
   - tell_num_words
@@ -686,6 +687,30 @@ responses:
       custom:
         text: Ciao {user_name}! Ti ricordo che devi andare dal medico!
         face: happy_talking
+
+  utter_wait:
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "male"
+      custom:
+        question:
+          face: happy
+          text: Ciao {user_name}! Fammi sapere, per cortesia, quando sei pronto per andare avanti.
+          answers:
+            - text: Sono pronto. Andiamo avanti.
+              intent: affirm
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "female"
+      custom:
+        question:
+          face: happy
+          text: Ciao {user_name}! Fammi sapere, per cortesia, quando sei pronta per andare avanti.
+          answers:
+            - text: Sono pronta. Andiamo avanti.
+              intent: affirm
 
   utter_intro_cognitive_exercise:
     - custom:

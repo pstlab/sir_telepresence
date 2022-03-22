@@ -140,6 +140,7 @@ nlu:
 
   - intent: start_interaction
   - intent: tell_reminder
+  - intent: tell_wait
   - intent: tell_positive_feedback
   - intent: tell_positive_physical_exercise_feedback
   - intent: tell_negative_feedback

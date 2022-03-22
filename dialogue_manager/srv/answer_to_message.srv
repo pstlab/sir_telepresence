@@ -1,0 +1,5 @@
+string intent
+string[] entity_names
+string[] entity_values
+---
+bool success
