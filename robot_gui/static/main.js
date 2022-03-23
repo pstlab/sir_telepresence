@@ -141,6 +141,8 @@ function init_ros_services() {
         return true;
     });
 
+    const answer_question_service = new ROSLIB.Service({ ros: ros, name: '/contextualized_speech', serviceType: 'deliberative_tier/task_service' });
+
     const ask_question_service = new ROSLIB.Service({ ros: ros, name: '/ask_question', serviceType: 'dialogue_manager/question_to_ask' });
     ask_question_service.advertise(function (request, response) {
         console.log('Asking question:' + request.text);
@@ -152,17 +154,30 @@ function init_ros_services() {
         document.getElementById('question_div').classList.remove('d-none');
 
         document.getElementById('robot_face').src = 'static/faces/' + request.facial_expression + '.gif';
-        document.getElementById('robot_face').height = 300
+        document.getElementById('robot_face').height = 400
         document.getElementById('question_text').innerText = request.text
-        let buttons = [];
+
+        const question_buttons = document.getElementById('question_buttons');
+        while (question_buttons.firstChild)
+            question_buttons.removeChild(question_buttons.firstChild);
         request.buttons.forEach(button => {
             let btn = document.createElement('button');
-            btn.classList.add('btn', 'btn-primary', 'btn-lg');
+            btn.classList.add('btn', 'btn-secondary', 'btn-lg');
             btn.type = 'button';
+            btn.appendChild(document.createTextNode(button.text));
             btn.innerHTML = button.text;
-            buttons.push(btn);
+            btn.onclick = (event) => {
+                answer_question_service.callService(new ROSLIB.ServiceRequest({
+                    task: {
+                        task_name: button.intent
+                    }
+                }), function (result) {
+                    if (!result.success)
+                        console.log(result.message);
+                });
+            };
+            question_buttons.appendChild(btn);
         });
-        document.getElementById('question_buttons').replaceChildren(buttons);
 
         response['success'] = true;
         return true;
@@ -192,7 +207,14 @@ function init_ros_services() {
     */
 
     const listen_service = new ROSLIB.Service({ ros: ros, name: '/listen', serviceType: 'std_srvs/Trigger' });
-    document.getElementById('listen-button').onclick = (event) => start_listen(listen_service);
+    document.getElementById('listen-button').onclick = (event) => {
+        listen_service.callService(new ROSLIB.ServiceRequest({}), function (result) {
+            if (result.success)
+                console.log('Opening microphone..');
+            else
+                console.log(result.message);
+        });
+    };
 
     const sequencer_state_listener = new ROSLIB.Topic({ ros: ros, name: '/sequencer_state', messageType: 'sequencer_tier/sequencer_state' });
     sequencer_state_listener.subscribe(function (message) {
@@ -217,6 +239,7 @@ function init_ros_services() {
     const dialogue_state_listener = new ROSLIB.Topic({ ros: ros, name: '/dialogue_state', messageType: 'dialogue_manager/dialogue_state' });
     dialogue_state_listener.subscribe(function (message) {
         state.dialogue_state = message.dialogue_state;
+        document.getElementById('listen-button').disabled = state.dialogue_state != 0;
         print_state();
     });
 
@@ -384,6 +407,7 @@ function print_dialogue_state(dialogue_state) {
         case 1: return 'configuring'
         case 2: return 'speaking'
         case 3: return 'listening'
+        case 4: return 'waiting'
         default: return '-';
     }
 }
