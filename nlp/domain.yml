@@ -49,6 +49,12 @@ slots:
     initial_value: true
     mappings:
       - type: custom
+  assistant_name:
+    type: text
+    influence_conversation: false
+    initial_value: Gloria
+    mappings:
+      - type: custom
   user_name:
     type: text
     influence_conversation: true
@@ -709,22 +715,22 @@ responses:
           name: user_gender
           value: "male"
       custom:
-        text: Ciao {user_name}! Fammi sapere, per cortesia, quando sei pronto per andare avanti.
+        text: Bene {user_name}! Abbiamo finito con questo servizio. Adesso per favore compila i questionari che ti darà {assistant_name}. Poi fammi sapere quando sei pronto per andare avanti!
         face: happy
         pronounce_text: false
         answers:
-          - text: Sono pronto. Andiamo avanti.
+          - text: Sono pronto! Andiamo avanti.
             intent: affirm
     - condition:
         - type: slot
           name: user_gender
           value: "female"
       custom:
-        text: Ciao {user_name}! Fammi sapere, per cortesia, quando sei pronta per andare avanti.
+        text: Bene {user_name}! Abbiamo finito con questo servizio. Adesso per favore compila i questionari che ti darà {assistant_name}. Poi fammi sapere quando sei pronta per andare avanti!
         face: happy
         pronounce_text: false
         answers:
-          - text: Sono pronta. Andiamo avanti.
+          - text: Sono pronta! Andiamo avanti.
             intent: affirm
 
   utter_intro_cognitive_exercise:

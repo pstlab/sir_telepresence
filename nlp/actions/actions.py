@@ -5,6 +5,7 @@ from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 from rasa_sdk.events import SlotSet
 import requests
+import random
 
 import gender_guesser.detector as gender
 
@@ -293,15 +294,18 @@ def next_count_the_word(tracker: Tracker):
     words = tracker.get_slot('count_the_word_words').split('; ')
     assert len(word_sequences) == len(words)
 
+    c_ws = word_sequences[0].split(', ')
+    random.shuffle(c_ws)
+    c_ws = ', '.join(c_ws)
     if len(word_sequences) > 1:
         return {'count_the_word_word_sequences': '; '.join(word_sequences[1:]),
                 'count_the_word_words': '; '.join(words[1:]),
-                'count_the_word_word_sequence': word_sequences[0],
+                'count_the_word_word_sequence': c_ws,
                 'count_the_word_word': words[0]}
     else:
         return {'count_the_word_word_sequences': None,
                 'count_the_word_words': None,
-                'count_the_word_word_sequence': word_sequences[0],
+                'count_the_word_word_sequence': c_ws,
                 'count_the_word_word': words[0]}
 
 
