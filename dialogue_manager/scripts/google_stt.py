@@ -44,8 +44,8 @@ class speech_to_text:
                 rospy.logdebug('recognizing..')
                 text = rec.recognize_google(
                     audio, language="it-IT")
-                rospy.logdebug('recognized speech: %s', text)
-                #self.show_toast.call(text)
+                rospy.loginfo('recognized speech: "%s"', text)
+                # self.show_toast.call(text)
                 return utterance_to_recognizeResponse(True, text)
             except Exception as e:
                 print(e)
