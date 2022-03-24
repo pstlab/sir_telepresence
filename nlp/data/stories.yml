@@ -216,31 +216,37 @@ stories:
     steps:
       - intent: tell_intro_physical_exercise
       - action: utter_intro_physical_exercise
+      - action: action_command_done
 
   - story: Tell describe biceps curl
     steps:
       - intent: tell_describe_biceps_curl
       - action: utter_describe_biceps_curl
+      - action: action_command_done
 
   - story: Tell describe biceps curl2
     steps:
       - intent: tell_describe_biceps_curl2
       - action: utter_describe_biceps_curl2
+      - action: action_command_done
 
   - story: Tell take the weights
     steps:
       - intent: tell_take_the_weights
       - action: utter_take_the_weights
+      - action: action_command_done
 
   - story: Tell start physical exercise
     steps:
       - intent: tell_start_physical_exercise
       - action: utter_start_physical_exercise
+      - action: action_command_done
 
   - story: Tell physical exercise repetitions
     steps:
       - intent: tell_physical_exercise_repetitions
       - action: utter_physical_exercise_repetitions
+      - action: action_command_done
 
   - story: Tell positive feedback estro
     steps:
@@ -248,6 +254,7 @@ stories:
           - user_extraversion: extroverted
       - intent: tell_positive_feedback
       - action: utter_positive_feedback_estro
+      - action: action_command_done
 
   - story: Tell positive feedback intro
     steps:
@@ -255,11 +262,13 @@ stories:
           - user_extraversion: introverted
       - intent: tell_positive_feedback
       - action: utter_positive_feedback_intro
+      - action: action_command_done
 
   - story: Tell positive physical exercise feedback
     steps:
       - intent: tell_positive_physical_exercise_feedback
       - action: utter_positive_physical_exercise_feedback
+      - action: action_command_done
 
   - story: Tell negative feedback estro
     steps:
@@ -267,6 +276,7 @@ stories:
       - slot_was_set:
           - user_extraversion: extroverted
       - action: utter_negative_feedback_estro
+      - action: action_command_done
 
   - story: Tell negative feedback intro
     steps:
@@ -274,16 +284,19 @@ stories:
       - slot_was_set:
           - user_extraversion: introverted
       - action: utter_negative_feedback_intro
+      - action: action_command_done
 
   - story: Tell negative physical exercise feedback
     steps:
       - intent: tell_negative_physical_exercise_feedback
       - action: utter_negative_physical_exercise_feedback
+      - action: action_command_done
 
   - story: Tell exercise done
     steps:
       - intent: tell_exercise_done
       - action: utter_exercise_done
+      - action: action_command_done
 
   - story: Start interaction
     steps:

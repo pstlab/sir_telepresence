@@ -7,7 +7,7 @@ from datetime import datetime
 import pytz
 import traceback
 from std_srvs.srv import Trigger, TriggerResponse, Empty
-from dialogue_manager.msg import dialogue_state, audio, video, button, user_message
+from dialogue_manager.msg import dialogue_state, audio, video, button
 from dialogue_manager.srv import utterance_to_pronounce, face_to_show, image_to_show, audio_to_play, video_to_play, page_to_show, question_to_ask, utterance_to_recognize, reminder_to_set
 from deliberative_tier.msg import task
 from deliberative_tier.srv import task_service, task_serviceResponse, task_finished
