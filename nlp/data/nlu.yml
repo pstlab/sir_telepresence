@@ -42,6 +42,7 @@ nlu:
       - Forse
       - Dipende
       - Chissà
+      - Non lo so
 
   - intent: close_dialogue
     examples: |
