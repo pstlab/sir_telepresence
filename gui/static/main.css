@@ -1,0 +1,50 @@
+html, body {
+    height: 100%;
+}
+
+.bg-dark {
+    --bs-bg-opacity: 1;
+    background-color: rgba(var(--bs-black-rgb),var(--bs-bg-opacity))!important;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #6c757d;
+}
+
+.nav-link {
+    color: #6c757d;
+}
+
+.nav-link:hover {
+    color: lightgray;
+}
+
+#listen-button {
+    position: fixed;
+    bottom: 10px;
+    right: 10px; 
+}
+
+.vis-custom-time {
+    pointer-events: none;
+}
+
+.vis-item.vis-background.sv-empty {
+    background-color: rgb(206, 206, 206);
+}
+
+.vis-item.vis-background.sv-consistent {
+    background-color: rgb(136, 235, 127);
+}
+
+.vis-item.vis-background.sv-inconsistent {
+    background-color: rgb(255, 157, 157);
+}
+
+.vis-item.vis-background.rr-consistent {
+    background-color: rgb(136, 235, 127);
+}
+
+.vis-item.vis-background.rr-inconsistent {
+    background-color: rgb(255, 157, 157);
+}
