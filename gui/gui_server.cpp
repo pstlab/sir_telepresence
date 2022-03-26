@@ -14,7 +14,12 @@ namespace sir
                                                                                                      pronounce_utterance_server(h.advertiseService("text_to_speech", &gui_server::pronounce_utterance, this)),
                                                                                                      recognize_utterance_server(h.advertiseService("speech_to_text", &gui_server::recognize_utterance, this)),
                                                                                                      talk_to_me(h.serviceClient<std_srvs::Trigger>("listen")),
-                                                                                                     answer_question(h.serviceClient<deliberative_tier::task_service>("contextualized_speech"))
+                                                                                                     answer_question(h.serviceClient<deliberative_tier::task_service>("contextualized_speech")),
+                                                                                                     deliberative_state_sub(h.subscribe("deliberative_state", 100, &gui_server::updated_deliberative_state, this)),
+                                                                                                     timelines_sub(h.subscribe("timelines", 100, &gui_server::updated_timelines, this)),
+                                                                                                     graph_sub(h.subscribe("graph", 100, &gui_server::updated_graph, this)),
+                                                                                                     sequencer_state_sub(h.subscribe("sequencer_state", 100, &gui_server::updated_sequencer_state, this)),
+                                                                                                     dialogue_state_sub(h.subscribe("dialogue_state", 100, &gui_server::updated_dialogue_state, this))
     {
         const std::string templates_path = ros::package::getPath("robot_gui") + "/templates/";
         const std::string static_path = ros::package::getPath("robot_gui") + "/static/";
@@ -195,5 +200,41 @@ namespace sir
         res.utterance = utterance;
         res.success = !users.empty();
         return true;
+    }
+
+    void gui_server::updated_deliberative_state(const deliberative_tier::deliberative_state &msg)
+    {
+        std::lock_guard<std::mutex> _(mtx);
+        if (msg.deliberative_state == msg.destroyed)
+            deliberative_state.erase(msg.reasoner_id);
+        else
+            deliberative_state[msg.reasoner_id] = msg.deliberative_state;
+        crow::json::wvalue w({{"type", "deliberative_state"}, {"id", msg.reasoner_id}, {"state", msg.deliberative_state}});
+        for (const auto &u : users)
+            u->send_text(w.dump());
+    }
+    void gui_server::updated_timelines(const deliberative_tier::timelines &msg)
+    {
+        std::lock_guard<std::mutex> _(mtx);
+    }
+    void gui_server::updated_graph(const deliberative_tier::graph &msg)
+    {
+        std::lock_guard<std::mutex> _(mtx);
+    }
+    void gui_server::updated_sequencer_state(const sequencer_tier::sequencer_state &msg)
+    {
+        std::lock_guard<std::mutex> _(mtx);
+        sequencer_state = msg.system_state;
+        crow::json::wvalue w({{"type", "sequencer_state"}, {"state", msg.system_state}});
+        for (const auto &u : users)
+            u->send_text(w.dump());
+    }
+    void gui_server::updated_dialogue_state(const dialogue_manager::dialogue_state &msg)
+    {
+        std::lock_guard<std::mutex> _(mtx);
+        dialogue_state = msg.dialogue_state;
+        crow::json::wvalue w({{"type", "dialogue_state"}, {"state", msg.dialogue_state}});
+        for (const auto &u : users)
+            u->send_text(w.dump());
     }
 } // namespace sir

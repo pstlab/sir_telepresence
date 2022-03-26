@@ -48,9 +48,11 @@ namespace sir
     bool pronounce_utterance(dialogue_manager::utterance_to_pronounce::Request &req, dialogue_manager::utterance_to_pronounce::Response &res);
     bool recognize_utterance(dialogue_manager::utterance_to_recognize::Request &req, dialogue_manager::utterance_to_recognize::Response &res);
 
-    void updated_deliberative_state(const deliberative_tier::deliberative_state &msg) { deliberative_state[msg.reasoner_id] = msg.deliberative_state; }
-    void updated_sequencer_state(const sequencer_tier::sequencer_state &msg) { sequencer_state = msg.system_state; }
-    void updated_dialogue_state(const dialogue_manager::dialogue_state &msg) { dialogue_state = msg.dialogue_state; }
+    void updated_deliberative_state(const deliberative_tier::deliberative_state &msg);
+    void updated_timelines(const deliberative_tier::timelines &msg);
+    void updated_graph(const deliberative_tier::graph &msg);
+    void updated_sequencer_state(const sequencer_tier::sequencer_state &msg);
+    void updated_dialogue_state(const dialogue_manager::dialogue_state &msg);
 
   private:
     ros::NodeHandle &handle;
@@ -75,6 +77,7 @@ namespace sir
     std::condition_variable stt_cv;
     ros::Subscriber deliberative_state_sub;
     std::map<uint64_t, unsigned int> deliberative_state;
+    ros::Subscriber timelines_sub, graph_sub;
     ros::Subscriber sequencer_state_sub;
     unsigned int sequencer_state = sequencer_tier::sequencer_state::unconfigured;
     ros::Subscriber dialogue_state_sub;
