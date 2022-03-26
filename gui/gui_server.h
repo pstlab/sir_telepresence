@@ -54,11 +54,25 @@ namespace sir
 
   private:
     ros::NodeHandle &handle;
+    ros::ServiceServer show_face_server;
+    ros::ServiceServer show_image_server;
+    ros::ServiceServer play_audio_server;
+    ros::ServiceServer play_video_server;
+    ros::ServiceServer show_page_server;
+    ros::ServiceServer ask_question_server;
+    ros::ServiceServer show_toast_server;
+    ros::ServiceServer pronounce_utterance_server;
+    ros::ServiceServer recognize_utterance_server;
+    ros::ServiceClient talk_to_me;
+    ros::ServiceClient answer_question;
     const std::string host;
     const unsigned short port;
     crow::SimpleApp app;
     std::unordered_set<crow::websocket::connection *> users;
     std::mutex mtx;
+    std::mutex stt_mtx;
+    std::string utterance;
+    std::condition_variable stt_cv;
     ros::Subscriber deliberative_state_sub;
     std::map<uint64_t, unsigned int> deliberative_state;
     ros::Subscriber sequencer_state_sub;
