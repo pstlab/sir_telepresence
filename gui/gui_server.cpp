@@ -90,4 +90,52 @@ namespace sir
     void gui_server::start() { app.bindaddr(host).port(port).run(); }
     void gui_server::wait_for_server_start() { app.wait_for_server_start(); }
     void gui_server::stop() { app.stop(); }
+
+    bool gui_server::show_face(dialogue_manager::face_to_show::Request &req, dialogue_manager::face_to_show::Response &res)
+    {
+        std::lock_guard<std::mutex> _(mtx);
+        return true;
+    }
+    bool gui_server::show_image(dialogue_manager::image_to_show::Request &req, dialogue_manager::image_to_show::Response &res)
+    {
+        std::lock_guard<std::mutex> _(mtx);
+        return true;
+    }
+    bool gui_server::play_audio(dialogue_manager::audio_to_play::Request &req, dialogue_manager::audio_to_play::Response &res)
+    {
+        std::lock_guard<std::mutex> _(mtx);
+        return true;
+    }
+    bool gui_server::play_video(dialogue_manager::video_to_play::Request &req, dialogue_manager::video_to_play::Response &res)
+    {
+        std::lock_guard<std::mutex> _(mtx);
+        return true;
+    }
+    bool gui_server::show_page(dialogue_manager::page_to_show::Request &req, dialogue_manager::page_to_show::Response &res)
+    {
+        std::lock_guard<std::mutex> _(mtx);
+        return true;
+    }
+    bool gui_server::ask_question(dialogue_manager::question_to_ask::Request &req, dialogue_manager::question_to_ask::Response &res)
+    {
+        std::lock_guard<std::mutex> _(mtx);
+        return true;
+    }
+    bool gui_server::show_toast(dialogue_manager::toast_to_show::Request &req, dialogue_manager::toast_to_show::Response &res)
+    {
+        std::lock_guard<std::mutex> _(mtx);
+        return true;
+    }
+
+    bool gui_server::pronounce_utterance(dialogue_manager::utterance_to_pronounce::Request &req, dialogue_manager::utterance_to_pronounce::Response &res)
+    {
+        std::lock_guard<std::mutex> _(mtx);
+        return true;
+    }
+    bool gui_server::recognize_utterance(dialogue_manager::utterance_to_recognize::Request &req, dialogue_manager::utterance_to_recognize::Response &res)
+    {
+        std::lock_guard<std::mutex> _(mtx);
+        return true;
+    }
+
 } // namespace sir
