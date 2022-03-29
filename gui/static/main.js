@@ -19,6 +19,10 @@ function setup_ws() {
         switch (c_msg.type) { }
     }
     ws.onclose = () => setTimeout(setup_ws, 1000);
+
+    const response = await fetch('http://' + gui_host + ':' + gui_port + '/state');
+    const state = await response.json();
+    console.log(state);
 }
 
 function print_state() {

@@ -12,8 +12,10 @@ namespace sir
                                                                                                      show_page_server(h.advertiseService("show_page", &gui_server::show_page, this)),
                                                                                                      ask_question_server(h.advertiseService("ask_question", &gui_server::ask_question, this)),
                                                                                                      show_toast_server(h.advertiseService("show_toast", &gui_server::show_toast, this)),
+#ifdef SPEECH_API
                                                                                                      pronounce_utterance_server(h.advertiseService("text_to_speech", &gui_server::pronounce_utterance, this)),
                                                                                                      recognize_utterance_server(h.advertiseService("speech_to_text", &gui_server::recognize_utterance, this)),
+#endif
                                                                                                      get_state(h.serviceClient<deliberative_tier::get_state>("get_state")),
                                                                                                      talk_to_me(h.serviceClient<std_srvs::Trigger>("talk_to_me")),
                                                                                                      answer_question(h.serviceClient<deliberative_tier::task_service>("contextualized_speech")),
@@ -188,6 +190,7 @@ namespace sir
         return true;
     }
 
+#ifdef SPEECH_API
     bool gui_server::pronounce_utterance(dialogue_manager::utterance_to_pronounce::Request &req, dialogue_manager::utterance_to_pronounce::Response &res)
     {
         std::lock_guard<std::mutex> _(mtx);
@@ -209,6 +212,7 @@ namespace sir
         res.success = !users.empty();
         return true;
     }
+#endif
 
     void gui_server::updated_deliberative_state(const deliberative_tier::deliberative_state &msg)
     {

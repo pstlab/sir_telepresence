@@ -45,8 +45,10 @@ namespace sir
     bool ask_question(dialogue_manager::question_to_ask::Request &req, dialogue_manager::question_to_ask::Response &res);
     bool show_toast(dialogue_manager::toast_to_show::Request &req, dialogue_manager::toast_to_show::Response &res);
 
+#ifdef SPEECH_API
     bool pronounce_utterance(dialogue_manager::utterance_to_pronounce::Request &req, dialogue_manager::utterance_to_pronounce::Response &res);
     bool recognize_utterance(dialogue_manager::utterance_to_recognize::Request &req, dialogue_manager::utterance_to_recognize::Response &res);
+#endif
 
     void updated_deliberative_state(const deliberative_tier::deliberative_state &msg);
     void updated_timelines(const deliberative_tier::timelines &msg);
@@ -70,8 +72,6 @@ namespace sir
     ros::ServiceServer show_page_server;
     ros::ServiceServer ask_question_server;
     ros::ServiceServer show_toast_server;
-    ros::ServiceServer pronounce_utterance_server;
-    ros::ServiceServer recognize_utterance_server;
     ros::ServiceClient get_state;
     ros::ServiceClient talk_to_me;
     ros::ServiceClient answer_question;
@@ -80,9 +80,13 @@ namespace sir
     crow::SimpleApp app;
     std::unordered_set<crow::websocket::connection *> users;
     std::mutex mtx;
+#ifdef SPEECH_API
+    ros::ServiceServer pronounce_utterance_server;
+    ros::ServiceServer recognize_utterance_server;
     std::mutex stt_mtx;
     std::string utterance;
     std::condition_variable stt_cv;
+#endif
     ros::Subscriber deliberative_state_sub;
     std::map<uint64_t, unsigned int> deliberative_state;
     ros::Subscriber timelines_sub, graph_sub;

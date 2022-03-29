@@ -1,8 +1,5 @@
 #include "gui_server.h"
 
-#define LOCALHOST_ADDRESS "127.0.0.1"
-#define LOCALHOST_PORT 8080
-
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "robot_gui");
