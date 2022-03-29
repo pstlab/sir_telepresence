@@ -46,7 +46,7 @@ class dialogue_manager:
 
         # called by the gui for starting a dialogue by the user..
         self.talk_to_me_service = rospy.Service(
-            'listen', Trigger, self.talk_to_me)
+            'talk_to_me', Trigger, self.talk_to_me)
 
         # sets the given dialogue parameters..
         self.set_dialogue_parameters_service = rospy.Service(

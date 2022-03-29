@@ -55,6 +55,13 @@ namespace sir
     void updated_dialogue_state(const dialogue_manager::dialogue_state &msg);
 
   private:
+    static crow::json::wvalue rational_to_json(const deliberative_tier::rational &r);
+    static crow::json::wvalue position_to_json(const deliberative_tier::position &p);
+    static crow::json::wvalue flaw_to_json(const deliberative_tier::flaw &f);
+    static crow::json::wvalue resolver_to_json(const deliberative_tier::resolver &r);
+    static std::string get_mime_type(const std::string &path);
+
+  private:
     ros::NodeHandle &handle;
     ros::ServiceServer show_face_server;
     ros::ServiceServer show_image_server;
@@ -65,6 +72,7 @@ namespace sir
     ros::ServiceServer show_toast_server;
     ros::ServiceServer pronounce_utterance_server;
     ros::ServiceServer recognize_utterance_server;
+    ros::ServiceClient get_state;
     ros::ServiceClient talk_to_me;
     ros::ServiceClient answer_question;
     const std::string host;

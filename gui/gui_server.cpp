@@ -1,4 +1,5 @@
 #include "gui_server.h"
+#include "deliberative_tier/get_state.h"
 #include <ros/package.h>
 
 namespace sir
@@ -13,7 +14,8 @@ namespace sir
                                                                                                      show_toast_server(h.advertiseService("show_toast", &gui_server::show_toast, this)),
                                                                                                      pronounce_utterance_server(h.advertiseService("text_to_speech", &gui_server::pronounce_utterance, this)),
                                                                                                      recognize_utterance_server(h.advertiseService("speech_to_text", &gui_server::recognize_utterance, this)),
-                                                                                                     talk_to_me(h.serviceClient<std_srvs::Trigger>("listen")),
+                                                                                                     get_state(h.serviceClient<deliberative_tier::get_state>("get_state")),
+                                                                                                     talk_to_me(h.serviceClient<std_srvs::Trigger>("talk_to_me")),
                                                                                                      answer_question(h.serviceClient<deliberative_tier::task_service>("contextualized_speech")),
                                                                                                      deliberative_state_sub(h.subscribe("deliberative_state", 100, &gui_server::updated_deliberative_state, this)),
                                                                                                      timelines_sub(h.subscribe("timelines", 100, &gui_server::updated_timelines, this)),
@@ -33,67 +35,73 @@ namespace sir
             return crow::mustache::load("index.html").render(ctx); });
 
         CROW_ROUTE(app, "/static/<string>")
-        ([&static_path](crow::response &res, std::string path)
+        ([&static_path, this](crow::response &res, std::string path)
          {
             std::ifstream ifl(static_path + path, std::ios_base::binary);
             std::stringstream buffer;
             buffer << ifl.rdbuf();
             res.body = buffer.str();
-            std::size_t last_dot = path.find_last_of(".");
-            std::string extension = path.substr(last_dot + 1);
-            std::string mimeType = "";
             res.add_header("Content-length", std::to_string(res.body.size()));
-            if (extension != "")
-            {
-                mimeType = crow::mime_types.at(extension);
-                if (mimeType != "")
-                    res.add_header("Content-Type", mimeType);
-                else
-                    res.add_header("content-Type", "text/plain");
-            }
+            std::string mimeType = get_mime_type(path);
+            if (mimeType != "")
+                res.add_header("Content-Type", mimeType);
             res.end(); });
 
         CROW_ROUTE(app, "/static/faces/<string>")
-        ([&static_path](crow::response &res, std::string path)
+        ([&static_path, this](crow::response &res, std::string path)
          {
             std::ifstream ifl(static_path + "faces/" + path, std::ios_base::binary);
             std::stringstream buffer;
             buffer << ifl.rdbuf();
             res.body = buffer.str();
-            std::size_t last_dot = path.find_last_of(".");
-            std::string extension = path.substr(last_dot + 1);
-            std::string mimeType = "";
             res.add_header("Content-length", std::to_string(res.body.size()));
-            if (extension != "")
-            {
-                mimeType = crow::mime_types.at(extension);
-                if (mimeType != "")
-                    res.add_header("Content-Type", mimeType);
-                else
-                    res.add_header("content-Type", "text/plain");
-            }
+            std::string mimeType = get_mime_type(path);
+            if (mimeType != "")
+                res.add_header("Content-Type", mimeType);
             res.end(); });
 
         CROW_ROUTE(app, "/static/images/<string>")
-        ([&static_path](crow::response &res, std::string path)
+        ([&static_path, this](crow::response &res, std::string path)
          {
             std::ifstream ifl(static_path + "images/" + path, std::ios_base::binary);
             std::stringstream buffer;
             buffer << ifl.rdbuf();
             res.body = buffer.str();
-            std::size_t last_dot = path.find_last_of(".");
-            std::string extension = path.substr(last_dot + 1);
-            std::string mimeType = "";
             res.add_header("Content-length", std::to_string(res.body.size()));
-            if (extension != "")
-            {
-                mimeType = crow::mime_types.at(extension);
-                if (mimeType != "")
-                    res.add_header("Content-Type", mimeType);
-                else
-                    res.add_header("content-Type", "text/plain");
-            }
+            std::string mimeType = get_mime_type(path);
+            if (mimeType != "")
+                res.add_header("Content-Type", mimeType);
             res.end(); });
+
+        CROW_ROUTE(app, "/state")
+        ([this]()
+         {
+            deliberative_tier::get_state get_state_msg;
+            get_state.call(get_state_msg);
+            std::vector<crow::json::wvalue> reasoners;
+            for (size_t i = 0; i < get_state_msg.response.graphs.size(); ++i)
+            {
+                const auto c_graph = get_state_msg.response.graphs.at(i);
+                std::vector<crow::json::wvalue> flaws;
+                for (const auto &f : c_graph.flaws)
+                    flaws.push_back(flaw_to_json(f));
+                std::vector<crow::json::wvalue> resolvers;
+                for (const auto &r : c_graph.resolvers)
+                    resolvers.push_back(resolver_to_json(r));
+                crow::json::wvalue graph({{"flaws", flaws}, {"resolvers", resolvers}, {"current_flaw", c_graph.current_flaw}, {"current_resolver", c_graph.current_resolver}});
+                
+                const auto c_timelines = get_state_msg.response.timelines.at(i);
+                std::vector<crow::json::wvalue> tls;
+                for (const auto &tl : c_timelines.timelines)
+                    tls.push_back(crow::json::load(tl));
+                std::vector<crow::json::wvalue> exec;
+                for (const auto &atm_id : c_timelines.executing)
+                    exec.push_back(atm_id);
+                crow::json::wvalue timelines({{"state", crow::json::load(c_timelines.state)}, {"timelines", std::move(tls)}, {"time", rational_to_json(c_timelines.time)}, {"executing", exec}});
+
+                reasoners.push_back(crow::json::wvalue({{"reasoner_id", c_graph.reasoner_id}, {"graph", graph}, {"timelines", timelines}}));
+            }
+            return crow::json::wvalue(reasoners); });
 
         CROW_ROUTE(app, "/solver")
             .websocket()
@@ -216,10 +224,114 @@ namespace sir
     void gui_server::updated_timelines(const deliberative_tier::timelines &msg)
     {
         std::lock_guard<std::mutex> _(mtx);
+        switch (msg.update)
+        {
+        case deliberative_tier::timelines::state_changed:
+        {
+            std::vector<crow::json::wvalue> tls;
+            for (const auto &tl : msg.timelines)
+                tls.push_back(crow::json::load(tl));
+            std::vector<crow::json::wvalue> exec;
+            for (const auto &atm_id : msg.executing)
+                exec.push_back(atm_id);
+            crow::json::wvalue w({{"type", "updated_timelines"}, {"id", msg.reasoner_id}, {"state", crow::json::load(msg.state)}, {"timelines", std::move(tls)}, {"time", rational_to_json(msg.time)}, {"executing", exec}});
+            for (const auto &u : users)
+                u->send_text(w.dump());
+        }
+        case deliberative_tier::timelines::time_changed:
+        {
+            crow::json::wvalue w({{"type", "time_changed"}, {"id", msg.reasoner_id}, {"time", rational_to_json(msg.time)}});
+            for (const auto &u : users)
+                u->send_text(w.dump());
+        }
+        case deliberative_tier::timelines::executing_changed:
+        {
+            std::vector<crow::json::wvalue> exec;
+            for (const auto &atm_id : msg.executing)
+                exec.push_back(atm_id);
+            crow::json::wvalue w({{"type", "executing_changed"}, {"id", msg.reasoner_id}, {"executing", exec}});
+            for (const auto &u : users)
+                u->send_text(w.dump());
+        }
+        break;
+        default:
+            break;
+        }
     }
     void gui_server::updated_graph(const deliberative_tier::graph &msg)
     {
         std::lock_guard<std::mutex> _(mtx);
+        switch (msg.update)
+        {
+        case deliberative_tier::graph::graph_changed:
+        {
+            std::vector<crow::json::wvalue> flaws;
+            for (const auto &f : msg.flaws)
+                flaws.push_back(flaw_to_json(f));
+            std::vector<crow::json::wvalue> resolvers;
+            for (const auto &r : msg.resolvers)
+                resolvers.push_back(resolver_to_json(r));
+            crow::json::wvalue w({{"type", "updated_graph"}, {"flaws", flaws}, {"resolvers", resolvers}, {"current_flaw", msg.current_flaw}, {"current_resolver", msg.current_resolver}});
+            for (const auto &u : users)
+                u->send_text(w.dump());
+        }
+        case deliberative_tier::graph::flaw_created:
+        {
+            crow::json::wvalue w = flaw_to_json(msg.flaws.at(0));
+            w["type"] = "flaw_created";
+            for (const auto &u : users)
+                u->send_text(w.dump());
+        }
+        case deliberative_tier::graph::flaw_state_changed:
+        {
+            crow::json::wvalue w({{"type", "flaw_state_changed"}, {"state", msg.flaws.at(0).state}});
+            for (const auto &u : users)
+                u->send_text(w.dump());
+        }
+        case deliberative_tier::graph::flaw_cost_changed:
+        {
+            crow::json::wvalue w({{"type", "flaw_cost_changed"}, {"cost", rational_to_json(msg.flaws.at(0).cost)}});
+            for (const auto &u : users)
+                u->send_text(w.dump());
+        }
+        case deliberative_tier::graph::flaw_position_changed:
+        {
+            crow::json::wvalue w({{"type", "flaw_position_changed"}, {"pos", position_to_json(msg.flaws.at(0).pos)}});
+            for (const auto &u : users)
+                u->send_text(w.dump());
+        }
+        case deliberative_tier::graph::current_flaw:
+        {
+            crow::json::wvalue w({{"type", "current_flaw"}, {"flaw_id", msg.flaw_id}});
+            for (const auto &u : users)
+                u->send_text(w.dump());
+        }
+        case deliberative_tier::graph::resolver_created:
+        {
+            crow::json::wvalue w = resolver_to_json(msg.resolvers.at(0));
+            w["type"] = "resolver_created";
+            for (const auto &u : users)
+                u->send_text(w.dump());
+        }
+        case deliberative_tier::graph::resolver_state_changed:
+        {
+            crow::json::wvalue w({{"type", "resolver_state_changed"}, {"state", msg.resolvers.at(0).state}});
+            for (const auto &u : users)
+                u->send_text(w.dump());
+        }
+        case deliberative_tier::graph::current_resolver:
+        {
+            crow::json::wvalue w({{"type", "current_resolver"}, {"resolver_id", msg.resolver_id}});
+            for (const auto &u : users)
+                u->send_text(w.dump());
+        }
+        case deliberative_tier::graph::causal_link_added:
+        {
+            crow::json::wvalue w({{"type", "causal_link_added"}, {"flaw_id", msg.flaw_id}, {"resolver_id", msg.resolver_id}});
+            for (const auto &u : users)
+                u->send_text(w.dump());
+        }
+        }
     }
     void gui_server::updated_sequencer_state(const sequencer_tier::sequencer_state &msg)
     {
@@ -236,5 +348,37 @@ namespace sir
         crow::json::wvalue w({{"type", "dialogue_state"}, {"state", msg.dialogue_state}});
         for (const auto &u : users)
             u->send_text(w.dump());
+    }
+
+    crow::json::wvalue gui_server::rational_to_json(const deliberative_tier::rational &r) { return crow::json::wvalue({{"num", r.num}, {"den", r.den}}); }
+    crow::json::wvalue gui_server::position_to_json(const deliberative_tier::position &p) { return crow::json::wvalue({{"lb", p.lb}, {"ub", p.ub}}); }
+    crow::json::wvalue gui_server::flaw_to_json(const deliberative_tier::flaw &f)
+    {
+        std::vector<crow::json::wvalue> causes;
+        for (const auto &c : f.causes)
+            causes.push_back(c);
+        return crow::json::wvalue({{"id", f.id}, {"causes", causes}, {"data", crow::json::load(f.data)}, {"state", f.state}, {"pos", position_to_json(f.pos)}, {"cost", rational_to_json(f.cost)}});
+    }
+    crow::json::wvalue gui_server::resolver_to_json(const deliberative_tier::resolver &r)
+    {
+        std::vector<crow::json::wvalue> preconditions;
+        for (const auto &p : r.preconditions)
+            preconditions.push_back(p);
+        return crow::json::wvalue({{"id", r.id}, {"preconditions", preconditions}, {"effect", r.effect}, {"data", crow::json::load(r.data)}, {"state", r.state}, {"intrinsic_cost", rational_to_json(r.intrinsic_cost)}});
+    }
+
+    std::string gui_server::get_mime_type(const std::string &path)
+    {
+        std::size_t last_dot = path.find_last_of(".");
+        std::string extension = path.substr(last_dot + 1);
+        if (extension != "")
+        {
+            std::string mimeType = crow::mime_types.at(extension);
+            if (mimeType != "")
+                return mimeType;
+            else
+                return "text/plain";
+        }
+        return "";
     }
 } // namespace sir

@@ -16,5 +16,6 @@
   <exec_depend>std_msgs</exec_depend>
   <depend>roslib</depend>
   <depend>deliberative_tier</depend>
+  <depend>sequencer_tier</depend>
   <depend>dialogue_manager</depend>
 </package>
