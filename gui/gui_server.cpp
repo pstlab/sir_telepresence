@@ -91,8 +91,8 @@ namespace sir
                 std::vector<crow::json::wvalue> resolvers;
                 for (const auto &r : c_graph.resolvers)
                     resolvers.push_back(resolver_to_json(r));
-                crow::json::wvalue graph({{"flaws", flaws}, {"resolvers", resolvers}, {"current_flaw", c_graph.current_flaw}, {"current_resolver", c_graph.current_resolver}});
-                
+                crow::json::wvalue graph({{"flaws", flaws}, {"resolvers", resolvers}, {"current_flaw", c_graph.flaw_id}, {"current_resolver", c_graph.resolver_id}});
+
                 const auto c_timelines = get_state_msg.response.timelines.at(i);
                 std::vector<crow::json::wvalue> tls;
                 for (const auto &tl : c_timelines.timelines)
@@ -100,9 +100,8 @@ namespace sir
                 std::vector<crow::json::wvalue> exec;
                 for (const auto &atm_id : c_timelines.executing)
                     exec.push_back(atm_id);
-                crow::json::wvalue timelines({{"state", crow::json::load(c_timelines.state)}, {"timelines", std::move(tls)}, {"time", rational_to_json(c_timelines.time)}, {"executing", exec}});
 
-                reasoners.push_back(crow::json::wvalue({{"reasoner_id", c_graph.reasoner_id}, {"graph", graph}, {"timelines", timelines}}));
+                reasoners.push_back(crow::json::wvalue({{"reasoner_id", c_graph.reasoner_id}, {"graph", graph}, {"state", crow::json::load(c_timelines.state)}, {"timelines", std::move(tls)}, {"time", rational_to_json(c_timelines.time)}, {"executing", exec}}));
             }
             return crow::json::wvalue(reasoners); });
 
@@ -114,7 +113,22 @@ namespace sir
             .onclose([=](crow::websocket::connection &conn, const std::string &reason)
                      { std::lock_guard<std::mutex> _(mtx);
                 users.erase(&conn); })
-            .onmessage([&](crow::websocket::connection &conn, const std::string &data, bool is_binary) {});
+            .onmessage([&](crow::websocket::connection &conn, const std::string &data, bool is_binary)
+                       { std::lock_guard<std::mutex> _(mtx); 
+                         crow::json::rvalue r = crow::json::load(data);
+                         ROS_INFO("Received message: %s", crow::json::wvalue(r).dump().c_str());
+                         if(r.has("type")) {
+                             std::string m_type = r["type"].s();
+                             if(m_type == "talk_to_me") {
+                                std_srvs::Trigger talk_to_me_msg;
+                                talk_to_me.call(talk_to_me_msg);
+                             } else if(m_type == "answer_question") {
+                                deliberative_tier::task_service answer_question_msg;
+                                answer_question_msg.request.task.task_name = r["intent"].s();
+                                answer_question.call(answer_question_msg);
+                             }
+                             ROS_INFO("Managed message..");
+                         } });
     }
     gui_server::~gui_server() {}
 
@@ -167,7 +181,7 @@ namespace sir
     bool gui_server::show_page(dialogue_manager::page_to_show::Request &req, dialogue_manager::page_to_show::Response &res)
     {
         std::lock_guard<std::mutex> _(mtx);
-        crow::json::wvalue w({{"type", "show_image"}, {"title", req.title}, {"src", req.src}});
+        crow::json::wvalue w({{"type", "show_page"}, {"title", req.title}, {"src", req.src}});
         for (const auto &u : users)
             u->send_text(w.dump());
         res.success = !users.empty();
@@ -226,7 +240,7 @@ namespace sir
             deliberative_state.erase(msg.reasoner_id);
         else
             deliberative_state[msg.reasoner_id] = msg.deliberative_state;
-        crow::json::wvalue w({{"type", "deliberative_state"}, {"id", msg.reasoner_id}, {"state", msg.deliberative_state}});
+        crow::json::wvalue w({{"type", "deliberative_state"}, {"reasoner_id", msg.reasoner_id}, {"state", msg.deliberative_state}});
         for (const auto &u : users)
             u->send_text(w.dump());
     }
@@ -243,14 +257,14 @@ namespace sir
             std::vector<crow::json::wvalue> exec;
             for (const auto &atm_id : msg.executing)
                 exec.push_back(atm_id);
-            crow::json::wvalue w({{"type", "updated_timelines"}, {"id", msg.reasoner_id}, {"state", crow::json::load(msg.state)}, {"timelines", std::move(tls)}, {"time", rational_to_json(msg.time)}, {"executing", exec}});
+            crow::json::wvalue w({{"type", "updated_timelines"}, {"reasoner_id", msg.reasoner_id}, {"state", crow::json::load(msg.state)}, {"timelines", std::move(tls)}, {"time", rational_to_json(msg.time)}, {"executing", exec}});
             for (const auto &u : users)
                 u->send_text(w.dump());
             break;
         }
         case deliberative_tier::timelines::time_changed:
         {
-            crow::json::wvalue w({{"type", "time_changed"}, {"id", msg.reasoner_id}, {"time", rational_to_json(msg.time)}});
+            crow::json::wvalue w({{"type", "time_changed"}, {"reasoner_id", msg.reasoner_id}, {"time", rational_to_json(msg.time)}});
             for (const auto &u : users)
                 u->send_text(w.dump());
             break;
@@ -260,7 +274,7 @@ namespace sir
             std::vector<crow::json::wvalue> exec;
             for (const auto &atm_id : msg.executing)
                 exec.push_back(atm_id);
-            crow::json::wvalue w({{"type", "executing_changed"}, {"id", msg.reasoner_id}, {"executing", exec}});
+            crow::json::wvalue w({{"type", "executing_changed"}, {"reasoner_id", msg.reasoner_id}, {"executing", exec}});
             for (const auto &u : users)
                 u->send_text(w.dump());
             break;
@@ -283,7 +297,7 @@ namespace sir
             std::vector<crow::json::wvalue> resolvers;
             for (const auto &r : msg.resolvers)
                 resolvers.push_back(resolver_to_json(r));
-            crow::json::wvalue w({{"type", "updated_graph"}, {"flaws", flaws}, {"resolvers", resolvers}, {"current_flaw", msg.current_flaw}, {"current_resolver", msg.current_resolver}});
+            crow::json::wvalue w({{"type", "updated_graph"}, {"reasoner_id", msg.reasoner_id}, {"flaws", flaws}, {"resolvers", resolvers}, {"current_flaw", msg.current_flaw}, {"current_resolver", msg.current_resolver}});
             for (const auto &u : users)
                 u->send_text(w.dump());
             break;
@@ -292,34 +306,35 @@ namespace sir
         {
             crow::json::wvalue w = flaw_to_json(msg.flaws.at(0));
             w["type"] = "flaw_created";
+            w["reasoner_id"] = msg.reasoner_id;
             for (const auto &u : users)
                 u->send_text(w.dump());
             break;
         }
         case deliberative_tier::graph::flaw_state_changed:
         {
-            crow::json::wvalue w({{"type", "flaw_state_changed"}, {"state", msg.flaws.at(0).state}});
+            crow::json::wvalue w({{"type", "flaw_state_changed"}, {"reasoner_id", msg.reasoner_id}, {"id", msg.flaws.at(0).id}, {"state", msg.flaws.at(0).state}});
             for (const auto &u : users)
                 u->send_text(w.dump());
             break;
         }
         case deliberative_tier::graph::flaw_cost_changed:
         {
-            crow::json::wvalue w({{"type", "flaw_cost_changed"}, {"cost", rational_to_json(msg.flaws.at(0).cost)}});
+            crow::json::wvalue w({{"type", "flaw_cost_changed"}, {"reasoner_id", msg.reasoner_id}, {"id", msg.flaws.at(0).id}, {"cost", rational_to_json(msg.flaws.at(0).cost)}});
             for (const auto &u : users)
                 u->send_text(w.dump());
             break;
         }
         case deliberative_tier::graph::flaw_position_changed:
         {
-            crow::json::wvalue w({{"type", "flaw_position_changed"}, {"pos", position_to_json(msg.flaws.at(0).pos)}});
+            crow::json::wvalue w({{"type", "flaw_position_changed"}, {"reasoner_id", msg.reasoner_id}, {"id", msg.flaws.at(0).id}, {"pos", position_to_json(msg.flaws.at(0).pos)}});
             for (const auto &u : users)
                 u->send_text(w.dump());
             break;
         }
         case deliberative_tier::graph::current_flaw:
         {
-            crow::json::wvalue w({{"type", "current_flaw"}, {"flaw_id", msg.flaw_id}});
+            crow::json::wvalue w({{"type", "current_flaw"}, {"reasoner_id", msg.reasoner_id}, {"flaw_id", msg.flaw_id}});
             for (const auto &u : users)
                 u->send_text(w.dump());
             break;
@@ -328,27 +343,28 @@ namespace sir
         {
             crow::json::wvalue w = resolver_to_json(msg.resolvers.at(0));
             w["type"] = "resolver_created";
+            w["reasoner_id"] = msg.reasoner_id;
             for (const auto &u : users)
                 u->send_text(w.dump());
             break;
         }
         case deliberative_tier::graph::resolver_state_changed:
         {
-            crow::json::wvalue w({{"type", "resolver_state_changed"}, {"state", msg.resolvers.at(0).state}});
+            crow::json::wvalue w({{"type", "resolver_state_changed"}, {"reasoner_id", msg.reasoner_id}, {"id", msg.resolvers.at(0).id}, {"state", msg.resolvers.at(0).state}});
             for (const auto &u : users)
                 u->send_text(w.dump());
             break;
         }
         case deliberative_tier::graph::current_resolver:
         {
-            crow::json::wvalue w({{"type", "current_resolver"}, {"resolver_id", msg.resolver_id}});
+            crow::json::wvalue w({{"type", "current_resolver"}, {"reasoner_id", msg.reasoner_id}, {"resolver_id", msg.resolver_id}});
             for (const auto &u : users)
                 u->send_text(w.dump());
             break;
         }
         case deliberative_tier::graph::causal_link_added:
         {
-            crow::json::wvalue w({{"type", "causal_link_added"}, {"flaw_id", msg.flaw_id}, {"resolver_id", msg.resolver_id}});
+            crow::json::wvalue w({{"type", "causal_link_added"}, {"reasoner_id", msg.reasoner_id}, {"flaw_id", msg.flaw_id}, {"resolver_id", msg.resolver_id}});
             for (const auto &u : users)
                 u->send_text(w.dump());
             break;
