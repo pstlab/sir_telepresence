@@ -20,9 +20,12 @@ function setup_ws() {
     }
     ws.onclose = () => setTimeout(setup_ws, 1000);
 
+    retrieve_state().then(state => console.log(state));
+}
+
+async function retrieve_state() {
     const response = await fetch('http://' + gui_host + ':' + gui_port + '/state');
-    const state = await response.json();
-    console.log(state);
+    return await response.json();
 }
 
 function print_state() {

@@ -40,8 +40,8 @@ namespace sir
         CROW_ROUTE(app, "/static/<string>")
         ([static_path](crow::response &res, std::string path)
          {
-            std::ifstream ifl(static_path + path, std::ios_base::binary);
-            std::stringstream buffer;
+            std::ifstream ifl(static_path + path);
+            std::ostringstream buffer;
             buffer << ifl.rdbuf();
             res.body = buffer.str();
             res.add_header("Content-length", std::to_string(res.body.size()));
@@ -53,8 +53,8 @@ namespace sir
         CROW_ROUTE(app, "/static/faces/<string>")
         ([static_path](crow::response &res, std::string path)
          {
-            std::ifstream ifl(static_path + "faces/" + path, std::ios_base::binary);
-            std::stringstream buffer;
+            std::ifstream ifl(static_path + "faces/" + path);
+            std::ostringstream buffer;
             buffer << ifl.rdbuf();
             res.body = buffer.str();
             res.add_header("Content-length", std::to_string(res.body.size()));
@@ -66,8 +66,8 @@ namespace sir
         CROW_ROUTE(app, "/static/images/<string>")
         ([static_path](crow::response &res, std::string path)
          {
-            std::ifstream ifl(static_path + "images/" + path, std::ios_base::binary);
-            std::stringstream buffer;
+            std::ifstream ifl(static_path + "images/" + path);
+            std::ostringstream buffer;
             buffer << ifl.rdbuf();
             res.body = buffer.str();
             res.add_header("Content-length", std::to_string(res.body.size()));
@@ -110,7 +110,11 @@ namespace sir
             .websocket()
             .onopen([=](crow::websocket::connection &conn)
                     { std::lock_guard<std::mutex> _(mtx);
-                users.insert(&conn); });
+                users.insert(&conn); })
+            .onclose([=](crow::websocket::connection &conn, const std::string &reason)
+                     { std::lock_guard<std::mutex> _(mtx);
+                users.erase(&conn); })
+            .onmessage([&](crow::websocket::connection &conn, const std::string &data, bool is_binary) {});
     }
     gui_server::~gui_server() {}
 
@@ -242,12 +246,14 @@ namespace sir
             crow::json::wvalue w({{"type", "updated_timelines"}, {"id", msg.reasoner_id}, {"state", crow::json::load(msg.state)}, {"timelines", std::move(tls)}, {"time", rational_to_json(msg.time)}, {"executing", exec}});
             for (const auto &u : users)
                 u->send_text(w.dump());
+            break;
         }
         case deliberative_tier::timelines::time_changed:
         {
             crow::json::wvalue w({{"type", "time_changed"}, {"id", msg.reasoner_id}, {"time", rational_to_json(msg.time)}});
             for (const auto &u : users)
                 u->send_text(w.dump());
+            break;
         }
         case deliberative_tier::timelines::executing_changed:
         {
@@ -257,6 +263,7 @@ namespace sir
             crow::json::wvalue w({{"type", "executing_changed"}, {"id", msg.reasoner_id}, {"executing", exec}});
             for (const auto &u : users)
                 u->send_text(w.dump());
+            break;
         }
         break;
         default:
