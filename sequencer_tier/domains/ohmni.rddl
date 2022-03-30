@@ -24,7 +24,7 @@ class OhmniRobot {
 predicate KeepHealthy() {
     goal cp = new robot.physical_exercise.BicepsCurl(repetitions:10.0, interval_between_repetitions:2.0, num_repetitions_before_feedback:3.0);
     goal wait_cp = new robot.dialogue.Interacting(intent:"tell_wait", end:cp.start);
-    goal cw = new robot.cognitive_exercise.CountTheWord(count_the_word_word_sequence:"MOLLA, PELLE, PALLA, POLLO, SOLE, ALBERO, RANA, PALLA, PINO, PALLA, PELATI, PALLA, BELLA, ZOLLA; IMBACUCCATO, ACCUCCIATO, ASSONNATO, IMPACCIATO, IMBACUCCATO, IMBAMBOLATO, IMBACUCCATO, IMPICCATO, INSTRADATO, IMBACUCCATO, IMBRANATO, IMBACUCCATO, ANNOIATO", count_the_word_word:"PALLA; IMBACUCCATO");
+    goal cw = new robot.cognitive_exercise.CountTheWord(count_the_word_word_sequences:"MOLLA, PELLE, PALLA, POLLO, SOLE, ALBERO, RANA, PALLA, PINO, PALLA, PELATI, PALLA, BELLA, ZOLLA; IMBACUCCATO, ACCUCCIATO, ASSONNATO, IMPACCIATO, IMBACUCCATO, IMBAMBOLATO, IMBACUCCATO, IMPICCATO, INSTRADATO, IMBACUCCATO, IMBRANATO, IMBACUCCATO, ANNOIATO", count_the_word_words:"PALLA; IMBACUCCATO");
     goal wait_cw = new robot.dialogue.Interacting(intent:"tell_wait", end:cw.start);
 }
 

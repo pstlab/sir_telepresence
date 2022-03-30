@@ -28,6 +28,8 @@ class dialogue_manager:
         self.slots = {}
         self.deliberative_task = False
         self.current_task = None
+        self.actions_queue = []
+        self.slots_updates_queue = []
         self.init_ros_services()
         self.set_dialogue_state(dialogue_state.idle)
 
@@ -42,7 +44,11 @@ class dialogue_manager:
 
         # called by any component that requires a contextualized speech..
         self.contextualized_speech_service = rospy.Service(
-            'contextualized_speech', task_service, self.contextualized_speech)
+            'contextualized_speech', task_service, self.blocking_contextualized_speech)
+
+        # called by any component that requires a non-blocking contextualized speech..
+        self.contextualized_speech_service = rospy.Service(
+            'non_blocking_contextualized_speech', task_service, self.non_blocking_contextualized_speech)
 
         # called by the gui for starting a dialogue by the user..
         self.talk_to_me_service = rospy.Service(
@@ -130,7 +136,14 @@ class dialogue_manager:
         rate = rospy.Rate(50)
         # this is the main dialogue controller loop..
         while not rospy.is_shutdown():
-            if self.state == dialogue_state.listening:
+            if self.actions_queue:
+                self.execute_actions(self.actions_queue)
+                self.actions_queue.clear()
+            elif self.slots_updates_queue:
+                for slot_update in self.slots_updates_queue:
+                    self.update_slots(slot_update)
+                self.slots_updates_queue.clear()
+            elif self.state == dialogue_state.listening:
                 while True:
                     stt = self.speech_to_text()
                     if stt.utterance == '':
@@ -161,9 +174,10 @@ class dialogue_manager:
                                  ''.join(traceback.format_stack()))
                     raise SystemExit(e)
 
-                # we execute the retrieved actions and update the internal state..
-                self.execute_actions(resp_req.json())
-                self.update_slots(state_req.json()['slots'])
+                # we enqueue the retrieved actions and update the internal state..
+                for action in resp_req.json():
+                    self.actions_queue.append(action)
+                self.slots_updates_queue.append(state_req.json()['slots'])
 
             elif self.state == dialogue_state.idle and self.current_task is not None:
                 # we configure the speech to text..
@@ -185,10 +199,11 @@ class dialogue_manager:
                                  ''.join(traceback.format_stack()))
                     raise SystemExit(e)
 
-                # we execute the retrieved actions and update the internal state..
+                # we enqueue the retrieved actions and update the internal state..
                 j_res = intent_trg_req.json()
-                self.execute_actions(j_res['messages'])
-                self.update_slots(j_res['tracker']['slots'])
+                for action in j_res['messages']:
+                    self.actions_queue.append(action)
+                self.slots_updates_queue.append(j_res['tracker']['slots'])
 
             rate.sleep()
 
@@ -220,7 +235,7 @@ class dialogue_manager:
         self.current_task = req.task
         return task_serviceResponse(True)
 
-    def contextualized_speech(self, req):
+    def blocking_contextualized_speech(self, req):
         rospy.logdebug('Generating contextualized speech for "%s" intent..',
                        req.task.task_name)
         for i in range(len(req.task.par_names)):
@@ -246,6 +261,36 @@ class dialogue_manager:
         # we execute the retrieved actions and update the internal state..
         self.execute_actions(j_res['messages'])
         self.update_slots(j_res['tracker']['slots'])
+
+        return task_serviceResponse(True)
+
+    def non_blocking_contextualized_speech(self, req):
+        rospy.logdebug('Generating contextualized speech for "%s" intent..',
+                       req.task.task_name)
+        for i in range(len(req.task.par_names)):
+            rospy.logdebug(
+                req.task.par_names[i] + ': %s', req.task.par_values[i])
+
+        # we prepare the request..
+        payload = self.task_to_payload(req.task)
+
+        # we make the request..
+        rospy.logdebug(
+            'Generating responses for "%s" intent..', req.task.task_name)
+        try:
+            r = requests.post('http://' + host + ':' + port + '/conversations/' + user +
+                              '/trigger_intent', params={'include_events': 'NONE'}, json=payload)
+            assert r.status_code == requests.codes.ok
+        except requests.exceptions.RequestException as e:
+            rospy.logerr('Rasa server call failed\n' +
+                         ''.join(traceback.format_stack()))
+            raise SystemExit(e)
+
+        # we enqueue the retrieved actions and update the internal state..
+        j_res = r.json()
+        for action in j_res['messages']:
+            self.actions_queue.append(action)
+        self.slots_updates_queue.append(j_res['tracker']['slots'])
 
         return task_serviceResponse(True)
 

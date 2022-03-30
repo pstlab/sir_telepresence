@@ -15,20 +15,12 @@ setup_ws();
 function setup_ws() {
     ws = new WebSocket('ws://' + gui_host + ':' + gui_port + '/solver');
     ws.onopen = () => {
-        retrieve_state().then(state => {
-            const reasoners_tabs = document.getElementById('reasoners-tabs');
-            while (reasoners_tabs.firstChild)
-                reasoners_tabs.removeChild(reasoners_tabs.lastChild);
-            const reasoners_content = document.getElementById('reasoners-content');
-            while (reasoners_content.firstChild)
-                reasoners_content.removeChild(reasoners_content.lastChild);
-
-            for (const r of state) {
-                create_reasoner(r.reasoner_id);
-                reasoners.get(r.reasoner_id).state_changed(r);
-                reasoners.get(r.reasoner_id).graph(r.graph);
-            }
-        });
+        const reasoners_tabs = document.getElementById('reasoners-tabs');
+        while (reasoners_tabs.firstChild)
+            reasoners_tabs.removeChild(reasoners_tabs.lastChild);
+        const reasoners_content = document.getElementById('reasoners-content');
+        while (reasoners_content.firstChild)
+            reasoners_content.removeChild(reasoners_content.lastChild);
 
         document.getElementById('listen-button').onclick = (event) => ws.send(JSON.stringify({ type: 'talk_to_me' }));
     };
@@ -223,7 +215,7 @@ function setup_ws() {
             case 'causal_link_added':
                 reasoners.get(c_msg.reasoner_id).causal_link_added(c_msg);
                 break;
-            case 'updated_timelines':
+            case 'state_changed':
                 reasoners.get(c_msg.reasoner_id).state_changed(c_msg);
                 break;
             case 'time_changed':
@@ -275,11 +267,6 @@ function create_reasoner(r_id) {
     reasoner.appendChild(graph_div);
 
     reasoners.set(r_id, new Reasoner(timelines_div, graph_div));
-}
-
-async function retrieve_state() {
-    const response = await fetch('http://' + gui_host + ':' + gui_port + '/state');
-    return await response.json();
 }
 
 function print_state() {

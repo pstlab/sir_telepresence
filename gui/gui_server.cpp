@@ -18,7 +18,7 @@ namespace sir
 #endif
                                                                                                      get_state(h.serviceClient<deliberative_tier::get_state>("get_state")),
                                                                                                      talk_to_me(h.serviceClient<std_srvs::Trigger>("talk_to_me")),
-                                                                                                     answer_question(h.serviceClient<deliberative_tier::task_service>("contextualized_speech")),
+                                                                                                     answer_question(h.serviceClient<deliberative_tier::task_service>("non_blocking_contextualized_speech")),
                                                                                                      deliberative_state_sub(h.subscribe("deliberative_state", 100, &gui_server::updated_deliberative_state, this)),
                                                                                                      timelines_sub(h.subscribe("timelines", 100, &gui_server::updated_timelines, this)),
                                                                                                      graph_sub(h.subscribe("graph", 100, &gui_server::updated_graph, this)),
@@ -76,47 +76,43 @@ namespace sir
                 res.add_header("Content-Type", mimeType);
             res.end(); });
 
-        CROW_ROUTE(app, "/state")
-        ([static_path, this]()
-         {
-            deliberative_tier::get_state get_state_msg;
-            get_state.call(get_state_msg);
-            std::vector<crow::json::wvalue> reasoners;
-            for (size_t i = 0; i < get_state_msg.response.graphs.size(); ++i)
-            {
-                const auto c_graph = get_state_msg.response.graphs.at(i);
-                std::vector<crow::json::wvalue> flaws;
-                for (const auto &f : c_graph.flaws)
-                    flaws.push_back(flaw_to_json(f));
-                std::vector<crow::json::wvalue> resolvers;
-                for (const auto &r : c_graph.resolvers)
-                    resolvers.push_back(resolver_to_json(r));
-                crow::json::wvalue graph({{"flaws", flaws}, {"resolvers", resolvers}, {"current_flaw", c_graph.flaw_id}, {"current_resolver", c_graph.resolver_id}});
-
-                const auto c_timelines = get_state_msg.response.timelines.at(i);
-                std::vector<crow::json::wvalue> tls;
-                for (const auto &tl : c_timelines.timelines)
-                    tls.push_back(crow::json::load(tl));
-                std::vector<crow::json::wvalue> exec;
-                for (const auto &atm_id : c_timelines.executing)
-                    exec.push_back(atm_id);
-
-                reasoners.push_back(crow::json::wvalue({{"reasoner_id", c_graph.reasoner_id}, {"graph", graph}, {"state", crow::json::load(c_timelines.state)}, {"timelines", std::move(tls)}, {"time", rational_to_json(c_timelines.time)}, {"executing", exec}}));
-            }
-            return crow::json::wvalue(reasoners); });
-
         CROW_ROUTE(app, "/solver")
             .websocket()
             .onopen([=](crow::websocket::connection &conn)
                     { std::lock_guard<std::mutex> _(mtx);
-                users.insert(&conn); })
+                users.insert(&conn);
+                
+                deliberative_tier::get_state get_state_msg;
+                get_state.call(get_state_msg);
+                for (size_t i = 0; i < get_state_msg.response.graphs.size(); ++i)
+                {
+                    const auto c_graph = get_state_msg.response.graphs.at(i);
+
+                    conn.send_text(crow::json::wvalue({{"type", "deliberative_state"}, {"reasoner_id", c_graph.reasoner_id}, {"state", deliberative_tier::deliberative_state::created}}).dump());
+
+                    const auto c_timelines = get_state_msg.response.timelines.at(i);
+                    std::vector<crow::json::wvalue> tls;
+                    for (const auto &tl : c_timelines.timelines)
+                        tls.push_back(crow::json::load(tl));
+                    std::vector<crow::json::wvalue> exec;
+                    for (const auto &atm_id : c_timelines.executing)
+                        exec.push_back(atm_id);
+                    conn.send_text(crow::json::wvalue({{"type", "state_changed"}, {"reasoner_id", c_graph.reasoner_id}, {"state", crow::json::load(c_timelines.state)}, {"timelines", std::move(tls)}, {"time", rational_to_json(c_timelines.time)}, {"executing", exec}}).dump());
+
+                    std::vector<crow::json::wvalue> flaws;
+                    for (const auto &f : c_graph.flaws)
+                        flaws.push_back(flaw_to_json(f));
+                    std::vector<crow::json::wvalue> resolvers;
+                    for (const auto &r : c_graph.resolvers)
+                        resolvers.push_back(resolver_to_json(r));
+                    conn.send_text(crow::json::wvalue({{"type", "graph_changed"}, {"reasoner_id", c_graph.reasoner_id}, {"flaws", flaws}, {"resolvers", resolvers}, {"current_flaw", c_graph.flaw_id}, {"current_resolver", c_graph.resolver_id}}).dump());
+                } })
             .onclose([=](crow::websocket::connection &conn, const std::string &reason)
                      { std::lock_guard<std::mutex> _(mtx);
                 users.erase(&conn); })
             .onmessage([&](crow::websocket::connection &conn, const std::string &data, bool is_binary)
                        { std::lock_guard<std::mutex> _(mtx); 
                          crow::json::rvalue r = crow::json::load(data);
-                         ROS_INFO("Received message: %s", crow::json::wvalue(r).dump().c_str());
                          if(r.has("type")) {
                              std::string m_type = r["type"].s();
                              if(m_type == "talk_to_me") {
@@ -127,7 +123,6 @@ namespace sir
                                 answer_question_msg.request.task.task_name = r["intent"].s();
                                 answer_question.call(answer_question_msg);
                              }
-                             ROS_INFO("Managed message..");
                          } });
     }
     gui_server::~gui_server() {}
@@ -257,7 +252,7 @@ namespace sir
             std::vector<crow::json::wvalue> exec;
             for (const auto &atm_id : msg.executing)
                 exec.push_back(atm_id);
-            crow::json::wvalue w({{"type", "updated_timelines"}, {"reasoner_id", msg.reasoner_id}, {"state", crow::json::load(msg.state)}, {"timelines", std::move(tls)}, {"time", rational_to_json(msg.time)}, {"executing", exec}});
+            crow::json::wvalue w({{"type", "state_changed"}, {"reasoner_id", msg.reasoner_id}, {"state", crow::json::load(msg.state)}, {"timelines", std::move(tls)}, {"time", rational_to_json(msg.time)}, {"executing", exec}});
             for (const auto &u : users)
                 u->send_text(w.dump());
             break;
