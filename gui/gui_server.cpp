@@ -29,15 +29,16 @@ namespace sir
         const std::string static_path = ros::package::getPath("robot_gui") + "/static/";
 
         CROW_ROUTE(app, "/")
-        ([&templates_path]()
+        ([templates_path]()
          {
             crow::mustache::context ctx;
             ctx["title"] = "SI-Robotics";
             crow::mustache::set_base(templates_path);
+            const auto test = crow::mustache::load("index.html").render(ctx);
             return crow::mustache::load("index.html").render(ctx); });
 
         CROW_ROUTE(app, "/static/<string>")
-        ([&static_path, this](crow::response &res, std::string path)
+        ([static_path](crow::response &res, std::string path)
          {
             std::ifstream ifl(static_path + path, std::ios_base::binary);
             std::stringstream buffer;
@@ -50,7 +51,7 @@ namespace sir
             res.end(); });
 
         CROW_ROUTE(app, "/static/faces/<string>")
-        ([&static_path, this](crow::response &res, std::string path)
+        ([static_path](crow::response &res, std::string path)
          {
             std::ifstream ifl(static_path + "faces/" + path, std::ios_base::binary);
             std::stringstream buffer;
@@ -63,7 +64,7 @@ namespace sir
             res.end(); });
 
         CROW_ROUTE(app, "/static/images/<string>")
-        ([&static_path, this](crow::response &res, std::string path)
+        ([static_path](crow::response &res, std::string path)
          {
             std::ifstream ifl(static_path + "images/" + path, std::ios_base::binary);
             std::stringstream buffer;
@@ -76,7 +77,7 @@ namespace sir
             res.end(); });
 
         CROW_ROUTE(app, "/state")
-        ([this]()
+        ([static_path, this]()
          {
             deliberative_tier::get_state get_state_msg;
             get_state.call(get_state_msg);
@@ -107,7 +108,7 @@ namespace sir
 
         CROW_ROUTE(app, "/solver")
             .websocket()
-            .onopen([&](crow::websocket::connection &conn)
+            .onopen([=](crow::websocket::connection &conn)
                     { std::lock_guard<std::mutex> _(mtx);
                 users.insert(&conn); });
     }
@@ -278,6 +279,7 @@ namespace sir
             crow::json::wvalue w({{"type", "updated_graph"}, {"flaws", flaws}, {"resolvers", resolvers}, {"current_flaw", msg.current_flaw}, {"current_resolver", msg.current_resolver}});
             for (const auto &u : users)
                 u->send_text(w.dump());
+            break;
         }
         case deliberative_tier::graph::flaw_created:
         {
@@ -285,30 +287,35 @@ namespace sir
             w["type"] = "flaw_created";
             for (const auto &u : users)
                 u->send_text(w.dump());
+            break;
         }
         case deliberative_tier::graph::flaw_state_changed:
         {
             crow::json::wvalue w({{"type", "flaw_state_changed"}, {"state", msg.flaws.at(0).state}});
             for (const auto &u : users)
                 u->send_text(w.dump());
+            break;
         }
         case deliberative_tier::graph::flaw_cost_changed:
         {
             crow::json::wvalue w({{"type", "flaw_cost_changed"}, {"cost", rational_to_json(msg.flaws.at(0).cost)}});
             for (const auto &u : users)
                 u->send_text(w.dump());
+            break;
         }
         case deliberative_tier::graph::flaw_position_changed:
         {
             crow::json::wvalue w({{"type", "flaw_position_changed"}, {"pos", position_to_json(msg.flaws.at(0).pos)}});
             for (const auto &u : users)
                 u->send_text(w.dump());
+            break;
         }
         case deliberative_tier::graph::current_flaw:
         {
             crow::json::wvalue w({{"type", "current_flaw"}, {"flaw_id", msg.flaw_id}});
             for (const auto &u : users)
                 u->send_text(w.dump());
+            break;
         }
         case deliberative_tier::graph::resolver_created:
         {
@@ -316,24 +323,28 @@ namespace sir
             w["type"] = "resolver_created";
             for (const auto &u : users)
                 u->send_text(w.dump());
+            break;
         }
         case deliberative_tier::graph::resolver_state_changed:
         {
             crow::json::wvalue w({{"type", "resolver_state_changed"}, {"state", msg.resolvers.at(0).state}});
             for (const auto &u : users)
                 u->send_text(w.dump());
+            break;
         }
         case deliberative_tier::graph::current_resolver:
         {
             crow::json::wvalue w({{"type", "current_resolver"}, {"resolver_id", msg.resolver_id}});
             for (const auto &u : users)
                 u->send_text(w.dump());
+            break;
         }
         case deliberative_tier::graph::causal_link_added:
         {
             crow::json::wvalue w({{"type", "causal_link_added"}, {"flaw_id", msg.flaw_id}, {"resolver_id", msg.resolver_id}});
             for (const auto &u : users)
                 u->send_text(w.dump());
+            break;
         }
         }
     }
