@@ -162,6 +162,7 @@ class dialogue_manager:
                 # we make the request..
                 rospy.logdebug(
                     'Generating responses for utterance "%s"..', stt.utterance)
+                self.parse_message(stt.utterance)
                 try:
                     resp_req = requests.post('http://' + host + ':' + port + '/webhooks/rest/webhook', params={
                         'include_events': 'NONE'}, json={'sender': user, 'message': stt.utterance})
@@ -299,7 +300,7 @@ class dialogue_manager:
             return TriggerResponse(False, 'Already having a dialogue..')
         else:
             # we set the current task..
-            self.current_task = task('start_interaction', [], [])
+            self.current_task = task(None, None, 'start_interaction', [], [])
             # we set the command state at executing..
             try:
                 r = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
@@ -530,6 +531,20 @@ class dialogue_manager:
             rospy.logerr('Speech to text configuration service call failed\n' +
                          ''.join(traceback.format_stack()))
         self.set_face(face_idle)
+
+    def parse_message(self, message):
+        try:
+            parse_req = requests.post('http://' + host + ':' + port +
+                                      '/model/parse', json={'text': message})
+            assert parse_req.status_code == requests.codes.ok
+        except requests.exceptions.RequestException as e:
+            rospy.logerr('Rasa server call failed\n' +
+                         ''.join(traceback.format_stack()))
+            raise SystemExit(e)
+
+        j_res = parse_req.json()
+        rospy.logdebug(
+            'Intent "%s" has been recognized with %f confidence..', j_res['intent']['name'], j_res['intent']['confidence'])
 
     def print_story(self):
         try:

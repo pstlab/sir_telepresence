@@ -294,9 +294,12 @@ def next_count_the_word(tracker: Tracker):
     words = tracker.get_slot('count_the_word_words').split('; ')
     assert len(word_sequences) == len(words)
 
+    print('Computing next count the word..')
     c_ws = word_sequences[0].split(', ')
     random.shuffle(c_ws)
     c_ws = ', '.join(c_ws)
+    print('Word sequence is: ' + c_ws)
+    print('Word is: ' + words[0])
     if len(word_sequences) > 1:
         return {'count_the_word_word_sequences': '; '.join(word_sequences[1:]),
                 'count_the_word_words': '; '.join(words[1:]),

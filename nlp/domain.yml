@@ -39,6 +39,8 @@ entities:
   - time
   - life_style
   - cognitive_exercise_type
+  - count_the_word_word_sequences
+  - count_the_word_words
   - physical_exercise_type
   - reminder_type
 
@@ -267,13 +269,17 @@ slots:
     influence_conversation: false
     initial_value: PALLA, PELLE, POLLO, PALLA; IMBACUCCATO, ACCUCCIATO, ASSONNATO, IMBACUCCATO
     mappings:
-      - type: custom
+      - type: from_entity
+        entity: count_the_word_word_sequences
+        intent: start_cognitive_exercise
   count_the_word_words:
     type: text
     influence_conversation: false
     initial_value: PALLA; IMBACUCCATO
     mappings:
-      - type: custom
+      - type: from_entity
+        entity: count_the_word_words
+        intent: start_cognitive_exercise
   count_the_word_word_sequence:
     type: text
     influence_conversation: false

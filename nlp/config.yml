@@ -14,7 +14,7 @@ pipeline:
     min_ngram: 1
     max_ngram: 4
   - name: DIETClassifier
-    epochs: 200
+    epochs: 300
     #tensorboard_log_directory: diet_classifier
   - name: "SpacyEntityExtractor"
     dimensions: ["PER", "LOC"]
