@@ -178,7 +178,7 @@ namespace sir
             res.success = start_dialogue_task.call(sr_srv);
         }
         else if (req.task.task_name == "BicepsCurl")
-        { // starts a count the biceps curl physical exercise with the user..
+        { // starts a biceps curl physical exercise with the user..
             deliberative_tier::task_service bc_srv;
             bc_srv.request.task.reasoner_id = req.task.reasoner_id;
             bc_srv.request.task.task_id = req.task.task_id;
