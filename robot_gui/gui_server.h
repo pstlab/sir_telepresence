@@ -11,7 +11,6 @@
 #include "dialogue_manager/video_to_play.h"
 #include "dialogue_manager/page_to_show.h"
 #include "dialogue_manager/question_to_ask.h"
-#include "dialogue_manager/toast_to_show.h"
 #include "dialogue_manager/utterance_to_pronounce.h"
 #include "dialogue_manager/utterance_to_recognize.h"
 #include "dialogue_manager/dialogue_state.h"
@@ -43,7 +42,6 @@ namespace sir
     bool play_video(dialogue_manager::video_to_play::Request &req, dialogue_manager::video_to_play::Response &res);
     bool show_page(dialogue_manager::page_to_show::Request &req, dialogue_manager::page_to_show::Response &res);
     bool ask_question(dialogue_manager::question_to_ask::Request &req, dialogue_manager::question_to_ask::Response &res);
-    bool show_toast(dialogue_manager::toast_to_show::Request &req, dialogue_manager::toast_to_show::Response &res);
 
 #ifdef SPEECH_API
     bool pronounce_utterance(dialogue_manager::utterance_to_pronounce::Request &req, dialogue_manager::utterance_to_pronounce::Response &res);
@@ -71,7 +69,6 @@ namespace sir
     ros::ServiceServer play_video_server;
     ros::ServiceServer show_page_server;
     ros::ServiceServer ask_question_server;
-    ros::ServiceServer show_toast_server;
     ros::ServiceClient get_state;
     ros::ServiceClient talk_to_me;
     ros::ServiceClient answer_question;

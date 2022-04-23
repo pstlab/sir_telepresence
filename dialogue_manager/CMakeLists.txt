@@ -23,7 +23,6 @@ add_service_files(
     page_to_show.srv
     question_to_ask.srv
     utterance_to_recognize.srv
-    toast_to_show.srv
     reminder_to_set.srv
 )
 

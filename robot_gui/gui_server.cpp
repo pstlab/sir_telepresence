@@ -11,7 +11,6 @@ namespace sir
                                                                                                      play_video_server(h.advertiseService("play_video", &gui_server::play_video, this)),
                                                                                                      show_page_server(h.advertiseService("show_page", &gui_server::show_page, this)),
                                                                                                      ask_question_server(h.advertiseService("ask_question", &gui_server::ask_question, this)),
-                                                                                                     show_toast_server(h.advertiseService("show_toast", &gui_server::show_toast, this)),
 #ifdef SPEECH_API
                                                                                                      pronounce_utterance_server(h.advertiseService("text_to_speech", &gui_server::pronounce_utterance, this)),
                                                                                                      recognize_utterance_server(h.advertiseService("speech_to_text", &gui_server::recognize_utterance, this)),
@@ -189,15 +188,6 @@ namespace sir
         for (const auto &button : req.buttons)
             buttons.push_back(crow::json::wvalue({{"text", button.text}, {"intent", button.intent}}));
         crow::json::wvalue w({{"type", "ask_question"}, {"facial_expression", req.facial_expression}, {"text", req.text}, {"buttons", std::move(buttons)}});
-        for (const auto &u : users)
-            u->send_text(w.dump());
-        res.success = !users.empty();
-        return true;
-    }
-    bool gui_server::show_toast(dialogue_manager::toast_to_show::Request &req, dialogue_manager::toast_to_show::Response &res)
-    {
-        std::lock_guard<std::mutex> _(mtx);
-        crow::json::wvalue w({{"type", "show_toast"}, {"text", req.text}});
         for (const auto &u : users)
             u->send_text(w.dump());
         res.success = !users.empty();

@@ -31,7 +31,7 @@ class dialogue_manager:
         self.actions_queue = []
         self.slots_updates_queue = []
         self.init_ros_services()
-        self.set_dialogue_state(dialogue_state.idle)
+        self.set_dialogue_state(dialogue_state.idle, '')
 
     def init_ros_services(self):
         # called by the deliberative tier..
@@ -148,12 +148,15 @@ class dialogue_manager:
                     stt = self.speech_to_text()
                     if stt.utterance == '':
                         rospy.logwarn('Recognized empty string..')
+                        self.set_dialogue_state(dialogue_state.recognized, '')
                         try:
                             stt_conf = self.configure_speech_to_text()
                         except rospy.ServiceException:
                             rospy.logerr('Speech to text configuration service call failed\n' +
                                          ''.join(traceback.format_stack()))
                     else:
+                        self.set_dialogue_state(
+                            dialogue_state.recognized, stt.utterance)
                         break
 
                 # we update the current perceived emotions..
@@ -353,25 +356,25 @@ class dialogue_manager:
                     self.show_image(
                         action['custom']['image']['src'], action['custom']['image']['alt'])
                 if 'audio' in action['custom']:
-                    self.set_dialogue_state(dialogue_state.waiting)
+                    self.set_dialogue_state(dialogue_state.waiting, '')
                     srcs = []
                     for src in action['custom']['audio']:
                         srcs.append(
                             audio(src['src'], src['type']))
                     self.play_audio(srcs)
                 if 'video' in action['custom']:
-                    self.set_dialogue_state(dialogue_state.waiting)
+                    self.set_dialogue_state(dialogue_state.waiting, '')
                     srcs = []
                     for src in action['custom']['video']:
                         srcs.append(
                             video(src['src'], src['type']))
                     self.play_video(srcs)
                 if 'page' in action['custom']:
-                    self.set_dialogue_state(dialogue_state.waiting)
+                    self.set_dialogue_state(dialogue_state.waiting, '')
                     self.show_page(
                         action['custom']['page']['src'], action['custom']['page']['title'])
                 if 'answers' in action['custom']:
-                    self.set_dialogue_state(dialogue_state.waiting)
+                    self.set_dialogue_state(dialogue_state.waiting, '')
                     btns = []
                     for btn in action['custom']['answers']:
                         btns.append(
@@ -380,10 +383,12 @@ class dialogue_manager:
                         action['custom']['face'], action['custom']['text'], btns)
                 if 'text' in action['custom']:
                     if not 'pronounce_text' in action['custom'] or action['custom']['pronounce_text']:
-                        self.set_dialogue_state(dialogue_state.speaking)
+                        self.set_dialogue_state(
+                            dialogue_state.speaking, action['custom']['text'])
                         self.text_to_speech(action['custom']['text'])
             else:
-                self.set_dialogue_state(dialogue_state.talking)
+                self.set_dialogue_state(
+                    dialogue_state.speaking, action['text'])
                 self.set_face(face_talking)
                 self.text_to_speech(action['text'])
 
@@ -464,15 +469,17 @@ class dialogue_manager:
             self.current_task = None
 
             # we notify the state change..
-            self.set_dialogue_state(dialogue_state.idle)
+            self.set_dialogue_state(dialogue_state.idle, '')
         elif self.state != dialogue_state.waiting:
             # we notify the state change..
-            self.set_dialogue_state(dialogue_state.listening)
+            self.set_dialogue_state(dialogue_state.listening, '')
 
-    def set_dialogue_state(self, state):
+    def set_dialogue_state(self, state, text):
         self.state = state
         # we notify the state change..
-        self.state_pub.publish(dialogue_state(state))
+        ds = dialogue_state(dialogue_state=state, text=text)
+        ds.header.stamp = rospy.Time.now()
+        self.state_pub.publish(ds)
         if state == dialogue_state.idle:
             self.set_face(face_idle)
         elif state == dialogue_state.configuring:
@@ -524,7 +531,7 @@ class dialogue_manager:
             raise SystemExit(e)
 
     def configure(self):
-        self.set_dialogue_state(dialogue_state.configuring)
+        self.set_dialogue_state(dialogue_state.configuring, '')
         try:
             stt_conf = self.configure_speech_to_text()
         except rospy.ServiceException:
