@@ -8,7 +8,7 @@ stories:
           - user_name: null
       - action: utter_presentation
       - action: utter_know_ourself
-      - action: utter_confirm
+      - action: utter_ask_start
       - intent: affirm
       - action: profile_form
       - active_loop: profile_form
@@ -26,7 +26,7 @@ stories:
           - user_location: null
       - action: utter_presentation
       - action: utter_know_ourself
-      - action: utter_confirm
+      - action: utter_ask_start
       - intent: affirm
       - action: profile_form
       - active_loop: profile_form
@@ -44,7 +44,7 @@ stories:
           - user_difficulty_express_feelings: null
       - action: utter_presentation
       - action: utter_know_ourself
-      - action: utter_confirm
+      - action: utter_ask_start
       - intent: affirm
       - action: profile_form
       - active_loop: profile_form
@@ -62,7 +62,7 @@ stories:
           - user_exciting_life: null
       - action: utter_presentation
       - action: utter_know_ourself
-      - action: utter_confirm
+      - action: utter_ask_start
       - intent: affirm
       - action: profile_form
       - active_loop: profile_form
@@ -93,7 +93,7 @@ stories:
           - user_name: null
       - action: utter_presentation
       - action: utter_know_ourself
-      - action: utter_confirm
+      - action: utter_ask_start
       - intent: affirm
       - action: profile_form
       - active_loop: profile_form
@@ -111,7 +111,7 @@ stories:
           - user_name: null
       - action: utter_presentation
       - action: utter_know_ourself
-      - action: utter_confirm
+      - action: utter_ask_start
       - intent: deny
       - action: action_command_failure
 
@@ -122,7 +122,7 @@ stories:
       - slot_was_set:
           - user_name: null
       - action: utter_know_ourself
-      - action: utter_confirm
+      - action: utter_ask_start
       - intent: affirm
       - action: profile_form
       - active_loop: profile_form
@@ -164,7 +164,7 @@ stories:
           - user_name: null
       - action: utter_functionalities
       - action: utter_know_ourself
-      - action: utter_confirm
+      - action: utter_ask_start
       - intent: affirm
       - action: profile_form
       - active_loop: profile_form
@@ -187,13 +187,13 @@ stories:
     steps:
       - intent: start_cognitive_exercise
       - action: utter_intro_cognitive_exercise
-      - action: utter_confirm
+      - action: utter_ask_start
       - intent: affirm
       - slot_was_set:
           - cognitive_exercise: count_the_word
       - action: action_init_count_the_word
       - action: utter_describe_count_the_word
-      - action: utter_confirm
+      - action: utter_ask_start
       - intent: affirm
       - action: utter_start_count_the_word
       - action: count_the_word_form
@@ -208,7 +208,7 @@ stories:
     steps:
       - intent: start_cognitive_exercise
       - action: utter_intro_cognitive_exercise
-      - action: utter_confirm
+      - action: utter_ask_start
       - intent: deny
       - action: action_command_failure
 
@@ -320,7 +320,7 @@ stories:
     steps:
       - intent: tell_reminder
       - action: utter_reminder
-      - action: utter_confirm
+      - action: utter_ask_confirm
       - intent: affirm
       - action: action_command_done
 
@@ -328,7 +328,7 @@ stories:
     steps:
       - intent: tell_reminder
       - action: utter_reminder
-      - action: utter_confirm
+      - action: utter_ask_confirm
       - intent: deny
       - action: action_command_failure
 

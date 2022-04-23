@@ -397,7 +397,15 @@ responses:
         text: Posso farti alcune domande per conoscerci un po'?
         face: talking
 
-  utter_confirm:
+  utter_ask_confirm:
+    - custom:
+        text: Ok?
+        face: talking
+    - custom:
+        text: Va bene?
+        face: talking
+
+  utter_ask_start:
     - custom:
         text: Ok?
         face: talking
