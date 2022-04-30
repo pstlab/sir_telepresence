@@ -14,7 +14,7 @@ from deliberative_tier.srv import task_service, task_serviceResponse, task_finis
 from persistence_manager.srv import get_state, set_state, set_stateRequest, set_stateResponse
 
 
-coherent = True
+#coherent = True
 # the common faces..
 face_idle = 'idle'
 face_talking = 'talking'
@@ -28,6 +28,9 @@ class dialogue_manager:
         self.slots = {}
         self.deliberative_task = False
         self.current_task = None
+
+        # set the coherent param 
+        self.coherent = rospy.get_param('coherent')
         self.actions_queue = []
         self.slots_updates_queue = []
         self.init_ros_services()
@@ -505,7 +508,7 @@ class dialogue_manager:
 
             rospy.loginfo('Initializing the dialogue engine..')
             intent_trg_req = requests.post('http://' + host + ':' + port + '/conversations/' + user + '/tracker/events', params={
-                'include_events': 'NONE'}, json={'event': 'slot', 'name': 'coherent', 'value': coherent, 'timestamp': time.time()})
+                'include_events': 'NONE'}, json={'event': 'slot', 'name': 'coherent', 'value': self.coherent, 'timestamp': time.time()})
             assert intent_trg_req.status_code == requests.codes.ok
 
             rospy.loginfo('Checking for existing profile..')
