@@ -5,5 +5,6 @@
     <node name="dialogue_manager" pkg="dialogue_manager" type="dialogue.py" output="screen">
         <rosparam param="host">localhost</rosparam>
         <rosparam param="port">5005</rosparam>
+        <rosparam param="coherent">True</rosparam>
     </node>
 </launch>
