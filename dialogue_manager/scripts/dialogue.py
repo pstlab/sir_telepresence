@@ -19,8 +19,7 @@ from persistence_manager.srv import get_state, set_state, set_stateRequest, set_
 face_idle = 'idle'
 face_talking = 'talking'
 face_listening = 'listening'
-
-
+ 
 class dialogue_manager:
 
     def __init__(self):
@@ -30,7 +29,7 @@ class dialogue_manager:
         self.current_task = None
 
         # set the coherent param 
-        self.coherent = rospy.get_param('coherent')
+        self.coherent = rospy.get_param('/dialogue_manager/coherent')
         self.actions_queue = []
         self.slots_updates_queue = []
         self.init_ros_services()
