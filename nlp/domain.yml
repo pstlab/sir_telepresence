@@ -679,7 +679,7 @@ responses:
           name: user_extraversion
           value: "introverted"
       custom:
-        text: Sai, io sono uno che parla molto, non mi accsucedeade mai di rimanere senza qualcosa da dire. Tu invece, resti mai senza parole?
+        text: Sai, io sono uno che parla molto, non mi sucedeade mai di rimanere senza qualcosa da dire. Tu invece, resti mai senza parole?
         face: talking
 
   utter_profile_gathered:

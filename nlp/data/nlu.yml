@@ -156,6 +156,12 @@ nlu:
       - forse [nove](number)
       - mi sembra [dieci](number)
       - [quattro](number) volte
+      - [2](number)
+      - [3](number)
+      - [4](number) volte
+      - [5](number) volte
+      - [6](number) volte
+      - [7](number)
       - credo di aver sentito [cinque](number) volte
 
   - intent: start_interaction
