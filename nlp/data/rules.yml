@@ -1,4 +1,4 @@
-version: "3.0"
+version: "3.1"
 
 rules:
   - rule: Ask the user to rephrase in case of low NLU confidence
@@ -72,8 +72,8 @@ rules:
 
   - rule: put down the weights
     steps:
-      - intent: tell_pull_down_the_weights
-      - action: utter_pull_down_the_weights
+      - intent: tell_put_down_the_weights
+      - action: utter_put_down_the_weights
       - action: action_command_done
 
   - rule: start physical exercise

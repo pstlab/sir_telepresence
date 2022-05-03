@@ -1,4 +1,4 @@
-version: "3.0"
+version: "3.1"
 
 intents:
   - greet
@@ -30,7 +30,7 @@ intents:
   - tell_describe_biceps_curl
   - tell_describe_biceps_curl2
   - tell_take_the_weights
-  - tell_pull_down_the_weights
+  - tell_put_down_the_weights
   - tell_physical_exercise_repetitions
   - tell_exercise_done
 

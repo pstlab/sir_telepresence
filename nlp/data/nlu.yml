@@ -1,4 +1,4 @@
-version: "3.0"
+version: "3.1"
 
 nlu:
   - intent: greet
@@ -184,6 +184,7 @@ nlu:
   - intent: tell_describe_biceps_curl
   - intent: tell_describe_biceps_curl2
   - intent: tell_take_the_weights
+  - intent: tell_put_down_the_weights
   - intent: tell_physical_exercise_repetitions
   - intent: tell_exercise_done
 

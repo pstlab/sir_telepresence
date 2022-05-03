@@ -1,4 +1,4 @@
-version: "3.0"
+version: "3.1"
 
 stories:
   - story: Say hello no name
@@ -238,8 +238,8 @@ stories:
 
   - story: Tell put down the weights
     steps:
-      - intent: tell_pull_down_the_weights
-      - action: utter_pull_down_the_weights
+      - intent: tell_put_down_the_weights
+      - action: utter_put_down_the_weights
       - action: action_command_done
 
   - story: Tell start physical exercise
