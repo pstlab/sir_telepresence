@@ -17,6 +17,12 @@ rules:
       - action: utter_see_you_later
       - action: action_command_done
 
+  - rule: Thank
+    steps:
+      - intent: thank
+      - action: utter_thank
+      - action: action_command_done
+
   - rule: profile form
     condition:
       - active_loop: profile_form
@@ -62,6 +68,12 @@ rules:
     steps:
       - intent: tell_take_the_weights
       - action: utter_take_the_weights
+      - action: action_command_done
+
+  - rule: put down the weights
+    steps:
+      - intent: tell_pull_down_the_weights
+      - action: utter_pull_down_the_weights
       - action: action_command_done
 
   - rule: start physical exercise

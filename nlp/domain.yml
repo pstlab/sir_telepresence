@@ -5,6 +5,7 @@ intents:
   - affirm
   - deny
   - uncertain
+  - thank
   - close_dialogue
   - tell_name
   - tell_location
@@ -29,6 +30,7 @@ intents:
   - tell_describe_biceps_curl
   - tell_describe_biceps_curl2
   - tell_take_the_weights
+  - tell_pull_down_the_weights
   - tell_physical_exercise_repetitions
   - tell_exercise_done
 
@@ -365,9 +367,6 @@ responses:
         text: Cosa posso fare per te?
         face: happy_talking
     - custom:
-        text: Ti serve qualcosa?
-        face: happy_talking
-    - custom:
         text: Di cosa hai bisogno?
         face: happy_talking
 
@@ -415,6 +414,20 @@ responses:
     - custom:
         text: Cominciamo?
         face: talking
+
+  utter_thank:
+    - custom:
+        text: Prego!
+        face: happy_talking
+    - custom:
+        text: Di nulla!
+        face: happy_talking
+    - custom:
+        text: È stato un piacere!
+        face: happy_talking
+    - custom:
+        text: Grazie a te {user_name}!
+        face: happy_talking
 
   utter_ask_user_name:
     - custom:
@@ -706,6 +719,9 @@ responses:
     - custom:
         text: Non preoccuparti {user_name}! Te lo ricorderò
         face: happy_talking
+    - custom:
+        text: Va bene {user_name}! Quando verrà il momento, te lo ricorderò
+        face: happy_talking
 
   utter_reminder:
     - condition:
@@ -815,6 +831,10 @@ responses:
           src: static/images/biceps_curl.gif
           alt: Esercizio Biceps Curl
   utter_take_the_weights:
+    - custom:
+        text: Prendi ora i pesetti alla tua destra.
+        face: talking
+  utter_put_down_the_weights:
     - custom:
         text: Prendi ora i pesetti alla tua destra.
         face: talking

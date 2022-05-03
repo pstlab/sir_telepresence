@@ -236,6 +236,12 @@ stories:
       - action: utter_take_the_weights
       - action: action_command_done
 
+  - story: Tell put down the weights
+    steps:
+      - intent: tell_pull_down_the_weights
+      - action: utter_pull_down_the_weights
+      - action: action_command_done
+
   - story: Tell start physical exercise
     steps:
       - intent: tell_start_physical_exercise
@@ -336,6 +342,12 @@ stories:
     steps:
       - intent: close_dialogue
       - action: utter_see_you_later
+      - action: action_command_done
+
+  - story: Thank
+    steps:
+      - intent: thank
+      - action: utter_thank
       - action: action_command_done
 
   - story: Wait for input

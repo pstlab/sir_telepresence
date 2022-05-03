@@ -44,6 +44,14 @@ nlu:
       - Chissà
       - Non lo so
 
+  - intent: thank
+    examples: |
+      - Grazie
+      - Grazie mille
+      - Grazie robot
+      - Grazie di tutto
+      - Ti ringrazio
+
   - intent: close_dialogue
     examples: |
       - Va bene così
