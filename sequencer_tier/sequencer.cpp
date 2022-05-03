@@ -229,8 +229,9 @@ namespace sir
     {
         deliberative_tier::new_requirement new_req;
         new_req.request.reasoner_id = default_reasoner;
-        new_req.request.requirement = "goal rem = new robot.dialogue.Reminder(reminder_type: \"" + req.reminder_type + "\");\n";
-        new_req.request.requirement += "rem.start >= " + std::to_string(timelines_times[default_reasoner] + req.waiting_time) + ";\n";
+        const std::string rem_name = "rem" + std::to_string(rand());
+        new_req.request.requirement = "goal " + rem_name + " = new robot.dialogue.Reminder(reminder_type: \"" + req.reminder_type + "\");\n";
+        new_req.request.requirement += rem_name + ".start >= " + std::to_string(timelines_times[default_reasoner] + req.waiting_time) + ";\n";
 
         res.success = new_requirement.call(new_req);
         return true;
