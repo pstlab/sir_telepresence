@@ -1,49 +1,6 @@
 const gui_host = 'localhost'
 const gui_port = '8080'
 
-var synth = window.speechSynthesis;
-var voice = null;
-
-if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = function () {
-        var voices = synth.getVoices();
-        for (i = 0; i < voices.length; i++) {
-            if (voices[i].name === 'Google italiano') {
-                voice = voices[i];
-                break;
-            }
-        }
-    };
-}
-
-var SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
-var recognition = new SpeechRecognition();
-recognition.continuous = true;
-recognition.lang = 'it-IT';
-recognition.interimResults = true;
-recognition.maxAlternatives = 1;
-recognition.start();
-recognition.onresult = function (event) {
-    for (var i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-            console.log('Final transcript: ' + event.results[i][0].transcript);
-            console.log('Final confidence: ' + event.results[i][0].confidence);
-
-            var utter = new SpeechSynthesisUtterance(event.results[i][0].transcript);
-            utter.onend = function (event) { console.log('SpeechSynthesisUtterance.onend'); }
-            utter.onerror = function (event) { console.error('SpeechSynthesisUtterance.onerror'); }
-            utter.voice = voice;
-            synth.speak(utter);
-        } else {
-            console.log('Interim transcript: ' + event.results[i][0].transcript);
-            console.log('Interim confidence: ' + event.results[i][0].confidence);
-        }
-    }
-}
-recognition.onspeechend = function () {
-    recognition.stop();
-}
-
 const state = {
     sequencer_state: null,
     deliberative_state: new Map(),
