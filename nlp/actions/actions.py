@@ -405,7 +405,7 @@ class ValidateReminderForm(FormValidationAction):
     ) -> Dict[Text, Any]:
         reminder_to_set_type = tracker.get_slot('reminder_to_set_type')
         print('reminder_to_set_type:' + reminder_to_set_type)
-        if reminder_to_set_type != 'take_medicines' or reminder_to_set_type != 'go_to_the_doctor':
+        if reminder_to_set_type != 'take_medicines' and reminder_to_set_type != 'go_to_the_doctor':
             print('cannot handle this reminder type..')
             return {'reminder_to_set_type': None}
         return {}

@@ -124,6 +124,12 @@ nlu:
 
   - intent: set_reminder
     examples: |
+      - Puoi ricordarmi una cosa?
+      - Mi ricordi, per favore, una cosa?
+      - Mi ricordi, per cortesia, una cosa?
+      - Aggiungi un reminder
+      - Imposta un reminder
+      - Puoi settarmi un reminder?
       - Ricordami, fra cinque minuti, di [prendere le pillole](reminder_type)
       - Ricordami di [prendere le medicine](reminder_type) fra cinque minuti
       - Ricordami, fra dieci minuti minuti, di [andare dal medico](reminder_type)
