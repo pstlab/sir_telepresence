@@ -838,9 +838,6 @@ responses:
     - custom:
         text: Ora puoi riporre i pesetti alla tua destra.
         face: talking
-    - custom:
-        text: È il momento di prendere I pesetti alla tua destra.
-        face: talking
   utter_physical_exercise_repetitions:
     - custom:
         text: "{physical_exercise_repetitions}"

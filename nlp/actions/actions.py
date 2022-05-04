@@ -387,6 +387,15 @@ class ValidateReminderForm(FormValidationAction):
     def name(self) -> Text:
         return 'validate_reminder_form'
 
+    def validate_reminder_to_set_time(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        return {}
+
     def validate_reminder_to_set_type(
         self,
         slot_value: Any,
@@ -394,11 +403,10 @@ class ValidateReminderForm(FormValidationAction):
         tracker: Tracker,
         domain: DomainDict,
     ) -> Dict[Text, Any]:
-        if tracker.get_slot('requested_slot') != 'reminder_to_set_type':
-            return {}
-
         reminder_to_set_type = tracker.get_slot('reminder_to_set_type')
+        print('reminder_to_set_type:' + reminder_to_set_type)
         if reminder_to_set_type != 'take_medicines' or reminder_to_set_type != 'go_to_the_doctor':
+            print('cannot handle this reminder type..')
             return {'reminder_to_set_type': None}
         return {}
 
