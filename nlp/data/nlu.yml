@@ -143,7 +143,9 @@ nlu:
   - intent: tell_reminder_type
     examples: |
       - Ricordami di [prendere le pillole](reminder_type)
+      - Ricordami di [prendere la pillola](reminder_type)
       - Ricordami di [prendere le medicine](reminder_type)
+      - Ricordami di [prendere la medicina](reminder_type)
       - Di [andare dal medico](reminder_type)
       - Di [andare dal dottore](reminder_type)
       - Ricordami di [andare dal medico](reminder_type)
@@ -200,9 +202,13 @@ nlu:
   - synonym: take_medicines
     examples: |
       - prendere le pillole
+      - prendere la pillola
       - prendere le medicine
+      - prendere la medicina
       - le pillole
+      - la pillola
       - le medicine
+      - la medicina
 
   - synonym: go_to_the_doctor
     examples: |

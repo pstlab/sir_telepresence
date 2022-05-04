@@ -383,6 +383,26 @@ class ValidateCountTheWordForm(FormValidationAction):
             return {'count_the_word_num_word': None}
 
 
+class ValidateReminderForm(FormValidationAction):
+    def name(self) -> Text:
+        return 'validate_reminder_form'
+
+    def validate_reminder_to_set_type(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        if tracker.get_slot('requested_slot') != 'reminder_to_set_type':
+            return {}
+
+        reminder_to_set_type = tracker.get_slot('reminder_to_set_type')
+        if reminder_to_set_type != 'take_medicines' or reminder_to_set_type != 'go_to_the_doctor':
+            return {'reminder_to_set_type': None}
+        return {}
+
+
 class ActionWeatherAnalysis(Action):
 
     def name(self) -> Text:

@@ -836,7 +836,7 @@ responses:
         face: talking
   utter_put_down_the_weights:
     - custom:
-        text: Prendi ora i pesetti alla tua destra.
+        text: Ora puoi riporre i pesetti alla tua destra.
         face: talking
     - custom:
         text: È il momento di prendere I pesetti alla tua destra.
@@ -930,6 +930,7 @@ actions:
   - action_analyze_profile
   - action_init_count_the_word
   - validate_count_the_word_form
+  - validate_reminder_form
   - action_command_start
   - action_command_done
   - action_command_failure
