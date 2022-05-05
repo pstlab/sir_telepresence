@@ -20,7 +20,7 @@ rules:
   - rule: Thank
     steps:
       - intent: thank
-      - action: utter_thank
+      - action: utter_welcome
       - action: action_command_done
 
   - rule: profile form

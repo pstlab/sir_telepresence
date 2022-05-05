@@ -44,7 +44,7 @@ nlu:
       - Chissà
       - Non lo so
 
-  - intent: thank
+  - intent: thankyou
     examples: |
       - Grazie
       - Grazie mille

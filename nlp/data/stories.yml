@@ -9,7 +9,9 @@ stories:
       - action: utter_presentation
       - action: utter_know_ourself
       - action: utter_ask_start
-      - intent: affirm
+      - or:
+        - intent: affirm
+        - intent: thankyou
       - action: profile_form
       - active_loop: profile_form
       - slot_was_set:
@@ -27,7 +29,9 @@ stories:
       - action: utter_presentation
       - action: utter_know_ourself
       - action: utter_ask_start
-      - intent: affirm
+      - or:
+        - intent: affirm
+        - intent: thankyou
       - action: profile_form
       - active_loop: profile_form
       - slot_was_set:
@@ -45,7 +49,9 @@ stories:
       - action: utter_presentation
       - action: utter_know_ourself
       - action: utter_ask_start
-      - intent: affirm
+      - or:
+        - intent: affirm
+        - intent: thankyou
       - action: profile_form
       - active_loop: profile_form
       - slot_was_set:
@@ -63,7 +69,9 @@ stories:
       - action: utter_presentation
       - action: utter_know_ourself
       - action: utter_ask_start
-      - intent: affirm
+      - or:
+        - intent: affirm
+        - intent: thankyou
       - action: profile_form
       - active_loop: profile_form
       - slot_was_set:
@@ -94,7 +102,9 @@ stories:
       - action: utter_presentation
       - action: utter_know_ourself
       - action: utter_ask_start
-      - intent: affirm
+      - or:
+        - intent: affirm
+        - intent: thankyou
       - action: profile_form
       - active_loop: profile_form
       - slot_was_set:
@@ -123,7 +133,9 @@ stories:
           - user_name: null
       - action: utter_know_ourself
       - action: utter_ask_start
-      - intent: affirm
+      - or:
+        - intent: affirm
+        - intent: thankyou
       - action: profile_form
       - active_loop: profile_form
       - slot_was_set:
@@ -165,7 +177,9 @@ stories:
       - action: utter_functionalities
       - action: utter_know_ourself
       - action: utter_ask_start
-      - intent: affirm
+      - or:
+        - intent: affirm
+        - intent: thankyou
       - action: profile_form
       - active_loop: profile_form
       - slot_was_set:
@@ -188,13 +202,17 @@ stories:
       - intent: start_cognitive_exercise
       - action: utter_intro_cognitive_exercise
       - action: utter_ask_start
-      - intent: affirm
+      - or:
+        - intent: affirm
+        - intent: thankyou
       - slot_was_set:
           - cognitive_exercise: count_the_word
       - action: action_init_count_the_word
       - action: utter_describe_count_the_word
       - action: utter_ask_start
-      - intent: affirm
+      - or:
+        - intent: affirm
+        - intent: thankyou
       - action: utter_start_count_the_word
       - action: count_the_word_form
       - active_loop: count_the_word_form
@@ -330,6 +348,15 @@ stories:
       - intent: affirm
       - action: action_command_done
 
+  - story: Send reminder with thanks
+    steps:
+      - intent: tell_reminder
+      - action: utter_reminder
+      - action: utter_ask_confirm
+      - intent: thankyou
+      - action: utter_welcome
+      - action: action_command_done
+
   - story: Send reminder negated
     steps:
       - intent: tell_reminder
@@ -346,8 +373,8 @@ stories:
 
   - story: Thank
     steps:
-      - intent: thank
-      - action: utter_thank
+      - intent: thankyou
+      - action: utter_welcome
       - action: action_command_done
 
   - story: Wait for input

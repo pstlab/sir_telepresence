@@ -5,7 +5,7 @@ intents:
   - affirm
   - deny
   - uncertain
-  - thank
+  - thankyou
   - close_dialogue
   - tell_name
   - tell_location
@@ -415,7 +415,7 @@ responses:
         text: Cominciamo?
         face: talking
 
-  utter_thank:
+  utter_welcome:
     - custom:
         text: Prego!
         face: happy_talking
@@ -423,10 +423,16 @@ responses:
         text: Di nulla!
         face: happy_talking
     - custom:
-        text: È stato un piacere!
+        text: Per me è un piaciere!
         face: happy_talking
     - custom:
-        text: Grazie a te {user_name}!
+        text: Per me è un piaciere esserti d'aiuto!
+        face: happy_talking
+    - custom:
+        text: Sono felice di aiutarti!
+        face: happy_talking
+    - custom:
+        text: Sono contento di poterti essere d'aiuto!
         face: happy_talking
 
   utter_ask_user_name:
