@@ -346,6 +346,7 @@ stories:
       - action: utter_reminder
       - action: utter_ask_confirm
       - intent: affirm
+      - action: utter_see_you_later
       - action: action_command_done
 
   - story: Send reminder with thanks
@@ -355,6 +356,7 @@ stories:
       - action: utter_ask_confirm
       - intent: thankyou
       - action: utter_welcome
+      - action: utter_see_you_later
       - action: action_command_done
 
   - story: Send reminder negated

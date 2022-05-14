@@ -52,6 +52,7 @@ nlu:
       - Grazie robot
       - Grazie di tutto
       - Ti ringrazio
+      - Ok grazie
 
   - intent: close_dialogue
     examples: |
