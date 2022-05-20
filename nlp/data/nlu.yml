@@ -133,11 +133,11 @@ nlu:
       - Aggiungi un reminder
       - Imposta un reminder
       - Puoi settarmi un reminder?
-      - Ricordami, fra cinque minuti, di [prendere le pillole](reminder_type)
-      - Ricordami di [prendere le medicine](reminder_type) fra cinque minuti
-      - Ricordami, fra dieci minuti minuti, di [andare dal medico](reminder_type)
-      - Ricordami di [andare dal dottore](reminder_type) fra dieci minuti minuti
-      - Ricordami di [andare dal medico](reminder_type) fra un quarto d'ora
+      - Ricordami, fra cinque minuti, di prendere le [pillole](reminder_type)
+      - Ricordami di prendere le [medicine](reminder_type) fra cinque minuti
+      - Ricordami, fra dieci minuti minuti, di andare dal [medico](reminder_type)
+      - Ricordami di andare dal [dottore](reminder_type) fra dieci minuti minuti
+      - Ricordami di andare dal [medico](reminder_type) fra un quarto d'ora
 
   - intent: tell_time
     examples: |
