@@ -53,6 +53,7 @@ nlu:
       - Grazie di tutto
       - Ti ringrazio
       - Ok grazie
+      - Va bene grazie
 
   - intent: close_dialogue
     examples: |
@@ -209,21 +210,16 @@ nlu:
 
   - synonym: take_medicines
     examples: |
-      - prendere le pillole
-      - prendere la pillola
-      - prendere le medicine
-      - prendere la medicina
-      - le pillole
-      - la pillola
-      - le medicine
-      - la medicina
+      - pillole
+      - pillola
+      - medicine
+      - medicina
 
   - synonym: go_to_the_doctor
     examples: |
-      - andare dal medico
-      - andare dal dottore
-      - il medico
-      - il dottore
+      - medico
+      - dottore
+      - specialista
 
   - synonym: count_the_word
     examples: |

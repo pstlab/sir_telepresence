@@ -16,6 +16,7 @@ pipeline:
   - name: DIETClassifier
     epochs: 300
     #tensorboard_log_directory: diet_classifier
+    #tensorboard_log_level: "epoch"
   - name: "SpacyEntityExtractor"
     dimensions: ["PER", "LOC"]
   - name: "DucklingEntityExtractor"
@@ -40,5 +41,6 @@ policies:
     epochs: 100
     constrain_similarities: true
     #tensorboard_log_directory: ted_policy
+    #tensorboard_log_level: "epoch"
   - name: UnexpecTEDIntentPolicy
     epochs: 100
