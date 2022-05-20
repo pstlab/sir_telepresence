@@ -82,6 +82,7 @@ nlu:
       - [Gloria](PER)
       - [Gabriella](PER)
       - [Rosa](PER)
+      - [Luca](PER)
 
   - intent: tell_location
     examples: |
