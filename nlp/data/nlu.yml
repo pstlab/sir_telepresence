@@ -83,6 +83,19 @@ nlu:
       - [Gabriella](PER)
       - [Rosa](PER)
       - [Luca](PER)
+      - [Paola](PER)
+      - [Marilena](PER)
+      - [Natale](PER)
+      - [Giuseppe](PER)
+      - [Franco](PER)
+      - [Damiano](PER)
+      - [Claudia](PER)
+      - [Max](PER)
+      - [Dennis](PER)
+      - [Fiorenza](PER)
+      - [Rossella](PER)
+      - [Susanna](PER)
+      - [Micol](PER)
 
   - intent: tell_location
     examples: |
