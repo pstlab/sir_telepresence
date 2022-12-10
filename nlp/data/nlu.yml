@@ -1,0 +1,253 @@
+version: "3.1"
+
+nlu:
+  - intent: greet
+    examples: |
+      - Ciao
+      - Salve
+      - Buongiorno
+      - Buonasera
+
+  - intent: affirm
+    examples: |
+      - Sì
+      - Ok
+      - Certamente
+      - Sicuro
+      - Sicuramente
+      - Va bene
+      - Molto bene
+      - Infatti
+      - Corretto
+      - Un po'
+      - A volte
+      - Mi sembra giusto
+      - Cominciamo
+
+  - intent: deny
+    examples: |
+      - No
+      - Mai
+      - Non credo
+      - Non proprio
+      - Non c'è modo
+      - Proprio no
+      - Certo che no
+      - Sicuramente no
+      - No davvero
+      - Raramente
+      - Per ora, non mi serve nulla!
+
+  - intent: uncertain
+    examples: |
+      - Forse
+      - Dipende
+      - Chissà
+      - Non lo so
+
+  - intent: thankyou
+    examples: |
+      - Grazie
+      - Grazie mille
+      - Grazie robot
+      - Grazie di tutto
+      - Ti ringrazio
+      - Ok grazie
+      - Va bene grazie
+
+  - intent: close_dialogue
+    examples: |
+      - Va bene così
+      - Non mi serve niente
+      - Non mi serve nient'altro
+      - Non ho bisogno di nulla
+
+  - intent: tell_name
+    examples: |
+      - Mi chiamo [Nome](PER)
+      - Mi chiamo [Gloria](PER)
+      - Mi chiamo [Cognome](PER)
+      - Mi chiamo [Soprannome](PER)
+      - Sono [Nome](PER)
+      - Sono [Francesca](PER)
+      - Sono [Cognome](PER)
+      - Sono [Soprannome](PER)
+      - Puoi chiamarmi [Nome](PER)
+      - Puoi chiamarmi [Cognome](PER)
+      - Puoi chiamarmi [Soprannome](PER)
+      - [Nome](PER)
+      - [Cognome](PER)
+      - [Riccardo](PER)
+      - [Francesca](PER)
+      - [Gloria](PER)
+      - [Gabriella](PER)
+      - [Rosa](PER)
+      - [Luca](PER)
+      - [Paola](PER)
+      - [Marilena](PER)
+      - [Natale](PER)
+      - [Giuseppe](PER)
+      - [Franco](PER)
+      - [Damiano](PER)
+      - [Claudia](PER)
+      - [Max](PER)
+      - [Dennis](PER)
+      - [Fiorenza](PER)
+      - [Rossella](PER)
+      - [Susanna](PER)
+      - [Micol](PER)
+
+  - intent: tell_location
+    examples: |
+      - Sono a [Roma](LOC)
+      - Sono di [Campoli Appennino](LOC)
+      - In questo momento mi trovo a [Castelfranco Veneto](LOC)
+      - Siamo a [Castelfranco](LOC)
+      - [Castelfranco](LOC)
+      - [Roma](LOC)
+      - [Sora](LOC)
+      - [Vedelago](LOC)
+      - Siamo a [Roma](LOC)
+      - Sono di [Vedelago](LOC)
+
+  - intent: ask_informations
+    examples: |
+      - Chi sei?
+      - Cosa sei?
+
+  - intent: ask_capabilities
+    examples: |
+      - Cosa sai fare?
+      - Quali sono le tue funzionalità?
+
+  - intent: start_profile_gathering
+    examples: |
+      - Voglio parlarti di me
+      - Voglio descriverti il mio profilo
+      - Voglio raccontarti di me
+      - Voglio raccontarti alcune cose di me
+      - Voglio descrivermi
+
+  - intent: tell_life_style
+    examples: |
+      - Ho una vita [noiosa](life_style)
+      - Ho una vita [eccitante](life_style)
+      - La mia vita è [noiosa](life_style)
+      - La mia vita è [ecitante](life_style)
+      - [noiosa](life_style)
+      - [eccitante](life_style)
+      - Probabilmente [noiosa](life_style)
+      - Sicuramente [eccitante](life_style)
+
+  - intent: set_reminder
+    examples: |
+      - Puoi ricordarmi una cosa?
+      - Mi ricordi, per favore, una cosa?
+      - Mi ricordi, per cortesia, una cosa?
+      - Aggiungi un reminder
+      - Imposta un reminder
+      - Puoi settarmi un reminder?
+      - Ricordami, fra cinque minuti, di prendere le [pillole](reminder_type)
+      - Ricordami di prendere le [medicine](reminder_type) fra cinque minuti
+      - Ricordami, fra dieci minuti minuti, di andare dal [medico](reminder_type)
+      - Ricordami di andare dal [dottore](reminder_type) fra dieci minuti minuti
+      - Ricordami di andare dal [medico](reminder_type) fra un quarto d'ora
+
+  - intent: tell_time
+    examples: |
+      - Fra cinque minuti
+      - Ricordamelo fra dieci minuti
+      - Fra due ore
+      - Fra un quarto d'ora
+      - Domani
+      - Dopodomani
+      - Ricordamelo domani
+
+  - intent: tell_reminder_type
+    examples: |
+      - Ricordami di [prendere le pillole](reminder_type)
+      - Ricordami di [prendere la pillola](reminder_type)
+      - Ricordami di [prendere le medicine](reminder_type)
+      - Ricordami di [prendere la medicina](reminder_type)
+      - Di [andare dal medico](reminder_type)
+      - Di [andare dal dottore](reminder_type)
+      - Ricordami di [andare dal medico](reminder_type)
+
+  - intent: start_cognitive_exercise
+    examples: |
+      - Cominciamo l'esercizio di [conta le parole](cognitive_exercise_type)
+      - Avvia l'esercizio [conta le parole](cognitive_exercise_type)
+      - Iniziamo l'esercizio [conta le parole](cognitive_exercise_type)
+      - Avviamo un esercizio [count_the_word](cognitive_exercise_type)
+      - Facciamo un esercizio di [conta le parole](cognitive_exercise_type)
+
+  - intent: tell_num_words
+    examples: |
+      - [una](number) volta
+      - [due](number)
+      - [tre](number)
+      - forse [nove](number)
+      - mi sembra [dieci](number)
+      - [quattro](number) volte
+      - [2](number)
+      - [3](number)
+      - [4](number) volte
+      - [5](number) volte
+      - [6](number) volte
+      - [7](number)
+      - credo di aver sentito [cinque](number) volte
+
+  - intent: start_interaction
+  - intent: tell_reminder
+  - intent: tell_wait
+  - intent: tell_positive_feedback
+  - intent: tell_positive_physical_exercise_feedback
+  - intent: tell_negative_feedback
+  - intent: tell_negative_physical_exercise_feedback
+  - intent: tell_intro_physical_exercise
+  - intent: tell_start_physical_exercise
+  - intent: tell_describe_biceps_curl
+  - intent: tell_describe_biceps_curl2
+  - intent: tell_take_the_weights
+  - intent: tell_put_down_the_weights
+  - intent: tell_physical_exercise_repetitions
+  - intent: tell_exercise_done
+
+  - synonym: boring
+    examples: |
+      - noiosa
+      - noioso
+
+  - synonym: exciting
+    examples: |
+      - eccitante
+
+  - synonym: take_medicines
+    examples: |
+      - pillole
+      - pillola
+      - medicine
+      - medicina
+
+  - synonym: go_to_the_doctor
+    examples: |
+      - medico
+      - dottore
+      - specialista
+
+  - synonym: count_the_word
+    examples: |
+      - conta le parole
+      - conta la parola
+
+  - synonym: biceps_curl
+    examples: |
+      - biceps curl
+
+  - synonym: shoulder_t
+    examples: |
+      - shoulder t
+
+  - synonym: front_shoulder_raise
+    examples: |
+      - front shoulder raise

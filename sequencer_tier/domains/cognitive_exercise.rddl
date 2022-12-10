@@ -1,0 +1,15 @@
+class CognitiveExerciseStateVariable : StateVariable {
+
+    OhmniRobot robot;
+
+    CognitiveExerciseStateVariable(OhmniRobot robot) : robot(robot) {}
+
+    predicate Idle() {
+        duration >= 20.0;
+    }
+
+    predicate CountTheWord(string count_the_word_word_sequences, string count_the_word_words) {
+        duration >= 20.0;
+        goal cp = new robot.dialogue.Busy(start: start, duration: duration, end: end);
+    }
+}

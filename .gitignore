@@ -1,11 +1,8 @@
 .vscode
-.classpath
-.project
-.settings
-.antlr
+.rasa
 build
-target
+__pycache__
 models
 results
-__pycache__
-dependency-reduced-pom.xml
+story_graph.dot
+utterance.mp3

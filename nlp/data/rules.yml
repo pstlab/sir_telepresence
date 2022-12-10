@@ -1,0 +1,143 @@
+version: "3.1"
+
+rules:
+  - rule: Ask the user to rephrase in case of low NLU confidence
+    steps:
+      - intent: nlu_fallback
+      - action: utter_please_rephrase
+
+  - rule: Start interaction
+    steps:
+      - intent: start_interaction
+      - action: utter_offer_help
+
+  - rule: Close dialogue
+    steps:
+      - intent: close_dialogue
+      - action: utter_see_you_later
+      - action: action_command_done
+
+  - rule: Thank
+    steps:
+      - intent: thank
+      - action: utter_welcome
+      - action: action_command_done
+
+  - rule: profile form
+    condition:
+      - active_loop: profile_form
+    steps:
+      - action: profile_form
+      - active_loop: null
+      - slot_was_set:
+          - requested_slot: null
+      - action: action_analyze_profile
+      - action: utter_profile_gathered
+      - action: action_command_done
+
+  - rule: count the word form
+    condition:
+      - active_loop: count_the_word_form
+    steps:
+      - action: count_the_word_form
+      - active_loop: null
+      - slot_was_set:
+          - requested_slot: null
+      - action: utter_exercise_done
+      - action: action_command_done
+
+  - rule: intro physical exercise
+    steps:
+      - intent: tell_intro_physical_exercise
+      - action: utter_intro_physical_exercise
+      - action: action_command_done
+
+  - rule: describe biceps curl
+    steps:
+      - intent: tell_describe_biceps_curl
+      - action: utter_describe_biceps_curl
+      - action: action_command_done
+
+  - rule: describe biceps curl2
+    steps:
+      - intent: tell_describe_biceps_curl2
+      - action: utter_describe_biceps_curl2
+      - action: action_command_done
+
+  - rule: take the weights
+    steps:
+      - intent: tell_take_the_weights
+      - action: utter_take_the_weights
+      - action: action_command_done
+
+  - rule: put down the weights
+    steps:
+      - intent: tell_put_down_the_weights
+      - action: utter_put_down_the_weights
+      - action: action_command_done
+
+  - rule: start physical exercise
+    steps:
+      - intent: tell_start_physical_exercise
+      - action: utter_start_physical_exercise
+      - action: action_command_done
+
+  - rule: physical exercise repetitions
+    steps:
+      - intent: tell_physical_exercise_repetitions
+      - action: utter_physical_exercise_repetitions
+      - action: action_command_done
+
+  - rule: positive feedback estro
+    condition:
+      - slot_was_set:
+          - user_extraversion: extroverted
+    steps:
+      - intent: tell_positive_feedback
+      - action: utter_positive_feedback_estro
+      - action: action_command_done
+
+  - rule: positive feedback intro
+    condition:
+      - slot_was_set:
+          - user_extraversion: introverted
+    steps:
+      - intent: tell_positive_feedback
+      - action: utter_positive_feedback_intro
+      - action: action_command_done
+
+  - rule: positive physical exercise feedback
+    steps:
+      - intent: tell_positive_physical_exercise_feedback
+      - action: utter_positive_physical_exercise_feedback
+      - action: action_command_done
+
+  - rule: negative feedback estro
+    condition:
+      - slot_was_set:
+          - user_extraversion: extroverted
+    steps:
+      - intent: tell_negative_feedback
+      - action: utter_negative_feedback_estro
+      - action: action_command_done
+
+  - rule: negative feedback intro
+    condition:
+      - slot_was_set:
+          - user_extraversion: introverted
+    steps:
+      - intent: tell_negative_feedback
+      - action: utter_negative_feedback_intro
+      - action: action_command_done
+
+  - rule: negative physical exercise feedback
+    steps:
+      - intent: tell_negative_physical_exercise_feedback
+      - action: utter_negative_physical_exercise_feedback
+      - action: action_command_done
+
+  - rule: exercise done
+    steps:
+      - intent: tell_exercise_done
+      - action: utter_exercise_done
+      - action: action_command_done

@@ -1,0 +1,19 @@
+predicate TestBloodPressureGathering() {
+    goal bpg = new robot.dialogue.Interacting(intent: "start_blood_pressure_gathering");
+}
+
+predicate TestBloodSaturationGathering() {
+    goal bpg = new robot.dialogue.Interacting(intent: "start_blood_saturation_gathering");
+}
+
+predicate TestBicepsCurlPhysicalExercise() {
+    goal bc = new robot.physical_exercise.BicepsCurl(repetitions: 10.0);
+}
+
+predicate TestEasyCountTheWordCognitiveExercise() {
+    goal ce = new robot.cognitive_exercise.CountTheWord(word_sequence: "MOLLA PELLE PALLA POLLO SOLE ALBERO RANA PALLA PINO PALLA PELATI PALLA BELLA ZOLLA", word: "PALLA");
+}
+
+predicate TestHardCountTheWordCognitiveExercise() {
+    goal ce = new robot.cognitive_exercise.CountTheWord(word_sequence: "IMBACUCCATO ACCUCCIATO ASSONNATO IMPACCIATO IMBACUCCATO IMBAMBOLATO IMBACUCCATO IMPICCATO INSTRADATO IMBACUCCATO IMBRANATO IMBACUCCATO ANNOIATO", word: "IMBACUCCATO");
+}

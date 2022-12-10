@@ -1,0 +1,70 @@
+class PhysicalExerciseStateVariable : StateVariable {
+
+    OhmniRobot robot;
+
+    PhysicalExerciseStateVariable(OhmniRobot robot) : robot(robot) {}
+
+    predicate Idle() {
+        duration >= 20.0;
+    }
+
+    predicate ChestPress() {
+        duration >= 20.0;
+        goal idle = new Idle(end:start);
+        goal cp = new robot.dialogue.Busy(start: start, duration: duration, end: end);
+    }
+
+    predicate UprightRow() {
+        duration >= 20.0;
+        goal idle = new Idle(end:start);
+        goal cs = new robot.dialogue.Busy(start: start, duration: duration, end: end);
+    }
+
+    predicate FrontShoulderRaise() {
+        duration >= 20.0;
+        goal idle = new Idle(end:start);
+        goal cp = new robot.dialogue.Busy(start: start, duration: duration, end: end);
+    }
+
+    predicate BicepsCurl(real repetitions, real interval_between_repetitions, real num_repetitions_before_feedback) {
+        duration >= 20.0;
+        goal idle = new Idle(end:start);
+        goal cp = new robot.dialogue.Busy(start: start, duration: duration, end: end);
+    }
+
+    predicate StandingCalfRaises() {
+        duration >= 20.0;
+        goal idle = new Idle(end:start);
+        goal scr = new robot.dialogue.Busy(start: start, duration: duration, end: end);
+    }
+
+    predicate ChairSquats() {
+        duration >= 20.0;
+        goal idle = new Idle(end:start);
+        goal cs = new robot.dialogue.Busy(start: start, duration: duration, end: end);
+    }
+}
+
+predicate UpperBodyPhysicalExercise() {
+    {
+        goal cp = new robot.physical_exercise.ChestPress();
+    } or 
+    {
+        goal ur = new robot.physical_exercise.UprightRow();
+    } or 
+    {
+        goal fsr = new robot.physical_exercise.FrontShoulderRaise();
+    } or 
+    {
+        goal bc = new robot.physical_exercise.BicepsCurl();
+    }
+}
+
+predicate LowerBodyPhysicalExercise() {
+    {
+        goal scr = new robot.physical_exercise.StandingCalfRaises();
+    } or 
+    {
+        goal cs = new robot.physical_exercise.ChairSquats();
+    }
+}

@@ -1,0 +1,8 @@
+predicate GatherProfile() : Interval {
+    goal pg = new robot.dialogue.Interacting(intent: "start_profile_gathering", start: start, duration: duration, end: end);
+}
+
+predicate Configure() : Interval {
+    goal pg = new GatherProfile();
+    pg.start >= start; pg.end <= end;
+}

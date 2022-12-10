@@ -1,0 +1,8 @@
+<launch>
+    <node name="home_automation" pkg="home_automation" type="home.py" output="screen">
+        <rosparam param="mqtt_host">150.146.65.22</rosparam>
+        <rosparam param="mqtt_port">1883</rosparam>
+        <rosparam param="mqtt_username">data</rosparam>
+        <rosparam param="mqtt_password">h8^J3@</rosparam>
+    </node>
+</launch>

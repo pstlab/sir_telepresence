@@ -1,0 +1,21 @@
+<launch>
+
+    <arg name="on_the_robot" default="false" />
+    <node name="sequencer_tier" pkg="sequencer_tier" type="sequencer_tier" output="screen">
+        <rosparam param="domain_files">["domains/configure.rddl", "domains/physical_exercise.rddl", "domains/cognitive_exercise.rddl", "domains/ohmni.rddl"]</rosparam>
+        <rosparam param="notify_start">["DialogueStateVariable.Interacting", "DialogueStateVariable.Reminder", "PhysicalExerciseStateVariable.BicepsCurl", "CognitiveExerciseStateVariable.CountTheWord"]</rosparam>
+        <rosparam param="config_goal">goal cnf = new Configure();</rosparam>
+        <rosparam param="running_goal">goal kh = new KeepHealthy();</rosparam>
+    </node>
+    <node name="deliberative_tier" pkg="deliberative_tier" type="deliberative_tier" output="screen" />
+    <node name="persistence_manager" pkg="persistence_manager" type="storage.py" output="screen" />
+    <node name="robot_gui" pkg="robot_gui" type="robot_gui" output="screen">
+        <rosparam param="gui_host">127.0.0.1</rosparam>
+        <rosparam param="gui_port">8080</rosparam>
+    </node>
+
+    <!-- Dialogue service to run on the robot -->
+    <include unless="$(arg on_the_robot)" file="$(find dialogue_manager)/launch/dialogue_services.launch"></include>
+
+    <param name="user" type="string" value="42" />
+</launch>

@@ -1,0 +1,31 @@
+class DialogueStateVariable : StateVariable {
+
+    predicate Busy() {
+    }
+
+    predicate Interacting(string intent) {
+        duration >= 5.0;
+    }
+
+    predicate Reminder(string reminder_type) {
+        duration >= 5.0;
+    }
+}
+
+class OhmniRobot {
+
+    DialogueStateVariable dialogue;
+    PhysicalExerciseStateVariable physical_exercise;
+    CognitiveExerciseStateVariable cognitive_exercise;
+
+    OhmniRobot() : dialogue(new DialogueStateVariable()), physical_exercise(new PhysicalExerciseStateVariable(this)), cognitive_exercise(new CognitiveExerciseStateVariable(this)) {}
+}
+
+predicate KeepHealthy() {
+    goal cp = new robot.physical_exercise.BicepsCurl(repetitions:10.0, interval_between_repetitions:2.0, num_repetitions_before_feedback:3.0);
+    goal wait_cp = new robot.dialogue.Interacting(intent:"tell_wait", end:cp.start);
+    goal cw = new robot.cognitive_exercise.CountTheWord(count_the_word_word_sequences:"MOLLA, PELLE, PALLA, POLLO, SOLE, ALBERO, RANA, PALLA, PINO, PALLA, PELATI, PALLA, BELLA, ZOLLA; IMBACUCCATO, ACCUCCIATO, ASSONNATO, IMPACCIATO, IMBACUCCATO, IMBAMBOLATO, IMBACUCCATO, IMPICCATO, INSTRADATO, IMBACUCCATO, IMBRANATO, IMBACUCCATO, ANNOIATO", count_the_word_words:"PALLA; IMBACUCCATO");
+    goal wait_cw = new robot.dialogue.Interacting(intent:"tell_wait", end:cw.start);
+}
+
+OhmniRobot robot = new OhmniRobot();

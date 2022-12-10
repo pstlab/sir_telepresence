@@ -1,0 +1,943 @@
+version: "3.1"
+
+intents:
+  - greet
+  - affirm
+  - deny
+  - uncertain
+  - thankyou
+  - close_dialogue
+  - tell_name
+  - tell_location
+  - ask_informations
+  - ask_capabilities
+  - start_profile_gathering
+  - tell_life_style
+  - set_reminder
+  - tell_time
+  - tell_reminder_type
+  - tell_reminder
+  - tell_wait
+  - start_cognitive_exercise
+  - start_interaction
+  - tell_num_words
+  - tell_positive_feedback
+  - tell_positive_physical_exercise_feedback
+  - tell_negative_feedback
+  - tell_negative_physical_exercise_feedback
+  - tell_intro_physical_exercise
+  - tell_start_physical_exercise
+  - tell_describe_biceps_curl
+  - tell_describe_biceps_curl2
+  - tell_take_the_weights
+  - tell_put_down_the_weights
+  - tell_physical_exercise_repetitions
+  - tell_exercise_done
+
+entities:
+  - PER
+  - LOC
+  - number
+  - time
+  - life_style
+  - cognitive_exercise_type
+  - count_the_word_word_sequences
+  - count_the_word_words
+  - physical_exercise_type
+  - reminder_type
+
+slots:
+  coherent:
+    type: bool
+    influence_conversation: true
+    initial_value: true
+    mappings:
+      - type: custom
+  assistant_name:
+    type: text
+    influence_conversation: false
+    initial_value: Gloria
+    mappings:
+      - type: custom
+  user_name:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: PER
+        intent: tell_name
+  user_location:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: LOC
+        intent: tell_location
+  user_gender:
+    type: categorical
+    influence_conversation: false
+    values:
+      - male
+      - female
+    mappings:
+      - type: custom
+  user_difficulty_express_feelings:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: from_intent
+        value: true
+        intent: affirm
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_difficulty_express_feelings
+      - type: from_intent
+        value: false
+        intent: deny
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_difficulty_express_feelings
+      - type: from_intent
+        value: false
+        intent: uncertain
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_difficulty_express_feelings
+  user_exciting_life:
+    type: categorical
+    influence_conversation: false
+    values:
+      - boring
+      - exciting
+    mappings:
+      - type: from_entity
+        entity: life_style
+        intent: tell_life_style
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_exciting_life
+      - type: from_intent
+        value: exciting
+        intent: uncertain
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_exciting_life
+  user_unease_unknown_people:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: from_intent
+        value: true
+        intent: affirm
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_unease_unknown_people
+      - type: from_intent
+        value: false
+        intent: deny
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_unease_unknown_people
+      - type: from_intent
+        value: false
+        intent: uncertain
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_unease_unknown_people
+  user_unease_attention:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: from_intent
+        value: true
+        intent: affirm
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_unease_attention
+      - type: from_intent
+        value: false
+        intent: deny
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_unease_attention
+      - type: from_intent
+        value: false
+        intent: uncertain
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_unease_attention
+  user_talks_lot:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: from_intent
+        value: true
+        intent: affirm
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_talks_lot
+      - type: from_intent
+        value: false
+        intent: deny
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_talks_lot
+      - type: from_intent
+        value: false
+        intent: uncertain
+        conditions:
+          - active_loop: profile_form
+            requested_slot: user_talks_lot
+  user_extraversion:
+    type: categorical
+    influence_conversation: true
+    values:
+      - extroverted
+      - neutral
+      - introverted
+    initial_value: neutral
+    mappings:
+      - type: custom
+
+  reminder_to_set_time:
+    type: any
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: time
+        intent: set_reminder
+  reminder_to_set_type:
+    type: categorical
+    influence_conversation: false
+    values:
+      - take_medicines
+      - go_to_the_doctor
+    mappings:
+      - type: from_entity
+        entity: reminder_type
+        intent: set_reminder
+  reminder_type:
+    type: categorical
+    influence_conversation: false
+    values:
+      - take_medicines
+      - go_to_the_doctor
+    mappings:
+      - type: from_entity
+        entity: reminder_type
+        intent: tell_reminder
+
+  cognitive_exercise:
+    type: categorical
+    influence_conversation: false
+    values:
+      - count_the_word
+    mappings:
+      - type: from_entity
+        entity: cognitive_exercise_type
+        intent: start_cognitive_exercise
+  physical_exercise:
+    type: categorical
+    influence_conversation: false
+    values:
+      - biceps_curl
+      - shoulder_t
+      - front_shoulder_raise
+    mappings:
+      - type: from_entity
+        entity: physical_exercise_type
+        intent: tell_start_physical_exercise
+
+  physical_exercise_repetitions:
+    type: float
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: number
+        intent: tell_physical_exercise_repetitions
+  missing_physical_exercise_repetitions:
+    type: float
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: number
+        intent: tell_positive_physical_exercise_feedback
+      - type: from_entity
+        entity: number
+        intent: tell_negative_physical_exercise_feedback
+
+  count_the_word_word_sequences:
+    type: text
+    influence_conversation: false
+    initial_value: PALLA, PELLE, POLLO, PALLA; IMBACUCCATO, ACCUCCIATO, ASSONNATO, IMBACUCCATO
+    mappings:
+      - type: from_entity
+        entity: count_the_word_word_sequences
+        intent: start_cognitive_exercise
+  count_the_word_words:
+    type: text
+    influence_conversation: false
+    initial_value: PALLA; IMBACUCCATO
+    mappings:
+      - type: from_entity
+        entity: count_the_word_words
+        intent: start_cognitive_exercise
+  count_the_word_word_sequence:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+  count_the_word_word:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+  count_the_word_num_word:
+    type: float
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: number
+        intent: tell_num_words
+        conditions:
+          - active_loop: count_the_word_form
+            requested_slot: count_the_word_num_word
+
+  command_state:
+    type: categorical
+    influence_conversation: false
+    values:
+      - executing
+      - done
+      - failure
+    mappings:
+      - type: custom
+
+forms:
+  profile_form:
+    ignored_intents:
+      - affirm
+    required_slots:
+      - user_name
+      - user_location
+      - user_difficulty_express_feelings
+      - user_exciting_life
+      - user_unease_unknown_people
+      - user_unease_attention
+      - user_talks_lot
+  count_the_word_form:
+    required_slots:
+      - count_the_word_num_word
+  reminder_form:
+    required_slots:
+      - reminder_to_set_time
+      - reminder_to_set_type
+
+responses:
+  utter_greet:
+    - custom:
+        text: Ciao!
+        face: happy_talking
+    - custom:
+        text: Hey!
+        face: happy_talking
+    - custom:
+        text: Salve!
+        face: happy_talking
+    - custom:
+        text: Buongiorno!
+        face: happy_talking
+
+  utter_greet_name:
+    - custom:
+        text: Ciao {user_name}!
+        face: happy_talking
+    - custom:
+        text: Hey {user_name}!
+        face: happy_talking
+    - custom:
+        text: Buongiorno {user_name}!
+        face: happy_talking
+
+  utter_offer_help:
+    - custom:
+        text: Come posso aiutarti?
+        face: happy_talking
+    - custom:
+        text: Cosa posso fare per te?
+        face: happy_talking
+    - custom:
+        text: Di cosa hai bisogno?
+        face: happy_talking
+
+  utter_see_you_later:
+    - custom:
+        text: Ci sentiamo dopo.
+        face: happy_talking
+    - custom:
+        text: A dopo.
+        face: happy_talking
+    - custom:
+        text: A presto.
+        face: happy_talking
+
+  utter_presentation:
+    - custom:
+        text: Io sono Ohmni, sono un robot di assistenza.
+        face: talking
+
+  utter_functionalities:
+    - custom:
+        text: Sono qui per mostrarti le mie funzionalità!
+        face: talking
+
+  utter_know_ourself:
+    - custom:
+        text: Posso farti alcune domande per conoscerci un po'?
+        face: talking
+
+  utter_ask_confirm:
+    - custom:
+        text: Ok?
+        face: talking
+    - custom:
+        text: Va bene?
+        face: talking
+
+  utter_ask_start:
+    - custom:
+        text: Ok?
+        face: talking
+    - custom:
+        text: Va bene?
+        face: talking
+    - custom:
+        text: Cominciamo?
+        face: talking
+
+  utter_welcome:
+    - custom:
+        text: Prego!
+        face: happy_talking
+    - custom:
+        text: Di nulla!
+        face: happy_talking
+    - custom:
+        text: Per me è un piaciere!
+        face: happy_talking
+    - custom:
+        text: Per me è un piaciere esserti d'aiuto!
+        face: happy_talking
+    - custom:
+        text: Sono felice di aiutarti!
+        face: happy_talking
+    - custom:
+        text: Sono contento di poterti essere d'aiuto!
+        face: happy_talking
+
+  utter_ask_user_name:
+    - custom:
+        text: Come ti chiami?
+        face: talking
+    - custom:
+        text: Come posso chiamarti?
+        face: talking
+    - custom:
+        text: Quale è il tuo nome?
+        face: talking
+
+  utter_ask_user_location:
+    - custom:
+        text: "{user_name}, dove ci troviamo in questo momento?"
+        face: talking
+    - custom:
+        text: "{user_name}, dove siamo ora?"
+        face: talking
+    - custom:
+        text: "{user_name}, in che città ci troviamo ora?"
+        face: talking
+
+  utter_location_comment:
+    - custom:
+        text: Ah, conosco {user_location}. Ci sono stato da piccolo.
+        face: happy_talking
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "male"
+      custom:
+        text: Lo sapevo! Era per vedere se eri attento!
+        face: happy_talking
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "female"
+      custom:
+        text: Lo sapevo! Era per vedere se eri attenta!
+        face: happy_talking
+
+  utter_location_comment_continuation:
+    - custom:
+        text: Ho delle curiosità su di te.
+        face: happy_talking
+
+  utter_nice_to_meet:
+    - custom:
+        text: Ciao {user_name}! Piacere di conoscerti!
+        face: happy_talking
+    - custom:
+        text: Piacere di conoscerti {user_name}!
+        face: happy_talking
+
+  utter_ask_questions:
+    - custom:
+        text: Posso farti alcune domande?
+        face: talking
+
+  utter_start:
+    - custom:
+        text: Bene, cominciamo!
+        face: talking
+
+  utter_positive_feedback_intro:
+    - custom:
+        text: Continua così!
+        face: happy_talking
+    - custom:
+        text: Molto bene!
+        face: happy_talking
+    - custom:
+        text: OK!
+        face: happy_talking
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "male"
+      custom:
+        text: Bravo!
+        face: happy_talking
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "female"
+      custom:
+        text: Brava!
+        face: happy_talking
+  utter_positive_feedback_estro:
+    - custom:
+        text: Vai alla grande!
+        face: happy_talking
+    - custom:
+        text: Stai andando forte!
+        face: happy_talking
+    - custom:
+        text: Stai facendo l'esercizio molto bene!
+        face: happy_talking
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "male"
+      custom:
+        text: Bravissimo!
+        face: happy_talking
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "female"
+      custom:
+        text: Bravissima!
+        face: happy_talking
+
+  utter_negative_feedback_intro:
+    - custom:
+        text: Uhm, non proprio... ma non ti scoraggiare {user_name}! Stai comunque andando bene.
+        face: sad_talking
+    - custom:
+        text: Non esattamente {user_name}, ma ci siamo quasi!
+        face: sad_talking
+  utter_negative_feedback_estro:
+    - custom:
+        text: No no!
+        face: sad_talking
+    - custom:
+        text: Ma cosa stai facendo {user_name}? No no!
+        face: sad_talking
+    - custom:
+        text: Non così {user_name}!
+        face: sad_talking
+
+  utter_more_precise_answer:
+    - custom:
+        text: Lo so che è difficile dare una risposta secca, ma pensa a quello che ti accade più frequentemente
+        face: happy_talking
+
+  utter_ask_user_difficulty_express_feelings:
+    - custom:
+        text: In genere, sei una persona che ha difficoltà ad esprimere i propri sentimenti?
+        face: talking
+
+  utter_express_feelings_yes_comment_intro:
+    - custom:
+        text: Anch'io spesso ho difficoltà ad aprirmi agli altri. Chissà, magari insieme riusciremo a superare questo scoglio!
+        face: talking
+  utter_express_feelings_yes_comment_estro:
+    - custom:
+        text: Davvero? Io invece sono un libro aperto, appena ho qualcosa mi si legge in faccia
+        face: talking
+  utter_express_feelings_no_comment_intro:
+    - custom:
+        text: Davvero? Io invece non riesco mai ad aprirmi agli altri... Magari con te sarà diverso...
+        face: talking
+  utter_express_feelings_no_comment_estro:
+    - custom:
+        text: Buono a sapersi, anch'io in genere non ho problemi ad aprirmi con gli altri. Questa è una buona cosa, potremo diventare l'uno il confidente dell'altro!
+        face: talking
+
+  utter_ask_user_exciting_life:
+    - custom:
+        text: Come descriveresti la tua vita? La considereresti una vita più noiosa o eccitante?
+        face: talking
+
+  utter_exciting_life_exciting_comment_intro:
+    - custom:
+        text: Oh che invidia... Io invece ho una vita monotona, non mi succede mai niente... Magari un giorno mi racconterai qualcosa di bello che hai fatto!
+        face: talking
+  utter_exciting_life_exciting_comment_estro:
+    - custom:
+        text: Anch'io nella mia breve vita ho fatto un sacco di cose bellissime! Magari un giorno ti racconto quella volta in cui ero ancora tablet e il mio creatore mi ha portato a fare un safari in Africa!
+        face: talking
+  utter_exciting_life_boring_comment_intro:
+    - custom:
+        text: Sai, anch'io ho una vita parecchio monotona. Ma mi va bene così. Non sopporto gli imprevisti!
+        face: talking
+  utter_exciting_life_boring_comment_estro:
+    - custom:
+        text: Davvero? Io invece nella mia breve vita ho fatto un sacco di cose bellissime! Magari un giorno ti racconto quella volta in cui ero ancora tablet e il mio creatore mi ha portato a fare un safari in Africa!
+        face: talking
+
+  utter_ask_user_unease_unknown_people:
+    - custom:
+        text: Ti piacerebbe se un giorno organizzassimo una festa a casa? Potremmo fare degli inviti aperti anche agli amici degli amici! Ti sentiresti a disagio a stare in mezzo a persone che non conosci?
+        face: talking
+
+  utter_unknown_people_yes_comment_intro:
+    - custom:
+        text: Per fortuna! Scampato pericolo per me! Sono troppo timido, in questa situazione io mi sentirei troppo a disagio!
+        face: talking
+  utter_unknown_people_yes_comment_estro:
+    - custom:
+        text: Peccato! Io invece amo le grandi feste proprio perché ho la possibilità di conoscere gente nuova! Vorrà dire che troverò un altro modo per farlo.
+        face: talking
+  utter_unknown_people_no_comment_intro:
+    - custom:
+        text: Ecco, vedi? In questa situazione io invece mi sentirei a disagio. Sono troppo timido!
+        face: talking
+  utter_unknown_people_no_comment_estro:
+    - custom:
+        text: Che Meraviglia! Allora anche tu adori conoscere gente nuova! Andremo sicuramente d'accordo!
+        face: talking
+
+  utter_ask_user_unease_attention:
+    - custom:
+        text: Ti crea disagio avere l'attenzione delle persone addosso?
+        face: talking
+
+  utter_unease_attention_yes_comment_intro:
+    - custom:
+        text: Ti capisco, succede spesso anche a me!
+        face: talking
+  utter_unease_attention_yes_comment_estro:
+    - custom:
+        text: Davvero? Io invece amo essere al centro dell'attenzione!
+        face: talking
+  utter_unease_attention_no_comment_intro:
+    - custom:
+        text: Oh, io invece non amo proprio essere al centro dell'attenzione!
+        face: talking
+  utter_unease_attention_no_comment_estro:
+    - custom:
+        text: Oh, anch'io amo essere al centro dell'attenzione!
+        face: talking
+
+  utter_ask_user_talks_lot:
+    - condition:
+        - type: slot
+          name: coherent
+          value: true
+        - type: slot
+          name: user_extraversion
+          value: "extroverted"
+      custom:
+        text: Sai, io sono uno che parla molto, non mi sucede mai di rimanere senza qualcosa da dire. Tu invece, resti mai senza parole?
+        face: talking
+    - condition:
+        - type: slot
+          name: coherent
+          value: true
+        - type: slot
+          name: user_extraversion
+          value: "introverted"
+      custom:
+        text: Sai, a volte mi accade di non avere argomenti di cui parlare, non so cosa dire alle persone. Succede anche a te?
+        face: talking
+    - condition:
+        - type: slot
+          name: coherent
+          value: false
+        - type: slot
+          name: user_extraversion
+          value: "extroverted"
+      custom:
+        text: Sai, a volte mi accade di non avere argomenti di cui parlare, non so cosa dire alle persone. Succede anche a te?
+        face: talking
+    - condition:
+        - type: slot
+          name: coherent
+          value: false
+        - type: slot
+          name: user_extraversion
+          value: "introverted"
+      custom:
+        text: Sai, io sono uno che parla molto, non mi sucedeade mai di rimanere senza qualcosa da dire. Tu invece, resti mai senza parole?
+        face: talking
+
+  utter_profile_gathered:
+    - custom:
+        text: Molto bene {user_name}. Ora so tutto quello di cui avevo bisogno.
+        face: talking
+    - custom:
+        text: Molto bene {user_name}. Ora conosco tutto quello di cui avevo bisogno.
+        face: talking
+    - custom:
+        text: Molto bene {user_name}. Ora posso personalizzare la mia interazione con te sulla base delle informazioni che mi hai dato.
+        face: talking
+
+  utter_ask_reminder_to_set_time:
+    - custom:
+        text: Quando vuoi che te lo ricordi?
+        face: talking
+  utter_ask_reminder_to_set_type:
+    - custom:
+        text: Cosa vuoi che ti ricordi?
+        face: talking
+
+  utter_reminder_set_confirmation:
+    - custom:
+        text: Non preoccuparti {user_name}! Te lo ricorderò
+        face: happy_talking
+    - custom:
+        text: Va bene {user_name}! Quando verrà il momento, te lo ricorderò
+        face: happy_talking
+
+  utter_reminder:
+    - condition:
+        - type: slot
+          name: reminder_type
+          value: "take_medicines"
+      custom:
+        text: Ciao {user_name}! Ti ricordo che devi prendere le tue medicine!
+        face: happy_talking
+    - condition:
+        - type: slot
+          name: reminder_type
+          value: "go_to_the_doctor"
+      custom:
+        text: Ciao {user_name}! Ti ricordo che devi andare dal medico!
+        face: happy_talking
+
+  utter_wait:
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "male"
+      custom:
+        text: Bene {user_name}! Abbiamo finito con questo servizio. Adesso per favore compila i questionari che ti darà {assistant_name}. Poi fammi sapere quando sei pronto per andare avanti!
+        face: happy
+        pronounce_text: false
+        answers:
+          - text: Sono pronto! Andiamo avanti.
+            intent: affirm
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "female"
+      custom:
+        text: Bene {user_name}! Abbiamo finito con questo servizio. Adesso per favore compila i questionari che ti darà {assistant_name}. Poi fammi sapere quando sei pronta per andare avanti!
+        face: happy
+        pronounce_text: false
+        answers:
+          - text: Sono pronta! Andiamo avanti.
+            intent: affirm
+
+  utter_intro_cognitive_exercise:
+    - custom:
+        text: Ciao {user_name}! Cominceremo ora la nostra sessione giornaliera di esercizi cognitivi! Oggi ti proporrò alcuni giochi.
+        face: talking
+
+  utter_describe_count_the_word:
+    - custom:
+        text: Ora ti dirò una lista di parole. Alla fine, mi dirai quante volte ho detto la parola {count_the_word_word}.
+        face: talking
+    - custom:
+        text: Ora, ti dirò una lista di parole. Alla fine vorrei che mi dicessi quante volte ho detto la parola {count_the_word_word}.
+        face: talking
+    - custom:
+        text: Adesso ti elencherò una serie di parole. Fai attenzione, perchè alla fine dovrai dirmi quante volte ho detto la parola {count_the_word_word}.
+        face: talking
+  utter_start_count_the_word:
+    - custom:
+        text: Andiamo! {count_the_word_word_sequence}.
+        face: talking
+    - custom:
+        text: Cominciamo! {count_the_word_word_sequence}.
+        face: talking
+    - custom:
+        text: "Le parole sono: {count_the_word_word_sequence}."
+        face: talking
+  utter_try_again_count_the_word:
+    - custom:
+        text: "Riproviamo: {count_the_word_word_sequence}."
+        face: talking
+    - custom:
+        text: "Ancora una volta: {count_the_word_word_sequence}."
+        face: talking
+  utter_ask_count_the_word_num_word:
+    - custom:
+        text: Quante volte ho detto la parola {count_the_word_word}?
+        face: talking
+    - custom:
+        text: Quante volte è stata detta la parola {count_the_word_word}?
+        face: talking
+  utter_count_the_word_more_challenging:
+    - custom:
+        text: Proviamo con un'altra serie di parole, un po' più difficili!
+        face: talking
+    - custom:
+        text: Proviamo con un'altra serie di parole, un po' più impegnative!
+        face: talking
+
+  utter_intro_physical_exercise:
+    - custom:
+        text: Ciao {user_name}! Ora mi trasformerò nel tuo allenatore!
+        face: talking
+    - custom:
+        text: "{user_name}! Ora faremo un po' di allenamento!"
+        face: talking
+
+  utter_describe_biceps_curl:
+    - custom:
+        text: Oggi alleniamo le braccia e facciamo alcune flessioni sollevando dei pesetti. Dovrai eseguire il semplice esercizio fisico che ti mostro sul mio tablet ora.
+        image:
+          src: static/images/biceps_curl.gif
+          alt: Esercizio Biceps Curl
+  utter_describe_biceps_curl2:
+    - custom:
+        text: Mi raccomando di distendere bene le braccia! Io sarò qui con te, e conterò il numero di flessioni che hai svolto correttamente.
+        image:
+          src: static/images/biceps_curl.gif
+          alt: Esercizio Biceps Curl
+  utter_take_the_weights:
+    - custom:
+        text: Prendi ora i pesetti alla tua destra.
+        face: talking
+  utter_put_down_the_weights:
+    - custom:
+        text: Ora puoi riporre i pesetti alla tua destra.
+        face: talking
+  utter_physical_exercise_repetitions:
+    - custom:
+        text: "{physical_exercise_repetitions}"
+        face: talking
+
+  utter_positive_physical_exercise_feedback:
+    - custom:
+        text: Stai andando bene, meno "{missing_physical_exercise_repetitions}" ripetizioni
+        face: talking
+  utter_negative_physical_exercise_feedback:
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "male"
+      custom:
+        text: Sei stanco, dai che mancano "{missing_physical_exercise_repetitions}" ripetizioni
+        face: talking
+    - condition:
+        - type: slot
+          name: user_gender
+          value: "female"
+      custom:
+        text: Sei stanca, dai che mancano "{missing_physical_exercise_repetitions}" ripetizioni
+        face: talking
+
+  utter_start_physical_exercise:
+    - custom:
+        text: Ora iniziamo l'esercizio.
+        face: talking
+    - custom:
+        text: Cominciamo l'esercizio.
+        face: talking
+
+  utter_exercise_done:
+    - custom:
+        text: "Bene {user_name}, l'esercizio è terminato."
+        face: happy_talking
+    - custom:
+        text: "Complimenti {user_name}, hai terminato l'esercizio."
+        face: happy_talking
+    - custom:
+        text: "Ben fatto {user_name}, hai finito l'esercizio."
+        face: happy_talking
+
+  utter_temperature:
+    - custom:
+        text: La temperatura attuale è di {temperature} gradi centigradi
+        face: talking
+    - custom:
+        text: L'attuale temperatura è di {temperature} gradi centigradi
+        face: talking
+    - custom:
+        text: La temperatura corrente è di {temperature} gradi centigradi
+        face: talking
+    - custom:
+        text: La temperatura è di {temperature} gradi centigradi
+        face: talking
+  utter_humidity:
+    - custom:
+        text: L'umidità attuale è del {humidity}%
+        face: talking
+    - custom:
+        text: L'umidità corrente è del {humidity}%
+        face: talking
+    - custom:
+        text: L'attuale umidità è del {humidity}%
+        face: talking
+    - custom:
+        text: L'umidità è del {humidity}%
+        face: talking
+
+  utter_please_rephrase:
+    - custom:
+        text: Mi spiace, non ho capito cosa hai detto. Puoi provare a dirlo in un altro modo?
+        face: sad_talking
+    - custom:
+        text: Mi spiace, non ho capito cosa hai detto. Puoi provare a rifrasare?
+        face: sad_talking
+
+  utter_default:
+    - custom:
+        text: Mi spiace, non mi aspettavo mi parlassi di questo ora. Puoi provare a chiedermi un'altra cosa?
+        face: sad_talking
+
+actions:
+  - validate_profile_form
+  - action_analyze_profile
+  - action_init_count_the_word
+  - validate_count_the_word_form
+  - validate_reminder_form
+  - action_command_start
+  - action_command_done
+  - action_command_failure
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

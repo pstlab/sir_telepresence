@@ -1,0 +1,387 @@
+version: "3.1"
+
+stories:
+  - story: Say hello no name
+    steps:
+      - intent: greet
+      - slot_was_set:
+          - user_name: null
+      - action: utter_presentation
+      - action: utter_know_ourself
+      - action: utter_ask_start
+      - or:
+        - intent: affirm
+        - intent: thankyou
+      - action: profile_form
+      - active_loop: profile_form
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: action_analyze_profile
+      - action: utter_profile_gathered
+      - action: action_command_done
+
+  - story: Say hello no location
+    steps:
+      - intent: greet
+      - slot_was_set:
+          - user_location: null
+      - action: utter_presentation
+      - action: utter_know_ourself
+      - action: utter_ask_start
+      - or:
+        - intent: affirm
+        - intent: thankyou
+      - action: profile_form
+      - active_loop: profile_form
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: action_analyze_profile
+      - action: utter_profile_gathered
+      - action: action_command_done
+
+  - story: Say hello no difficulty express feelings
+    steps:
+      - intent: greet
+      - slot_was_set:
+          - user_difficulty_express_feelings: null
+      - action: utter_presentation
+      - action: utter_know_ourself
+      - action: utter_ask_start
+      - or:
+        - intent: affirm
+        - intent: thankyou
+      - action: profile_form
+      - active_loop: profile_form
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: action_analyze_profile
+      - action: utter_profile_gathered
+      - action: action_command_done
+
+  - story: Say hello no exciting life
+    steps:
+      - intent: greet
+      - slot_was_set:
+          - user_exciting_life: null
+      - action: utter_presentation
+      - action: utter_know_ourself
+      - action: utter_ask_start
+      - or:
+        - intent: affirm
+        - intent: thankyou
+      - action: profile_form
+      - active_loop: profile_form
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: action_analyze_profile
+      - action: utter_profile_gathered
+      - action: action_command_done
+
+  - story: Say hello with name
+    steps:
+      - intent: greet
+      - slot_was_set:
+          - user_name
+      - action: utter_greet_name
+      - action: utter_offer_help
+
+  - story: Ask who you are
+    steps:
+      - intent: ask_informations
+      - action: utter_presentation
+
+  - story: Start profile gathering
+    steps:
+      - intent: start_profile_gathering
+      - slot_was_set:
+          - user_name: null
+      - action: utter_presentation
+      - action: utter_know_ourself
+      - action: utter_ask_start
+      - or:
+        - intent: affirm
+        - intent: thankyou
+      - action: profile_form
+      - active_loop: profile_form
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: action_analyze_profile
+      - action: utter_profile_gathered
+      - action: action_command_done
+
+  - story: Start profile gathering negated
+    steps:
+      - intent: start_profile_gathering
+      - slot_was_set:
+          - user_name: null
+      - action: utter_presentation
+      - action: utter_know_ourself
+      - action: utter_ask_start
+      - intent: deny
+      - action: action_command_failure
+
+  - story: Start profile gathering 2
+    steps:
+      - intent: ask_capabilities
+      - action: utter_functionalities
+      - slot_was_set:
+          - user_name: null
+      - action: utter_know_ourself
+      - action: utter_ask_start
+      - or:
+        - intent: affirm
+        - intent: thankyou
+      - action: profile_form
+      - active_loop: profile_form
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: action_analyze_profile
+      - action: utter_profile_gathered
+      - action: action_command_done
+
+  - story: Start profile gathering done
+    steps:
+      - intent: start_profile_gathering
+      - slot_was_set:
+          - user_name
+      - slot_was_set:
+          - user_location
+      - slot_was_set:
+          - user_difficulty_express_feelings
+      - slot_was_set:
+          - user_exciting_life
+      - slot_was_set:
+          - user_unease_unknown_people
+      - slot_was_set:
+          - user_unease_attention
+      - slot_was_set:
+          - user_talks_lot
+      - action: action_analyze_profile
+      - action: utter_profile_gathered
+      - action: action_command_done
+
+  - story: interactive_story_1
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - action: utter_offer_help
+      - intent: ask_capabilities
+      - slot_was_set:
+          - user_name: null
+      - action: utter_functionalities
+      - action: utter_know_ourself
+      - action: utter_ask_start
+      - or:
+        - intent: affirm
+        - intent: thankyou
+      - action: profile_form
+      - active_loop: profile_form
+      - slot_was_set:
+          - requested_slot: user_name
+      - slot_was_set:
+          - user_name: Riccardo
+      - slot_was_set:
+          - user_extraversion: extroverted
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: action_analyze_profile
+      - slot_was_set:
+          - user_extraversion: extroverted
+      - action: utter_profile_gathered
+      - action: action_command_done
+
+  - story: Start count the word cognitive exercise
+    steps:
+      - intent: start_cognitive_exercise
+      - action: utter_intro_cognitive_exercise
+      - action: utter_ask_start
+      - or:
+        - intent: affirm
+        - intent: thankyou
+      - slot_was_set:
+          - cognitive_exercise: count_the_word
+      - action: action_init_count_the_word
+      - action: utter_describe_count_the_word
+      - action: utter_ask_start
+      - or:
+        - intent: affirm
+        - intent: thankyou
+      - action: utter_start_count_the_word
+      - action: count_the_word_form
+      - active_loop: count_the_word_form
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: utter_exercise_done
+      - action: action_command_done
+
+  - story: Start count the word cognitive exercise negated
+    steps:
+      - intent: start_cognitive_exercise
+      - action: utter_intro_cognitive_exercise
+      - action: utter_ask_start
+      - intent: deny
+      - action: action_command_failure
+
+  - story: Tell intro physical exercise
+    steps:
+      - intent: tell_intro_physical_exercise
+      - action: utter_intro_physical_exercise
+      - action: action_command_done
+
+  - story: Tell describe biceps curl
+    steps:
+      - intent: tell_describe_biceps_curl
+      - action: utter_describe_biceps_curl
+      - action: action_command_done
+
+  - story: Tell describe biceps curl2
+    steps:
+      - intent: tell_describe_biceps_curl2
+      - action: utter_describe_biceps_curl2
+      - action: action_command_done
+
+  - story: Tell take the weights
+    steps:
+      - intent: tell_take_the_weights
+      - action: utter_take_the_weights
+      - action: action_command_done
+
+  - story: Tell put down the weights
+    steps:
+      - intent: tell_put_down_the_weights
+      - action: utter_put_down_the_weights
+      - action: action_command_done
+
+  - story: Tell start physical exercise
+    steps:
+      - intent: tell_start_physical_exercise
+      - action: utter_start_physical_exercise
+      - action: action_command_done
+
+  - story: Tell physical exercise repetitions
+    steps:
+      - intent: tell_physical_exercise_repetitions
+      - action: utter_physical_exercise_repetitions
+      - action: action_command_done
+
+  - story: Tell positive feedback estro
+    steps:
+      - slot_was_set:
+          - user_extraversion: extroverted
+      - intent: tell_positive_feedback
+      - action: utter_positive_feedback_estro
+      - action: action_command_done
+
+  - story: Tell positive feedback intro
+    steps:
+      - slot_was_set:
+          - user_extraversion: introverted
+      - intent: tell_positive_feedback
+      - action: utter_positive_feedback_intro
+      - action: action_command_done
+
+  - story: Tell positive physical exercise feedback
+    steps:
+      - intent: tell_positive_physical_exercise_feedback
+      - action: utter_positive_physical_exercise_feedback
+      - action: action_command_done
+
+  - story: Tell negative feedback estro
+    steps:
+      - intent: tell_negative_feedback
+      - slot_was_set:
+          - user_extraversion: extroverted
+      - action: utter_negative_feedback_estro
+      - action: action_command_done
+
+  - story: Tell negative feedback intro
+    steps:
+      - intent: tell_negative_feedback
+      - slot_was_set:
+          - user_extraversion: introverted
+      - action: utter_negative_feedback_intro
+      - action: action_command_done
+
+  - story: Tell negative physical exercise feedback
+    steps:
+      - intent: tell_negative_physical_exercise_feedback
+      - action: utter_negative_physical_exercise_feedback
+      - action: action_command_done
+
+  - story: Tell exercise done
+    steps:
+      - intent: tell_exercise_done
+      - action: utter_exercise_done
+      - action: action_command_done
+
+  - story: Start interaction
+    steps:
+      - intent: start_interaction
+      - action: utter_offer_help
+
+  - story: Create reminder
+    steps:
+      - intent: start_interaction
+      - action: utter_offer_help
+      - intent: set_reminder
+      - action: reminder_form
+      - active_loop: reminder_form
+      - slot_was_set:
+          - requested_slot: null
+      - active_loop: null
+      - action: utter_reminder_set_confirmation
+      - action: action_command_done
+
+  - story: Send reminder
+    steps:
+      - intent: tell_reminder
+      - action: utter_reminder
+      - action: utter_ask_confirm
+      - intent: affirm
+      - action: utter_see_you_later
+      - action: action_command_done
+
+  - story: Send reminder with thanks
+    steps:
+      - intent: tell_reminder
+      - action: utter_reminder
+      - action: utter_ask_confirm
+      - intent: thankyou
+      - action: utter_welcome
+      - action: utter_see_you_later
+      - action: action_command_done
+
+  - story: Send reminder negated
+    steps:
+      - intent: tell_reminder
+      - action: utter_reminder
+      - action: utter_ask_confirm
+      - intent: deny
+      - action: action_command_failure
+
+  - story: Close dialogue
+    steps:
+      - intent: close_dialogue
+      - action: utter_see_you_later
+      - action: action_command_done
+
+  - story: Thank
+    steps:
+      - intent: thankyou
+      - action: utter_welcome
+      - action: action_command_done
+
+  - story: Wait for input
+    steps:
+      - intent: tell_wait
+      - action: utter_wait
+      - intent: affirm
+      - action: action_command_done

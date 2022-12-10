@@ -1,0 +1,18 @@
+<launch>
+
+    <arg name="on_the_robot" default="false" />
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+    <node name="sequencer_tier" pkg="sequencer_tier" type="sequencer_tier" output="screen">
+        <rosparam param="domain_files">["domains/configure.rddl", "domains/physical_exercise.rddl", "domains/cognitive_exercise.rddl", "domains/ohmni.rddl", "domains/test.rddl"]</rosparam>
+        <rosparam param="notify_start">["DialogueStateVariable.Interacting", "CognitiveExerciseStateVariable.CountTheWord"]</rosparam>
+        <rosparam param="config_goal">goal cnf = new TestHardCountTheWordCognitiveExercise();</rosparam>
+        <rosparam param="running_goal"></rosparam>
+    </node>
+    <node name="deliberative_tier" pkg="deliberative_tier" type="deliberative_tier" output="screen" />
+
+    <!-- Dialogue service to run on the robot -->
+    <include unless="$(arg on_the_robot)" file="$(find dialogue_manager)/launch/dialogue_services.launch">
+    </include>
+
+    <param name="user" type="string" value="42" />
+</launch>
